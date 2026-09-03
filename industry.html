@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JOBLEX - Industry Portal | Talent Pipeline & Skill Demands</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-[#05050a] text-white min-h-screen flex flex-col font-sans relative overflow-x-hidden">
+
+  <!-- 3D Starfield Background -->
+  <div id="three-canvas-container"></div>
+
+  <!-- Top Sticky Header -->
+  <header class="sticky top-0 z-40 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 border-b border-gray-800 bg-[#080814]/95 backdrop-blur-md shrink-0">
+    <a href="index.html" class="flex items-center gap-2.5">
+      <div class="w-2.5 h-7 bg-blue-500 rounded-sm shadow-[0_0_10px_#3b82f6]"></div>
+      <div>
+        <span class="text-xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300 uppercase block">
+          JOBLEX
+        </span>
+        <span class="text-[9px] text-gray-400 block tracking-widest uppercase font-semibold">
+          Industry Recruitment & R&D Portal
+        </span>
+      </div>
+    </a>
+
+    <div class="flex items-center gap-3">
+      <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-xl bg-gray-900 border border-blue-500/30 text-xs">
+        <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+        <span class="text-gray-300">Rajesh Malhotra (Dabur R&D)</span>
+      </div>
+      <a href="auth.html" class="text-xs px-3 py-1.5 rounded-xl bg-purple-900/30 border border-purple-500/40 text-purple-300 font-bold transition">
+        Switch
+      </a>
+      <a href="index.html" class="text-xs px-3 py-1.5 rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 font-medium transition">
+        Hub ↵
+      </a>
+    </div>
+  </header>
+
+  <!-- Sub-Header Tabs -->
+  <div class="bg-[#0a0a16] border-b border-gray-800 px-4 sm:px-8 flex overflow-x-auto no-scrollbar gap-6 pt-3">
+    <button data-tab="Candidates" onclick="switchIndustryTab('Candidates')" class="industry-nav-tab pb-2 text-xs sm:text-sm font-bold border-b-2 border-blue-500 text-blue-300 transition whitespace-nowrap">
+      🎯 Pre-Screened Talent Discovery
+    </button>
+    <button data-tab="Post" onclick="switchIndustryTab('Post')" class="industry-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
+      📢 Post Opportunity / Grants
+    </button>
+    <button data-tab="Demand" onclick="switchIndustryTab('Demand')" class="industry-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
+      💡 Submit Industry Skill Demands
+    </button>
+    <button data-tab="MoUs" onclick="switchIndustryTab('MoUs')" class="industry-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
+      📜 Active Academic MoUs
+    </button>
+  </div>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6 relative z-10">
+
+    <!-- TAB 1: PRE-SCREENED CANDIDATE DISCOVERY -->
+    <section id="industry-tab-Candidates" class="industry-tab-content space-y-5">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div>
+          <h3 class="text-xl font-bold text-white">Pre-Screened Talent Matches</h3>
+          <p class="text-xs text-gray-400">Scholars with faculty-verified credentials from All India Institute of Ayurveda and national institutions.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-blue-300 font-bold px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/30">
+            Filtered by: Dabur Formulation MoU
+          </span>
+        </div>
+      </div>
+
+      <div id="candidates-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Rendered by js/industry.js -->
+      </div>
+    </section>
+
+    <!-- TAB 2: POST OPPORTUNITY FORM -->
+    <section id="industry-tab-Post" class="industry-tab-content hidden space-y-5">
+      <div class="max-w-2xl mx-auto p-6 sm:p-8 rounded-3xl bg-gray-900/80 border border-blue-500/30 backdrop-blur-xl shadow-xl space-y-5">
+        <h3 class="text-xl font-bold text-blue-300">Publish Corporate Opportunity</h3>
+        <p class="text-xs text-gray-400">Postings appear immediately on the Student Portal and are broadcast to matching candidates.</p>
+
+        <form onsubmit="handlePostOpportunity(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Opportunity Title</label>
+            <input type="text" id="opp-post-title" required placeholder="e.g. Phytochemical Standardization Scientist" class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white focus:ring-2 focus:ring-blue-500">
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-300 mb-1">Type</label>
+              <select class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white">
+                <option value="Internship">Corporate Internship</option>
+                <option value="Job">Full-Time Placement</option>
+                <option value="Hackathon">R&D Hackathon / Grant</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-300 mb-1">Stipend / Salary CTC</label>
+              <input type="text" placeholder="e.g. ₹25,000/mo or 8-12 LPA" class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Required Competencies (Comma separated)</label>
+            <input type="text" placeholder="e.g. HPTLC, GLP, Herbal Formulation, Python" class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Role Description</label>
+            <textarea rows="4" placeholder="Detail the laboratory research responsibilities and candidate expectations..." class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white"></textarea>
+          </div>
+
+          <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold text-xs sm:text-sm shadow-md transition">
+            Publish Opportunity to Student Network ➔
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- TAB 3: SUBMIT SKILL DEMANDS -->
+    <section id="industry-tab-Demand" class="industry-tab-content hidden space-y-5">
+      <div class="max-w-2xl mx-auto p-6 sm:p-8 rounded-3xl bg-gray-900/80 border border-purple-500/30 backdrop-blur-xl shadow-xl space-y-5">
+        <h3 class="text-xl font-bold text-purple-300">Submit Corporate Skill Demands</h3>
+        <p class="text-xs text-gray-400">
+          Inform Academic Councils of emerging technical skills required for upcoming hiring cycles so college syllabi can be updated under NEP-2020.
+        </p>
+
+        <form onsubmit="handleSubmitSkillDemand(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Target Academic Department</label>
+            <select class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white">
+              <option>Faculty of Ayurvedic Pharmacology (Dravyaguna)</option>
+              <option>Pharmaceutical Technology & Nanotechnology</option>
+              <option>Ayush Health Informatics & Data Science</option>
+              <option>Clinical Research & Good Clinical Practice (GCP)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">High-Priority Missing Skill</label>
+            <input type="text" required placeholder="e.g. Automated High-Performance Thin-Layer Chromatography (HPTLC)" class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Justification & Industry Relevancy</label>
+            <textarea rows="4" placeholder="Describe why this competency is required in commercial manufacturing and research laboratories..." class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white"></textarea>
+          </div>
+
+          <button type="submit" class="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs sm:text-sm shadow-md transition">
+            Submit Requirement to University Academic Deans ➔
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- TAB 4: ACTIVE MOUS -->
+    <section id="industry-tab-MoUs" class="industry-tab-content hidden space-y-5">
+      <h3 class="text-lg font-bold text-white">Active Bilateral MoUs (Dabur Research & Development)</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="p-5 rounded-2xl bg-gray-900/60 border border-blue-500/30 space-y-2">
+          <h4 class="font-bold text-sm text-blue-300">All India Institute of Ayurveda (AIIA), New Delhi</h4>
+          <p class="text-xs text-gray-300">Collaborative formulation standardization laboratory & joint research publications.</p>
+          <span class="text-[11px] text-gray-500 block">Status: Active · Signed Jan 2025 · 12 Interns Assigned</span>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-gray-900/60 border border-blue-500/30 space-y-2">
+          <h4 class="font-bold text-sm text-blue-300">National Institute of Ayurveda (NIA), Jaipur</h4>
+          <p class="text-xs text-gray-300">Clinical trials data verification & herbal pharmacopeia development.</p>
+          <span class="text-[11px] text-gray-500 block">Status: Active · Signed Jun 2025 · Annual Faculty Immersion</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="js/three-scene.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/industry.js"></script>
+</body>
+</html>
