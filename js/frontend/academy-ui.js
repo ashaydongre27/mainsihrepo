@@ -1,6 +1,11 @@
 /**
  * JOBLEX Academy Portal UI Controller (Client-Side JavaScript)
  * Pure frontend DOM, rendering, and interaction logic
+ * Fully integrated with all SIH 26044 features:
+ * 9. Automated Curriculum Gap Audit (NEP-2020 / NAAC)
+ * 10. Placement Cell Command Center
+ * 11. Cross-College Benchmarking (Opt-In & Anonymized)
+ * 8. Academic Co-Branded Bootcamps
  */
 
 let activeAcademyTab = 'Progress';
@@ -45,6 +50,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderStudentTable();
   renderSyllabusProposals();
   renderTPOMetrics();
+  renderCrossCollegeBenchmarking();
+  renderAcademicBootcamps();
 });
 
 function switchAcademyTab(tabId) {
@@ -149,4 +156,96 @@ async function renderTPOMetrics() {
   if (shortEl) shortEl.innerText = tpo.funnel.shortlisted;
   if (placedEl) placedEl.innerText = tpo.funnel.offersAccepted;
   if (readinessEl) readinessEl.innerText = `${tpo.predictivePlacementReadiness}% Placement Ready`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// IDEA #11: CROSS-COLLEGE BENCHMARKING
+// ─────────────────────────────────────────────────────────────
+async function renderCrossCollegeBenchmarking() {
+  const container = document.getElementById('cross-college-table-body');
+  if (!container) return;
+
+  const data = await JoblexApiClient.getCrossCollegeBenchmarking();
+  const institutions = data.institutions || [];
+
+  container.innerHTML = institutions.map(inst => `
+    <tr class="border-b border-gray-800 ${inst.status === 'Your Institution' ? 'bg-emerald-950/20 font-semibold' : 'hover:bg-white/[0.02]'} transition">
+      <td class="py-3.5 px-4 text-xs font-mono font-bold text-emerald-400">#${inst.rank}</td>
+      <td class="py-3.5 px-4 text-xs text-white">
+        ${inst.institution}
+        ${inst.status === 'Your Institution' ? '<span class="ml-2 text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold">Your Campus</span>' : ''}
+      </td>
+      <td class="py-3.5 px-4 text-xs font-mono text-cyan-300 font-bold">${inst.avgSkillScore}%</td>
+      <td class="py-3.5 px-4 text-xs font-mono text-emerald-300">${inst.placementRate}</td>
+      <td class="py-3.5 px-4 text-xs text-gray-300">${inst.mouCount} Active MoUs</td>
+      <td class="py-3.5 px-4 text-xs">
+        <span class="px-2 py-0.5 rounded bg-gray-800 border border-purple-500/30 text-purple-200 text-[10px] font-bold">
+          ${inst.naacGrade}
+        </span>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ─────────────────────────────────────────────────────────────
+// IDEA #9: INTERACTIVE CURRICULUM GAP AUDIT
+// ─────────────────────────────────────────────────────────────
+async function handleRunCurriculumAudit(e) {
+  if (e) e.preventDefault();
+  const dept = document.getElementById('audit-dept-select') ? document.getElementById('audit-dept-select').value : 'Dravyaguna';
+  const text = document.getElementById('audit-syllabus-text') ? document.getElementById('audit-syllabus-text').value : '';
+  const resultBox = document.getElementById('audit-results-box');
+
+  const res = await JoblexApiClient.runCurriculumAudit(text, dept);
+
+  if (resultBox && res) {
+    resultBox.classList.remove('hidden');
+
+    document.getElementById('audit-coverage-score').innerText = `${res.coverageScore}%`;
+    document.getElementById('audit-naac-score').innerText = res.naacCriterionScore;
+
+    const gapsBox = document.getElementById('audit-critical-gaps-list');
+    if (gapsBox && res.criticalGapsIdentified) {
+      gapsBox.innerHTML = res.criticalGapsIdentified.map(g => `
+        <div class="p-3 rounded-xl bg-black/40 border border-amber-500/30 space-y-1 text-xs">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-amber-300">${g.unit}</span>
+            <span class="text-[10px] text-gray-400">Missing Competency</span>
+          </div>
+          <p class="font-semibold text-white">${g.gap}</p>
+          <span class="text-[11px] text-gray-400 mt-0.5 block">${g.impact}</span>
+        </div>
+      `).join('');
+    }
+
+    resultBox.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// IDEA #8: SPONSORED BOOTCAMPS (ACADEMY VIEW)
+// ─────────────────────────────────────────────────────────────
+async function renderAcademicBootcamps() {
+  const container = document.getElementById('academy-bootcamps-grid');
+  if (!container) return;
+
+  const res = await JoblexApiClient.getBootcamps();
+  const bootcamps = res.bootcamps || [];
+
+  container.innerHTML = bootcamps.map(b => `
+    <div class="p-5 rounded-2xl bg-gray-900/60 border border-emerald-500/30 backdrop-blur-md space-y-3">
+      <div class="flex justify-between items-start">
+        <h4 class="font-bold text-sm text-white">${b.title}</h4>
+        <span class="text-[10px] font-bold text-emerald-300 px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40">${b.status}</span>
+      </div>
+      <p class="text-xs text-gray-300">Corporate Sponsor: <strong class="text-white">${b.sponsor}</strong></p>
+      <p class="text-xs text-cyan-300">${b.guaranteedOutcome}</p>
+      <div class="pt-2 border-t border-gray-800 flex justify-between items-center text-xs text-gray-400">
+        <span>Enrolled Scholars: <strong class="text-emerald-400">${b.matchedScholars} / ${b.targetHires}</strong></span>
+        <button onclick="alert('Viewing syllabus immersion schedule for ${b.title}')" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition">
+          View Schedule
+        </button>
+      </div>
+    </div>
+  `).join('');
 }

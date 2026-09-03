@@ -7,19 +7,26 @@ import os
 import json
 import uuid
 import datetime
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-PUBLIC_DIR = os.path.join(ROOT_DIR, 'public')
-STATIC_DIR = PUBLIC_DIR if os.path.isdir(PUBLIC_DIR) else ROOT_DIR
+STATIC_DIR = ROOT_DIR
 app = Flask(__name__, static_folder=STATIC_DIR, static_url_path='')
 CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+@app.route('/js/<path:filename>')
+def serve_js(filename):
+    return send_from_directory(os.path.join(ROOT_DIR, 'js'), filename)
+
+@app.route('/css/<path:filename>')
+def serve_css(filename):
+    return send_from_directory(os.path.join(ROOT_DIR, 'css'), filename)
 
 @app.route('/')
 @app.route('/index.html')
 def serve_index():
-    return app.send_static_file('index.html')
+    return send_from_directory(ROOT_DIR, 'index.html')
 
 @app.route('/student')
 @app.route('/student.html')

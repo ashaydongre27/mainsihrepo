@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JOBLEX - Industry Portal | Talent Pipeline & Skill Demands</title>
+  <title>JOBLEX - Industry Portal | Talent Discovery & R&D</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Custom Styles -->
@@ -30,7 +30,7 @@
 
     <div class="flex items-center gap-3">
       <!-- Language Switcher (Idea #13) -->
-      <button onclick="JoblexAPI.setLang(JoblexAPI.getLang() === 'en' ? 'hi' : 'en')" class="text-[11px] sm:text-xs px-2.5 py-1 rounded-xl bg-gray-900 border border-blue-500/30 text-blue-200 hover:text-white font-bold transition">
+      <button onclick="JoblexApiClient.setLang(JoblexApiClient.getLang() === 'en' ? 'hi' : 'en')" class="text-[11px] sm:text-xs px-2.5 py-1 rounded-xl bg-gray-900 border border-blue-500/30 text-blue-200 hover:text-white font-bold transition">
         🌐 EN / हिंदी
       </button>
 
@@ -48,21 +48,30 @@
   </header>
 
   <!-- Sub-Header Tabs -->
-  <div class="bg-[#0a0a16] border-b border-gray-800 px-4 sm:px-8 flex overflow-x-auto no-scrollbar gap-6 pt-3">
+  <div class="bg-[#0a0a16] border-b border-gray-800 px-4 sm:px-8 flex overflow-x-auto no-scrollbar gap-5 pt-3">
     <button data-tab="Candidates" onclick="switchIndustryTab('Candidates')" class="industry-nav-tab pb-2 text-xs sm:text-sm font-bold border-b-2 border-blue-500 text-blue-300 transition whitespace-nowrap">
-      🎯 Pre-Screened Talent Discovery
+      🎯 Pre-Screened Talent
+    </button>
+    <button data-tab="Reverse" onclick="switchIndustryTab('Reverse')" class="industry-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
+      ⚡ Reverse Headhunting (Idea #3)
     </button>
     <button data-tab="Forecast" onclick="switchIndustryTab('Forecast')" class="industry-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
-      🔮 Talent Pipeline Forecast (Next 6 Mo)
+      🔮 Talent Forecast (Idea #6)
+    </button>
+    <button data-tab="Bootcamps" onclick="switchIndustryTab('Bootcamps')" class="industry-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
+      🎓 Sponsored Bootcamps (Idea #8)
+    </button>
+    <button data-tab="ROI" onclick="switchIndustryTab('ROI')" class="industry-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
+      📈 Skill ROI & AI Loop (Idea #7)
     </button>
     <button data-tab="Post" onclick="switchIndustryTab('Post')" class="industry-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
       📢 Post Opportunity / Micro-Gig
     </button>
     <button data-tab="Demand" onclick="switchIndustryTab('Demand')" class="industry-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
-      💡 Submit Industry Skill Demands
+      💡 Submit Skill Demands
     </button>
     <button data-tab="MoUs" onclick="switchIndustryTab('MoUs')" class="industry-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
-      📜 Active Academic MoUs
+      📜 Active MoUs
     </button>
   </div>
 
@@ -71,7 +80,6 @@
 
     <!-- TAB 1: PRE-SCREENED CANDIDATE DISCOVERY -->
     <section id="industry-tab-Candidates" class="industry-tab-content space-y-5">
-      <!-- Top Metrics Strip (Idea #7: Skill Match ROI) -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
           <span class="text-xs text-gray-400 font-medium">Pre-Screened Candidates</span>
@@ -79,12 +87,12 @@
           <span class="text-[10px] text-gray-400">Verified by AIIA & Partner Colleges</span>
         </div>
         <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
-          <span class="text-xs text-gray-400 font-medium">AI Skill Match Prediction ROI</span>
-          <div class="text-2xl font-black text-emerald-400 mt-0.5">94.2% Accuracy</div>
+          <span class="text-xs text-gray-400 font-medium">AI Skill Match Prediction Accuracy</span>
+          <div class="text-2xl font-black text-emerald-400 mt-0.5">94.2%</div>
           <span class="text-[10px] text-emerald-400">Evaluated on real lab performance</span>
         </div>
         <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
-          <span class="text-xs text-gray-400 font-medium">Active Bilateral Grant</span>
+          <span class="text-xs text-gray-400 font-medium">Active Bilateral Research Grant</span>
           <div class="text-2xl font-black text-purple-400 mt-0.5">₹15,00,000</div>
           <span class="text-[10px] text-gray-400">Standardization Lab (Dabur & AIIA)</span>
         </div>
@@ -103,11 +111,42 @@
       </div>
 
       <div id="candidates-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Rendered by js/industry.js -->
+        <!-- Rendered by js/frontend/industry-ui.js -->
       </div>
     </section>
 
-    <!-- TAB 2: TALENT PIPELINE FORECASTING (Idea #6) -->
+    <!-- TAB 2: REVERSE APPLICATION & INBOUND OUTREACH (Idea #3) -->
+    <section id="industry-tab-Reverse" class="industry-tab-content hidden space-y-5">
+      <div class="p-5 sm:p-7 rounded-3xl bg-gradient-to-r from-purple-950/60 via-indigo-950/60 to-gray-900 border border-purple-500/40 backdrop-blur-xl shadow-xl space-y-2">
+        <span class="text-[10px] uppercase font-bold text-purple-300 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/40">
+          Reverse Application Discovery Engine
+        </span>
+        <h3 class="text-xl sm:text-2xl font-extrabold text-white">Find Hidden Talent Before They Apply</h3>
+        <p class="text-xs sm:text-sm text-gray-300 max-w-2xl leading-relaxed">
+          Search the verified institutional skill database directly. Find high-performing scholars who meet your criteria but haven't actively applied, and send them direct inbound interview invites.
+        </p>
+
+        <!-- Search Bar -->
+        <div class="pt-3 flex flex-col sm:flex-row gap-3 max-w-xl">
+          <input 
+            type="text" 
+            id="reverse-skill-search" 
+            oninput="handleFilterReverseCandidates()" 
+            placeholder="Search by verified skill (e.g. HPTLC, Python, GLP)..." 
+            class="flex-1 p-2.5 rounded-xl bg-gray-950 border border-purple-500/40 text-xs text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          >
+          <button onclick="handleFilterReverseCandidates()" class="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition shadow-sm whitespace-nowrap">
+            Search Hidden Talent
+          </button>
+        </div>
+      </div>
+
+      <div id="reverse-candidates-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Rendered by js/frontend/industry-ui.js -->
+      </div>
+    </section>
+
+    <!-- TAB 3: TALENT PIPELINE FORECASTING (Idea #6) -->
     <section id="industry-tab-Forecast" class="industry-tab-content hidden space-y-5">
       <div class="p-5 sm:p-7 rounded-3xl bg-gradient-to-r from-blue-950/60 via-indigo-950/60 to-gray-900 border border-blue-500/40 backdrop-blur-xl shadow-xl space-y-2">
         <span class="text-[10px] uppercase font-bold text-cyan-300 px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/40">
@@ -131,12 +170,134 @@
         </div>
 
         <div id="forecast-colleges-list" class="space-y-3">
-          <!-- Rendered by js/industry.js -->
+          <!-- Rendered by js/frontend/industry-ui.js -->
         </div>
       </div>
     </section>
 
-    <!-- TAB 3: POST OPPORTUNITY & MICRO-GIG FORM (Idea #4) -->
+    <!-- TAB 4: SPONSORED SKILL BOOTCAMPS (Idea #8) -->
+    <section id="industry-tab-Bootcamps" class="industry-tab-content hidden space-y-5">
+      <div class="p-5 sm:p-7 rounded-3xl bg-gradient-to-r from-indigo-950/60 via-purple-950/60 to-gray-900 border border-indigo-500/40 backdrop-blur-xl shadow-xl space-y-2">
+        <span class="text-[10px] uppercase font-bold text-indigo-300 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/40">
+          Industry-Academia Co-Branded Acceleration
+        </span>
+        <h3 class="text-xl sm:text-2xl font-extrabold text-white">Sponsored Skill Bootcamps Tied to Real Roles</h3>
+        <p class="text-xs sm:text-sm text-gray-300 max-w-2xl leading-relaxed">
+          Instead of just waiting for graduates, companies sponsor a 4-week fast-track cohort co-branded with partner colleges (AIIA). The platform auto-matches close-fit scholars for guaranteed placement.
+        </p>
+      </div>
+
+      <!-- Active Bootcamps Grid -->
+      <div class="space-y-3">
+        <h4 class="font-bold text-sm text-white">Active Sponsored Cohorts</h4>
+        <div id="bootcamps-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Rendered by js/frontend/industry-ui.js -->
+        </div>
+      </div>
+
+      <!-- Launch New Bootcamp Form -->
+      <div class="p-6 rounded-3xl bg-gray-900/80 border border-gray-800 space-y-4">
+        <h4 class="font-bold text-sm text-indigo-300">Launch a New Sponsored Bootcamp Cohort</h4>
+        <form onsubmit="handleCreateBootcamp(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-400 mb-1">Bootcamp Title & Topic</label>
+            <input type="text" id="bc-title" required placeholder="e.g. Dabur LC-MS Extract Quality Bootcamp" class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-400 mb-1">Co-Branded Partner College</label>
+            <select id="bc-college" class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white">
+              <option>All India Institute of Ayurveda (AIIA)</option>
+              <option>National Institute of Ayurveda (NIA), Jaipur</option>
+              <option>Faculty of Ayurveda, BHU Varanasi</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-400 mb-1">Target Hires</label>
+            <input type="number" id="bc-hires" required value="20" class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white">
+          </div>
+          <div class="sm:col-span-3">
+            <button type="submit" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md transition">
+              ⚡ Launch Sponsored Bootcamp & Auto-Match Scholars
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- TAB 5: SKILL MATCH ROI & AI CALIBRATION LOOP (Idea #7) -->
+    <section id="industry-tab-ROI" class="industry-tab-content hidden space-y-5">
+      <div class="p-5 sm:p-7 rounded-3xl bg-gradient-to-r from-emerald-950/60 via-blue-950/60 to-gray-900 border border-emerald-500/40 backdrop-blur-xl shadow-xl space-y-2">
+        <span class="text-[10px] uppercase font-bold text-emerald-300 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40">
+          Continuous AI Learning Engine
+        </span>
+        <h3 class="text-xl sm:text-2xl font-extrabold text-white">Skill ROI Dashboard & Candidate Performance Loop</h3>
+        <p class="text-xs sm:text-sm text-gray-300 max-w-2xl leading-relaxed">
+          Recruiters rate actual laboratory and job performance of hired scholars. The AI compares actual output against the predicted skill match to calibrate precision weighting for future matching cycles.
+        </p>
+      </div>
+
+      <!-- ROI Metrics Strip -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+        <div class="p-5 rounded-2xl bg-gray-900/70 border border-gray-800">
+          <span class="text-xs text-gray-400 font-medium">AI Match Prediction Accuracy</span>
+          <div id="roi-accuracy-rate" class="text-3xl font-black text-emerald-400 mt-1">94.2%</div>
+          <span class="text-[10px] text-gray-500">Based on faculty vs recruiter grading</span>
+        </div>
+        <div class="p-5 rounded-2xl bg-gray-900/70 border border-gray-800">
+          <span class="text-xs text-gray-400 font-medium">Evaluation Cohort Size</span>
+          <div id="roi-eval-count" class="text-3xl font-black text-blue-400 mt-1">48 Hires</div>
+          <span class="text-[10px] text-gray-500">Across Dabur, Himalaya & Patanjali</span>
+        </div>
+        <div class="p-5 rounded-2xl bg-gray-900/70 border border-gray-800">
+          <span class="text-xs text-gray-400 font-medium">Avg Recruiter Satisfaction</span>
+          <div id="roi-avg-rating" class="text-3xl font-black text-purple-400 mt-1">4.8 / 5.0 ⭐</div>
+          <span class="text-[10px] text-gray-500">Exceeds industry hiring benchmarks</span>
+        </div>
+      </div>
+
+      <!-- Recruiter Evaluation Form & Logs -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <!-- Form -->
+        <div class="p-5 rounded-3xl bg-gray-900/80 border border-gray-800 space-y-3">
+          <h4 class="font-bold text-sm text-white">Submit Real Lab Performance Rating</h4>
+          <form onsubmit="handleRateCandidate(event)" class="space-y-3">
+            <div>
+              <label class="block text-xs text-gray-400 mb-1">Select Hired Candidate</label>
+              <select id="roi-candidate-select" class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white">
+                <option>Ashay Verma (Dabur Formulation Lab)</option>
+                <option>Kavya Singh (AIIA Digital Informatics)</option>
+                <option>Priya Nair (Jamnagar QC Lab)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-400 mb-1">Actual Performance Rating</label>
+              <select id="roi-score-select" class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white">
+                <option value="5.0">⭐⭐⭐⭐⭐ 5.0 - Exceptional (Exceeded Predicted Match)</option>
+                <option value="4.5">⭐⭐⭐⭐ 4.5 - Strong Performance (Matches Platform Score)</option>
+                <option value="4.0">⭐⭐⭐⭐ 4.0 - Competent (Minor Training Required)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-400 mb-1">Recruiter / PI Remarks</label>
+              <textarea id="roi-comments" rows="2" placeholder="Note on chromatographic analysis, punctuality, lab compliance..." class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white"></textarea>
+            </div>
+            <button type="submit" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition shadow-sm">
+              Record Feedback & Calibrate AI
+            </button>
+          </form>
+        </div>
+
+        <!-- Feedback Logs -->
+        <div class="p-5 rounded-3xl bg-gray-900/80 border border-gray-800 space-y-3">
+          <h4 class="font-bold text-sm text-white">Recent AI Calibration Logs</h4>
+          <div id="roi-feedback-logs" class="space-y-2 max-h-72 overflow-y-auto custom-scrollbar">
+            <!-- Rendered by js/frontend/industry-ui.js -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: POST OPPORTUNITY & MICRO-GIG FORM (Idea #4) -->
     <section id="industry-tab-Post" class="industry-tab-content hidden space-y-5">
       <div class="max-w-2xl mx-auto p-6 sm:p-8 rounded-3xl bg-gray-900/80 border border-blue-500/30 backdrop-blur-xl shadow-xl space-y-5">
         <h3 class="text-xl font-bold text-blue-300">Publish Corporate Opportunity or Task-Based Micro-Gig</h3>
@@ -181,7 +342,7 @@
       </div>
     </section>
 
-    <!-- TAB 4: SUBMIT SKILL DEMANDS -->
+    <!-- TAB 7: SUBMIT SKILL DEMANDS -->
     <section id="industry-tab-Demand" class="industry-tab-content hidden space-y-5">
       <div class="max-w-2xl mx-auto p-6 sm:p-8 rounded-3xl bg-gray-900/80 border border-purple-500/30 backdrop-blur-xl shadow-xl space-y-5">
         <h3 class="text-xl font-bold text-purple-300">Submit Corporate Skill Demands</h3>
@@ -217,7 +378,7 @@
       </div>
     </section>
 
-    <!-- TAB 5: ACTIVE MOUS -->
+    <!-- TAB 8: ACTIVE MOUS -->
     <section id="industry-tab-MoUs" class="industry-tab-content hidden space-y-5">
       <h3 class="text-lg font-bold text-white">Active Bilateral MoUs (Dabur Research & Development)</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

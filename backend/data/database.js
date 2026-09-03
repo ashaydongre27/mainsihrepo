@@ -239,7 +239,54 @@ const DB = {
     { name: "Rohan Sharma", college: "National Institute of Ayurveda, Jaipur", match: 82, skills: ["Ayurvedic Pharmacognosy", "Standardization", "Quality Control"], status: "Under Review" },
     { name: "Ananya Roy", college: "Banaras Hindu University (IMS)", match: 88, skills: ["Clinical Research", "Pharmacology", "Herbal Formulation"], status: "Shortlisted" },
     { name: "Priya Nair", college: "Gujarat Ayurved University, Jamnagar", match: 96, skills: ["Drug Discovery", "Phytochemistry", "HPTLC", "AutoDock"], status: "Top Applicant" }
-  ]
+  ],
+
+  // Idea 11: Cross-College Benchmarking (Anonymized & Opt-In)
+  crossCollegeBenchmarking: [
+    { rank: 1, institution: "All India Institute of Ayurveda (AIIA), New Delhi", avgSkillScore: 78.4, placementRate: "86%", mouCount: 8, naacGrade: "A++", status: "Your Institution" },
+    { rank: 2, institution: "National Institute of Ayurveda (NIA), Jaipur", avgSkillScore: 74.2, placementRate: "81%", mouCount: 6, naacGrade: "A+", status: "Peer Tier-1" },
+    { rank: 3, institution: "Faculty of Ayurveda, BHU Varanasi", avgSkillScore: 72.8, placementRate: "79%", mouCount: 5, naacGrade: "A++", status: "Peer Tier-1" },
+    { rank: 4, institution: "Gujarat Ayurved University, Jamnagar", avgSkillScore: 71.5, placementRate: "76%", mouCount: 4, naacGrade: "A", status: "Peer Tier-1" }
+  ],
+
+  // Idea 8: Sponsored Skill Bootcamps tied to real hiring roles
+  sponsoredBootcamps: [
+    {
+      id: "bc-01",
+      title: "Dabur-AIIA 4-Week Rapid HPTLC & Phytochemical Bootcamp",
+      sponsor: "Dabur Research & Development Ltd.",
+      partnerCollege: "All India Institute of Ayurveda",
+      targetHires: 20,
+      matchedScholars: 18,
+      startDate: "Nov 01, 2026",
+      stipend: "Full Sponsorship + ₹15,000 Completion Bounty",
+      guaranteedOutcome: "Guaranteed Placement Interviews for Top 10 Cohort Finishers",
+      status: "Cohort Enrolling"
+    },
+    {
+      id: "bc-02",
+      title: "Himalaya In-Silico Molecular Docking & Drug Screening Sprint",
+      sponsor: "Himalaya Wellness Company",
+      partnerCollege: "National Institute of Ayurveda",
+      targetHires: 15,
+      matchedScholars: 12,
+      startDate: "Nov 15, 2026",
+      stipend: "Cloud GPU Compute Grants + ₹12,000 Bounty",
+      guaranteedOutcome: "Direct Pre-Placement Offers (PPOs) for Top 5",
+      status: "Cohort Enrolling"
+    }
+  ],
+
+  // Idea 7: Skill Match ROI & Evaluation Loop
+  skillRoiMetrics: {
+    predictedMatchAccuracy: 94.2,
+    totalHiresEvaluated: 48,
+    averageRecruiterRating: 4.8,
+    feedbackLogs: [
+      { candidate: "Ashay Verma", predictedMatch: 94, actualLabRating: 4.9, company: "Dabur R&D", note: "Exceptional botanical extraction & Python modeling accuracy." },
+      { candidate: "Pooja Verma", predictedMatch: 86, actualLabRating: 4.6, company: "Himalaya", note: "Solid chromatography fundamentals; fast learner." }
+    ]
+  }
 };
 
 module.exports = DB;

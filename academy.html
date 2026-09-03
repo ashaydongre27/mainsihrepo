@@ -30,7 +30,7 @@
 
     <div class="flex items-center gap-3">
       <!-- Language Switcher (Idea #13) -->
-      <button onclick="JoblexAPI.setLang(JoblexAPI.getLang() === 'en' ? 'hi' : 'en')" class="text-[11px] sm:text-xs px-2.5 py-1 rounded-xl bg-gray-900 border border-emerald-500/30 text-emerald-200 hover:text-white font-bold transition">
+      <button onclick="JoblexApiClient.setLang(JoblexApiClient.getLang() === 'en' ? 'hi' : 'en')" class="text-[11px] sm:text-xs px-2.5 py-1 rounded-xl bg-gray-900 border border-emerald-500/30 text-emerald-200 hover:text-white font-bold transition">
         🌐 EN / हिंदी
       </button>
 
@@ -48,21 +48,30 @@
   </header>
 
   <!-- Sub-Header Tabs -->
-  <div class="bg-[#0a0a16] border-b border-gray-800 px-4 sm:px-8 flex overflow-x-auto no-scrollbar gap-6 pt-3">
+  <div class="bg-[#0a0a16] border-b border-gray-800 px-4 sm:px-8 flex overflow-x-auto no-scrollbar gap-5 pt-3">
     <button data-tab="Progress" onclick="switchAcademyTab('Progress')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-bold border-b-2 border-emerald-500 text-emerald-300 transition whitespace-nowrap">
-      📊 Student Progress & Matrix
+      📊 Student Progress
     </button>
     <button data-tab="TPO" onclick="switchAcademyTab('TPO')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
-      🎯 TPO Placement Command Center
+      🎯 TPO Command Center (Idea #10)
+    </button>
+    <button data-tab="CrossCollege" onclick="switchAcademyTab('CrossCollege')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
+      🏆 Cross-College Benchmarks (Idea #11)
     </button>
     <button data-tab="Syllabus" onclick="switchAcademyTab('Syllabus')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
-      🧠 AI Syllabus Modernization (NEP 2020)
+      🧠 AI Syllabus Modernization
+    </button>
+    <button data-tab="Audit" onclick="switchAcademyTab('Audit')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
+      📄 Curriculum Gap Audit (Idea #9)
+    </button>
+    <button data-tab="Bootcamps" onclick="switchAcademyTab('Bootcamps')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
+      🎓 Sponsored Bootcamps (Idea #8)
     </button>
     <button data-tab="FDP" onclick="switchAcademyTab('FDP')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
-      📜 Faculty Development Programs
+      📜 Faculty FDPs
     </button>
     <button data-tab="MoUs" onclick="switchAcademyTab('MoUs')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
-      🤝 Bilateral Corporate MoUs
+      🤝 Corporate MoUs
     </button>
   </div>
 
@@ -89,7 +98,6 @@
         </div>
       </div>
 
-      <!-- Student Progress Table -->
       <div class="p-5 rounded-3xl bg-gray-900/80 border border-gray-800 backdrop-blur-xl shadow-xl space-y-4">
         <div class="flex justify-between items-center">
           <h3 class="text-base font-bold text-white">Institutional Student Skill Verification</h3>
@@ -107,7 +115,7 @@
               </tr>
             </thead>
             <tbody id="student-table-body">
-              <!-- Rendered by js/academy.js -->
+              <!-- Rendered by js/frontend/academy-ui.js -->
             </tbody>
           </table>
         </div>
@@ -122,11 +130,10 @@
         </span>
         <h3 class="text-xl sm:text-2xl font-extrabold text-white">Live Institutional Placement Funnel</h3>
         <p class="text-xs sm:text-sm text-gray-300 max-w-2xl leading-relaxed">
-          Monitor application funnels in real-time, detect unengaged students early, and track predictive readiness scores before the final semester placement cycle.
+          Monitor application funnels in real-time, detect ghosting companies, and track predictive readiness scores per scholar to launch remedial cohorts before final semester.
         </p>
       </div>
 
-      <!-- Funnel Stats Grid -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
         <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
           <span class="text-xs text-gray-400 font-medium">Applications Sent</span>
@@ -150,7 +157,6 @@
         </div>
       </div>
 
-      <!-- Early Intervention Alert (Idea #10) -->
       <div class="p-5 rounded-3xl bg-amber-950/30 border border-amber-500/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
           <h4 class="font-bold text-sm text-amber-300">⚠️ Early TPO Intervention Trigger: 14 Scholars Below 60% Competency</h4>
@@ -162,7 +168,38 @@
       </div>
     </section>
 
-    <!-- TAB 3: AI SYLLABUS MODERNIZATION & AUDIT (Idea #9) -->
+    <!-- TAB 3: CROSS-COLLEGE BENCHMARKING (Idea #11) -->
+    <section id="academy-tab-CrossCollege" class="academy-tab-content hidden space-y-5">
+      <div class="p-5 sm:p-7 rounded-3xl bg-gradient-to-r from-emerald-950/60 via-purple-950/60 to-gray-900 border border-emerald-500/40 backdrop-blur-xl shadow-xl space-y-2">
+        <span class="text-[10px] uppercase font-bold text-cyan-300 px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/40">
+          Inter-Institutional League Table
+        </span>
+        <h3 class="text-xl sm:text-2xl font-extrabold text-white">Cross-College Benchmarking (Opt-In & Anonymized)</h3>
+        <p class="text-xs sm:text-sm text-gray-300 max-w-2xl leading-relaxed">
+          Benchmark your institution against similar national institutions (NIA Jaipur, BHU, GAU Jamnagar). Compare average student skill scores, placement velocity, active MoUs, and NAAC accreditation criteria.
+        </p>
+      </div>
+
+      <div class="p-5 rounded-3xl bg-gray-900/80 border border-gray-800 shadow-xl overflow-x-auto">
+        <table class="w-full text-left min-w-[600px]">
+          <thead>
+            <tr class="border-b border-gray-800 text-[11px] text-gray-400 uppercase tracking-wider">
+              <th class="py-3 px-4">Rank</th>
+              <th class="py-3 px-4">Institution Name</th>
+              <th class="py-3 px-4">Avg Student Skill Score</th>
+              <th class="py-3 px-4">Placement Rate</th>
+              <th class="py-3 px-4">Corporate MoUs</th>
+              <th class="py-3 px-4">NAAC Grade</th>
+            </tr>
+          </thead>
+          <tbody id="cross-college-table-body">
+            <!-- Rendered by js/frontend/academy-ui.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 4: AI SYLLABUS MODERNIZATION -->
     <section id="academy-tab-Syllabus" class="academy-tab-content hidden space-y-5">
       <div class="p-5 rounded-3xl bg-gradient-to-r from-emerald-900/30 to-blue-900/30 border border-emerald-500/30 backdrop-blur-md">
         <h3 class="text-xl font-bold text-emerald-300 mb-1">AI Curriculum Modernization (NEP-2020)</h3>
@@ -171,28 +208,103 @@
         </p>
       </div>
 
-      <!-- Automated Curriculum Gap Audit Card (Idea #9) -->
-      <div class="p-5 rounded-3xl bg-gray-900/80 border border-purple-500/30 backdrop-blur-xl shadow-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <span class="text-[10px] uppercase font-bold text-purple-300 px-2.5 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/40">
-            NAAC & NBA Accreditation Alignment
-          </span>
-          <h4 class="text-base font-bold text-white mt-1.5">Automated Curriculum Industry Gap Audit</h4>
-          <p class="text-xs text-gray-300 mt-0.5">
-            Current AIIA BAMS 2025-26 curriculum covers <strong>68%</strong> of live commercial pharmaceutical competencies. Top missing topics: <em>Computational Drug Docking</em>, <em>HPTLC Profiling</em>.
-          </p>
-        </div>
-        <button onclick="alert('Generating accredited NAAC/NEP-2020 syllabus compliance dossier (PDF)...')" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition whitespace-nowrap shadow-sm">
-          Download Compliance Audit 📄
-        </button>
-      </div>
-
       <div id="syllabus-proposals-grid" class="space-y-4">
-        <!-- Rendered by js/academy.js -->
+        <!-- Rendered by js/frontend/academy-ui.js -->
       </div>
     </section>
 
-    <!-- TAB 4: FACULTY DEVELOPMENT PROGRAMS -->
+    <!-- TAB 5: INTERACTIVE CURRICULUM GAP AUDIT (Idea #9) -->
+    <section id="academy-tab-Audit" class="academy-tab-content hidden space-y-5">
+      <div class="p-5 sm:p-7 rounded-3xl bg-gradient-to-r from-purple-950/60 via-indigo-950/60 to-gray-900 border border-purple-500/40 backdrop-blur-xl shadow-xl space-y-2">
+        <span class="text-[10px] uppercase font-bold text-purple-300 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/40">
+          Automated NAAC & NBA Accreditation Alignment
+        </span>
+        <h3 class="text-xl sm:text-2xl font-extrabold text-white">Automated Curriculum Industry Gap Audit</h3>
+        <p class="text-xs sm:text-sm text-gray-300 max-w-2xl leading-relaxed">
+          Upload or paste your department's current syllabus. The AI engine cross-references it with live hiring data across 15+ pharma companies and generates an accredited gap audit for Academic Councils.
+        </p>
+      </div>
+
+      <!-- Audit Input Simulator -->
+      <div class="p-6 rounded-3xl bg-gray-900/80 border border-gray-800 space-y-4">
+        <h4 class="font-bold text-sm text-white">Syllabus Audit Simulator</h4>
+        <form onsubmit="handleRunCurriculumAudit(event)" class="space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-gray-400 mb-1">Academic Department</label>
+              <select id="audit-dept-select" class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white">
+                <option>Ayurvedic Pharmacology (Dravyaguna)</option>
+                <option>Rasashastra & Bhaishajya Kalpana (Pharmaceutics)</option>
+                <option>Ayush Health Informatics & Data Science</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-400 mb-1">Accreditation Target</label>
+              <select class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white">
+                <option>NAAC Criterion 1 (Curricular Aspects)</option>
+                <option>National Education Policy (NEP 2020 Integration)</option>
+                <option>National Board of Accreditation (NBA)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs text-gray-400 mb-1">Paste Course Syllabus Outline / Syllabus PDF extract</label>
+            <textarea id="audit-syllabus-text" rows="3" class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white font-mono leading-relaxed" placeholder="Unit 1: Introduction to Dravyaguna. Unit 2: Classical nomenclature. Unit 3: Botanical drug standardization. Unit 4: Ayurvedic formulation principles."></textarea>
+          </div>
+
+          <button type="submit" class="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs sm:text-sm shadow-md transition">
+            ⚡ Run Automated Industry Gap Audit
+          </button>
+        </form>
+      </div>
+
+      <!-- Audit Results Box -->
+      <div id="audit-results-box" class="hidden space-y-4 p-5 rounded-3xl bg-gray-900/90 border border-purple-500/40 shadow-xl">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="p-4 rounded-2xl bg-black/40 border border-gray-800 text-center">
+            <span class="text-xs text-gray-400">Industry Alignment Score</span>
+            <div id="audit-coverage-score" class="text-3xl font-black text-purple-400 mt-1">68%</div>
+            <span class="text-[10px] text-gray-500">Benchmark: 85% for NAAC A++</span>
+          </div>
+          <div class="p-4 rounded-2xl bg-black/40 border border-gray-800 text-center">
+            <span class="text-xs text-gray-400">Accreditation Compliance</span>
+            <div id="audit-naac-score" class="text-3xl font-black text-emerald-400 mt-1">3.4 / 4.0</div>
+            <span class="text-[10px] text-emerald-400">High Institutional Rating</span>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-sm text-white mb-2">Critical Competency Gaps to Adopt</h4>
+          <div id="audit-critical-gaps-list" class="space-y-2"></div>
+        </div>
+
+        <div class="flex justify-end pt-2">
+          <button onclick="alert('Accredited NEP-2020 syllabus compliance dossier downloaded (PDF)!')" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition shadow-sm">
+            Download Official Accreditation Dossier 📄
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: SPONSORED BOOTCAMPS (ACADEMY VIEW) (Idea #8) -->
+    <section id="academy-tab-Bootcamps" class="academy-tab-content hidden space-y-5">
+      <div class="p-5 sm:p-7 rounded-3xl bg-gradient-to-r from-indigo-950/60 via-purple-950/60 to-gray-900 border border-indigo-500/40 backdrop-blur-xl shadow-xl space-y-2">
+        <span class="text-[10px] uppercase font-bold text-indigo-300 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/40">
+          Bilateral Campus Acceleration
+        </span>
+        <h3 class="text-xl sm:text-2xl font-extrabold text-white">Active Industry-Sponsored Bootcamps</h3>
+        <p class="text-xs sm:text-sm text-gray-300 max-w-2xl leading-relaxed">
+          Corporations (Dabur, Himalaya) fund specialized 4-week fast-track bootcamps directly at your institution, offering students stipends, bounties, and direct placement opportunities.
+        </p>
+      </div>
+
+      <div id="academy-bootcamps-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Rendered by js/frontend/academy-ui.js -->
+      </div>
+    </section>
+
+    <!-- TAB 7: FACULTY DEVELOPMENT PROGRAMS -->
     <section id="academy-tab-FDP" class="academy-tab-content hidden space-y-5">
       <h3 class="text-lg font-bold text-white">Upcoming Faculty Development Programs (FDP)</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -226,7 +338,7 @@
       </div>
     </section>
 
-    <!-- TAB 5: CORPORATE MOUS -->
+    <!-- TAB 8: CORPORATE MOUS -->
     <section id="academy-tab-MoUs" class="academy-tab-content hidden space-y-5">
       <h3 class="text-lg font-bold text-white">Bilateral Corporate MoUs & Research Grants</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
