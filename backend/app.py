@@ -421,9 +421,14 @@ def analyze_resume():
 
 # ----------------- CAREER ROADMAP & GAMIFICATION ----------------- #
 
+@app.route("/api/roadmap", methods=["GET"])
 @app.route("/api/roadmap/get", methods=["GET"])
 def get_roadmap():
     return jsonify(DB["student_roadmap"])
+
+@app.route("/api/opportunities", methods=["GET"])
+def get_opportunities():
+    return jsonify({"opportunities": DB["opportunities"]})
 
 @app.route("/api/roadmap/toggle-task", methods=["POST"])
 def toggle_task():
