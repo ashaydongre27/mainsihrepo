@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JOBLEX - Academy Portal | Curriculum Modernization & Progress</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-[#05050a] text-white min-h-screen flex flex-col font-sans relative overflow-x-hidden">
+
+  <!-- 3D Starfield Background -->
+  <div id="three-canvas-container"></div>
+
+  <!-- Top Sticky Header -->
+  <header class="sticky top-0 z-40 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 border-b border-gray-800 bg-[#080814]/95 backdrop-blur-md shrink-0">
+    <a href="index.html" class="flex items-center gap-2.5">
+      <div class="w-2.5 h-7 bg-emerald-500 rounded-sm shadow-[0_0_10px_#10b981]"></div>
+      <div>
+        <span class="text-xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-300 uppercase block">
+          JOBLEX
+        </span>
+        <span class="text-[9px] text-gray-400 block tracking-widest uppercase font-semibold">
+          Academy & Institutional Portal
+        </span>
+      </div>
+    </a>
+
+    <div class="flex items-center gap-3">
+      <!-- Language Switcher (Idea #13) -->
+      <button onclick="JoblexAPI.setLang(JoblexAPI.getLang() === 'en' ? 'hi' : 'en')" class="text-[11px] sm:text-xs px-2.5 py-1 rounded-xl bg-gray-900 border border-emerald-500/30 text-emerald-200 hover:text-white font-bold transition">
+        🌐 EN / हिंदी
+      </button>
+
+      <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-xl bg-gray-900 border border-emerald-500/30 text-xs">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="text-gray-300">Dr. Sunita Sharma (Dean, AIIA)</span>
+      </div>
+      <a href="auth.html" class="text-xs px-3 py-1.5 rounded-xl bg-purple-900/30 border border-purple-500/40 text-purple-300 font-bold transition">
+        Switch
+      </a>
+      <a href="index.html" class="text-xs px-3 py-1.5 rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 font-medium transition">
+        Hub ↵
+      </a>
+    </div>
+  </header>
+
+  <!-- Sub-Header Tabs -->
+  <div class="bg-[#0a0a16] border-b border-gray-800 px-4 sm:px-8 flex overflow-x-auto no-scrollbar gap-6 pt-3">
+    <button data-tab="Progress" onclick="switchAcademyTab('Progress')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-bold border-b-2 border-emerald-500 text-emerald-300 transition whitespace-nowrap">
+      📊 Student Progress & Matrix
+    </button>
+    <button data-tab="TPO" onclick="switchAcademyTab('TPO')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
+      🎯 TPO Placement Command Center
+    </button>
+    <button data-tab="Syllabus" onclick="switchAcademyTab('Syllabus')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
+      🧠 AI Syllabus Modernization (NEP 2020)
+    </button>
+    <button data-tab="FDP" onclick="switchAcademyTab('FDP')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
+      📜 Faculty Development Programs
+    </button>
+    <button data-tab="MoUs" onclick="switchAcademyTab('MoUs')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
+      🤝 Bilateral Corporate MoUs
+    </button>
+  </div>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6 relative z-10">
+
+    <!-- TAB 1: STUDENT PROGRESS MATRIX -->
+    <section id="academy-tab-Progress" class="academy-tab-content space-y-5">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="p-5 rounded-2xl bg-gray-900/70 border border-gray-800 backdrop-blur-md">
+          <span class="text-xs text-gray-400 font-medium">Total Registered Scholars</span>
+          <div class="text-3xl font-black text-emerald-400 mt-1">342</div>
+          <span class="text-[11px] text-gray-400">All India Institute of Ayurveda</span>
+        </div>
+        <div class="p-5 rounded-2xl bg-gray-900/70 border border-gray-800 backdrop-blur-md">
+          <span class="text-xs text-gray-400 font-medium">Average Lab Competency Score</span>
+          <div class="text-3xl font-black text-cyan-400 mt-1">74%</div>
+          <span class="text-[11px] text-emerald-400">↑ 8% this semester</span>
+        </div>
+        <div class="p-5 rounded-2xl bg-gray-900/70 border border-gray-800 backdrop-blur-md">
+          <span class="text-xs text-gray-400 font-medium">Students Placed / Shortlisted</span>
+          <div class="text-3xl font-black text-purple-400 mt-1">52</div>
+          <span class="text-[11px] text-gray-400">Dabur, Himalaya & Patanjali</span>
+        </div>
+      </div>
+
+      <!-- Student Progress Table -->
+      <div class="p-5 rounded-3xl bg-gray-900/80 border border-gray-800 backdrop-blur-xl shadow-xl space-y-4">
+        <div class="flex justify-between items-center">
+          <h3 class="text-base font-bold text-white">Institutional Student Skill Verification</h3>
+          <span class="text-xs text-emerald-300 font-semibold">Faculty Monitored (AIIA)</span>
+        </div>
+        <div class="overflow-x-auto min-w-[550px]">
+          <table class="w-full text-left">
+            <thead>
+              <tr class="border-b border-gray-800 text-[11px] text-gray-400 uppercase tracking-wider">
+                <th class="py-2.5 px-4">Student Name</th>
+                <th class="py-2.5 px-4">Department</th>
+                <th class="py-2.5 px-4">Skill Score</th>
+                <th class="py-2.5 px-4">Quizzes Done</th>
+                <th class="py-2.5 px-4">Status</th>
+              </tr>
+            </thead>
+            <tbody id="student-table-body">
+              <!-- Rendered by js/academy.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: TPO PLACEMENT COMMAND CENTER (Idea #10) -->
+    <section id="academy-tab-TPO" class="academy-tab-content hidden space-y-5">
+      <div class="p-5 sm:p-7 rounded-3xl bg-gradient-to-r from-emerald-950/60 via-indigo-950/50 to-gray-900 border border-emerald-500/40 backdrop-blur-xl shadow-xl space-y-2">
+        <span class="text-[10px] uppercase font-bold text-emerald-300 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40">
+          Training & Placement Officer Command Center
+        </span>
+        <h3 class="text-xl sm:text-2xl font-extrabold text-white">Live Institutional Placement Funnel</h3>
+        <p class="text-xs sm:text-sm text-gray-300 max-w-2xl leading-relaxed">
+          Monitor application funnels in real-time, detect unengaged students early, and track predictive readiness scores before the final semester placement cycle.
+        </p>
+      </div>
+
+      <!-- Funnel Stats Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+        <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
+          <span class="text-xs text-gray-400 font-medium">Applications Sent</span>
+          <div id="tpo-applied" class="text-2xl sm:text-3xl font-black text-blue-400 mt-1">248</div>
+          <span class="text-[10px] text-gray-500">Across 8 Corporate Partners</span>
+        </div>
+        <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
+          <span class="text-xs text-gray-400 font-medium">Shortlisted for Rounds</span>
+          <div id="tpo-shortlisted" class="text-2xl sm:text-3xl font-black text-purple-400 mt-1">94</div>
+          <span class="text-[10px] text-purple-300">37.9% Conversion</span>
+        </div>
+        <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
+          <span class="text-xs text-gray-400 font-medium">Confirmed Offers</span>
+          <div id="tpo-placed" class="text-2xl sm:text-3xl font-black text-emerald-400 mt-1">52</div>
+          <span class="text-[10px] text-emerald-300">Avg CTC: ₹9.2 LPA</span>
+        </div>
+        <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
+          <span class="text-xs text-gray-400 font-medium">Predictive Readiness</span>
+          <div id="tpo-readiness" class="text-xl sm:text-2xl font-black text-cyan-400 mt-1">84% Ready</div>
+          <span class="text-[10px] text-cyan-300">Machine Learning projection</span>
+        </div>
+      </div>
+
+      <!-- Early Intervention Alert (Idea #10) -->
+      <div class="p-5 rounded-3xl bg-amber-950/30 border border-amber-500/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div>
+          <h4 class="font-bold text-sm text-amber-300">⚠️ Early TPO Intervention Trigger: 14 Scholars Below 60% Competency</h4>
+          <p class="text-xs text-gray-300 mt-0.5">Automated mock-interview invitations and bridge courses recommended to prevent placement drop-offs.</p>
+        </div>
+        <button onclick="alert('Triggered automated remedial roadmap cohorts for 14 at-risk scholars!')" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-gray-950 font-black text-xs transition whitespace-nowrap">
+          Launch Remedial Cohort
+        </button>
+      </div>
+    </section>
+
+    <!-- TAB 3: AI SYLLABUS MODERNIZATION & AUDIT (Idea #9) -->
+    <section id="academy-tab-Syllabus" class="academy-tab-content hidden space-y-5">
+      <div class="p-5 rounded-3xl bg-gradient-to-r from-emerald-900/30 to-blue-900/30 border border-emerald-500/30 backdrop-blur-md">
+        <h3 class="text-xl font-bold text-emerald-300 mb-1">AI Curriculum Modernization (NEP-2020)</h3>
+        <p class="text-xs sm:text-sm text-gray-300">
+          The JOBLEX AI Engine compares current semester lesson plans with live job postings and bilateral MoU requirements to recommend automated course add-ons.
+        </p>
+      </div>
+
+      <!-- Automated Curriculum Gap Audit Card (Idea #9) -->
+      <div class="p-5 rounded-3xl bg-gray-900/80 border border-purple-500/30 backdrop-blur-xl shadow-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <span class="text-[10px] uppercase font-bold text-purple-300 px-2.5 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/40">
+            NAAC & NBA Accreditation Alignment
+          </span>
+          <h4 class="text-base font-bold text-white mt-1.5">Automated Curriculum Industry Gap Audit</h4>
+          <p class="text-xs text-gray-300 mt-0.5">
+            Current AIIA BAMS 2025-26 curriculum covers <strong>68%</strong> of live commercial pharmaceutical competencies. Top missing topics: <em>Computational Drug Docking</em>, <em>HPTLC Profiling</em>.
+          </p>
+        </div>
+        <button onclick="alert('Generating accredited NAAC/NEP-2020 syllabus compliance dossier (PDF)...')" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition whitespace-nowrap shadow-sm">
+          Download Compliance Audit 📄
+        </button>
+      </div>
+
+      <div id="syllabus-proposals-grid" class="space-y-4">
+        <!-- Rendered by js/academy.js -->
+      </div>
+    </section>
+
+    <!-- TAB 4: FACULTY DEVELOPMENT PROGRAMS -->
+    <section id="academy-tab-FDP" class="academy-tab-content hidden space-y-5">
+      <h3 class="text-lg font-bold text-white">Upcoming Faculty Development Programs (FDP)</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="p-5 rounded-2xl bg-gray-900/60 border border-gray-800 space-y-3">
+          <div class="flex justify-between items-start">
+            <h4 class="font-bold text-sm text-white">Advanced Chromatographic Fingerprinting for Herbal Formulations</h4>
+            <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 font-bold">Offline Lab</span>
+          </div>
+          <p class="text-xs text-gray-400">5-day hands-on immersion in Dabur R&D Labs, Ghaziabad covering HPTLC & LC-MS standardization.</p>
+          <div class="flex justify-between items-center pt-2">
+            <span class="text-xs text-gray-500">Duration: Nov 10 - 15, 2026</span>
+            <button onclick="alert('Faculty nomination submitted to Dean Office!')" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs">
+              Nominate Faculty
+            </button>
+          </div>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-gray-900/60 border border-gray-800 space-y-3">
+          <div class="flex justify-between items-start">
+            <h4 class="font-bold text-sm text-white">Artificial Intelligence & NLP for Ancient Ayurvedic Classical Treatises</h4>
+            <span class="px-2 py-0.5 rounded text-[10px] bg-cyan-500/20 text-cyan-300 font-bold">Online</span>
+          </div>
+          <p class="text-xs text-gray-400">National workshop on text-mining Charaka & Sushruta Samhitas using Python Natural Language Processing.</p>
+          <div class="flex justify-between items-center pt-2">
+            <span class="text-xs text-gray-500">Duration: Dec 01 - 06, 2026</span>
+            <button onclick="alert('Faculty nomination submitted to Dean Office!')" class="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs">
+              Nominate Faculty
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: CORPORATE MOUS -->
+    <section id="academy-tab-MoUs" class="academy-tab-content hidden space-y-5">
+      <h3 class="text-lg font-bold text-white">Bilateral Corporate MoUs & Research Grants</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="p-5 rounded-2xl bg-gray-900/60 border border-emerald-500/30 space-y-2">
+          <div class="flex justify-between items-center">
+            <h4 class="font-bold text-sm text-emerald-300">Dabur Research & Development Ltd.</h4>
+            <span class="text-[11px] text-gray-400">Active MoU</span>
+          </div>
+          <p class="text-xs text-gray-300">Grant Allocation: ₹15,00,000 for standardization of classical Ayurvedic Rasayana formulations.</p>
+          <span class="text-[11px] text-gray-500 block">Valid through Dec 2028 · 12 Internships reserved annually</span>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-gray-900/60 border border-emerald-500/30 space-y-2">
+          <div class="flex justify-between items-center">
+            <h4 class="font-bold text-sm text-emerald-300">Himalaya Wellness Company</h4>
+            <span class="text-[11px] text-gray-400">Active MoU</span>
+          </div>
+          <p class="text-xs text-gray-300">Grant Allocation: ₹9,00,000 for Clinical Trial Safety & Phytochemical Stability Research.</p>
+          <span class="text-[11px] text-gray-500 block">Valid through Oct 2027 · Collaborative Faculty Exchange</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="js/three-scene.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/academy.js"></script>
+</body>
+</html>

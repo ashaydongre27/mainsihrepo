@@ -11,12 +11,35 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-app = Flask(__name__, static_folder=ROOT_DIR, static_url_path='')
+PUBLIC_DIR = os.path.join(ROOT_DIR, 'public')
+STATIC_DIR = PUBLIC_DIR if os.path.isdir(PUBLIC_DIR) else ROOT_DIR
+app = Flask(__name__, static_folder=STATIC_DIR, static_url_path='')
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 @app.route('/')
+@app.route('/index.html')
 def serve_index():
     return app.send_static_file('index.html')
+
+@app.route('/student')
+@app.route('/student.html')
+def serve_student():
+    return app.send_static_file('student.html')
+
+@app.route('/academy')
+@app.route('/academy.html')
+def serve_academy():
+    return app.send_static_file('academy.html')
+
+@app.route('/industry')
+@app.route('/industry.html')
+def serve_industry():
+    return app.send_static_file('industry.html')
+
+@app.route('/auth')
+@app.route('/auth.html')
+def serve_auth():
+    return app.send_static_file('auth.html')
 
 # In-memory database with pre-seeded demo state for SIH presentation
 DB = {
