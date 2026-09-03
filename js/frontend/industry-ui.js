@@ -1,0 +1,121 @@
+/**
+ * JOBLEX Industry Portal UI Controller (Client-Side JavaScript)
+ * Pure frontend DOM, rendering, and interaction logic
+ */
+
+let activeIndustryTab = 'Candidates';
+
+const CANDIDATES_DATA = [
+  { name: 'Ashay Verma', college: 'All India Institute of Ayurveda', match: 94, skills: ['Herbal Formulation', 'GLP', 'Phytochemistry', 'Python'], status: 'Ready for Interview' },
+  { name: 'Kavya Singh', college: 'AIIA New Delhi', match: 91, skills: ['Health Informatics', 'Python', 'NLP for Classical Texts', 'SQL'], status: 'Shortlisted' },
+  { name: 'Rohan Sharma', college: 'National Institute of Ayurveda, Jaipur', match: 82, skills: ['Ayurvedic Pharmacognosy', 'Standardization', 'Quality Control'], status: 'Under Review' },
+  { name: 'Ananya Roy', college: 'Banaras Hindu University (IMS)', match: 88, skills: ['Clinical Research', 'Pharmacology', 'Herbal Formulation'], status: 'Shortlisted' },
+  { name: 'Priya Nair', college: 'Gujarat Ayurved University, Jamnagar', match: 96, skills: ['Drug Discovery', 'Phytochemistry', 'HPTLC', 'AutoDock'], status: 'Top Applicant' }
+];
+
+document.addEventListener('DOMContentLoaded', async () => {
+  renderCandidates();
+  renderTalentForecast();
+});
+
+function switchIndustryTab(tabId) {
+  activeIndustryTab = tabId;
+
+  document.querySelectorAll('.industry-tab-content').forEach(el => el.classList.add('hidden'));
+
+  const target = document.getElementById(`industry-tab-${tabId}`);
+  if (target) target.classList.remove('hidden');
+
+  document.querySelectorAll('.industry-nav-tab').forEach(btn => {
+    if (btn.getAttribute('data-tab') === tabId) {
+      btn.className = 'industry-nav-tab pb-2 text-xs sm:text-sm font-bold border-b-2 border-blue-500 text-blue-300 transition whitespace-nowrap';
+    } else {
+      btn.className = 'industry-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap';
+    }
+  });
+}
+
+function renderCandidates() {
+  const container = document.getElementById('candidates-grid');
+  if (!container) return;
+
+  container.innerHTML = CANDIDATES_DATA.map((c, i) => `
+    <div class="p-5 rounded-2xl bg-gray-900/60 border border-gray-800 hover:border-blue-500/40 transition shadow-md flex flex-col justify-between space-y-4">
+      <div>
+        <div class="flex justify-between items-start mb-2">
+          <div>
+            <h4 class="font-bold text-sm text-white">${c.name}</h4>
+            <p class="text-xs text-gray-400">${c.college}</p>
+          </div>
+          <div class="text-right">
+            <span class="text-xs font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300 font-mono text-base block">${c.match}% Match</span>
+            <span class="text-[10px] text-gray-400">${c.status}</span>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-1.5 mt-3">
+          ${c.skills.map(s => `
+            <span class="px-2 py-0.5 rounded-md bg-blue-950/50 border border-blue-500/30 text-[11px] text-blue-200">${s}</span>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-3 border-t border-gray-800">
+        <button onclick="alert('Viewing full verified AIIA institutional dossier for ${c.name}')" class="flex-1 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-semibold text-xs transition">
+          View Dossier
+        </button>
+        <button onclick="shortlistCandidate(${i}, this)" class="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition">
+          Shortlist Candidate
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function shortlistCandidate(idx, btn) {
+  btn.innerText = '✓ Shortlisted';
+  btn.className = 'flex-1 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs transition cursor-default';
+}
+
+async function renderTalentForecast() {
+  const container = document.getElementById('forecast-colleges-list');
+  if (!container) return;
+
+  const tf = await JoblexApiClient.getTalentForecast();
+  const list = tf.projectedTalentSupply || [
+    { institution: "All India Institute of Ayurveda (AIIA), New Delhi", readyScholars: 24, trendingSkill: "HPTLC & Formulation (+35%)" },
+    { institution: "National Institute of Ayurveda (NIA), Jaipur", readyScholars: 18, trendingSkill: "Pharmacology & Clinical (+28%)" },
+    { institution: "Faculty of Ayurveda, BHU Varanasi", readyScholars: 15, trendingSkill: "Phytochemistry & QC (+22%)" }
+  ];
+
+  container.innerHTML = list.map(inst => `
+    <div class="p-4 rounded-2xl bg-black/40 border border-gray-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+      <div>
+        <h4 class="font-bold text-xs sm:text-sm text-white">${inst.institution}</h4>
+        <span class="text-xs text-cyan-300 mt-0.5 block">Trending Competency: ${inst.trendingSkill}</span>
+      </div>
+      <div class="flex items-center gap-3 self-end sm:self-auto">
+        <span class="text-xs text-gray-400 font-mono">Available: <strong>${inst.readyScholars} Scholars</strong></span>
+        <button onclick="alert('Booking priority campus interview slot with ${inst.institution}')" class="px-3 py-1.5 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/40 text-blue-200 font-bold text-xs transition">
+          Engage Early
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function handlePostOpportunity(e) {
+  e.preventDefault();
+  const title = document.getElementById('opp-post-title').value;
+  await JoblexApiClient.postOpportunity({ title });
+  alert(`Opportunity / Micro-Gig "${title}" has been published to the student portal and verified by AIIA liaison!`);
+  e.target.reset();
+  switchIndustryTab('Candidates');
+}
+
+async function handleSubmitSkillDemand(e) {
+  e.preventDefault();
+  await JoblexApiClient.submitSkillDemand({});
+  alert('Corporate Skill Demand successfully submitted to Academic Deans for curriculum modernization under NEP-2020!');
+  e.target.reset();
+}

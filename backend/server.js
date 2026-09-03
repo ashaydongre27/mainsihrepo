@@ -1,0 +1,52 @@
+/**
+ * JOBLEX Node.js / Express Backend Server (JavaScript)
+ * Ministry of Ayush / All India Institute of Ayurveda | Problem Statement ID: 26044
+ */
+
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+
+const authRoutes = require('./routes/auth.routes');
+const roadmapRoutes = require('./routes/roadmap.routes');
+const resumeRoutes = require('./routes/resume.routes');
+const opportunitiesRoutes = require('./routes/opportunities.routes');
+const zuluRoutes = require('./routes/zulu.routes');
+const academyRoutes = require('./routes/academy.routes');
+const industryRoutes = require('./routes/industry.routes');
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/roadmap', roadmapRoutes);
+app.use('/api/resume', resumeRoutes);
+app.use('/api/opportunities', opportunitiesRoutes);
+app.use('/api/zulu', zuluRoutes);
+app.use('/api/academy', academyRoutes);
+app.use('/api/industry', industryRoutes);
+
+// Serve static frontend files from project root
+const ROOT_DIR = path.resolve(__dirname, '..');
+app.use(express.static(ROOT_DIR));
+
+// Root route sends index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(ROOT_DIR, 'index.html'));
+});
+
+// Start Server
+app.listen(PORT, () => {
+  console.log(`========================================================`);
+  console.log(`🚀 JOBLEX Node.js Backend Server running on port ${PORT}`);
+  console.log(`Frontend: http://localhost:${PORT}`);
+  console.log(`API Base: http://localhost:${PORT}/api`);
+  console.log(`========================================================`);
+});
+
+module.exports = app;
