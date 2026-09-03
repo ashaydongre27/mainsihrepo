@@ -29,6 +29,11 @@
     </a>
 
     <div class="flex items-center gap-3">
+      <!-- Language Switcher (Idea #13) -->
+      <button onclick="JoblexAPI.setLang(JoblexAPI.getLang() === 'en' ? 'hi' : 'en')" class="text-[11px] sm:text-xs px-2.5 py-1 rounded-xl bg-gray-900 border border-emerald-500/30 text-emerald-200 hover:text-white font-bold transition">
+        🌐 EN / हिंदी
+      </button>
+
       <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-xl bg-gray-900 border border-emerald-500/30 text-xs">
         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
         <span class="text-gray-300">Dr. Sunita Sharma (Dean, AIIA)</span>
@@ -46,6 +51,9 @@
   <div class="bg-[#0a0a16] border-b border-gray-800 px-4 sm:px-8 flex overflow-x-auto no-scrollbar gap-6 pt-3">
     <button data-tab="Progress" onclick="switchAcademyTab('Progress')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-bold border-b-2 border-emerald-500 text-emerald-300 transition whitespace-nowrap">
       📊 Student Progress & Matrix
+    </button>
+    <button data-tab="TPO" onclick="switchAcademyTab('TPO')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
+      🎯 TPO Placement Command Center
     </button>
     <button data-tab="Syllabus" onclick="switchAcademyTab('Syllabus')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
       🧠 AI Syllabus Modernization (NEP 2020)
@@ -106,7 +114,55 @@
       </div>
     </section>
 
-    <!-- TAB 2: AI SYLLABUS MODERNIZATION -->
+    <!-- TAB 2: TPO PLACEMENT COMMAND CENTER (Idea #10) -->
+    <section id="academy-tab-TPO" class="academy-tab-content hidden space-y-5">
+      <div class="p-5 sm:p-7 rounded-3xl bg-gradient-to-r from-emerald-950/60 via-indigo-950/50 to-gray-900 border border-emerald-500/40 backdrop-blur-xl shadow-xl space-y-2">
+        <span class="text-[10px] uppercase font-bold text-emerald-300 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40">
+          Training & Placement Officer Command Center
+        </span>
+        <h3 class="text-xl sm:text-2xl font-extrabold text-white">Live Institutional Placement Funnel</h3>
+        <p class="text-xs sm:text-sm text-gray-300 max-w-2xl leading-relaxed">
+          Monitor application funnels in real-time, detect unengaged students early, and track predictive readiness scores before the final semester placement cycle.
+        </p>
+      </div>
+
+      <!-- Funnel Stats Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+        <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
+          <span class="text-xs text-gray-400 font-medium">Applications Sent</span>
+          <div id="tpo-applied" class="text-2xl sm:text-3xl font-black text-blue-400 mt-1">248</div>
+          <span class="text-[10px] text-gray-500">Across 8 Corporate Partners</span>
+        </div>
+        <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
+          <span class="text-xs text-gray-400 font-medium">Shortlisted for Rounds</span>
+          <div id="tpo-shortlisted" class="text-2xl sm:text-3xl font-black text-purple-400 mt-1">94</div>
+          <span class="text-[10px] text-purple-300">37.9% Conversion</span>
+        </div>
+        <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
+          <span class="text-xs text-gray-400 font-medium">Confirmed Offers</span>
+          <div id="tpo-placed" class="text-2xl sm:text-3xl font-black text-emerald-400 mt-1">52</div>
+          <span class="text-[10px] text-emerald-300">Avg CTC: ₹9.2 LPA</span>
+        </div>
+        <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
+          <span class="text-xs text-gray-400 font-medium">Predictive Readiness</span>
+          <div id="tpo-readiness" class="text-xl sm:text-2xl font-black text-cyan-400 mt-1">84% Ready</div>
+          <span class="text-[10px] text-cyan-300">Machine Learning projection</span>
+        </div>
+      </div>
+
+      <!-- Early Intervention Alert (Idea #10) -->
+      <div class="p-5 rounded-3xl bg-amber-950/30 border border-amber-500/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div>
+          <h4 class="font-bold text-sm text-amber-300">⚠️ Early TPO Intervention Trigger: 14 Scholars Below 60% Competency</h4>
+          <p class="text-xs text-gray-300 mt-0.5">Automated mock-interview invitations and bridge courses recommended to prevent placement drop-offs.</p>
+        </div>
+        <button onclick="alert('Triggered automated remedial roadmap cohorts for 14 at-risk scholars!')" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-gray-950 font-black text-xs transition whitespace-nowrap">
+          Launch Remedial Cohort
+        </button>
+      </div>
+    </section>
+
+    <!-- TAB 3: AI SYLLABUS MODERNIZATION & AUDIT (Idea #9) -->
     <section id="academy-tab-Syllabus" class="academy-tab-content hidden space-y-5">
       <div class="p-5 rounded-3xl bg-gradient-to-r from-emerald-900/30 to-blue-900/30 border border-emerald-500/30 backdrop-blur-md">
         <h3 class="text-xl font-bold text-emerald-300 mb-1">AI Curriculum Modernization (NEP-2020)</h3>
@@ -115,12 +171,28 @@
         </p>
       </div>
 
+      <!-- Automated Curriculum Gap Audit Card (Idea #9) -->
+      <div class="p-5 rounded-3xl bg-gray-900/80 border border-purple-500/30 backdrop-blur-xl shadow-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <span class="text-[10px] uppercase font-bold text-purple-300 px-2.5 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/40">
+            NAAC & NBA Accreditation Alignment
+          </span>
+          <h4 class="text-base font-bold text-white mt-1.5">Automated Curriculum Industry Gap Audit</h4>
+          <p class="text-xs text-gray-300 mt-0.5">
+            Current AIIA BAMS 2025-26 curriculum covers <strong>68%</strong> of live commercial pharmaceutical competencies. Top missing topics: <em>Computational Drug Docking</em>, <em>HPTLC Profiling</em>.
+          </p>
+        </div>
+        <button onclick="alert('Generating accredited NAAC/NEP-2020 syllabus compliance dossier (PDF)...')" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition whitespace-nowrap shadow-sm">
+          Download Compliance Audit 📄
+        </button>
+      </div>
+
       <div id="syllabus-proposals-grid" class="space-y-4">
         <!-- Rendered by js/academy.js -->
       </div>
     </section>
 
-    <!-- TAB 3: FACULTY DEVELOPMENT PROGRAMS -->
+    <!-- TAB 4: FACULTY DEVELOPMENT PROGRAMS -->
     <section id="academy-tab-FDP" class="academy-tab-content hidden space-y-5">
       <h3 class="text-lg font-bold text-white">Upcoming Faculty Development Programs (FDP)</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -154,7 +226,7 @@
       </div>
     </section>
 
-    <!-- TAB 4: CORPORATE MOUS -->
+    <!-- TAB 5: CORPORATE MOUS -->
     <section id="academy-tab-MoUs" class="academy-tab-content hidden space-y-5">
       <h3 class="text-lg font-bold text-white">Bilateral Corporate MoUs & Research Grants</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

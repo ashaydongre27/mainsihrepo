@@ -1,5 +1,9 @@
 /**
  * JOBLEX Industry Portal - Interactive Logic
+ * Enhanced with SIH 26044 Innovation Features:
+ * 6. Talent Pipeline Forecasting (Next 6 Months Supply vs Demand)
+ * 7. Skill Match ROI & Predictor Verification
+ * 4. Micro-Gigs Task Publishing
  */
 
 let activeIndustryTab = 'Candidates';
@@ -15,6 +19,7 @@ const CANDIDATES_DATA = [
 
 document.addEventListener('DOMContentLoaded', () => {
   renderCandidates();
+  renderTalentForecast();
 });
 
 function switchIndustryTab(tabId) {
@@ -60,7 +65,7 @@ function renderCandidates() {
       </div>
 
       <div class="flex gap-2 pt-3 border-t border-gray-800">
-        <button onclick="alert('Viewing full verified AIIA dossier for ${c.name}')" class="flex-1 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-semibold text-xs transition">
+        <button onclick="alert('Viewing full verified AIIA institutional dossier for ${c.name}')" class="flex-1 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-semibold text-xs transition">
           View Dossier
         </button>
         <button onclick="shortlistCandidate(${i}, this)" class="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition">
@@ -76,10 +81,34 @@ function shortlistCandidate(idx, btn) {
   btn.className = 'flex-1 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs transition cursor-default';
 }
 
+// ─────────────────────────────────────────────────────────────
+// TALENT PIPELINE FORECASTING (Idea #6)
+// ─────────────────────────────────────────────────────────────
+function renderTalentForecast() {
+  const container = document.getElementById('forecast-colleges-list');
+  if (!container || !JoblexAPI.talentForecast) return;
+
+  const tf = JoblexAPI.talentForecast;
+  container.innerHTML = tf.projectedTalentSupply.map(inst => `
+    <div class="p-4 rounded-2xl bg-black/40 border border-gray-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+      <div>
+        <h4 class="font-bold text-xs sm:text-sm text-white">${inst.institution}</h4>
+        <span class="text-xs text-cyan-300 mt-0.5 block">Trending Competency: ${inst.trendingSkill}</span>
+      </div>
+      <div class="flex items-center gap-3 self-end sm:self-auto">
+        <span class="text-xs text-gray-400 font-mono">Available: <strong>${inst.readyScholars} Scholars</strong></span>
+        <button onclick="alert('Booking priority campus interview slot with ${inst.institution}')" class="px-3 py-1.5 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/40 text-blue-200 font-bold text-xs transition">
+          Engage Early
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
 function handlePostOpportunity(e) {
   e.preventDefault();
   const title = document.getElementById('opp-post-title').value;
-  alert(`Opportunity "${title}" has been published to the student portal and verified by AIIA liaison!`);
+  alert(`Opportunity / Micro-Gig "${title}" has been published to the student portal and verified by AIIA liaison!`);
   e.target.reset();
   switchIndustryTab('Candidates');
 }

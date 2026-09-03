@@ -37,6 +37,11 @@
 
     <!-- User Status Metrics & Actions -->
     <div class="flex items-center gap-2 sm:gap-3">
+      <!-- Language Switcher (Idea #13) -->
+      <button onclick="JoblexAPI.setLang(JoblexAPI.getLang() === 'en' ? 'hi' : 'en')" class="text-[11px] sm:text-xs px-2.5 py-1 rounded-xl bg-gray-900 border border-purple-500/30 text-purple-200 hover:text-white font-bold transition">
+        🌐 EN / हिंदी
+      </button>
+
       <div class="flex items-center gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-gray-900/90 border border-purple-500/30 text-[11px] sm:text-xs">
         <span id="header-xp-badge" class="text-purple-400 font-bold">🔥 1450 XP</span>
         <span class="text-gray-600 hidden sm:inline">|</span>
@@ -58,6 +63,22 @@
       </a>
     </div>
   </header>
+
+  <!-- Skill Decay Alert Banner (Idea #1) -->
+  <div id="skill-decay-alert-banner" class="bg-gradient-to-r from-amber-950/90 via-purple-950/80 to-blue-950/90 border-b border-amber-500/40 px-4 sm:px-8 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs z-30 relative">
+    <div class="flex items-center gap-2">
+      <span class="text-base animate-pulse">⚠️</span>
+      <span class="text-gray-200">
+        <strong class="text-amber-300">Skill Decay Warning:</strong> Your <em>Good Laboratory Practice (GLP)</em> competency was certified 6 months ago. Industry GLP standards have been updated.
+      </span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="triggerQuickRefreshQuiz()" class="px-3 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold transition">
+        Take 2-Min Refresh Quiz (+50 XP)
+      </button>
+      <button onclick="dismissDecayAlert()" class="text-gray-400 hover:text-white text-sm">✕</button>
+    </div>
+  </div>
 
   <!-- Mobile Quick-Pills Navigation Bar -->
   <div class="lg:hidden flex overflow-x-auto gap-2 px-3 py-2 bg-[#0a0a16] border-b border-gray-800/80 no-scrollbar z-30 shrink-0">
@@ -99,8 +120,8 @@
               <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-500 text-white">+XP</span>
             </button>
             <button onclick="switchModule('Opportunities')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold text-gray-300 hover:bg-white/5">
-              <span>💼 Opportunities Board</span>
-              <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-blue-500 text-white">4 New</span>
+              <span>💼 Opportunities & Micro-Gigs</span>
+              <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-blue-500 text-white">New Gigs</span>
             </button>
             <button onclick="switchModule('Zulu')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold text-gray-300 hover:bg-white/5">
               <span>🤖 Zulu AI Companion</span>
@@ -148,7 +169,7 @@
           <div class="flex items-center justify-between w-full">
             <span class="font-bold text-xs text-white">📊 Student Overview</span>
           </div>
-          <span class="text-[11px] text-gray-400 mt-0.5">Profile & metrics</span>
+          <span class="text-[11px] text-gray-400 mt-0.5">Peer benchmarks & KPIs</span>
         </button>
 
         <button data-module="Quiz" onclick="switchModule('Quiz')" class="sidebar-nav-btn w-full flex flex-col items-start px-3.5 py-2 rounded-xl text-left transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
@@ -161,10 +182,10 @@
 
         <button data-module="Opportunities" onclick="switchModule('Opportunities')" class="sidebar-nav-btn w-full flex flex-col items-start px-3.5 py-2 rounded-xl text-left transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
           <div class="flex items-center justify-between w-full">
-            <span class="font-bold text-xs text-white">💼 Opportunities Board</span>
-            <span class="text-[9px] font-black px-1.5 py-0.5 rounded-full bg-gray-800 text-purple-300">4 New</span>
+            <span class="font-bold text-xs text-white">💼 Opportunities & Micro-Gigs</span>
+            <span class="text-[9px] font-black px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300">Gigs</span>
           </div>
-          <span class="text-[11px] text-gray-400 mt-0.5">Internships & jobs</span>
+          <span class="text-[11px] text-gray-400 mt-0.5">Internships & Task Gigs</span>
         </button>
 
         <button data-module="Zulu" onclick="switchModule('Zulu')" class="sidebar-nav-btn w-full flex flex-col items-start px-3.5 py-2 rounded-xl text-left transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
@@ -185,7 +206,7 @@
           <div class="flex items-center justify-between w-full">
             <span class="font-bold text-xs text-white">🏆 Verified Portfolio</span>
           </div>
-          <span class="text-[11px] text-gray-400 mt-0.5">Digital certificates</span>
+          <span class="text-[11px] text-gray-400 mt-0.5">QR Verified Credentials</span>
         </button>
       </div>
 
@@ -409,6 +430,62 @@
             </div>
           </div>
 
+          <!-- PEER BENCHMARKING WIDGET (Idea #2) -->
+          <div class="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-indigo-950/60 via-purple-950/60 to-gray-900/80 border border-purple-500/30 backdrop-blur-xl shadow-lg space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+              <div class="flex items-center gap-2">
+                <span class="text-2xl">👥</span>
+                <div>
+                  <h3 class="text-base sm:text-lg font-bold text-white">Anonymized Peer Benchmarking (AIIA Cohort)</h3>
+                  <p class="text-xs text-gray-400">See how your verified skills match against peers already hired at Dabur & Himalaya.</p>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-cyan-300 px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/40">
+                Top 22nd Percentile
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+              <div class="p-4 rounded-2xl bg-black/40 border border-gray-800 space-y-2">
+                <span class="text-xs text-gray-400 font-bold uppercase tracking-wider block">Cohort Comparison</span>
+                <div id="peer-score-diff" class="text-sm sm:text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-300">
+                  You: 78% vs Placed Peers: 86%
+                </div>
+                <p class="text-[11px] text-gray-400">Peers who secured offers at Dabur India & Patanjali average an 86% competence rating in analytical phytochemistry.</p>
+              </div>
+
+              <div class="p-4 rounded-2xl bg-black/40 border border-gray-800 space-y-2">
+                <span class="text-xs text-gray-400 font-bold uppercase tracking-wider block">Top Skills Placed Peers Have (That You Don't)</span>
+                <div id="peer-missing-skills-list" class="space-y-1.5">
+                  <!-- Rendered by js/student.js -->
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-end pt-1">
+              <button onclick="syncPeerSkillsToRoadmap()" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition shadow-sm">
+                + Sync Missing Peer Skills to Roadmap
+              </button>
+            </div>
+          </div>
+
+          <!-- FAILURE-AWARE RECOMMENDATION LOOP (Idea #5) -->
+          <div class="p-5 rounded-3xl bg-gray-900/80 border border-cyan-500/30 backdrop-blur-xl shadow-lg space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">🔄</span>
+                <h4 class="font-bold text-sm text-cyan-300">Application Feedback Loop: Dabur Formulation Associate</h4>
+              </div>
+              <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-cyan-950 text-cyan-200 border border-cyan-500/40">
+                Self-Improving Engine
+              </span>
+            </div>
+            <p class="text-xs text-gray-300 leading-relaxed">
+              <strong>Automated Interview Debrief:</strong> Candidate demonstrated strong botanical taxonomy, but lacked <em>Chromatographic HPLC Stability Profiling</em>. 
+              <strong>Remediation Action:</strong> 1 interactive HPTLC Chromatography module was automatically added to your Phase 2 Career Roadmap to close this gap for future hiring cycles!
+            </p>
+          </div>
+
           <!-- Live Industry Demands -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div class="p-5 rounded-2xl bg-gray-900/60 border border-purple-500/20 backdrop-blur-md space-y-3">
@@ -497,16 +574,17 @@
         </section>
 
         <!-- ========================================================= -->
-        <!-- MODULE 5: OPPORTUNITIES BOARD                            -->
+        <!-- MODULE 5: OPPORTUNITIES & MICRO-GIGS (Idea #4)           -->
         <!-- ========================================================= -->
         <section id="module-Opportunities" class="student-module-section hidden space-y-5">
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
-              <h2 class="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">JOBLEX Opportunities</h2>
-              <p class="text-gray-400 text-xs sm:text-sm mt-0.5">Discover internships, jobs, and hackathons tailored to your skills.</p>
+              <h2 class="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">JOBLEX Opportunities & Micro-Gigs</h2>
+              <p class="text-gray-400 text-xs sm:text-sm mt-0.5">Discover full internships, corporate jobs, hackathons, and paid 1-2 week micro-gigs.</p>
             </div>
             <div class="flex bg-gray-900/80 p-1 rounded-xl border border-gray-700 overflow-x-auto no-scrollbar self-stretch sm:self-auto">
               <button data-filter="All" onclick="renderOpportunities('All')" class="opp-filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-700 text-white shadow-sm transition">All</button>
+              <button data-filter="Micro-Gig" onclick="renderOpportunities('Micro-Gig')" class="opp-filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold text-amber-300 hover:text-white transition">⚡ Micro-Gigs (1-2 Wks)</button>
               <button data-filter="Internship" onclick="renderOpportunities('Internship')" class="opp-filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-white transition">Internship</button>
               <button data-filter="Job" onclick="renderOpportunities('Job')" class="opp-filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-white transition">Job</button>
               <button data-filter="Hackathon" onclick="renderOpportunities('Hackathon')" class="opp-filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-white transition">Hackathon</button>
@@ -582,7 +660,7 @@
         </section>
 
         <!-- ========================================================= -->
-        <!-- MODULE 8: VERIFIED PORTFOLIO                             -->
+        <!-- MODULE 8: VERIFIED PORTFOLIO & QR VERIFIER (Idea #14)    -->
         <!-- ========================================================= -->
         <section id="module-Portfolio" class="student-module-section hidden space-y-6">
           <div class="bg-gradient-to-r from-gray-900/80 to-purple-900/40 p-5 sm:p-7 rounded-3xl border border-purple-500/30 backdrop-blur-sm flex flex-col sm:flex-row items-center gap-5 shadow-lg">
@@ -596,6 +674,40 @@
                 <span class="px-3 py-1.5 bg-gray-800/80 rounded-xl border border-gray-700 font-mono text-xs text-purple-400">🔥 1450 XP Points</span>
                 <span class="px-3 py-1.5 bg-gray-800/80 rounded-xl border border-gray-700 font-mono text-xs text-cyan-400">🎯 7-Day Streak</span>
               </div>
+            </div>
+          </div>
+
+          <!-- Institutional Trust & Verification Badge (Idea #14) -->
+          <div class="p-5 rounded-3xl bg-gradient-to-r from-emerald-950/60 via-purple-950/50 to-gray-900 border border-emerald-500/40 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="text-emerald-400 font-black text-xs uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40">
+                  ✓ Verified by Institutional Authority
+                </span>
+                <span class="text-[10px] text-gray-400 font-mono">ID: AIIA-CERT-2026-9842</span>
+              </div>
+              <h3 class="text-base font-bold text-white">Tamper-Proof AIIA Verified Competency Ledger</h3>
+              <p class="text-xs text-gray-300">
+                Corporate recruiters (Dabur, Himalaya) scan this digital credential to verify lab certificates, clinical training hours, and faculty approvals.
+              </p>
+            </div>
+            <div class="p-2.5 rounded-2xl bg-white flex flex-col items-center shrink-0 shadow-lg">
+              <!-- QR Code Mock SVG -->
+              <svg width="70" height="70" viewBox="0 0 100 100" fill="black">
+                <rect width="30" height="30" fill="black"/>
+                <rect x="5" y="5" width="20" height="20" fill="white"/>
+                <rect x="10" y="10" width="10" height="10" fill="black"/>
+                <rect x="70" width="30" height="30" fill="black"/>
+                <rect x="75" y="5" width="20" height="20" fill="white"/>
+                <rect x="80" y="10" width="10" height="10" fill="black"/>
+                <rect y="70" width="30" height="30" fill="black"/>
+                <rect x="5" y="75" width="20" height="20" fill="white"/>
+                <rect x="10" y="80" width="10" height="10" fill="black"/>
+                <rect x="40" y="20" width="10" height="30" fill="black"/>
+                <rect x="45" y="60" width="20" height="15" fill="black"/>
+                <rect x="70" y="70" width="25" height="25" fill="black"/>
+              </svg>
+              <span class="text-[8px] text-gray-900 font-black tracking-tighter uppercase mt-1">Scan to Verify</span>
             </div>
           </div>
 

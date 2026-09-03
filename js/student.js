@@ -1,5 +1,12 @@
 /**
  * JOBLEX Student Portal - Core Interactive JavaScript
+ * Enhanced with SIH 26044 Innovation Ideas from otherIdeas.md:
+ * 1. Skill Decay & Refresh Alerts
+ * 2. Anonymized Peer Benchmarking (Percentile comparison with placed peers)
+ * 4. Micro-Internships / Task-Based Gigs (1-2 weeks)
+ * 5. Failure-Aware Recommendation Loop
+ * 13. Bilingual Localization (Hindi / English)
+ * 14. Trust & Verification Layer (QR Institutional Verification)
  */
 
 let roadmapState = null;
@@ -55,14 +62,17 @@ let quizState = {
   finished: false
 };
 
-// Opportunities List
+// Combined Opportunities & Micro-Gigs List
 const OPPORTUNITIES_DATA = [
   { id: 1, title: 'Phytochemical Research Intern', company: 'Dabur India Ltd.', type: 'Internship', skills: ['Herbal Formulation', 'Phytochemistry', 'GLP'], location: 'Ghaziabad / Hybrid', stipend: '₹22,000/mo', deadline: 'Oct 15, 2026' },
   { id: 2, title: 'Ayush AI Innovation Challenge', company: 'Ministry of Ayush & AIIA', type: 'Hackathon', skills: ['Python', 'Machine Learning', 'NLP'], location: 'New Delhi', stipend: 'Prize: ₹3,00,000', deadline: 'Nov 01, 2026' },
   { id: 3, title: 'Formulation Scientist', company: 'Patanjali Research Foundation', type: 'Job', skills: ['Ayurvedic Pharmacognosy', 'Nanomedicine', 'QC'], location: 'Haridwar', stipend: '₹8.5 - 12 LPA', deadline: 'Oct 30, 2026' },
   { id: 4, title: 'Health Informatics Intern', company: 'Himalaya Wellness Co.', type: 'Internship', skills: ['Data Analysis', 'Python', 'Clinical Trials'], location: 'Bangalore / Remote', stipend: '₹25,000/mo', deadline: 'Oct 20, 2026' },
-  { id: 5, title: 'Ayush Clinical Data Analyst', company: 'NITI Aayog Health Cell', type: 'Job', skills: ['Data Analysis', 'Python', 'Epidemiology'], location: 'New Delhi', stipend: '₹7.5 - 10 LPA', deadline: 'Dec 05, 2026' },
-  { id: 6, title: 'Global Traditional Medicine Hackathon', company: 'WHO Traditional Medicine Centre', type: 'Hackathon', skills: ['AI Research', 'Clinical Informatics'], location: 'Hybrid / Gujarat', stipend: 'Prize: $8,000', deadline: 'Nov 20, 2026' }
+  // Micro-Gigs (Idea #4)
+  { id: 'gig-1', title: 'Clean & Standardize 50 Ashwagandha Trial Records', company: 'Dabur Research Labs', type: 'Micro-Gig', skills: ['Data Analysis', 'Phytochemistry'], location: 'Remote (10 Days)', stipend: '₹6,000 Task Bounty', deadline: 'Oct 12, 2026' },
+  { id: 'gig-2', title: 'Annotate Charaka Samhita Sanskrit Botanical Lexicon', company: 'AIIA Digital Informatics Cell', type: 'Micro-Gig', skills: ['Ayurvedic Pharmacognosy', 'NLP'], location: 'Remote (7 Days)', stipend: '₹4,500 Task Bounty', deadline: 'Oct 18, 2026' },
+  { id: 'gig-3', title: 'Validate Stability Curves for Triphala Formulations', company: 'Patanjali Ayurved R&D', type: 'Micro-Gig', skills: ['GLP', 'Quality Control'], location: 'Hybrid (14 Days)', stipend: '₹8,000 Task Bounty', deadline: 'Oct 25, 2026' },
+  { id: 5, title: 'Ayush Clinical Data Analyst', company: 'NITI Aayog Health Cell', type: 'Job', skills: ['Data Analysis', 'Python', 'Epidemiology'], location: 'New Delhi', stipend: '₹7.5 - 10 LPA', deadline: 'Dec 05, 2026' }
 ];
 
 // Initialize on DOM load
@@ -82,6 +92,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Load Opportunities
   renderOpportunities('All');
+
+  // Load Peer Benchmarking & Decay Alert
+  renderPeerBenchmarking();
 
   // Load Skills Canvas if visible
   initSkillTree();
@@ -250,6 +263,53 @@ function handleCheckIn() {
     alertBox.innerText = 'Active: Point Decay Protected for next 72 Hours.';
     alertBox.className = 'text-xs text-emerald-400 font-medium';
   }
+}
+
+// ─────────────────────────────────────────────────────────────
+// PEER BENCHMARKING (Idea #2) & SKILL DECAY ALERT (Idea #1)
+// ─────────────────────────────────────────────────────────────
+function renderPeerBenchmarking() {
+  const benchData = JoblexAPI.peerBenchmarking;
+  if (!benchData) return;
+
+  const scoreDiffEl = document.getElementById('peer-score-diff');
+  const peerMissingBox = document.getElementById('peer-missing-skills-list');
+
+  if (scoreDiffEl) {
+    scoreDiffEl.innerText = `You: ${benchData.userPercentile}% vs Placed Peers: ${benchData.placedPeerAverageScore}%`;
+  }
+
+  if (peerMissingBox && benchData.topMissingPeerSkills) {
+    peerMissingBox.innerHTML = benchData.topMissingPeerSkills.map(s => `
+      <div class="flex items-center justify-between p-2 rounded-xl bg-black/40 border border-purple-500/20 text-xs">
+        <span class="font-medium text-purple-200">• ${s.name}</span>
+        <span class="text-[10px] text-gray-400 font-mono">${s.prevalence}</span>
+      </div>
+    `).join('');
+  }
+}
+
+function syncPeerSkillsToRoadmap() {
+  if (roadmapState && roadmapState.phases && roadmapState.phases[0]) {
+    roadmapState.phases[0].tasks.push({
+      id: `peer-gap-${Date.now()}`,
+      title: 'HPTLC Fingerprinting (Peer Benchmarking Insight)',
+      xp: 75,
+      completed: false
+    });
+    renderRoadmap();
+    alert('Peer competency gaps synced directly into your Career Roadmap Phase 1!');
+  }
+}
+
+function dismissDecayAlert() {
+  const alertEl = document.getElementById('skill-decay-alert-banner');
+  if (alertEl) alertEl.classList.add('hidden');
+}
+
+function triggerQuickRefreshQuiz() {
+  switchModule('Quiz');
+  startQuiz();
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -427,13 +487,12 @@ function handleQuizNext() {
 }
 
 // ─────────────────────────────────────────────────────────────
-// OPPORTUNITIES BOARD LOGIC
+// OPPORTUNITIES & MICRO-GIGS (Idea #4)
 // ─────────────────────────────────────────────────────────────
 function renderOpportunities(filter) {
   const container = document.getElementById('opps-cards-grid');
   if (!container) return;
 
-  // Update filter pill styles
   document.querySelectorAll('.opp-filter-pill').forEach(btn => {
     if (btn.getAttribute('data-filter') === filter) {
       btn.className = 'opp-filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-700 text-white shadow-sm transition';
@@ -451,6 +510,7 @@ function renderOpportunities(filter) {
     if (opp.type === 'Internship') badgeClass = 'bg-green-900/50 text-green-400 border-green-500/50';
     if (opp.type === 'Job') badgeClass = 'bg-blue-900/50 text-blue-400 border-blue-500/50';
     if (opp.type === 'Hackathon') badgeClass = 'bg-purple-900/50 text-purple-400 border-purple-500/50';
+    if (opp.type === 'Micro-Gig') badgeClass = 'bg-amber-900/50 text-amber-300 border-amber-500/50';
 
     return `
       <div class="bg-gray-900/50 p-5 rounded-2xl border border-gray-800 hover:border-cyan-500/50 transition-all flex flex-col justify-between backdrop-blur-sm group hover:-translate-y-0.5 shadow-md">
@@ -479,7 +539,7 @@ function renderOpportunities(filter) {
             <div class="col-span-2"><span class="mr-1 opacity-60">⏳</span> Deadline: ${opp.deadline}</div>
           </div>
           <button 
-            onclick="alert('Application submitted for ${opp.title}! Profile verified via AIIA credentials.')" 
+            onclick="alert('Application submitted for ${opp.title}! Profile verified via AIIA institutional credentials.')" 
             class="w-full py-2 bg-gray-800 hover:bg-cyan-900/40 border border-gray-700 hover:border-cyan-500 text-white rounded-xl transition text-xs font-semibold"
           >
             Apply Now
@@ -503,7 +563,6 @@ async function handleZuluSend(e) {
 
   const messagesBox = document.getElementById('zulu-messages-box');
 
-  // Append user message
   const userDiv = document.createElement('div');
   userDiv.className = 'flex justify-end';
   userDiv.innerHTML = `
@@ -514,7 +573,6 @@ async function handleZuluSend(e) {
   messagesBox.appendChild(userDiv);
   messagesBox.scrollTop = messagesBox.scrollHeight;
 
-  // Typing indicator
   const typingDiv = document.createElement('div');
   typingDiv.id = 'zulu-typing-indicator';
   typingDiv.className = 'flex justify-start';
@@ -529,14 +587,11 @@ async function handleZuluSend(e) {
   messagesBox.appendChild(typingDiv);
   messagesBox.scrollTop = messagesBox.scrollHeight;
 
-  // Call API
   const res = await JoblexAPI.askZulu(text);
 
-  // Remove typing
   const ind = document.getElementById('zulu-typing-indicator');
   if (ind) ind.remove();
 
-  // Append Zulu reply
   const zuluDiv = document.createElement('div');
   zuluDiv.className = 'flex justify-start';
   zuluDiv.innerHTML = `
@@ -593,7 +648,6 @@ function drawSkillTree() {
     [0, 1], [0, 2], [1, 3], [1, 4], [2, 5], [2, 6], [4, 7], [5, 8]
   ];
 
-  // Draw connecting gradient lines
   connections.forEach(([fromIdx, toIdx]) => {
     const from = skills[fromIdx];
     const to = skills[toIdx];
@@ -611,24 +665,20 @@ function drawSkillTree() {
     ctx.stroke();
   });
 
-  // Draw node points
   skills.forEach(skill => {
     const px = skill.x * w;
     const py = skill.y * h;
 
-    // Outer glow
     ctx.beginPath();
     ctx.arc(px, py, 14, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(168, 85, 247, 0.2)';
     ctx.fill();
 
-    // Core circle
     ctx.beginPath();
     ctx.arc(px, py, 7, 0, Math.PI * 2);
     ctx.fillStyle = skill.level >= 3 ? '#a855f7' : '#38bdf8';
     ctx.fill();
 
-    // Text Label
     ctx.font = '11px sans-serif';
     ctx.fillStyle = '#f1f5f9';
     ctx.textAlign = 'center';

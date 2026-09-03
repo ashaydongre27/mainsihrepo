@@ -1,5 +1,8 @@
 /**
  * JOBLEX Academy Portal - Interactive Logic
+ * Enhanced with SIH 26044 Innovation Ideas from otherIdeas.md:
+ * 9. Curriculum Gap Alerts & NEP-2020 Accreditation Audit
+ * 10. Placement Cell (TPO) Command Center
  */
 
 let activeAcademyTab = 'Progress';
@@ -43,19 +46,17 @@ const SYLLABUS_PROPOSALS = [
 document.addEventListener('DOMContentLoaded', () => {
   renderStudentTable();
   renderSyllabusProposals();
+  renderTPOMetrics();
 });
 
 function switchAcademyTab(tabId) {
   activeAcademyTab = tabId;
 
-  // Hide all sections
   document.querySelectorAll('.academy-tab-content').forEach(el => el.classList.add('hidden'));
 
-  // Show active section
   const target = document.getElementById(`academy-tab-${tabId}`);
   if (target) target.classList.remove('hidden');
 
-  // Update tabs UI
   document.querySelectorAll('.academy-nav-tab').forEach(btn => {
     if (btn.getAttribute('data-tab') === tabId) {
       btn.className = 'academy-nav-tab pb-2 text-xs sm:text-sm font-bold border-b-2 border-emerald-500 text-emerald-300 transition whitespace-nowrap';
@@ -131,4 +132,22 @@ function adoptProposal(id) {
     p.adopted = true;
     renderSyllabusProposals();
   }
+}
+
+// ─────────────────────────────────────────────────────────────
+// TPO COMMAND CENTER LOGIC (Idea #10)
+// ─────────────────────────────────────────────────────────────
+function renderTPOMetrics() {
+  const tpo = JoblexAPI.tpoMetrics;
+  if (!tpo) return;
+
+  const appliedEl = document.getElementById('tpo-applied');
+  const shortEl = document.getElementById('tpo-shortlisted');
+  const placedEl = document.getElementById('tpo-placed');
+  const readinessEl = document.getElementById('tpo-readiness');
+
+  if (appliedEl) appliedEl.innerText = tpo.funnel.applied;
+  if (shortEl) shortEl.innerText = tpo.funnel.shortlisted;
+  if (placedEl) placedEl.innerText = tpo.funnel.offersAccepted;
+  if (readinessEl) readinessEl.innerText = `${tpo.predictivePlacementReadiness}% Placement Ready`;
 }

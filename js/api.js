@@ -1,5 +1,13 @@
 /**
  * JOBLEX API Client with Built-in Fallbacks for Offline & Vercel Deployments
+ * Includes datasets for SIH 26044 Innovation Features:
+ * - Peer Benchmarking
+ * - Skill Decay & Refresh
+ * - Micro-Internships / Paid Gigs
+ * - Failure-Aware Learning Feedback
+ * - Talent Pipeline Forecasting
+ * - Institutional QR Verification
+ * - Bilingual Hindi/English Support
  */
 
 const API_BASE = window.JOBLEX_API_URL || 'http://127.0.0.1:5000/api';
@@ -32,13 +40,124 @@ const JoblexAPI = {
     }
   },
 
+  // Peer Benchmarking Data (Idea #2)
+  peerBenchmarking: {
+    userPercentile: 78,
+    branchAverageScore: 72,
+    placedPeerAverageScore: 86,
+    targetCompanies: ["Dabur India", "Himalaya Wellness", "Patanjali Research"],
+    topMissingPeerSkills: [
+      { name: "HPTLC Fingerprinting", prevalence: "88% of placed peers" },
+      { name: "In-Silico AutoDock Molecular Docking", prevalence: "74% of placed peers" },
+      { name: "GCP Clinical Trial Protocols", prevalence: "69% of placed peers" }
+    ]
+  },
+
+  // Micro-Internships / Task-Based Gigs (Idea #4)
+  microGigs: [
+    {
+      id: "gig-1",
+      title: "Clean & Standardize 50 Ashwagandha Trial Records",
+      company: "Dabur Research Labs",
+      stipend: "₹6,000",
+      duration: "10 Days",
+      mode: "Remote",
+      skills: ["Data Analysis", "Phytochemistry", "Excel/Python"],
+      deadline: "Oct 12, 2026",
+      type: "Micro-Gig"
+    },
+    {
+      id: "gig-2",
+      title: "Annotate Charaka Samhita Sanskrit Botanical Lexicon",
+      company: "AIIA Digital Informatics Cell",
+      stipend: "₹4,500",
+      duration: "7 Days",
+      mode: "Remote",
+      skills: ["Ayurvedic Pharmacognosy", "NLP Annotation", "Sanskrit"],
+      deadline: "Oct 18, 2026",
+      type: "Micro-Gig"
+    },
+    {
+      id: "gig-3",
+      title: "Validate Stability Curves for Triphala Formulations",
+      company: "Patanjali Ayurved R&D",
+      stipend: "₹8,000",
+      duration: "14 Days",
+      mode: "Hybrid",
+      skills: ["GLP", "Quality Control", "Herbal Formulation"],
+      deadline: "Oct 25, 2026",
+      type: "Micro-Gig"
+    }
+  ],
+
+  // Talent Pipeline Forecasting for Industry (Idea #6)
+  talentForecast: {
+    role: "Herbal Formulation & Phytochemical Scientists",
+    timeframe: "Next 6 Months (Oct 2026 - Mar 2027)",
+    estimatedIndustryDemand: 65,
+    projectedTalentSupply: [
+      { institution: "All India Institute of Ayurveda (AIIA), New Delhi", readyScholars: 24, trendingSkill: "HPTLC & Formulation (+35%)" },
+      { institution: "National Institute of Ayurveda (NIA), Jaipur", readyScholars: 18, trendingSkill: "Pharmacology & Clinical (+28%)" },
+      { institution: "Faculty of Ayurveda, BHU Varanasi", readyScholars: 15, trendingSkill: "Phytochemistry & QC (+22%)" },
+      { institution: "Gujarat Ayurved University, Jamnagar", readyScholars: 12, trendingSkill: "Drug Discovery & Docking (+40%)" }
+    ]
+  },
+
+  // Placement Cell / TPO Metrics for Colleges (Idea #10)
+  tpoMetrics: {
+    registeredStudents: 342,
+    funnel: {
+      applied: 248,
+      shortlisted: 94,
+      offersAccepted: 52,
+      pendingInterviews: 28
+    },
+    predictivePlacementReadiness: 84, // 84% on track to placement
+    ghostingRate: "4.2% (Industry leading)",
+    urgentInterventionNeeded: 14 // Students needing mock interview / gap closing
+  },
+
+  // Bilingual UI Translations (Idea #13)
+  translations: {
+    en: {
+      portalTitle: "JOBLEX",
+      portalSubtitle: "Ministry of Ayush · Problem Statement 26044",
+      heroTitle: "Next-Gen Skill Synergy on",
+      heroSubtitle: "Bridging academia and industries with AI skill mapping, gamified career roadmaps, dynamic syllabus modernization, and verified placement pipelines.",
+      studentGateway: "Student Sector",
+      academyGateway: "Academy Sector",
+      industryGateway: "Industry Sector",
+      accessButton: "⚡ Enter JOBLEX Portal / Access Roles ➔"
+    },
+    hi: {
+      portalTitle: "जॉबलेक्स (JOBLEX)",
+      portalSubtitle: "आयुष मंत्रालय · समस्या विवरण ID: 26044",
+      heroTitle: "अगली पीढ़ी का कौशल तालमेल",
+      heroSubtitle: "एआई कौशल मैपिंग, गेमीफाइड करियर रोडमैप, गतिशील पाठ्यक्रम आधुनिकीकरण और सत्यापित प्लेसमेंट पाइपलाइन के माध्यम से शिक्षा और उद्योग को जोड़ना।",
+      studentGateway: "विद्यार्थी क्षेत्र (Student Portal)",
+      academyGateway: "अकादमिक संस्थान (Academy Portal)",
+      industryGateway: "उद्योग एवं प्लेसमेंट (Industry Portal)",
+      accessButton: "⚡ जॉबलेक्स पोर्टल में प्रवेश करें ➔"
+    }
+  },
+
+  // Language management
+  getLang() {
+    return localStorage.getItem('joblex_lang') || 'en';
+  },
+
+  setLang(lang) {
+    localStorage.setItem('joblex_lang', lang);
+    window.location.reload();
+  },
+
   // Auth Helpers
   getCurrentUser() {
     const data = localStorage.getItem('joblex_user');
     if (data) {
       try { return JSON.parse(data); } catch(e) {}
     }
-    return this.demoUsers.student; // Default to demo student
+    return this.demoUsers.student;
   },
 
   setCurrentUser(user) {
@@ -65,7 +184,6 @@ const JoblexAPI = {
     } catch(e) {
       console.warn('API unreachable, using local fallback:', e);
     }
-    // Fallback
     const user = this.demoUsers[role] || { name: 'Demo User', email, role };
     this.setCurrentUser(user);
     return { success: true, user };
@@ -76,7 +194,6 @@ const JoblexAPI = {
       const res = await fetch(`${API_BASE}/roadmap`);
       if (res.ok) return await res.json();
     } catch(e) {}
-    // Fallback Roadmap
     return {
       currentPhase: 1,
       totalXp: 1450,
@@ -137,7 +254,6 @@ const JoblexAPI = {
       });
       if (res.ok) return await res.json();
     } catch(e) {}
-    // Fallback AI Analysis
     return {
       success: true,
       targetRole: role,
