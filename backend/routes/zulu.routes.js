@@ -88,7 +88,7 @@ To analyze your CV against real industry criteria:
   }
 
   // Anti-Decay XP & Streak
-  if (lower.includes('decay') || lower.includes('streak') || lower.includes('freeze') || lower.includes('points') || lower.includes('xp')) {
+  if (lower.includes('decay') || lower.includes('streak') || lower.includes('freeze') || lower.includes('point') || /\bxp\b/.test(lower)) {
     return `### 🔥 Anti-Decay XP Mechanism
 In JOBLEX, skills reflect active mastery rather than static certificates:
 • If you remain inactive for **72 hours**, your competency points decay at **50 XP/day**.
@@ -129,6 +129,15 @@ Head to the **Opportunities Board** tab to apply with 1-click verified credentia
 In traditional hiring, students apply and wait. In JOBLEX:
 • Corporate talent teams query our verified competency database for specific skills (e.g., *AutoDock*, *Phytochemistry*, *GLP*).
 • If your **Inbound Recruiter Discovery** toggle in your Portfolio is **Active**, recruiters can directly transmit interview invitations to you—even before you submit an application!`;
+  }
+
+  // Hackathons & Competitions
+  if (lower.includes('hackathon') || lower.includes('challenge') || lower.includes('competition')) {
+    return `### 🏆 Ayush AI Innovation Challenge 2026
+The Ministry of Ayush & AIIA are hosting national innovation challenges:
+• **Prize Bounty**: ₹3,00,000 for top winning prototypes.
+• **Key Focus Areas**: Machine learning Prakriti classification, NLP for ancient Sanskrit medical lexicons, and IoT botanical shelf-life tracking.
+• **How to Join**: Check the Opportunities Board tab to register your team directly!`;
   }
 
   // MoUs, Syllabus & NEP 2020
