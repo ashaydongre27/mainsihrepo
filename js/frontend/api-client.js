@@ -233,12 +233,12 @@ const JoblexApiClient = {
   },
 
   // Zulu AI Chat
-  async askZulu(message) {
+  async askZulu(message, context = {}) {
     try {
       const res = await fetch(`${API_BASE}/zulu/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message })
+        body: JSON.stringify({ message, context })
       });
       if (res.ok) return await res.json();
     } catch(e) {}

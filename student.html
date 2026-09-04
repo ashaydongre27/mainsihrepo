@@ -599,48 +599,55 @@
         <!-- ========================================================= -->
         <!-- MODULE 6: ZULU AI COMPANION                              -->
         <!-- ========================================================= -->
-        <section id="module-Zulu" class="student-module-section hidden">
-          <div class="flex flex-col max-w-4xl mx-auto h-[520px] sm:h-[600px] bg-gray-900/80 rounded-2xl border border-purple-500/30 backdrop-blur-xl overflow-hidden shadow-lg w-full">
+        <section id="module-Zulu" class="student-module-section hidden space-y-4">
+          <div class="flex flex-col max-w-4xl mx-auto h-[550px] sm:h-[620px] bg-gray-900/80 rounded-3xl border border-purple-500/40 backdrop-blur-xl overflow-hidden shadow-2xl w-full">
             <!-- Header -->
-            <div class="bg-gray-950/80 px-4 py-3 border-b border-purple-500/20 flex items-center justify-between">
-              <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-500 flex items-center justify-center font-black text-white text-sm relative">
+            <div class="bg-gray-950/90 px-4 sm:px-6 py-3.5 border-b border-purple-500/30 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-400 flex items-center justify-center font-black text-white text-base relative shadow-[0_0_15px_rgba(168,85,247,0.5)]">
                   Z
-                  <div class="absolute bottom-0 right-0 w-2 h-2 bg-emerald-400 border-2 border-gray-900 rounded-full animate-ping"></div>
-                  <div class="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 border-2 border-gray-900 rounded-full"></div>
+                  <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 border-2 border-gray-900 rounded-full animate-ping"></div>
+                  <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-gray-900 rounded-full"></div>
                 </div>
                 <div>
-                  <h3 class="font-bold text-white text-xs sm:text-sm flex items-center gap-1.5">
-                    Zulu AI Counselor
-                    <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40">Active</span>
+                  <h3 class="font-bold text-white text-xs sm:text-sm flex items-center gap-2">
+                    Zulu AI Career Counselor
+                    <span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold">Online</span>
                   </h3>
-                  <p class="text-[10px] text-purple-300/80">Context-Aware Career Guidance & Skill Mapping</p>
+                  <p class="text-[10px] sm:text-[11px] text-purple-300/90">Ministry of Ayush & AIIA Domain Intelligence</p>
                 </div>
               </div>
-              <span class="hidden sm:block text-[11px] text-gray-400">Powered by Google AI Studio</span>
+              <div class="flex items-center gap-2">
+                <button onclick="clearZuluChat()" title="Reset Conversation" class="text-xs px-2.5 py-1 rounded-xl bg-gray-800/80 hover:bg-gray-700 text-gray-300 hover:text-white border border-gray-700 font-semibold transition flex items-center gap-1">
+                  <span>🗑️</span> <span class="hidden sm:inline">Clear Chat</span>
+                </button>
+              </div>
             </div>
 
             <!-- Messages Stream -->
-            <div id="zulu-messages-box" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+            <div id="zulu-messages-box" class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3.5 custom-scrollbar">
               <div class="flex justify-start">
-                <div class="max-w-[85%] p-3.5 rounded-2xl bg-gray-900/90 border border-purple-500/30 text-gray-100 rounded-bl-none text-xs sm:text-sm leading-relaxed shadow-sm">
-                  Greetings! I am Zulu, your AI Career & Skill Intelligence Companion for the Ayush & HealthTech sectors. How can I assist with your career roadmap, skill gaps, or industry internships today? 🚀
+                <div class="max-w-[85%] p-4 rounded-2xl bg-gray-900/95 border border-purple-500/30 text-gray-100 rounded-bl-none text-xs sm:text-sm leading-relaxed shadow-sm">
+                  Namaste! 🌿 I am <strong>Zulu</strong>, your 24/7 AI Career Counselor. I can guide you through closing resume skill gaps for pharma giants (Dabur, Himalaya), explain chromatographic standardization (HPTLC), or help you choose your next Career Roadmap milestone.
                 </div>
               </div>
             </div>
 
-            <!-- Quick Suggestions -->
-            <div class="px-3 py-2 bg-black/40 border-t border-gray-800/80 overflow-x-auto no-scrollbar flex gap-2">
-              <button onclick="sendQuickPrompt('How does the point decay system work?')" class="whitespace-nowrap px-2.5 py-1 rounded-lg bg-gray-800/60 hover:bg-gray-700 text-gray-300 text-[11px] border border-gray-700 transition">How does point decay work?</button>
-              <button onclick="sendQuickPrompt('Which skills does Dabur require for interns?')" class="whitespace-nowrap px-2.5 py-1 rounded-lg bg-gray-800/60 hover:bg-gray-700 text-gray-300 text-[11px] border border-gray-700 transition">What does Dabur require?</button>
-              <button onclick="sendQuickPrompt('How to prepare for Ayush AI Hackathon?')" class="whitespace-nowrap px-2.5 py-1 rounded-lg bg-gray-800/60 hover:bg-gray-700 text-gray-300 text-[11px] border border-gray-700 transition">Ayush AI Hackathon prep</button>
+            <!-- Quick Suggestions (6 options) -->
+            <div class="px-3 py-2 bg-black/50 border-t border-gray-800/80 overflow-x-auto no-scrollbar flex gap-2 shrink-0">
+              <button onclick="sendQuickPrompt('How do I close my skill gap for Dabur Formulation Scientist?')" class="whitespace-nowrap px-3 py-1.5 rounded-xl bg-purple-950/40 hover:bg-purple-900/60 text-purple-200 text-[11px] border border-purple-500/30 font-medium transition">⚡ Dabur skill gaps?</button>
+              <button onclick="sendQuickPrompt('Explain HPTLC fingerprinting in simple terms.')" class="whitespace-nowrap px-3 py-1.5 rounded-xl bg-purple-950/40 hover:bg-purple-900/60 text-purple-200 text-[11px] border border-purple-500/30 font-medium transition">🧪 Explain HPTLC</button>
+              <button onclick="sendQuickPrompt('What are Micro-Gigs and how do I earn bounties?')" class="whitespace-nowrap px-3 py-1.5 rounded-xl bg-purple-950/40 hover:bg-purple-900/60 text-purple-200 text-[11px] border border-purple-500/30 font-medium transition">💼 Micro-Gigs & bounties</button>
+              <button onclick="sendQuickPrompt('How does the Anti-Decay XP preservation system work?')" class="whitespace-nowrap px-3 py-1.5 rounded-xl bg-purple-950/40 hover:bg-purple-900/60 text-purple-200 text-[11px] border border-purple-500/30 font-medium transition">🔥 Anti-Decay XP</button>
+              <button onclick="sendQuickPrompt('How to prepare for Ayush AI Hackathon?')" class="whitespace-nowrap px-3 py-1.5 rounded-xl bg-purple-950/40 hover:bg-purple-900/60 text-purple-200 text-[11px] border border-purple-500/30 font-medium transition">🏆 Hackathon prep</button>
+              <button onclick="sendQuickPrompt('How does Reverse Application headhunting work?')" class="whitespace-nowrap px-3 py-1.5 rounded-xl bg-purple-950/40 hover:bg-purple-900/60 text-purple-200 text-[11px] border border-purple-500/30 font-medium transition">⚡ Reverse headhunting</button>
             </div>
 
             <!-- Input Form -->
-            <form id="zulu-chat-form" onsubmit="handleZuluSend(event)" class="p-3 bg-gray-950/90 border-t border-purple-500/20 flex gap-2">
-              <input id="zulu-input" type="text" placeholder="Ask Zulu about skills, Dabur internships, electives..." class="flex-1 bg-gray-900 border border-purple-500/30 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-400">
-              <button type="submit" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs sm:text-sm transition shrink-0">
-                Send ➔
+            <form id="zulu-chat-form" onsubmit="handleZuluSend(event)" class="p-3 sm:p-4 bg-gray-950 border-t border-purple-500/30 flex gap-2 shrink-0">
+              <input id="zulu-input" type="text" placeholder="Ask Zulu about skills, Dabur internships, HPTLC, roadmap tasks..." class="flex-1 bg-gray-900/90 border border-purple-500/40 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400">
+              <button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs sm:text-sm shadow-md transition shrink-0 flex items-center gap-1.5">
+                <span>Send</span> <span>➔</span>
               </button>
             </form>
           </div>
@@ -790,6 +797,13 @@
       </div>
     </main>
   </div>
+
+  <!-- Floating Zulu AI Persistent Action Button -->
+  <button onclick="toggleFloatingZulu()" title="Ask Zulu AI Career Companion" class="fixed bottom-5 right-5 z-40 px-4 py-2.5 rounded-full bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-white shadow-[0_0_25px_rgba(168,85,247,0.6)] border border-purple-400/50 flex items-center gap-2 transition hover:scale-105 active:scale-95 group">
+    <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center font-black text-xs">🤖</div>
+    <span class="text-xs font-bold tracking-wide">Ask Zulu AI</span>
+    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+  </button>
 
   <!-- Frontend Scripts (Cleanly separated from Backend) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>

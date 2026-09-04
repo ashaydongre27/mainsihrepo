@@ -466,6 +466,20 @@ async function renderOpportunities(filter) {
 }
 
 // Zulu AI Chat
+function formatZuluMarkdown(text) {
+  if (!text) return '';
+  return text
+    .replace(/^### (.*$)/gim, '<h4 class="font-bold text-white text-sm my-1.5 text-purple-300">$1</h4>')
+    .replace(/^## (.*$)/gim, '<h3 class="font-bold text-white text-base my-2 text-purple-200">$1</h3>')
+    .replace(/\*\*(.*?)\*\*/gim, '<strong class="text-white font-semibold">$1</strong>')
+    .replace(/\*(.*?)\*/gim, '<em class="text-purple-200">$1</em>')
+    .replace(/`([^`]+)`/gim, '<code class="bg-black/60 px-1.5 py-0.5 rounded text-cyan-300 font-mono text-[11px]">$1</code>')
+    .replace(/^• (.*$)/gim, '<li class="ml-4 list-disc text-gray-200 text-xs sm:text-sm my-0.5">$1</li>')
+    .replace(/^- (.*$)/gim, '<li class="ml-4 list-disc text-gray-200 text-xs sm:text-sm my-0.5">$1</li>')
+    .replace(/\n\n/g, '<br/><br/>')
+    .replace(/\n/g, '<br/>');
+}
+
 async function handleZuluSend(e) {
   e.preventDefault();
   const input = document.getElementById('zulu-input');
@@ -490,8 +504,8 @@ async function handleZuluSend(e) {
   typingDiv.id = 'zulu-typing-indicator';
   typingDiv.className = 'flex justify-start';
   typingDiv.innerHTML = `
-    <div class="bg-gray-900/90 border border-purple-500/30 px-3.5 py-2.5 rounded-2xl rounded-bl-none flex items-center gap-1.5">
-      <span class="text-xs text-purple-300 mr-1.5">Zulu is synthesizing...</span>
+    <div class="bg-gray-900/90 border border-purple-500/30 px-3.5 py-2.5 rounded-2xl rounded-bl-none flex items-center gap-1.5 shadow-sm">
+      <span class="text-xs text-purple-300 mr-1.5 font-medium">Zulu is synthesizing...</span>
       <div class="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce"></div>
       <div class="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce [animation-delay:0.2s]"></div>
       <div class="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce [animation-delay:0.4s]"></div>
@@ -500,16 +514,26 @@ async function handleZuluSend(e) {
   messagesBox.appendChild(typingDiv);
   messagesBox.scrollTop = messagesBox.scrollHeight;
 
-  const res = await JoblexApiClient.askZulu(text);
+  const studentContext = {
+    studentName: 'Ashay Verma',
+    institution: 'All India Institute of Ayurveda (AIIA)',
+    department: 'Ayurvedic Pharmacology & Health-AI',
+    xp: currentXp,
+    streak: currentStreak,
+    targetRole: 'Herbal Formulation Scientist'
+  };
+
+  const res = await JoblexApiClient.askZulu(text, studentContext);
 
   const ind = document.getElementById('zulu-typing-indicator');
   if (ind) ind.remove();
 
+  const formattedReply = formatZuluMarkdown(res.reply);
   const zuluDiv = document.createElement('div');
   zuluDiv.className = 'flex justify-start';
   zuluDiv.innerHTML = `
-    <div class="max-w-[85%] p-3.5 rounded-2xl bg-gray-900/90 border border-purple-500/30 text-gray-100 rounded-bl-none text-xs sm:text-sm leading-relaxed shadow-sm">
-      ${res.reply}
+    <div class="max-w-[85%] p-4 rounded-2xl bg-gray-900/95 border border-purple-500/30 text-gray-100 rounded-bl-none text-xs sm:text-sm leading-relaxed shadow-md space-y-1">
+      ${formattedReply}
     </div>
   `;
   messagesBox.appendChild(zuluDiv);
@@ -521,6 +545,29 @@ function sendQuickPrompt(promptText) {
   if (input) {
     input.value = promptText;
     document.getElementById('zulu-chat-form').dispatchEvent(new Event('submit'));
+  }
+}
+
+function clearZuluChat() {
+  const box = document.getElementById('zulu-messages-box');
+  if (box) {
+    box.innerHTML = `
+      <div class="flex justify-start">
+        <div class="max-w-[85%] p-3.5 rounded-2xl bg-gray-900/90 border border-purple-500/30 text-gray-100 rounded-bl-none text-xs sm:text-sm leading-relaxed shadow-sm">
+          Conversation refreshed! I am <strong>Zulu</strong>, your AI Career & Skill Intelligence Companion. How can I assist you with your career roadmap, skill gaps, or industry internships today? 🚀
+        </div>
+      </div>
+    `;
+  }
+}
+
+function toggleFloatingZulu() {
+  switchModule('Zulu');
+  const zuluSection = document.getElementById('module-Zulu');
+  if (zuluSection) {
+    zuluSection.scrollIntoView({ behavior: 'smooth' });
+    const input = document.getElementById('zulu-input');
+    if (input) setTimeout(() => input.focus(), 150);
   }
 }
 
