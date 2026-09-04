@@ -6,29 +6,18 @@
 
 const express = require('express');
 const router = express.Router();
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { generateWithFailover, isGoogleApiConfigured } = require('../services/ai.service');
 const DB = require('../data/database');
 
 /**
- * AI-powered curriculum audit using Google Gemini
+ * AI-powered curriculum audit using LangGraph Failover Orchestrator
  */
 async function auditCurriculumWithGemini(syllabusText, department) {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-  if (!apiKey || apiKey.trim() === '' || apiKey.includes('your_gemini_api_key')) {
+  if (!isGoogleApiConfigured()) {
     return null;
   }
 
-  try {
-    const genAI = new GoogleGenerativeAI(apiKey.trim());
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
-      generationConfig: {
-        temperature: 0.2,
-        responseMimeType: 'application/json'
-      }
-    });
-
-    const prompt = `You are the lead Academic Accreditation and Curriculum Modernization Auditor for the Ministry of Ayush, working under the National Education Policy (NEP-2020) and NAAC guidelines.
+  const prompt = `You are the lead Academic Accreditation and Curriculum Modernization Auditor for the Ministry of Ayush, working under the National Education Policy (NEP-2020) and NAAC guidelines.
 
 Audit this university department syllabus for "${department}":
 """
@@ -51,13 +40,20 @@ Return ONLY a JSON object matching this schema:
   "modernizationRecommendations": string[] (3 specific modern topics to incorporate)
 }`;
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
-    if (text) {
-      return JSON.parse(text);
+  try {
+    const result = await generateWithFailover({
+      prompt,
+      systemInstruction: 'You are an AI curriculum evaluation specialist for the Ministry of Ayush. Always return raw, valid JSON.',
+      temperature: 0.2,
+      jsonMode: true
+    });
+
+    if (result && result.text) {
+      const cleanJson = result.text.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+      return JSON.parse(cleanJson);
     }
   } catch (err) {
-    console.error('[Curriculum Audit Gemini Error]:', err.message);
+    console.error('[Curriculum Audit LangGraph Error]:', err.message);
   }
   return null;
 }

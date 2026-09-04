@@ -6,7 +6,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { generateWithFailover, isGoogleApiConfigured, getMainApiKey, getBackupApiKey } = require('../services/ai.service');
 
 const ZULU_SYSTEM_INSTRUCTION = `You are Zulu, the premier AI Career & Research Counselor for JOBLEX — the flagship Academia-Industry Collaboration Platform developed for the Ministry of Ayush and All India Institute of Ayurveda (AIIA) (Problem Statement ID: 26044).
 
@@ -24,27 +24,12 @@ Tone & Style:
 - Never output programming syntax errors or system trace dumps.`;
 
 /**
- * Helper to get a configured Google Generative AI client
- */
-function getGeminiApiKey() {
-  const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-  if (!key || key.trim() === '' || key.includes('your_gemini_api_key')) {
-    return null;
-  }
-  return key.trim();
-}
-
-/**
- * Call Google Gemini using official SDK with model fallback
+ * Call Google Gemini using LangGraph Orchestrator with Multi-Key Failover
  */
 async function generateWithGemini(userMessage, conversationHistory = [], studentContext = null) {
-  const apiKey = getGeminiApiKey();
-  if (!apiKey) {
+  if (!isGoogleApiConfigured()) {
     return null;
   }
-
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const candidateModels = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'];
 
   // Format context prefix
   let contextPrompt = '';
@@ -53,90 +38,21 @@ async function generateWithGemini(userMessage, conversationHistory = [], student
     contextPrompt = `[Student Profile Context: Name: ${name || 'Scholar'}, Institution: ${institution || 'AIIA'}, Department: ${department || 'Ayush'}, Current XP: ${xp || 1450}, Streak: ${streak || 7} days, Target Role: ${targetRole || 'Research Scientist'}, Verified Skills: ${(verifiedSkills || []).join(', ') || 'Ayurvedic Pharmacognosy'}]\n\n`;
   }
 
-  for (const modelName of candidateModels) {
-    try {
-      const model = genAI.getGenerativeModel({
-        model: modelName,
-        systemInstruction: ZULU_SYSTEM_INSTRUCTION
-      });
+  const promptToSend = contextPrompt ? `${contextPrompt}${userMessage}` : userMessage;
 
-      // Format conversation history for multi-turn chat
-      if (Array.isArray(conversationHistory) && conversationHistory.length > 0) {
-        const formattedHistory = conversationHistory
-          .filter(h => h.role && h.text)
-          .map(h => ({
-            role: h.role === 'user' ? 'user' : 'model',
-            parts: [{ text: h.text }]
-          }));
+  const result = await generateWithFailover({
+    prompt: promptToSend,
+    systemInstruction: ZULU_SYSTEM_INSTRUCTION,
+    history: conversationHistory,
+    temperature: 0.7
+  });
 
-        const chat = model.startChat({
-          history: formattedHistory,
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 1000
-          }
-        });
-
-        const promptToSend = contextPrompt ? `${contextPrompt}${userMessage}` : userMessage;
-        const result = await chat.sendMessage(promptToSend);
-        const responseText = result.response.text();
-        if (responseText) {
-          return { text: responseText.trim(), model: modelName };
-        }
-      } else {
-        // Single prompt generation
-        const fullPrompt = `${contextPrompt}${userMessage}`;
-        const result = await model.generateContent({
-          contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 1000
-          }
-        });
-
-        const responseText = result.response.text();
-        if (responseText) {
-          return { text: responseText.trim(), model: modelName };
-        }
-      }
-    } catch (err) {
-      console.error(`[Zulu Gemini SDK Error on ${modelName}]:`, err.message);
-      // Try next candidate model
-      continue;
-    }
-  }
-
-  // Fallback to direct REST API if SDK encountered issues
-  try {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-    const restResponse = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: 'user',
-            parts: [{ text: `${ZULU_SYSTEM_INSTRUCTION}\n\n${contextPrompt}${userMessage}` }]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 1000
-        }
-      })
-    });
-
-    if (restResponse.ok) {
-      const data = await restResponse.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (text) {
-        return { text: text.trim(), model: 'gemini-1.5-flash-rest' };
-      }
-    } else {
-      console.error('[Zulu Gemini REST API Error]: Status', restResponse.status);
-    }
-  } catch (restErr) {
-    console.error('[Zulu Gemini REST Call Failed]:', restErr.message);
+  if (result && result.text) {
+    return {
+      text: result.text,
+      model: result.provider,
+      keyType: result.keyType
+    };
   }
 
   return null;
@@ -210,12 +126,19 @@ router.post('/chat', async (req, res) => {
  * Health and configuration status of Zulu AI engine
  */
 router.get('/status', (req, res) => {
-  const hasKey = Boolean(getGeminiApiKey());
+  const isConfigured = isGoogleApiConfigured();
+  const hasMain = Boolean(getMainApiKey());
+  const hasBackup = Boolean(getBackupApiKey());
+
   res.json({
     success: true,
-    engine: 'Zulu AI Career Companion',
-    googleApiConfigured: hasKey,
-    activeModel: hasKey ? 'gemini-1.5-flash / gemini-2.0-flash' : 'guided-engine'
+    engine: 'Zulu AI Career Companion (LangGraph Failover Orchestrator)',
+    googleApiConfigured: isConfigured,
+    keys: {
+      mainConfigured: hasMain,
+      backupConfigured: hasBackup
+    },
+    activeModel: isConfigured ? 'LangGraph (gemini-1.5-flash / gemini-2.0-flash failover pool)' : 'guided-engine'
   });
 });
 

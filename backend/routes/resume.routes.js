@@ -6,7 +6,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { generateWithFailover, isGoogleApiConfigured } = require('../services/ai.service');
 
 const ROLE_BENCHMARKS = {
   "Herbal Formulation Scientist": {
@@ -63,25 +63,14 @@ const ROLE_BENCHMARKS = {
 };
 
 /**
- * Perform AI Resume Analysis using Google Gemini
+ * Perform AI Resume Analysis using LangGraph Failover Orchestrator
  */
 async function analyzeWithGemini(resumeText, targetRole, standard) {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-  if (!apiKey || apiKey.trim() === '' || apiKey.includes('your_gemini_api_key')) {
+  if (!isGoogleApiConfigured()) {
     return null;
   }
 
-  try {
-    const genAI = new GoogleGenerativeAI(apiKey.trim());
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
-      generationConfig: {
-        temperature: 0.2,
-        responseMimeType: 'application/json'
-      }
-    });
-
-    const prompt = `You are the lead Technical Recruiter and AI Competency Evaluator for the Ministry of Ayush and major corporate pharmaceutical partners (Dabur, Himalaya Wellness, Patanjali).
+  const prompt = `You are the lead Technical Recruiter and AI Competency Evaluator for the Ministry of Ayush and major corporate pharmaceutical partners (Dabur, Himalaya Wellness, Patanjali).
 
 Analyze this student resume for the role: "${targetRole}".
 Required industry competency baseline: ${JSON.stringify(standard.requiredSkills)}
@@ -101,14 +90,20 @@ Evaluate the candidate and return ONLY valid JSON matching this exact schema:
   "recommendations": string[] (3-4 highly specific, actionable steps the student should take to reach the benchmark)
 }`;
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
-    if (text) {
-      const parsed = JSON.parse(text);
-      return parsed;
+  try {
+    const result = await generateWithFailover({
+      prompt,
+      systemInstruction: 'You are an AI competency and resume evaluation assistant for the Ministry of Ayush. Always return raw, valid JSON.',
+      temperature: 0.2,
+      jsonMode: true
+    });
+
+    if (result && result.text) {
+      const cleanJson = result.text.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+      return JSON.parse(cleanJson);
     }
   } catch (err) {
-    console.error('[Resume Analyzer Gemini Error]:', err.message);
+    console.error('[Resume Analyzer LangGraph Error]:', err.message);
   }
   return null;
 }
