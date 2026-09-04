@@ -33,6 +33,113 @@ const JoblexApiClient = {
     window.location.href = 'auth.html';
   },
 
+  demoUsers: {
+    student: {
+      name: 'Ashay Verma',
+      email: 'student@nexus.edu',
+      role: 'student',
+      institution: 'All India Institute of Ayurveda (AIIA), New Delhi',
+      department: 'Ayurvedic Pharmacology & Data Science',
+      xp: 1450,
+      streak: 7
+    },
+    academy: {
+      name: 'Dr. Sunita Sharma',
+      email: 'dean@aiia.gov.in',
+      role: 'academy',
+      institution: 'All India Institute of Ayurveda (AIIA)',
+      designation: 'Dean, Academic Affairs'
+    },
+    industry: {
+      name: 'Rajesh Malhotra',
+      email: 'hr@dabur-research.com',
+      role: 'industry',
+      company: 'Dabur India Ltd. (R&D)',
+      designation: 'VP, Research & Talent'
+    }
+  },
+
+  // Dynamic User Navbar Renderer across all pages
+  renderUserNavbar() {
+    const containers = document.querySelectorAll('.nav-user-account-container');
+    if (!containers || containers.length === 0) return;
+
+    const user = this.getCurrentUser();
+    if (!user) return;
+
+    let roleBadgeClass = 'bg-purple-950/70 border-purple-500/40 text-purple-200';
+    let avatarGradient = 'from-purple-600 via-indigo-600 to-cyan-400';
+    let roleName = 'Student';
+    let initial = user.name ? user.name.charAt(0).toUpperCase() : 'U';
+
+    if (user.role === 'academy') {
+      roleBadgeClass = 'bg-emerald-950/70 border-emerald-500/40 text-emerald-200';
+      avatarGradient = 'from-emerald-600 to-teal-500';
+      roleName = 'Academy';
+    } else if (user.role === 'industry') {
+      roleBadgeClass = 'bg-blue-950/70 border-blue-500/40 text-blue-200';
+      avatarGradient = 'from-blue-600 to-cyan-500';
+      roleName = 'Industry';
+    }
+
+    const org = user.institution || user.company || 'All India Institute of Ayurveda';
+
+    const html = `
+      <div class="relative">
+        <button type="button" onclick="toggleUserDropdown(event, this)" class="flex items-center gap-2 sm:gap-2.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl bg-gray-900/90 hover:bg-gray-800/90 border border-gray-700/80 hover:border-purple-500/50 transition shadow-sm cursor-pointer select-none text-left">
+          <div class="relative shrink-0">
+            <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-tr ${avatarGradient} flex items-center justify-center font-black text-white text-[11px] sm:text-xs shadow-inner">
+              ${initial}
+            </div>
+            <span class="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border border-black animate-pulse"></span>
+          </div>
+          <div class="flex flex-col leading-tight">
+            <div class="flex items-center gap-1.5">
+              <span class="font-bold text-xs sm:text-sm text-white truncate max-w-[85px] sm:max-w-[130px]">${user.name}</span>
+              <span class="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider border ${roleBadgeClass}">${user.role || 'User'}</span>
+            </div>
+            <span class="text-[9px] sm:text-[10px] text-gray-400 truncate max-w-[100px] sm:max-w-[150px]">${org}</span>
+          </div>
+          <span class="text-gray-400 text-[10px] ml-0.5">▾</span>
+        </button>
+
+        <!-- Dropdown Menu -->
+        <div class="user-account-dropdown hidden absolute right-0 mt-2 w-60 p-2.5 rounded-2xl bg-[#0d0d1e] border border-gray-800/90 shadow-2xl z-50 space-y-1.5 backdrop-blur-xl">
+          <div class="p-2.5 rounded-xl bg-black/40 border border-gray-800/80 text-xs space-y-1">
+            <div class="font-extrabold text-white text-sm">${user.name}</div>
+            <div class="text-[11px] text-gray-400 truncate">${user.email}</div>
+            <div class="text-[10px] font-semibold text-purple-300 mt-1">${org}</div>
+          </div>
+          <div class="text-[10px] uppercase font-bold text-gray-400 px-2 pt-1">Quick Portals</div>
+          <a href="student.html" class="flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs text-gray-300 hover:text-white hover:bg-white/5 transition">
+            <span class="flex items-center gap-2"><span>🎓</span> Student Portal</span>
+            ${user.role === 'student' ? '<span class="text-[9px] text-purple-400 font-bold">Active</span>' : ''}
+          </a>
+          <a href="academy.html" class="flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs text-gray-300 hover:text-white hover:bg-white/5 transition">
+            <span class="flex items-center gap-2"><span>🏛️</span> Academy Portal</span>
+            ${user.role === 'academy' ? '<span class="text-[9px] text-emerald-400 font-bold">Active</span>' : ''}
+          </a>
+          <a href="industry.html" class="flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs text-gray-300 hover:text-white hover:bg-white/5 transition">
+            <span class="flex items-center gap-2"><span>🏢</span> Industry Portal</span>
+            ${user.role === 'industry' ? '<span class="text-[9px] text-blue-400 font-bold">Active</span>' : ''}
+          </a>
+          <div class="pt-1.5 border-t border-gray-800/80 space-y-1">
+            <a href="auth.html" class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs text-gray-400 hover:text-purple-300 hover:bg-purple-950/30 transition">
+              <span>🔄</span> Switch Account / Persona
+            </a>
+            <button type="button" onclick="JoblexApiClient.logout()" class="w-full text-left flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs text-rose-400 hover:bg-rose-950/30 transition">
+              <span>🚪</span> Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    containers.forEach(el => {
+      el.innerHTML = html;
+    });
+  },
+
   // Language localization
   getLang() {
     return localStorage.getItem('joblex_lang') || 'en';
@@ -550,4 +657,33 @@ const JoblexApiClient = {
 
 window.JoblexApiClient = JoblexApiClient;
 window.JoblexAPI = JoblexApiClient; // Backward compatibility
+
+// Dropdown Toggle Handler
+window.toggleUserDropdown = function(e, btn) {
+  if (e) {
+    e.stopPropagation();
+  }
+  const container = btn.closest('.nav-user-account-container');
+  if (!container) return;
+  const dropdown = container.querySelector('.user-account-dropdown');
+  if (dropdown) {
+    const isHidden = dropdown.classList.contains('hidden');
+    document.querySelectorAll('.user-account-dropdown').forEach(d => d.classList.add('hidden'));
+    if (isHidden) dropdown.classList.remove('hidden');
+  }
+};
+
+// Global click-outside listener to close account dropdowns
+if (typeof document !== 'undefined') {
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.nav-user-account-container')) {
+      document.querySelectorAll('.user-account-dropdown').forEach(d => d.classList.add('hidden'));
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    JoblexApiClient.renderUserNavbar();
+  });
+}
+
 
