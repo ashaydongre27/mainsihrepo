@@ -31,9 +31,23 @@ app.use('/api/zulu', zuluRoutes);
 app.use('/api/academy', academyRoutes);
 app.use('/api/industry', industryRoutes);
 
-// Serve static frontend files from project root
+// Serve static frontend files from project root (with automatic .html extension resolution)
 const ROOT_DIR = path.resolve(__dirname, '..');
-app.use(express.static(ROOT_DIR));
+app.use(express.static(ROOT_DIR, { extensions: ['html'] }));
+
+// Portal Clean URL Routes (shifts navigation directly to HTML/CSS/JS architecture)
+const portalRoutes = [
+  'student', 'academy', 'industry', 'auth',
+  'student-roadmap', 'student-internships', 'student-jobs',
+  'student-quiz', 'student-resume', 'student-skilltree',
+  'student-portfolio', 'student-zulu'
+];
+
+portalRoutes.forEach(route => {
+  app.get(`/${route}`, (req, res) => {
+    res.sendFile(path.join(ROOT_DIR, `${route}.html`));
+  });
+});
 
 // Root route sends index.html
 app.get('/', (req, res) => {
