@@ -4,42 +4,7 @@
  */
 
 const DB = {
-  users: [
-    {
-      id: "usr-student-01",
-      name: "Ashay Verma",
-      email: "student@nexus.edu",
-      password: "student123",
-      role: "student",
-      institution: "All India Institute of Ayurveda (AIIA), New Delhi",
-      department: "Ayurvedic Pharmacology & Data Science",
-      year: "3rd Year BAMS / Health Informatics",
-      xp: 1450,
-      streak: 7,
-      decayFrozenUntil: new Date(Date.now() + 3 * 86400000).toISOString(),
-      skills: ["Herbal Formulation", "Python", "Ayurvedic Pharmacognosy", "Data Analysis", "Good Laboratory Practice (GLP)"]
-    },
-    {
-      id: "usr-academy-01",
-      name: "Dr. Sunita Sharma",
-      email: "dean@aiia.gov.in",
-      password: "dean123",
-      role: "academy",
-      institution: "All India Institute of Ayurveda",
-      designation: "Dean of Academic Affairs & Industry Liaison",
-      department: "Faculty of Ayurveda & Pharmaceutical Technology"
-    },
-    {
-      id: "usr-industry-01",
-      name: "Rajesh Malhotra",
-      email: "hr@dabur-research.com",
-      password: "industry123",
-      role: "industry",
-      company: "Dabur Research & Development Ltd.",
-      designation: "Head of University Relations & Talent Acquisition",
-      sector: "Ayurvedic Formulations & Phytopharmaceuticals"
-    }
-  ],
+  users: [],
 
   opportunities: [
     {

@@ -8,19 +8,56 @@
  */
 const express = require('express');
 const router = express.Router();
+const { supabase, isConfigured } = require('../config/supabase');
 const DB = require('../data/database');
 
 // GET /api/industry/all-data
-router.get('/all-data', (req, res) => {
-  res.json({
-    success: true,
-    opportunities: DB.opportunities || [],
-    mouPartnerships: DB.mou_partnerships || [],
-    candidates: DB.candidates || [],
-    forecast: DB.talentForecast || {},
-    bootcamps: DB.sponsoredBootcamps || [],
-    skillRoi: DB.skillRoiMetrics || {}
-  });
+router.get('/all-data', async (req, res) => {
+  try {
+    const [oppRes, mouRes, candRes, bootRes] = await Promise.allSettled([
+      supabase.from('opportunities').select('*').order('created_at', { ascending: false }),
+      supabase.from('mou_partnerships').select('*'),
+      supabase.from('candidates').select('*'),
+      supabase.from('sponsored_bootcamps').select('*')
+    ]);
+
+    const opportunities = oppRes.status === 'fulfilled' && !oppRes.value.error && oppRes.value.data?.length
+      ? oppRes.value.data
+      : (DB.opportunities || []);
+
+    const mouPartnerships = mouRes.status === 'fulfilled' && !mouRes.value.error && mouRes.value.data?.length
+      ? mouRes.value.data
+      : (DB.mou_partnerships || []);
+
+    const candidates = candRes.status === 'fulfilled' && !candRes.value.error && candRes.value.data?.length
+      ? candRes.value.data
+      : (DB.candidates || []);
+
+    const bootcamps = bootRes.status === 'fulfilled' && !bootRes.value.error && bootRes.value.data?.length
+      ? bootRes.value.data
+      : (DB.sponsoredBootcamps || []);
+
+    return res.json({
+      success: true,
+      opportunities,
+      mouPartnerships,
+      candidates,
+      forecast: DB.talentForecast || {},
+      bootcamps,
+      skillRoi: DB.skillRoiMetrics || {}
+    });
+  } catch (err) {
+    console.warn('[Industry all-data] Query warning:', err.message);
+    return res.json({
+      success: true,
+      opportunities: DB.opportunities || [],
+      mouPartnerships: DB.mou_partnerships || [],
+      candidates: DB.candidates || [],
+      forecast: DB.talentForecast || {},
+      bootcamps: DB.sponsoredBootcamps || [],
+      skillRoi: DB.skillRoiMetrics || {}
+    });
+  }
 });
 
 // POST /api/industry/post-opportunity
@@ -154,8 +191,28 @@ router.post('/submit-skill-demand', (req, res) => {
 });
 
 // GET /api/industry/applications (Received from students applying to jobs/internships)
-router.get('/applications', (req, res) => {
+router.get('/applications', async (req, res) => {
   const { company, type } = req.query;
+
+  try {
+    let query = supabase.from('applications').select('*').order('created_at', { ascending: false });
+    if (company && company !== 'All') {
+      query = query.ilike('company', `%${company}%`);
+    }
+    if (type && type !== 'All') {
+      query = query.ilike('type', type);
+    }
+    const { data, error } = await query;
+    if (!error && data) {
+      return res.json({
+        totalApplications: data.length,
+        applications: data
+      });
+    }
+  } catch (err) {
+    console.warn('[Industry applications] Supabase warning:', err.message);
+  }
+
   let list = DB.applications || [];
   if (company && company !== 'All') {
     list = list.filter(a => a.company.toLowerCase().includes(company.toLowerCase()));
@@ -170,19 +227,39 @@ router.get('/applications', (req, res) => {
 });
 
 // POST /api/industry/applications/:id/status
-router.post('/applications/:id/status', (req, res) => {
+router.post('/applications/:id/status', async (req, res) => {
   const { id } = req.params;
   const { status } = req.body || {};
+  const updatedStatus = status || 'Shortlisted';
+
+  try {
+    const { data, error } = await supabase
+      .from('applications')
+      .update({ status: updatedStatus })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (!error && data) {
+      return res.json({
+        success: true,
+        message: `Application status updated to "${data.status}" for ${data.student_name || data.studentName}!`,
+        application: data
+      });
+    }
+  } catch (err) {
+    console.warn('[Update app status] Supabase error:', err.message);
+  }
 
   const app = (DB.applications || []).find(a => a.id === id);
   if (!app) {
     return res.status(404).json({ success: false, message: 'Application not found.', error: 'Application not found.' });
   }
 
-  app.status = status || 'Shortlisted';
+  app.status = updatedStatus;
   res.json({
     success: true,
-    message: `Application status updated to "${app.status}" for ${app.studentName}!`,
+    message: `Application status updated to "${app.status}" for ${app.studentName || app.student_name}!`,
     application: app
   });
 });

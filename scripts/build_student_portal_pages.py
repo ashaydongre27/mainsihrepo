@@ -1,9 +1,12 @@
-<!DOCTYPE html>
+import os
+import re
+
+HEAD_TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>JOBLEX | Student | Zulu AI Companion</title>
+<title>JOBLEX | {page_title}</title>
 <!-- Material Symbols Outlined -->
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <!-- Google Fonts: Inter & JetBrains Mono -->
@@ -228,7 +231,9 @@
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="bg-[#f8f9fa] dark:bg-[#07071A] text-[#0f172a] dark:text-white font-body-sm antialiased selection:bg-secondary-fixed selection:text-on-secondary-fixed min-h-screen flex flex-col transition-colors duration-200">
-<!-- TOP APP BAR (Institutional Standard - No Top Navbar) -->
+"""
+
+HEADER_TEMPLATE = """<!-- TOP APP BAR (Institutional Standard - No Top Navbar) -->
 <header class="bg-surface-container-lowest dark:bg-[#080814]/95 border-b border-outline-variant dark:border-gray-800 w-full sticky top-0 z-50 transition-colors duration-200 backdrop-blur-md">
 <div class="w-full max-w-max-width-canvas mx-auto px-gutter-desktop h-16 flex items-center justify-between">
 <!-- Brand Logo & Institutional Anchor Lockup -->
@@ -287,7 +292,35 @@
 </div>
 </div>
 </header>
-<!-- MOBILE SLIDE-OUT DRAWER -->
+"""
+
+MODULES = [
+    ("student.html", "📊", "Student Overview", "Core Metrics & Health"),
+    ("student-roadmap.html", "🗺️", "Career Roadmap", "Anti-Decay Preservation"),
+    ("student-resume.html", "📄", "AI Resume Analyzer", "Gap Discovery Engine"),
+    ("student-quiz.html", "⚡", "Quiz Arena", "Knowledge Validation"),
+    ("student-internships.html", "💼", "Apply for Internships", "Research & Micro-Gigs"),
+    ("student-jobs.html", "🏢", "Apply for Jobs", "Corporate Placements"),
+    ("student-zulu.html", "🤖", "Zulu AI Companion", "Intelligent Counselor"),
+    ("student-skilltree.html", "🌐", "Skill Constellation", "2D Graph Visualizer"),
+    ("student-portfolio.html", "🏆", "Verified Portfolio", "Tamper-Proof Ledger"),
+]
+
+def make_drawer(active_file):
+    links = []
+    for href, icon, title, subtitle in MODULES:
+        is_active = (href == active_file)
+        if is_active:
+            links.append(f"""        <a href="{href}" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold bg-purple-50 dark:bg-purple-600/25 border border-purple-200 dark:border-purple-500/80 text-purple-700 dark:text-purple-100 transition">
+          <span class="flex items-center gap-3"><span>{icon}</span> <span>{title}</span></span>
+          <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-500 text-white font-bold">Active</span>
+        </a>""")
+        else:
+            links.append(f"""        <a href="{href}" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+          <span>{icon}</span> <span>{title}</span>
+        </a>""")
+    
+    return f"""<!-- MOBILE SLIDE-OUT DRAWER -->
 <div id="mobile-drawer" class="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-sm z-50 lg:hidden hidden" onclick="closeMobileMenu()">
   <div class="w-72 max-w-[85vw] h-full bg-white dark:bg-[#080814] border-r border-[#E2E8F0] dark:border-purple-500/30 p-4 flex flex-col justify-between overflow-y-auto" onclick="event.stopPropagation()">
     <div class="space-y-2">
@@ -296,34 +329,7 @@
         <button onclick="closeMobileMenu()" class="p-1 rounded-lg text-slate-400 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white">✕</button>
       </div>
       <div class="space-y-1 pt-1">
-        <a href="student.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>📊</span> <span>Student Overview</span>
-        </a>
-        <a href="student-roadmap.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>🗺️</span> <span>Career Roadmap</span>
-        </a>
-        <a href="student-resume.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>📄</span> <span>AI Resume Analyzer</span>
-        </a>
-        <a href="student-quiz.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>⚡</span> <span>Quiz Arena</span>
-        </a>
-        <a href="student-internships.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>💼</span> <span>Apply for Internships</span>
-        </a>
-        <a href="student-jobs.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>🏢</span> <span>Apply for Jobs</span>
-        </a>
-        <a href="student-zulu.html" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold bg-purple-50 dark:bg-purple-600/25 border border-purple-200 dark:border-purple-500/80 text-purple-700 dark:text-purple-100 transition">
-          <span class="flex items-center gap-3"><span>🤖</span> <span>Zulu AI Companion</span></span>
-          <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-500 text-white font-bold">Active</span>
-        </a>
-        <a href="student-skilltree.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>🌐</span> <span>Skill Constellation</span>
-        </a>
-        <a href="student-portfolio.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>🏆</span> <span>Verified Portfolio</span>
-        </a>
+{chr(10).join(links)}
       </div>
     </div>
     <div class="pt-4 border-t border-slate-200 dark:border-gray-800">
@@ -333,53 +339,34 @@
     </div>
   </div>
 </div>
-<div class="flex-1 flex overflow-hidden">
-  <!-- COLLAPSIBLE SIDEBAR -->
+"""
+
+def make_sidebar(active_file):
+    links = []
+    for href, icon, title, subtitle in MODULES:
+        is_active = (href == active_file)
+        if is_active:
+            links.append(f"""      <a href="{href}" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all bg-purple-50 dark:bg-purple-600/25 border border-purple-200 dark:border-purple-500/80 text-purple-700 dark:text-purple-100 shadow-sm dark:shadow-[0_0_15px_rgba(168,85,247,0.25)]">
+        <span class="text-base shrink-0">{icon}</span>
+        <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
+          <span class="font-bold text-xs text-purple-900 dark:text-white truncate">{title}</span>
+          <span class="text-[10px] text-purple-600 dark:text-gray-400 truncate">{subtitle}</span>
+        </div>
+      </a>""")
+        else:
+            links.append(f"""      <a href="{href}" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+        <span class="text-base shrink-0">{icon}</span>
+        <span class="sidebar-text-label font-bold text-xs">{title}</span>
+      </a>""")
+    
+    return f"""  <!-- COLLAPSIBLE SIDEBAR -->
   <aside id="student-sidebar" class="hidden lg:flex w-64 bg-white/90 dark:bg-[#080812]/90 border-r border-[#E2E8F0] dark:border-gray-800/80 backdrop-blur-md p-3.5 flex-col justify-between shrink-0 transition-all duration-300">
     <div class="space-y-1">
       <div class="flex items-center justify-between px-2 pb-2 mb-2 border-b border-slate-200 dark:border-gray-800/80">
         <span class="sidebar-text-label text-[10px] uppercase tracking-wider text-purple-600 dark:text-purple-400 font-bold">Navigation</span>
         <button id="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" title="Minimize / Expand Sidebar" class="p-1.5 rounded-lg bg-slate-100 dark:bg-gray-900 border border-slate-200 dark:border-gray-800 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white text-xs transition"><span>◀</span></button>
       </div>
-      <a href="student.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">📊</span>
-        <span class="sidebar-text-label font-bold text-xs">Student Overview</span>
-      </a>
-      <a href="student-roadmap.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">🗺️</span>
-        <span class="sidebar-text-label font-bold text-xs">Career Roadmap</span>
-      </a>
-      <a href="student-resume.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">📄</span>
-        <span class="sidebar-text-label font-bold text-xs">AI Resume Analyzer</span>
-      </a>
-      <a href="student-quiz.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">⚡</span>
-        <span class="sidebar-text-label font-bold text-xs">Quiz Arena</span>
-      </a>
-      <a href="student-internships.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">💼</span>
-        <span class="sidebar-text-label font-bold text-xs">Apply for Internships</span>
-      </a>
-      <a href="student-jobs.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">🏢</span>
-        <span class="sidebar-text-label font-bold text-xs">Apply for Jobs</span>
-      </a>
-      <a href="student-zulu.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all bg-purple-50 dark:bg-purple-600/25 border border-purple-200 dark:border-purple-500/80 text-purple-700 dark:text-purple-100 shadow-sm dark:shadow-[0_0_15px_rgba(168,85,247,0.25)]">
-        <span class="text-base shrink-0">🤖</span>
-        <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
-          <span class="font-bold text-xs text-purple-900 dark:text-white truncate">Zulu AI Companion</span>
-          <span class="text-[10px] text-purple-600 dark:text-gray-400 truncate">Intelligent Counselor</span>
-        </div>
-      </a>
-      <a href="student-skilltree.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">🌐</span>
-        <span class="sidebar-text-label font-bold text-xs">Skill Constellation</span>
-      </a>
-      <a href="student-portfolio.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">🏆</span>
-        <span class="sidebar-text-label font-bold text-xs">Verified Portfolio</span>
-      </a>
+{chr(10).join(links)}
     </div>
     <div class="mt-4 pt-3 border-t border-slate-200 dark:border-gray-800/80">
       <button onclick="JoblexApiClient.logout()" class="w-full py-2 rounded-xl text-center text-xs font-semibold text-slate-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition flex items-center justify-center gap-2">
@@ -387,72 +374,28 @@
       </button>
     </div>
   </aside>
-  <!-- WORKSPACE -->
-  <main class="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 custom-scrollbar flex flex-col justify-between">
-    <div class="w-full max-w-4xl mx-auto flex-1 flex flex-col justify-between">
+"""
 
-      <div class="space-y-6 pb-28">
-        <!-- Gemini-Style Greeting Hero -->
-        <div id="zulu-welcome-hero" class="text-center py-8 sm:py-12 space-y-3">
-          <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-400 text-xl text-white shadow-md">
-            ✨
-          </div>
-          <h1 class="text-2xl sm:text-4xl font-black text-[#0f172a] dark:text-white tracking-tight">
-            Hello, <span class="user-name-display">Ashay</span>
-          </h1>
-          <p class="text-slate-600 dark:text-gray-400 text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
-            Where should we focus your Ayush career and research goals today?
-          </p>
-
-          <!-- Suggestion Cards Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl mx-auto pt-4 text-left">
-            <button onclick="sendQuickPrompt('How do I close my skill gap for Dabur Formulation Scientist?')" class="p-3.5 rounded bg-surface-container-lowest dark:bg-gray-900/60 hover:bg-slate-50 dark:hover:bg-gray-900/90 border border-[#e2e8f0] dark:border-gray-800 hover:border-purple-400 dark:hover:border-purple-500/50 transition shadow-sm space-y-1 group">
-              <span class="text-sm">⚡</span>
-              <h4 class="text-xs font-bold text-slate-800 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-300 transition">Dabur Skill Gaps</h4>
-              <p class="text-[11px] text-slate-500 dark:text-gray-400 leading-normal">Analyze requirements for Formulation Scientist internships.</p>
-            </button>
-
-            <button onclick="sendQuickPrompt('Explain HPTLC fingerprinting in simple terms.')" class="p-3.5 rounded bg-surface-container-lowest dark:bg-gray-900/60 hover:bg-slate-50 dark:hover:bg-gray-900/90 border border-[#e2e8f0] dark:border-gray-800 hover:border-purple-400 dark:hover:border-purple-500/50 transition shadow-sm space-y-1 group">
-              <span class="text-sm">🧪</span>
-              <h4 class="text-xs font-bold text-slate-800 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-300 transition">Explain HPTLC</h4>
-              <p class="text-[11px] text-slate-500 dark:text-gray-400 leading-normal">Chromatography standardization concepts in commercial Ayurveda.</p>
-            </button>
-
-            <button onclick="sendQuickPrompt('What are Micro-Gigs and how do I earn bounties?')" class="p-3.5 rounded bg-surface-container-lowest dark:bg-gray-900/60 hover:bg-slate-50 dark:hover:bg-gray-900/90 border border-[#e2e8f0] dark:border-gray-800 hover:border-purple-400 dark:hover:border-purple-500/50 transition shadow-sm space-y-1 group">
-              <span class="text-sm">💼</span>
-              <h4 class="text-xs font-bold text-slate-800 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-300 transition">Micro-Gigs &amp; Bounties</h4>
-              <p class="text-[11px] text-slate-500 dark:text-gray-400 leading-normal">Earn paid task bounties through 1-2 week remote sprints.</p>
-            </button>
-
-            <button onclick="sendQuickPrompt('How does the Anti-Decay XP preservation system work?')" class="p-3.5 rounded bg-surface-container-lowest dark:bg-gray-900/60 hover:bg-slate-50 dark:hover:bg-gray-900/90 border border-[#e2e8f0] dark:border-gray-800 hover:border-purple-400 dark:hover:border-purple-500/50 transition shadow-sm space-y-1 group">
-              <span class="text-sm">🔥</span>
-              <h4 class="text-xs font-bold text-slate-800 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-300 transition">Anti-Decay XP</h4>
-              <p class="text-[11px] text-slate-500 dark:text-gray-400 leading-normal">Understand 72h decay freeze and streak preservation.</p>
-            </button>
-          </div>
-        </div>
-
-        <!-- Chat Message Stream -->
-        <div id="zulu-messages-box" class="space-y-4"></div>
-      </div>
-
-    </div>
-
-    <!-- Centered Bottom Input Capsule -->
-    <div class="fixed bottom-4 left-0 right-0 z-30 px-4 pointer-events-none">
-      <div class="max-w-3xl mx-auto w-full pointer-events-auto">
-        <form id="zulu-chat-form" onsubmit="handleZuluSend(event)" class="flex items-center gap-2 p-2 sm:p-2.5 rounded-full bg-white/95 dark:bg-[#121124]/95 border border-slate-300 dark:border-purple-500/40 backdrop-blur-xl shadow-xl dark:shadow-[0_10px_35px_rgba(0,0,0,0.8)] focus-within:border-purple-500 dark:focus-within:border-purple-400 transition">
-          <div class="pl-3 text-purple-600 dark:text-purple-400">✨</div>
-          <input id="zulu-input" type="text" placeholder="Ask Zulu about herbal formulations, career roadmaps, or exam prep..." class="flex-1 bg-transparent border-0 text-xs sm:text-sm text-[#0f172a] dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:ring-0 focus:outline-none" autocomplete="off"/>
-          <button type="submit" class="p-2 rounded-full bg-purple-600 hover:bg-purple-500 text-white transition flex items-center justify-center shadow-md">
-            <span class="material-symbols-outlined text-[18px]">arrow_upward</span>
-          </button>
-        </form>
-      </div>
-    </div>
-  </main>
+FOOTER_TEMPLATE = """<!-- INSTITUTIONAL FOOTER -->
+<footer class="bg-surface-container-lowest dark:bg-[#080814] border-t border-outline-variant dark:border-gray-800 mt-12 transition-colors duration-200">
+<div class="w-full max-w-max-width-canvas mx-auto px-gutter-desktop py-unit-lg flex flex-col md:flex-row items-center justify-between gap-unit-md text-label-sm font-label-sm">
+<div class="text-secondary text-center md:text-left space-y-0.5">
+<div class="text-label-md font-label-md font-bold text-on-surface">JOBLEX</div>
+<div class="text-body-sm font-body-sm text-secondary">
+  © 2025 JOBLEX. All India Institute of Ayurveda &amp; Ministry of Ayush, Government of India. All Statutory Rights Reserved.
 </div>
-<script>
+</div>
+<nav class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+<a class="text-secondary hover:text-on-surface transition-colors duration-150" href="#">NAAC &amp; Statutory Governance</a>
+<a class="text-secondary hover:text-on-surface transition-colors duration-150" href="#">AIIA Digital Verification Protocol</a>
+<a class="text-secondary hover:text-on-surface transition-colors duration-150" href="#">Terms of Institutional Access</a>
+<a class="text-secondary hover:text-on-surface transition-colors duration-150" href="#">National Ayush Registry Support</a>
+</nav>
+</div>
+</footer>
+"""
+
+SCRIPTS_TEMPLATE = """<script>
   function toggleTheme() {
     const isDark = document.documentElement.classList.toggle('dark');
     try {
@@ -478,4 +421,6 @@
 <script src="js/frontend/api-client.js"></script>
 <script src="js/frontend/notifications.js"></script>
 <script src="js/frontend/student-ui.js"></script>
-</body></html>
+"""
+
+print("Helper templates initialized successfully.")

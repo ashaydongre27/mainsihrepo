@@ -47,91 +47,121 @@ function isGoogleApiConfigured() {
 async function callGoogleModelWithKey(apiKey, { prompt, systemInstruction, history = [], temperature = 0.7, jsonMode = false }) {
   if (!apiKey) return null;
 
-  const candidateModels = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'];
+  const candidateModels = [
+    'gemini-3.1-flash-lite-preview',
+    'gemini-3.6-flash',
+    'gemini-3.5-flash',
+    'gemini-flash-latest'
+  ];
 
-  // 1. Try LangChain ChatGoogleGenerativeAI
+  // 1. Direct High-Speed Google Generative AI SDK (sub-3s latency)
+  for (const modelName of candidateModels) {
+    try {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({
+        model: modelName,
+        systemInstruction: systemInstruction || undefined,
+        generationConfig: {
+          temperature: temperature,
+          responseMimeType: jsonMode ? 'application/json' : undefined
+        }
+      });
+
+      let responseText = null;
+      if (Array.isArray(history) && history.length > 0) {
+        const formattedHistory = history
+          .filter(h => h.role && h.text)
+          .map(h => ({
+            role: h.role === 'user' ? 'user' : 'model',
+            parts: [{ text: h.text }]
+          }));
+
+        const chat = model.startChat({ history: formattedHistory });
+        const result = await Promise.race([
+          chat.sendMessage(prompt),
+          new Promise((_, r) => setTimeout(() => r(new Error('SDK chat timeout')), 8000))
+        ]);
+        responseText = result.response.text();
+      } else {
+        const result = await Promise.race([
+          model.generateContent(prompt),
+          new Promise((_, r) => setTimeout(() => r(new Error('SDK generateContent timeout')), 8000))
+        ]);
+        responseText = result.response.text();
+      }
+
+      if (responseText && responseText.trim()) {
+        return { text: responseText.trim(), model: `gemini-${modelName}` };
+      }
+    } catch (sdkErr) {
+      console.warn(`[Google SDK ${modelName}]:`, sdkErr.message);
+    }
+  }
+
+  // 2. LangChain ChatGoogleGenerativeAI
   for (const modelName of candidateModels) {
     try {
       const chat = new ChatGoogleGenerativeAI({
         apiKey: apiKey,
         model: modelName,
         temperature: temperature,
-        maxRetries: 1
+        maxRetries: 0
       });
 
       const messages = [];
-      if (systemInstruction) {
-        messages.push(new SystemMessage(systemInstruction));
-      }
-
+      if (systemInstruction) messages.push(new SystemMessage(systemInstruction));
       if (Array.isArray(history) && history.length > 0) {
         history.forEach(h => {
-          if (h.role === 'user' && h.text) {
-            messages.push(new HumanMessage(h.text));
-          } else if (h.text) {
-            messages.push(new AIMessage(h.text));
-          }
+          if (h.role === 'user' && h.text) messages.push(new HumanMessage(h.text));
+          else if (h.text) messages.push(new AIMessage(h.text));
         });
       }
-
       messages.push(new HumanMessage(prompt));
 
-      const response = await chat.invoke(messages);
+      const response = await Promise.race([
+        chat.invoke(messages),
+        new Promise((_, reject) => setTimeout(() => reject(new Error(`LangChain ${modelName} timeout`)), 6000))
+      ]);
       const text = typeof response.content === 'string' ? response.content : JSON.stringify(response.content);
       if (text && text.trim()) {
         return { text: text.trim(), model: `langchain-${modelName}` };
       }
     } catch (lcErr) {
       console.warn(`[LangChain ${modelName}]:`, lcErr.message);
-      // Fall through to next model or SDK
     }
   }
 
-  // 2. Direct @google/generative-ai SDK Fallback
-  try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
-      systemInstruction: systemInstruction || undefined,
-      generationConfig: {
-        temperature: temperature,
-        responseMimeType: jsonMode ? 'application/json' : undefined
-      }
-    });
+  // 3. Direct REST Fallback with timeout
+  for (const modelName of candidateModels) {
+    try {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+      const ctrl = new AbortController();
+      const timeoutId = setTimeout(() => ctrl.abort(), 6000);
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
-    if (text && text.trim()) {
-      return { text: text.trim(), model: 'gemini-1.5-flash-sdk' };
-    }
-  } catch (sdkErr) {
-    console.warn('[Google GenAI SDK Fallback]:', sdkErr.message);
-  }
+      const restRes = await fetch(endpoint, {
+        method: 'POST',
+        signal: ctrl.signal,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: `${systemInstruction ? systemInstruction + '\n\n' : ''}${prompt}` }] }],
+          generationConfig: {
+            temperature: temperature,
+            responseMimeType: jsonMode ? 'application/json' : undefined
+          }
+        })
+      });
+      clearTimeout(timeoutId);
 
-  // 3. Direct REST Fallback
-  try {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-    const restRes = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: `${systemInstruction ? systemInstruction + '\n\n' : ''}${prompt}` }] }],
-        generationConfig: {
-          temperature: temperature,
-          responseMimeType: jsonMode ? 'application/json' : undefined
+      if (restRes.ok) {
+        const data = await restRes.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text && text.trim()) {
+          return { text: text.trim(), model: `${modelName}-rest` };
         }
-      })
-    });
-
-    if (restRes.ok) {
-      const data = await restRes.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (text && text.trim()) {
-        return { text: text.trim(), model: 'gemini-1.5-flash-rest' };
       }
+    } catch (restErr) {
+      console.warn(`[Google REST ${modelName}]:`, restErr.message);
     }
-  } catch (restErr) {
-    console.warn('[Google REST Fallback]:', restErr.message);
   }
 
   return null;

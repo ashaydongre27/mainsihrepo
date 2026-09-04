@@ -13,32 +13,7 @@
 const API_BASE = window.JOBLEX_API_URL || 'http://127.0.0.1:5000/api';
 
 const JoblexAPI = {
-  // Demo accounts
-  demoUsers: {
-    student: {
-      name: 'Ashay Verma',
-      email: 'student@nexus.edu',
-      role: 'student',
-      institution: 'All India Institute of Ayurveda (AIIA), New Delhi',
-      department: 'Ayurvedic Pharmacology & Data Science',
-      xp: 1450,
-      streak: 7
-    },
-    academy: {
-      name: 'Dr. Sunita Sharma',
-      email: 'dean@aiia.gov.in',
-      role: 'academy',
-      institution: 'All India Institute of Ayurveda',
-      designation: 'Dean of Academic Affairs & Industry Liaison'
-    },
-    industry: {
-      name: 'Rajesh Malhotra',
-      email: 'hr@dabur-research.com',
-      role: 'industry',
-      company: 'Dabur Research & Development Ltd.',
-      designation: 'Head of University Relations'
-    }
-  },
+  // Session / User Storage
 
   // Peer Benchmarking Data (Idea #2)
   peerBenchmarking: {
@@ -157,11 +132,15 @@ const JoblexAPI = {
     if (data) {
       try { return JSON.parse(data); } catch(e) {}
     }
-    return this.demoUsers.student;
+    return null;
   },
 
   setCurrentUser(user) {
-    localStorage.setItem('joblex_user', JSON.stringify(user));
+    if (user) {
+      localStorage.setItem('joblex_user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('joblex_user');
+    }
   },
 
   logout() {
@@ -169,24 +148,39 @@ const JoblexAPI = {
     window.location.href = 'auth.html';
   },
 
-  async login(email, password, role) {
-    try {
-      const res = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, role })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        this.setCurrentUser(data.user);
-        return data;
-      }
-    } catch(e) {
-      console.warn('API unreachable, using local fallback:', e);
+  requireAuth(expectedRole = null) {
+    const user = this.getCurrentUser();
+    if (!user) {
+      const currentPath = window.location.pathname.split('/').pop() || 'student.html';
+      const roleParam = expectedRole || 'student';
+      window.location.href = `auth.html?role=${encodeURIComponent(roleParam)}&redirect=${encodeURIComponent(currentPath)}`;
+      return false;
     }
-    const user = this.demoUsers[role] || { name: 'Demo User', email, role };
-    this.setCurrentUser(user);
-    return { success: true, user };
+    return true;
+  },
+
+  navigateToPortal(role = 'student') {
+    const user = this.getCurrentUser();
+    const portalPage = `${role}.html`;
+    if (!user) {
+      window.location.href = `auth.html?role=${encodeURIComponent(role)}&redirect=${encodeURIComponent(portalPage)}`;
+    } else {
+      window.location.href = portalPage;
+    }
+  },
+
+  async login(email, password, role) {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, role })
+    });
+    const data = await res.json();
+    if (res.ok && data.success && data.user) {
+      this.setCurrentUser(data.user);
+      return data;
+    }
+    throw new Error(data.error || 'Authentication failed. Please verify your credentials.');
   },
 
   async getRoadmap() {

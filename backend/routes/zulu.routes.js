@@ -138,7 +138,7 @@ router.get('/status', (req, res) => {
       mainConfigured: hasMain,
       backupConfigured: hasBackup
     },
-    activeModel: isConfigured ? 'LangGraph (gemini-1.5-flash / gemini-2.0-flash failover pool)' : 'guided-engine'
+    activeModel: isConfigured ? 'LangGraph (gemini-3.1-flash-lite-preview / gemini-3.6-flash failover pool)' : 'guided-engine'
   });
 });
 

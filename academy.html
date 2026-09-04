@@ -1,363 +1,977 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JOBLEX - Academy Portal | Curriculum Modernization & Progress</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Custom Styles -->
-  <link rel="stylesheet" href="css/styles.css">
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>JOBLEX Academic Dean &amp; Accreditation Audit Command Center</title>
+<!-- Google Fonts: Inter & JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "secondary-fixed": "var(--secondary-fixed)",
+            "surface-dim": "var(--surface-dim)",
+            "surface-container-low": "var(--surface-container-low)",
+            "background": "var(--background)",
+            "on-primary-container": "var(--on-primary-container)",
+            "outline-variant": "var(--outline-variant)",
+            "tertiary": "var(--tertiary)",
+            "secondary-fixed-dim": "var(--secondary-fixed-dim)",
+            "on-tertiary-container": "var(--on-tertiary-container)",
+            "on-primary-fixed": "var(--on-primary-fixed)",
+            "on-tertiary-fixed-variant": "var(--on-tertiary-fixed-variant)",
+            "tertiary-fixed-dim": "var(--tertiary-fixed-dim)",
+            "on-primary-fixed-variant": "var(--on-primary-fixed-variant)",
+            "primary-fixed-dim": "var(--primary-fixed-dim)",
+            "surface-container-lowest": "var(--surface-container-lowest)",
+            "primary-fixed": "var(--primary-fixed)",
+            "inverse-primary": "var(--inverse-primary)",
+            "secondary-container": "var(--secondary-container)",
+            "surface-tint": "var(--surface-tint)",
+            "on-error-container": "var(--on-error-container)",
+            "on-background": "var(--on-background)",
+            "primary-container": "var(--primary-container)",
+            "error-container": "var(--error-container)",
+            "on-secondary": "var(--on-secondary)",
+            "secondary": "var(--secondary)",
+            "on-primary": "var(--on-primary)",
+            "on-tertiary-fixed": "var(--on-tertiary-fixed)",
+            "tertiary-fixed": "var(--tertiary-fixed)",
+            "on-secondary-fixed": "var(--on-secondary-fixed)",
+            "on-error": "var(--on-error)",
+            "inverse-surface": "var(--inverse-surface)",
+            "on-surface": "var(--on-surface)",
+            "inverse-on-surface": "var(--inverse-on-surface)",
+            "outline": "var(--outline)",
+            "surface": "var(--surface)",
+            "on-secondary-fixed-variant": "var(--on-secondary-fixed-variant)",
+            "surface-container-high": "var(--surface-container-high)",
+            "error": "var(--error)",
+            "surface-container-highest": "var(--surface-container-highest)",
+            "primary": "var(--primary)",
+            "surface-container": "var(--surface-container)",
+            "on-secondary-container": "var(--on-secondary-container)",
+            "on-surface-variant": "var(--on-surface-variant)",
+            "tertiary-container": "var(--tertiary-container)",
+            "surface-variant": "var(--surface-variant)",
+            "on-tertiary": "var(--on-tertiary)",
+            "surface-bright": "var(--surface-bright)"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "unit-md": "0.75rem",
+            "unit-xs": "0.25rem",
+            "unit-2xl": "3rem",
+            "unit-xl": "2rem",
+            "unit-sm": "0.5rem",
+            "max-width-canvas": "1600px",
+            "gutter-desktop": "1.5rem",
+            "unit-lg": "1.5rem",
+            "unit-base": "1rem",
+            "unit-2xs": "0.125rem",
+            "unit-3xl": "4rem",
+            "margin-shell": "2rem"
+          },
+          "fontFamily": {
+            "body-sm": ["Inter"],
+            "label-md": ["Inter"],
+            "label-sm": ["Inter"],
+            "mono-data": ["JetBrains Mono"],
+            "display-lg": ["Inter"],
+            "headline-sm": ["Inter"],
+            "headline-md": ["Inter"],
+            "headline-lg": ["Inter"],
+            "body-md": ["Inter"],
+            "body-lg": ["Inter"]
+          },
+          "fontSize": {
+            "body-sm": ["13px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.03em", "fontWeight": "500" }],
+            "mono-data": ["12px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "500" }],
+            "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.025em", "fontWeight": "700" }],
+            "headline-sm": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<script>
+  (function() {
+    try {
+      const saved = localStorage.getItem('joblex_theme');
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (saved === 'dark' || (!saved && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    } catch(e) {}
+  })();
+</script>
+<style>
+  :root {
+    --secondary-fixed: #d8e3fb;
+    --surface-dim: #cbdbf5;
+    --surface-container-low: #eff4ff;
+    --background: #f8f9ff;
+    --on-primary-container: #7c839b;
+    --outline-variant: #c6c6cd;
+    --tertiary: #000000;
+    --secondary-fixed-dim: #bcc7de;
+    --on-tertiary-container: #339471;
+    --on-primary-fixed: #131b2e;
+    --on-tertiary-fixed-variant: #00513a;
+    --tertiary-fixed-dim: #7bd8b1;
+    --on-primary-fixed-variant: #3f465c;
+    --primary-fixed-dim: #bec6e0;
+    --surface-container-lowest: #ffffff;
+    --primary-fixed: #dae2fd;
+    --inverse-primary: #bec6e0;
+    --secondary-container: #d5e0f8;
+    --surface-tint: #565e74;
+    --on-error-container: #93000a;
+    --on-background: #0b1c30;
+    --primary-container: #131b2e;
+    --error-container: #ffdad6;
+    --on-secondary: #ffffff;
+    --secondary: #545f73;
+    --on-primary: #ffffff;
+    --on-tertiary-fixed: #002115;
+    --tertiary-fixed: #97f5cc;
+    --on-secondary-fixed: #111c2d;
+    --on-error: #ffffff;
+    --inverse-surface: #213145;
+    --on-surface: #0b1c30;
+    --inverse-on-surface: #eaf1ff;
+    --outline: #76777d;
+    --surface: #f8f9ff;
+    --on-secondary-fixed-variant: #3c475a;
+    --surface-container-high: #dce9ff;
+    --error: #ba1a1a;
+    --surface-container-highest: #d3e4fe;
+    --primary: #000000;
+    --surface-container: #e5eeff;
+    --on-secondary-container: #586377;
+    --on-surface-variant: #45464d;
+    --tertiary-container: #002115;
+    --surface-variant: #d3e4fe;
+    --on-tertiary: #ffffff;
+    --surface-bright: #f8f9ff;
+  }
+
+  html.dark {
+    --secondary-fixed: #6ffbbe;
+    --surface-dim: #111317;
+    --surface-container-low: #1a1c20;
+    --background: #111317;
+    --on-primary-container: #00285d;
+    --outline-variant: #424754;
+    --tertiary: #ffb786;
+    --secondary-fixed-dim: #4edea3;
+    --on-tertiary-container: #461f00;
+    --on-primary-fixed: #001a42;
+    --on-tertiary-fixed-variant: #723600;
+    --tertiary-fixed-dim: #ffb786;
+    --on-primary-fixed-variant: #004395;
+    --primary-fixed-dim: #adc6ff;
+    --surface-container-lowest: #0c0e12;
+    --primary-fixed: #d8e2ff;
+    --inverse-primary: #005ac2;
+    --secondary-container: #00a572;
+    --surface-tint: #adc6ff;
+    --on-error-container: #ffdad6;
+    --on-background: #e2e2e8;
+    --primary-container: #4d8eff;
+    --error-container: #93000a;
+    --on-secondary: #003824;
+    --secondary: #4edea3;
+    --on-primary: #002e6a;
+    --on-tertiary-fixed: #311400;
+    --tertiary-fixed: #ffdcc6;
+    --on-secondary-fixed: #002113;
+    --on-error: #690005;
+    --inverse-surface: #e2e2e8;
+    --on-surface: #e2e2e8;
+    --inverse-on-surface: #2f3035;
+    --outline: #8c909f;
+    --surface: #111317;
+    --on-secondary-fixed-variant: #005236;
+    --surface-container-high: #282a2e;
+    --error: #ffb4ab;
+    --surface-container-highest: #333539;
+    --primary: #adc6ff;
+    --surface-container: #1e2024;
+    --on-secondary-container: #00311f;
+    --on-surface-variant: #c2c6d6;
+    --tertiary-container: #df7412;
+    --surface-variant: #333539;
+    --on-tertiary: #502400;
+    --surface-bright: #37393e;
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+  }
+</style>
+<!-- Custom Styles for Sidebar & Animations -->
+<link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="bg-[#05050a] text-white min-h-screen flex flex-col font-sans relative overflow-x-hidden">
+<body class="bg-surface-container-lowest dark:bg-[#07071A] text-on-surface dark:text-white antialiased min-h-screen flex flex-col font-body-sm transition-colors duration-200">
+<!-- TOP APP BAR -->
+<header class="w-full bg-surface-container-lowest dark:bg-[#080814]/95 border-b border-outline-variant dark:border-gray-800 sticky top-0 z-50 backdrop-blur-md transition-colors duration-200">
+<div class="w-full max-w-max-width-canvas mx-auto px-gutter-desktop h-16 flex items-center justify-between">
+<!-- Brand & Affiliation Crest -->
+<div class="flex items-center gap-4 sm:gap-6">
+<button onclick="toggleAcademyMobileMenu()" class="lg:hidden p-1.5 rounded-lg bg-slate-100 dark:bg-gray-900 border border-slate-200 dark:border-gray-800 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white" title="Toggle Navigation Menu">☰</button>
+<div class="flex items-baseline gap-2">
+<a href="index.html" class="text-headline-md font-headline-md font-bold tracking-tight text-on-surface dark:text-white uppercase">JOBLEX</a>
+<span class="text-label-sm font-label-sm text-secondary tracking-normal font-medium border-l border-outline-variant dark:border-gray-800 pl-2 hidden sm:inline">
+            AIIA • Ministry of Ayush
+          </span>
+</div>
+<!-- Institutional Segment Switcher -->
+<nav class="hidden md:flex items-center gap-6 border-l border-outline-variant dark:border-gray-800 pl-6">
+<a class="text-secondary hover:text-on-surface font-label-md text-label-md py-4 transition-colors duration-150" href="student-roadmap.html">Student Portal</a>
+<a class="border-b-2 border-primary text-primary font-label-md text-label-md py-4 transition-colors duration-150" href="academy.html">Academic Dean &amp; TPO</a>
+<a class="text-secondary hover:text-on-surface font-label-md text-label-md py-4 transition-colors duration-150" href="industry.html">Industry &amp; Pharma R&amp;D</a>
+</nav>
+</div>
+<!-- Trailing Action Utilities & Verified Profile -->
+<div class="flex items-center gap-2 sm:gap-4">
+<!-- Verified Credentials Badge -->
+<div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-surface-container-low dark:bg-emerald-950/40 border border-outline-variant dark:border-emerald-800/60 rounded">
+<span class="material-symbols-outlined text-tertiary-container text-[16px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-label-sm text-label-sm text-on-surface dark:text-emerald-300 font-semibold">Verified Credentials</span>
+</div>
+<!-- Theme Toggle Button -->
+<button id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Light/Dark Theme" title="Toggle Light/Dark Theme" class="p-1.5 text-secondary hover:text-on-surface rounded hover:bg-surface-container-low transition-colors duration-150 flex items-center justify-center">
+  <span id="theme-toggle-icon" class="material-symbols-outlined text-[20px]">dark_mode</span>
+</button>
+<!-- System Icons -->
+<div class="flex items-center gap-1 border-x border-outline-variant dark:border-gray-800 px-2">
+<button id="notification-bell-btn" onclick="toggleNotificationsDropdown(event)" aria-label="Notifications" title="View Institutional Notifications" class="relative p-1.5 text-secondary hover:text-on-surface rounded hover:bg-surface-container-low transition-colors duration-150 flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="notifications">notifications</span>
+<span class="notification-badge-indicator hidden absolute top-1 right-1 px-1 min-w-[16px] h-4 text-[9px] font-mono font-bold bg-rose-500 text-white rounded-full flex items-center justify-center ring-2 ring-surface-container-lowest dark:ring-[#080814]">3</span>
+</button>
+<button aria-label="Help" class="p-1.5 text-secondary hover:text-on-surface rounded hover:bg-surface-container-low transition-colors duration-150">
+<span class="material-symbols-outlined text-[20px]" data-icon="help">help</span>
+</button>
+</div>
+<!-- Administrator Profile -->
+<div class="flex items-center gap-2.5 pl-1">
+<div class="w-9 h-9 rounded bg-surface-container-high dark:bg-emerald-900/60 border border-outline-variant dark:border-emerald-700/60 flex items-center justify-center font-bold text-primary dark:text-emerald-200 font-label-md">AT</div>
+<div class="hidden lg:block text-left leading-tight">
+<div class="font-label-md text-label-md text-on-surface dark:text-white">Prof. Alok Tripathi</div>
+<div class="font-label-sm text-label-sm text-secondary">Dean of Academics, AIIA</div>
+</div>
+</div>
+</div>
+</div>
+</header>
 
-  <!-- 3D Starfield Background -->
-  <div id="three-canvas-container"></div>
-
-  <!-- Top Sticky Header -->
-  <header class="sticky top-0 z-40 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 border-b border-gray-800 bg-[#080814]/95 backdrop-blur-md shrink-0">
-    <a href="index.html" class="flex items-center gap-2.5">
-      <div class="w-2.5 h-7 bg-emerald-500 rounded-sm shadow-[0_0_10px_#10b981]"></div>
-      <div>
-        <span class="text-xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-300 uppercase block">
-          JOBLEX
-        </span>
-        <span class="text-[9px] text-gray-400 block tracking-widest uppercase font-semibold">
-          Academy & Institutional Portal
-        </span>
+<!-- MOBILE SLIDE-OUT DRAWER -->
+<div id="academy-mobile-drawer" class="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-sm z-50 lg:hidden hidden" onclick="closeAcademyMobileMenu()">
+  <div class="w-72 max-w-[85vw] h-full bg-white dark:bg-[#080814] border-r border-[#E2E8F0] dark:border-emerald-500/30 p-4 flex flex-col justify-between overflow-y-auto" onclick="event.stopPropagation()">
+    <div class="space-y-2">
+      <div class="flex justify-between items-center px-2 pb-3 border-b border-slate-200 dark:border-gray-800">
+        <span class="text-xs uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-bold">Academic Modules</span>
+        <button onclick="closeAcademyMobileMenu()" class="p-1 rounded-lg text-slate-400 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white">✕</button>
       </div>
-    </a>
+      <div class="space-y-1 pt-1">
+        <a href="academy.html" class="academy-mobile-nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold transition bg-emerald-50 dark:bg-emerald-600/25 border border-emerald-200 dark:border-emerald-500/80 text-emerald-700 dark:text-emerald-100">
+          <span class="flex items-center gap-3"><span>🏛️</span> <span>Command Center</span></span>
+          <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500 text-white font-bold">Active</span>
+        </a>
+        <a href="#dept-readiness-section" onclick="closeAcademyMobileMenu()" class="academy-mobile-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+          <span>📊</span> <span>Departmental Readiness &amp; NAAC</span>
+        </a>
+        <a href="#curriculum-gap-section" onclick="closeAcademyMobileMenu()" class="academy-mobile-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+          <span>🧠</span> <span>Curriculum Gap Audit</span>
+        </a>
+        <a href="#peer-benchmarking-section" onclick="closeAcademyMobileMenu()" class="academy-mobile-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+          <span>🌐</span> <span>Cross-College Benchmarking</span>
+        </a>
+        <a href="student-quiz.html" class="academy-mobile-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+          <span>⚡</span> <span>Quiz Assessment Arena</span>
+        </a>
+        <a href="student-resume.html" class="academy-mobile-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+          <span>📄</span> <span>AI Resume Auditing</span>
+        </a>
+        <a href="student-skilltree.html" class="academy-mobile-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+          <span>🌌</span> <span>Skill Constellations</span>
+        </a>
+        <a href="student-portfolio.html" class="academy-mobile-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+          <span>🏆</span> <span>Verified Dossier Ledger</span>
+        </a>
+      </div>
+    </div>
+    <div class="pt-4 border-t border-slate-200 dark:border-gray-800">
+      <button onclick="JoblexApiClient.logout()" class="w-full py-2 rounded-xl text-center text-xs font-semibold text-slate-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition flex items-center justify-center gap-2">
+        <span>🚪</span> <span>Sign Out</span>
+      </button>
+    </div>
+  </div>
+</div>
 
-    <div class="flex items-center gap-3">
-
-      <div class="nav-user-account-container relative"></div>
-      <a href="index.html" class="text-xs px-3 py-1.5 rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 font-medium transition">
-        Hub ↵
+<div class="flex-1 flex overflow-hidden">
+  <!-- COLLAPSIBLE SIDEBAR -->
+  <aside id="academy-sidebar" class="hidden lg:flex w-64 bg-white/90 dark:bg-[#080812]/90 border-r border-[#E2E8F0] dark:border-gray-800/80 backdrop-blur-md p-3.5 flex-col justify-between shrink-0 transition-all duration-300">
+    <div class="space-y-1">
+      <div class="flex items-center justify-between px-2 pb-2 mb-2 border-b border-slate-200 dark:border-gray-800/80">
+        <span class="sidebar-text-label text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-bold">Academic Modules</span>
+        <button id="academy-sidebar-collapse-btn" onclick="toggleAcademySidebarCollapse()" title="Minimize / Expand Sidebar" class="p-1.5 rounded-lg bg-slate-100 dark:bg-gray-900 border border-slate-200 dark:border-gray-800 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white text-xs transition"><span>◀</span></button>
+      </div>
+      <a href="academy.html" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all bg-emerald-50 dark:bg-emerald-600/25 border border-emerald-200 dark:border-emerald-500/80 text-emerald-700 dark:text-emerald-100 shadow-sm dark:shadow-[0_0_15px_rgba(16,185,129,0.25)]">
+        <span class="text-base shrink-0">🏛️</span>
+        <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
+          <span class="font-bold text-xs text-emerald-900 dark:text-white truncate">Command Center</span>
+          <span class="text-[10px] text-emerald-600 dark:text-gray-400 truncate">Council &amp; TPO Overview</span>
+        </div>
+      </a>
+      <a href="#dept-readiness-section" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+        <span class="text-base shrink-0">📊</span>
+        <span class="sidebar-text-label font-bold text-xs">Departmental Readiness</span>
+      </a>
+      <a href="#curriculum-gap-section" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+        <span class="text-base shrink-0">🧠</span>
+        <span class="sidebar-text-label font-bold text-xs">Curriculum Gap Audit</span>
+      </a>
+      <a href="#peer-benchmarking-section" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+        <span class="text-base shrink-0">🌐</span>
+        <span class="sidebar-text-label font-bold text-xs">Peer Benchmarking</span>
+      </a>
+      <a href="student-quiz.html" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+        <span class="text-base shrink-0">⚡</span>
+        <span class="sidebar-text-label font-bold text-xs">Quiz Assessment Arena</span>
+      </a>
+      <a href="student-resume.html" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+        <span class="text-base shrink-0">📄</span>
+        <span class="sidebar-text-label font-bold text-xs">AI Resume Auditing</span>
+      </a>
+      <a href="student-skilltree.html" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+        <span class="text-base shrink-0">🌌</span>
+        <span class="sidebar-text-label font-bold text-xs">Skill Constellations</span>
+      </a>
+      <a href="student-portfolio.html" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+        <span class="text-base shrink-0">🏆</span>
+        <span class="sidebar-text-label font-bold text-xs">Verified Dossier Ledger</span>
       </a>
     </div>
-  </header>
+    <div class="mt-4 pt-3 border-t border-slate-200 dark:border-gray-800/80">
+      <button onclick="JoblexApiClient.logout()" class="w-full py-2 rounded-xl text-center text-xs font-semibold text-slate-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition flex items-center justify-center gap-2">
+        <span>🚪</span> <span class="sidebar-text-label">Sign Out</span>
+      </button>
+    </div>
+  </aside>
 
-  <!-- Sub-Header Tabs -->
-  <div class="bg-[#0a0a16] border-b border-gray-800 px-4 sm:px-8 flex overflow-x-auto no-scrollbar gap-5 pt-3">
-    <button data-tab="Progress" onclick="switchAcademyTab('Progress')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-bold border-b-2 border-emerald-500 text-emerald-300 transition whitespace-nowrap">
-      📊 Student Progress
-    </button>
-    <button data-tab="TPO" onclick="switchAcademyTab('TPO')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
-      🎯 TPO Command Center (Idea #10)
-    </button>
-    <button data-tab="CrossCollege" onclick="switchAcademyTab('CrossCollege')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
-      🏆 Cross-College Benchmarks (Idea #11)
-    </button>
-    <button data-tab="Syllabus" onclick="switchAcademyTab('Syllabus')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
-      🧠 AI Syllabus Modernization
-    </button>
-    <button data-tab="Audit" onclick="switchAcademyTab('Audit')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
-      📄 Curriculum Gap Audit (Idea #9)
-    </button>
-    <button data-tab="Bootcamps" onclick="switchAcademyTab('Bootcamps')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
-      🎓 Sponsored Bootcamps (Idea #8)
-    </button>
-    <button data-tab="FDP" onclick="switchAcademyTab('FDP')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
-      📜 Faculty FDPs
-    </button>
-    <button data-tab="MoUs" onclick="switchAcademyTab('MoUs')" class="academy-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
-      🤝 Corporate MoUs
-    </button>
-  </div>
-
-  <!-- Main Container -->
-  <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6 relative z-10">
-
-    <!-- TAB 1: STUDENT PROGRESS MATRIX -->
-    <section id="academy-tab-Progress" class="academy-tab-content space-y-5">
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="p-5 rounded-2xl bg-gray-900/70 border border-gray-800 backdrop-blur-md">
-          <span class="text-xs text-gray-400 font-medium">Total Registered Scholars</span>
-          <div class="text-3xl font-black text-emerald-400 mt-1">342</div>
-          <span class="text-[11px] text-gray-400">All India Institute of Ayurveda</span>
-        </div>
-        <div class="p-5 rounded-2xl bg-gray-900/70 border border-gray-800 backdrop-blur-md">
-          <span class="text-xs text-gray-400 font-medium">Average Lab Competency Score</span>
-          <div class="text-3xl font-black text-cyan-400 mt-1">74%</div>
-          <span class="text-[11px] text-emerald-400">↑ 8% this semester</span>
-        </div>
-        <div class="p-5 rounded-2xl bg-gray-900/70 border border-gray-800 backdrop-blur-md">
-          <span class="text-xs text-gray-400 font-medium">Students Placed / Shortlisted</span>
-          <div class="text-3xl font-black text-purple-400 mt-1">52</div>
-          <span class="text-[11px] text-gray-400">Dabur, Himalaya & Patanjali</span>
-        </div>
-      </div>
-
-      <div class="p-5 rounded-3xl bg-gray-900/80 border border-gray-800 backdrop-blur-xl shadow-xl space-y-4">
-        <div class="flex justify-between items-center">
-          <h3 class="text-base font-bold text-white">Institutional Student Skill Verification</h3>
-          <span class="text-xs text-emerald-300 font-semibold">Faculty Monitored (AIIA)</span>
-        </div>
-        <div class="overflow-x-auto min-w-[550px]">
-          <table class="w-full text-left">
-            <thead>
-              <tr class="border-b border-gray-800 text-[11px] text-gray-400 uppercase tracking-wider">
-                <th class="py-2.5 px-4">Student Name</th>
-                <th class="py-2.5 px-4">Department</th>
-                <th class="py-2.5 px-4">Skill Score</th>
-                <th class="py-2.5 px-4">Quizzes Done</th>
-                <th class="py-2.5 px-4">Status</th>
-              </tr>
-            </thead>
-            <tbody id="student-table-body">
-              <!-- Rendered by js/frontend/academy-ui.js -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- TAB 2: TPO PLACEMENT COMMAND CENTER (Idea #10) -->
-    <section id="academy-tab-TPO" class="academy-tab-content hidden space-y-5">
-      <div class="p-5 sm:p-7 rounded-3xl bg-gradient-to-r from-emerald-950/60 via-indigo-950/50 to-gray-900 border border-emerald-500/40 backdrop-blur-xl shadow-xl space-y-2">
-        <span class="text-[10px] uppercase font-bold text-emerald-300 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40">
-          Training & Placement Officer Command Center
-        </span>
-        <h3 class="text-xl sm:text-2xl font-extrabold text-white">Live Institutional Placement Funnel</h3>
-        <p class="text-xs sm:text-sm text-gray-300 max-w-2xl leading-relaxed">
-          Monitor application funnels in real-time, detect ghosting companies, and track predictive readiness scores per scholar to launch remedial cohorts before final semester.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-        <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
-          <span class="text-xs text-gray-400 font-medium">Applications Sent</span>
-          <div id="tpo-applied" class="text-2xl sm:text-3xl font-black text-blue-400 mt-1">248</div>
-          <span class="text-[10px] text-gray-500">Across 8 Corporate Partners</span>
-        </div>
-        <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
-          <span class="text-xs text-gray-400 font-medium">Shortlisted for Rounds</span>
-          <div id="tpo-shortlisted" class="text-2xl sm:text-3xl font-black text-purple-400 mt-1">94</div>
-          <span class="text-[10px] text-purple-300">37.9% Conversion</span>
-        </div>
-        <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
-          <span class="text-xs text-gray-400 font-medium">Confirmed Offers</span>
-          <div id="tpo-placed" class="text-2xl sm:text-3xl font-black text-emerald-400 mt-1">52</div>
-          <span class="text-[10px] text-emerald-300">Avg CTC: ₹9.2 LPA</span>
-        </div>
-        <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
-          <span class="text-xs text-gray-400 font-medium">Predictive Readiness</span>
-          <div id="tpo-readiness" class="text-xl sm:text-2xl font-black text-cyan-400 mt-1">84% Ready</div>
-          <span class="text-[10px] text-cyan-300">Machine Learning projection</span>
-        </div>
-      </div>
-
-      <div class="p-5 rounded-3xl bg-amber-950/30 border border-amber-500/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <div>
-          <h4 class="font-bold text-sm text-amber-300">⚠️ Early TPO Intervention Trigger: 14 Scholars Below 60% Competency</h4>
-          <p class="text-xs text-gray-300 mt-0.5">Automated mock-interview invitations and bridge courses recommended to prevent placement drop-offs.</p>
-        </div>
-        <button onclick="alert('Triggered automated remedial roadmap cohorts for 14 at-risk scholars!')" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-gray-950 font-black text-xs transition whitespace-nowrap">
-          Launch Remedial Cohort
-        </button>
-      </div>
-    </section>
-
-    <!-- TAB 3: CROSS-COLLEGE BENCHMARKING (Idea #11) -->
-    <section id="academy-tab-CrossCollege" class="academy-tab-content hidden space-y-5">
-      <div class="p-5 sm:p-7 rounded-3xl bg-gradient-to-r from-emerald-950/60 via-purple-950/60 to-gray-900 border border-emerald-500/40 backdrop-blur-xl shadow-xl space-y-2">
-        <span class="text-[10px] uppercase font-bold text-cyan-300 px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/40">
-          Inter-Institutional League Table
-        </span>
-        <h3 class="text-xl sm:text-2xl font-extrabold text-white">Cross-College Benchmarking (Opt-In & Anonymized)</h3>
-        <p class="text-xs sm:text-sm text-gray-300 max-w-2xl leading-relaxed">
-          Benchmark your institution against similar national institutions (NIA Jaipur, BHU, GAU Jamnagar). Compare average student skill scores, placement velocity, active MoUs, and NAAC accreditation criteria.
-        </p>
-      </div>
-
-      <div class="p-5 rounded-3xl bg-gray-900/80 border border-gray-800 shadow-xl overflow-x-auto">
-        <table class="w-full text-left min-w-[600px]">
-          <thead>
-            <tr class="border-b border-gray-800 text-[11px] text-gray-400 uppercase tracking-wider">
-              <th class="py-3 px-4">Rank</th>
-              <th class="py-3 px-4">Institution Name</th>
-              <th class="py-3 px-4">Avg Student Skill Score</th>
-              <th class="py-3 px-4">Placement Rate</th>
-              <th class="py-3 px-4">Corporate MoUs</th>
-              <th class="py-3 px-4">NAAC Grade</th>
-            </tr>
-          </thead>
-          <tbody id="cross-college-table-body">
-            <!-- Rendered by js/frontend/academy-ui.js -->
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- TAB 4: AI SYLLABUS MODERNIZATION -->
-    <section id="academy-tab-Syllabus" class="academy-tab-content hidden space-y-5">
-      <div class="p-5 rounded-3xl bg-gradient-to-r from-emerald-900/30 to-blue-900/30 border border-emerald-500/30 backdrop-blur-md">
-        <h3 class="text-xl font-bold text-emerald-300 mb-1">AI Curriculum Modernization (NEP-2020)</h3>
-        <p class="text-xs sm:text-sm text-gray-300">
-          The JOBLEX AI Engine compares current semester lesson plans with live job postings and bilateral MoU requirements to recommend automated course add-ons.
-        </p>
-      </div>
-
-      <div id="syllabus-proposals-grid" class="space-y-4">
-        <!-- Rendered by js/frontend/academy-ui.js -->
-      </div>
-    </section>
-
-    <!-- TAB 5: INTERACTIVE CURRICULUM GAP AUDIT (Idea #9) -->
-    <section id="academy-tab-Audit" class="academy-tab-content hidden space-y-5">
-      <div class="p-5 sm:p-7 rounded-3xl bg-gradient-to-r from-purple-950/60 via-indigo-950/60 to-gray-900 border border-purple-500/40 backdrop-blur-xl shadow-xl space-y-2">
-        <span class="text-[10px] uppercase font-bold text-purple-300 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/40">
-          Automated NAAC & NBA Accreditation Alignment
-        </span>
-        <h3 class="text-xl sm:text-2xl font-extrabold text-white">Automated Curriculum Industry Gap Audit</h3>
-        <p class="text-xs sm:text-sm text-gray-300 max-w-2xl leading-relaxed">
-          Upload or paste your department's current syllabus. The AI engine cross-references it with live hiring data across 15+ pharma companies and generates an accredited gap audit for Academic Councils.
-        </p>
-      </div>
-
-      <!-- Audit Input Simulator -->
-      <div class="p-6 rounded-3xl bg-gray-900/80 border border-gray-800 space-y-4">
-        <h4 class="font-bold text-sm text-white">Syllabus Audit Simulator</h4>
-        <form onsubmit="handleRunCurriculumAudit(event)" class="space-y-3">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs text-gray-400 mb-1">Academic Department</label>
-              <select id="audit-dept-select" class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white">
-                <option>Ayurvedic Pharmacology (Dravyaguna)</option>
-                <option>Rasashastra & Bhaishajya Kalpana (Pharmaceutics)</option>
-                <option>Ayush Health Informatics & Data Science</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs text-gray-400 mb-1">Accreditation Target</label>
-              <select class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white">
-                <option>NAAC Criterion 1 (Curricular Aspects)</option>
-                <option>National Education Policy (NEP 2020 Integration)</option>
-                <option>National Board of Accreditation (NBA)</option>
-              </select>
-            </div>
+  <!-- WORKSPACE -->
+  <main class="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 custom-scrollbar">
+    <div class="w-full max-w-max-width-canvas mx-auto flex flex-col gap-unit-xl">
+<!-- SUB-HEADER / TITLE BANNER -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 sm:p-5">
+<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+<div>
+<div class="flex items-center gap-2 mb-0.5">
+<span class="font-mono-data text-mono-data uppercase text-secondary">REGISTRY REF: AIIA-AC-2025/Q1</span>
+<span class="text-outline-variant">•</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded bg-surface-container text-on-surface font-label-sm text-label-sm">
+              NAAC Statutory Cycle IV
+            </span>
+</div>
+<h1 class="text-headline-lg font-headline-lg text-on-surface">Academic Council &amp; TPO Command Center</h1>
+<p class="text-body-sm font-body-sm text-secondary mt-0.5">
+            Outcome-Based Education (OBE), NAAC Criterion 3.4 Compliance &amp; Industry MoU Syndication
+          </p>
+</div>
+<!-- Quick Governance Actions -->
+<div class="flex items-center gap-2">
+<button onclick="handleExportAQAR()" class="px-3 py-1.5 border border-outline-variant bg-surface-container-lowest hover:bg-surface-container-low text-on-surface rounded font-label-md text-label-md transition-colors duration-150 flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">file_download</span>NAAC AQAR Export</button>
+<button onclick="handleSyndicateChanges()" class="px-3 py-1.5 bg-primary text-on-primary rounded font-label-md text-label-md hover:bg-primary-container transition-colors duration-150 flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">verified</span>Syndicate Curriculum Changes</button>
+</div>
+</div>
+</section>
+<!-- MAIN CANVAS -->
+<div class="flex flex-col gap-unit-xl">
+<!-- KPI ROW (4 CLEAN METRIC CARDS) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- Metric 1 -->
+<div class="border border-outline-variant p-unit-base rounded bg-surface-container-lowest">
+<div class="flex items-center justify-between text-secondary mb-1">
+<span class="font-label-sm text-label-sm uppercase">Total Scholars Enrolled</span>
+<span class="material-symbols-outlined text-[18px]">school</span>
+</div>
+<div class="text-display-lg font-display-lg text-on-surface">342</div>
+<div class="flex items-center gap-1 text-label-sm font-label-sm text-on-tertiary-container mt-1">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+<span>+8.4% YoY Verified Enrollment</span>
+</div>
+</div>
+<!-- Metric 2 -->
+<div class="border border-outline-variant p-unit-base rounded bg-surface-container-lowest">
+<div class="flex items-center justify-between text-secondary mb-1">
+<span class="font-label-sm text-label-sm uppercase">OBE Curriculum Attainment</span>
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+</div>
+<div class="text-display-lg font-display-lg text-on-surface">94.2%</div>
+<div class="flex items-center gap-1 text-label-sm font-label-sm text-on-tertiary-container mt-1">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span>Target &gt; 90% (NAAC Criterion 2.6)</span>
+</div>
+</div>
+<!-- Metric 3 -->
+<div class="border border-outline-variant p-unit-base rounded bg-surface-container-lowest">
+<div class="flex items-center justify-between text-secondary mb-1">
+<span class="font-label-sm text-label-sm uppercase">Placed Under Bilateral MoUs</span>
+<span class="material-symbols-outlined text-[18px]">handshake</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-display-lg font-display-lg text-on-surface">52</span>
+<span class="font-mono-data text-mono-data text-secondary">/ 60 Scholars</span>
+</div>
+<div class="flex items-center gap-1 text-label-sm font-label-sm text-on-tertiary-container mt-1">
+<span class="font-bold text-label-sm">86% Placement Rate</span>
+<span class="text-secondary">(Phase 1 Drive)</span>
+</div>
+</div>
+<!-- Metric 4 -->
+<div class="border border-outline-variant p-unit-base rounded bg-surface-container-lowest">
+<div class="flex items-center justify-between text-secondary mb-1">
+<span class="font-label-sm text-label-sm uppercase">Active Corporate R&amp;D Grants</span>
+<span class="material-symbols-outlined text-[18px]">account_balance</span>
+</div>
+<div class="text-display-lg font-display-lg text-on-surface">₹54.5 L</div>
+<div class="flex items-center gap-1 text-label-sm font-label-sm text-on-surface-variant mt-1">
+<span class="font-mono-data text-mono-data">5 Active Grants</span>
+<span class="text-secondary">• Dabur &amp; Himalaya Corp</span>
+</div>
+</div>
+</div>
+<!-- MAIN SECTION 1: DEPARTMENTAL READINESS & NAAC ACCREDITATION TABLE -->
+<section id="dept-readiness-section" class="border border-outline-variant rounded bg-surface-container-lowest">
+<!-- Section Header -->
+<div class="px-unit-base py-3 border-b border-outline-variant flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+<div>
+<h2 class="text-headline-sm font-headline-sm text-on-surface">Departmental Readiness &amp; NAAC Accreditation Table</h2>
+<p class="text-label-sm font-label-sm text-secondary">Statutory monitoring of Post-Graduate &amp; Doctoral departments across academic indicators</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-mono-data text-mono-data text-secondary text-label-sm">Criteria Matrix: v3.4.1</span>
+<button class="p-1 text-secondary hover:text-on-surface">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+</button>
+</div>
+</div>
+<!-- Data Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="py-2.5 px-unit-base text-label-sm font-label-sm text-secondary uppercase tracking-wider">Department</th>
+<th class="py-2.5 px-unit-base text-label-sm font-label-sm text-secondary uppercase tracking-wider">Head of Department</th>
+<th class="py-2.5 px-unit-base text-label-sm font-label-sm text-secondary uppercase tracking-wider">OBE Attainment</th>
+<th class="py-2.5 px-unit-base text-label-sm font-label-sm text-secondary uppercase tracking-wider">Lab Infra Index</th>
+<th class="py-2.5 px-unit-base text-label-sm font-label-sm text-secondary uppercase tracking-wider">Board of Studies (BoS) Status</th>
+<th class="py-2.5 px-unit-base text-label-sm font-label-sm text-secondary uppercase tracking-wider">NAAC Criterion</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors duration-150">
+<td class="py-3 px-unit-base font-label-md text-label-md text-on-surface">
+                Ayurvedic Pharmacology (Dravyaguna)
+              </td>
+<td class="py-3 px-unit-base text-body-sm font-body-sm text-on-surface-variant">
+                Prof. M. K. Sharma
+              </td>
+<td class="py-3 px-unit-base">
+<div class="flex items-center gap-2">
+<div class="w-20 bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div class="bg-tertiary-container h-full rounded-full" style="width: 96.5%"></div>
+</div>
+<span class="font-mono-data text-mono-data text-on-surface">96.5%</span>
+</div>
+</td>
+<td class="py-3 px-unit-base">
+<span class="inline-flex items-center px-2 py-0.5 rounded font-mono-data text-mono-data bg-surface-container text-on-surface">
+                  Tier-1 (NABL Accr.)
+                </span>
+</td>
+<td class="py-3 px-unit-base">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-tertiary-container font-medium">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                  Ratified 2024-25
+                </span>
+</td>
+<td class="py-3 px-unit-base">
+<span class="font-mono-data text-mono-data text-on-surface-variant">3.4.2 • Research Clean</span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors duration-150">
+<td class="py-3 px-unit-base font-label-md text-label-md text-on-surface">
+                Pharmaceutics (Rasashastra)
+              </td>
+<td class="py-3 px-unit-base text-body-sm font-body-sm text-on-surface-variant">
+                Dr. Sunita Varma
+              </td>
+<td class="py-3 px-unit-base">
+<div class="flex items-center gap-2">
+<div class="w-20 bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div class="bg-tertiary-container h-full rounded-full" style="width: 92.8%"></div>
+</div>
+<span class="font-mono-data text-mono-data text-on-surface">92.8%</span>
+</div>
+</td>
+<td class="py-3 px-unit-base">
+<span class="inline-flex items-center px-2 py-0.5 rounded font-mono-data text-mono-data bg-surface-container text-on-surface">
+                  GMP Certified Pilot
+                </span>
+</td>
+<td class="py-3 px-unit-base">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-tertiary-container font-medium">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                  Ratified 2024-25
+                </span>
+</td>
+<td class="py-3 px-unit-base">
+<span class="font-mono-data text-mono-data text-on-surface-variant">3.4.1 • Innovations</span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors duration-150">
+<td class="py-3 px-unit-base font-label-md text-label-md text-on-surface">
+                Ayush Health Informatics &amp; Data Science
+              </td>
+<td class="py-3 px-unit-base text-body-sm font-body-sm text-on-surface-variant">
+                Dr. Rajeshwar Rao
+              </td>
+<td class="py-3 px-unit-base">
+<div class="flex items-center gap-2">
+<div class="w-20 bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 88.4%"></div>
+</div>
+<span class="font-mono-data text-mono-data text-on-surface">88.4%</span>
+</div>
+</td>
+<td class="py-3 px-unit-base">
+<span class="inline-flex items-center px-2 py-0.5 rounded font-mono-data text-mono-data bg-surface-container text-on-surface">
+                  Compute Cluster (GPU)
+                </span>
+</td>
+<td class="py-3 px-unit-base">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-secondary font-medium">
+<span class="material-symbols-outlined text-[14px]">pending</span>
+                  Revision Pending (Unit 5)
+                </span>
+</td>
+<td class="py-3 px-unit-base">
+<span class="font-mono-data text-mono-data text-on-surface-variant">3.4.4 • Interdisciplinary</span>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low transition-colors duration-150">
+<td class="py-3 px-unit-base font-label-md text-label-md text-on-surface">
+                Swasthavritta &amp; Preventive Medicine
+              </td>
+<td class="py-3 px-unit-base text-body-sm font-body-sm text-on-surface-variant">
+                Prof. Geeta Bhattacharya
+              </td>
+<td class="py-3 px-unit-base">
+<div class="flex items-center gap-2">
+<div class="w-20 bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div class="bg-tertiary-container h-full rounded-full" style="width: 95.1%"></div>
+</div>
+<span class="font-mono-data text-mono-data text-on-surface">95.1%</span>
+</div>
+</td>
+<td class="py-3 px-unit-base">
+<span class="inline-flex items-center px-2 py-0.5 rounded font-mono-data text-mono-data bg-surface-container text-on-surface">
+                  Clinical Diagnostics
+                </span>
+</td>
+<td class="py-3 px-unit-base">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-tertiary-container font-medium">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                  Ratified 2024-25
+                </span>
+</td>
+<td class="py-3 px-unit-base">
+<span class="font-mono-data text-mono-data text-on-surface-variant">3.4.3 • Extension Outreach</span>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-surface-container-low transition-colors duration-150">
+<td class="py-3 px-unit-base font-label-md text-label-md text-on-surface">
+                Kaya Chikitsa
+              </td>
+<td class="py-3 px-unit-base text-body-sm font-body-sm text-on-surface-variant">
+                Dr. Anand S. Kulkarni
+              </td>
+<td class="py-3 px-unit-base">
+<div class="flex items-center gap-2">
+<div class="w-20 bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div class="bg-tertiary-container h-full rounded-full" style="width: 97.0%"></div>
+</div>
+<span class="font-mono-data text-mono-data text-on-surface">97.0%</span>
+</div>
+</td>
+<td class="py-3 px-unit-base">
+<span class="inline-flex items-center px-2 py-0.5 rounded font-mono-data text-mono-data bg-surface-container text-on-surface">
+                  NABH Hospital Facility
+                </span>
+</td>
+<td class="py-3 px-unit-base">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-tertiary-container font-medium">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                  Ratified 2024-25
+                </span>
+</td>
+<td class="py-3 px-unit-base">
+<span class="font-mono-data text-mono-data text-on-surface-variant">3.4.5 • Clinical Trials</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- SECTION 2 & 3: BENTO TWO-COLUMN LAYOUT -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-unit-lg">
+<!-- MAIN SECTION 2: AUTOMATED CURRICULUM GAP AUDIT (7 Cols) -->
+<section id="curriculum-gap-section" class="lg:col-span-7 border border-outline-variant rounded bg-surface-container-lowest flex flex-col justify-between">
+<div>
+<!-- Section Header -->
+<div class="px-unit-base py-3 border-b border-outline-variant flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-primary">psychology</span>
+<div>
+<h2 class="text-headline-sm font-headline-sm text-on-surface">Automated Curriculum Gap Audit</h2>
+<p class="text-label-sm font-label-sm text-secondary">AI audit parsing institutional syllabus against active pharma job requisitions</p>
+</div>
+</div>
+<span class="font-mono-data text-mono-data text-label-sm bg-surface-container px-2 py-0.5 rounded text-on-surface">
+              MoU Engine Active
+            </span>
+</div>
+<!-- Gap Audit Cards -->
+<div class="p-unit-base flex flex-col gap-4">
+<!-- Gap 1: Pharmacognosy / HPTLC -->
+<div class="border border-outline-variant rounded p-unit-base bg-surface-container-lowest">
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-outline-variant pb-2.5 mb-2.5">
+<div>
+<span class="font-mono-data text-mono-data text-secondary uppercase">Unit 3: Pharmacognosy &amp; Phytochemistry</span>
+<h3 class="text-headline-sm font-headline-sm text-on-surface">High-Performance Thin-Layer Chromatography (HPTLC)</h3>
+</div>
+<div class="text-right">
+<span class="inline-block px-2 py-0.5 rounded bg-surface-container text-label-sm font-label-sm text-on-surface">
+                    Requisitions: Dabur • Himalaya
+                  </span>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+<div class="bg-surface-container-low p-2.5 rounded">
+<div class="font-label-sm text-label-sm text-secondary">Target Corporate Roles</div>
+<div class="font-label-md text-label-md text-on-surface mt-0.5">Formulation Scientist / Analytical Chemist</div>
+</div>
+<div class="bg-surface-container-low p-2.5 rounded">
+<div class="font-label-sm text-label-sm text-secondary">Measurable Hiring Impact</div>
+<div class="font-label-md text-label-md text-on-tertiary-container mt-0.5">Closes 68% candidate gap for R&amp;D positions</div>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
+<div class="text-label-sm font-label-sm text-secondary">
+                  Recommended Add-on: <span class="font-mono-data text-on-surface">18 Hours Practical + 12 Hours Instrument Operation</span>
+</div>
+<button onclick="handleAdoptSyllabus('HPTLC Fingerprinting')" class="w-full sm:w-auto px-3.5 py-1.5 bg-primary text-on-primary rounded font-label-md text-label-md hover:bg-primary-container transition-colors duration-150 flex items-center justify-center gap-1.5"><span class="material-symbols-outlined text-[16px]">add_circle</span>Adopt Syllabus Add-on for Academic Council</button>
+</div>
+</div>
+<!-- Gap 2: Computational Chemistry / AutoDock -->
+<div class="border border-outline-variant rounded p-unit-base bg-surface-container-lowest">
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-outline-variant pb-2.5 mb-2.5">
+<div>
+<span class="font-mono-data text-mono-data text-secondary uppercase">Unit 5: Computational Chemistry</span>
+<h3 class="text-headline-sm font-headline-sm text-on-surface">In-Silico Molecular Docking (AutoDock Vina)</h3>
+</div>
+<div class="text-right">
+<span class="inline-block px-2 py-0.5 rounded bg-surface-container text-label-sm font-label-sm text-on-surface">
+                    Requisitions: Bio-Ayush • Patanjali R&amp;D
+                  </span>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+<div class="bg-surface-container-low p-2.5 rounded">
+<div class="font-label-sm text-label-sm text-secondary">Target Corporate Roles</div>
+<div class="font-label-md text-label-md text-on-surface mt-0.5">Computational Biologist / Phytomedicine Modeler</div>
+</div>
+<div class="bg-surface-container-low p-2.5 rounded">
+<div class="font-label-sm text-label-sm text-secondary">Measurable Hiring Impact</div>
+<div class="font-label-md text-label-md text-on-tertiary-container mt-0.5">Unlocks 42 specialized bioinformatics roles</div>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
+<div class="text-label-sm font-label-sm text-secondary">
+                  Recommended Add-on: <span class="font-mono-data text-on-surface">15 Lab Sessions on Linux High-Performance Grid</span>
+</div>
+<button onclick="handleAdoptSyllabus('AutoDock Vina Computational Chemistry')" class="w-full sm:w-auto px-3.5 py-1.5 border border-outline-variant bg-surface-container-lowest hover:bg-surface-container-low text-on-surface rounded font-label-md text-label-md transition-colors duration-150 flex items-center justify-center gap-1.5"><span class="material-symbols-outlined text-[16px]">visibility</span>Review Unit Module</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Audit Engine Indicator Footer -->
+<div class="px-unit-base py-2.5 border-t border-outline-variant bg-surface-container-low flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-tertiary-container inline-block"></span>
+            Continuous Parser: 114 Corporate JDs synced in last 24h
+          </span>
+<span class="font-mono-data text-mono-data text-label-sm text-secondary">Engine v2.1-Ayush</span>
+</div>
+</section>
+<!-- MAIN SECTION 3: CROSS-COLLEGE PEER BENCHMARKING (5 Cols) -->
+<section id="peer-benchmarking-section" class="lg:col-span-5 border border-outline-variant rounded bg-surface-container-lowest flex flex-col justify-between">
+<div>
+<!-- Section Header -->
+<div class="px-unit-base py-3 border-b border-outline-variant flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-primary">leaderboard</span>
+<div>
+<h2 class="text-headline-sm font-headline-sm text-on-surface">Cross-College Peer Benchmarking</h2>
+<p class="text-label-sm font-label-sm text-secondary">Comparative institutional outcome analytics</p>
+</div>
+</div>
+<span class="font-mono-data text-mono-data text-label-sm text-secondary">NIRF / Ayush</span>
+</div>
+<!-- Peer List -->
+<div class="p-unit-base flex flex-col gap-3">
+<!-- Rank 1: AIIA New Delhi -->
+<div class="p-3 border-2 border-primary rounded bg-surface-container-lowest relative">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded bg-primary text-on-primary font-mono-data text-mono-data flex items-center justify-center font-bold">
+                    1
+                  </span>
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-1.5">
+                      AIIA New Delhi
+                      <span class="material-symbols-outlined text-tertiary-container text-[16px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<div class="text-label-sm font-label-sm text-secondary">All India Institute of Ayurveda (Host Institution)</div>
+</div>
+</div>
+<div class="text-right">
+<div class="font-mono-data text-mono-data font-bold text-on-surface text-headline-sm">78.4%</div>
+<div class="text-label-sm font-label-sm text-secondary">Skill Score</div>
+</div>
+</div>
+<!-- Bar -->
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden mt-3">
+<div class="bg-primary h-full rounded-full" style="width: 78.4%"></div>
+</div>
+<div class="mt-2 flex items-center justify-between text-label-sm font-label-sm text-secondary">
+<span>Placement Conversion: <strong class="text-on-surface">86.0%</strong></span>
+<span>MoU Grant Index: <strong class="text-on-surface">9.4/10</strong></span>
+</div>
+</div>
+<!-- Rank 2: NIA Jaipur -->
+<div class="p-3 border border-outline-variant rounded bg-surface-container-lowest">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded bg-surface-container text-on-surface font-mono-data text-mono-data flex items-center justify-center font-bold">
+                    2
+                  </span>
+<div>
+<div class="font-label-md text-label-md text-on-surface">National Institute of Ayurveda (NIA)</div>
+<div class="text-label-sm font-label-sm text-secondary">Jaipur, Rajasthan</div>
+</div>
+</div>
+<div class="text-right">
+<div class="font-mono-data text-mono-data font-semibold text-on-surface">74.2%</div>
+<div class="text-label-sm font-label-sm text-secondary">Skill Score</div>
+</div>
+</div>
+<!-- Bar -->
+<div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden mt-2.5">
+<div class="bg-secondary h-full rounded-full" style="width: 74.2%"></div>
+</div>
+<div class="mt-2 flex items-center justify-between text-label-sm font-label-sm text-secondary">
+<span>Placement Conversion: <strong class="text-on-surface">79.2%</strong></span>
+<span>Delta: <strong class="text-secondary">-4.2%</strong></span>
+</div>
+</div>
+<!-- Rank 3: BHU Varanasi -->
+<div class="p-3 border border-outline-variant rounded bg-surface-container-lowest">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded bg-surface-container text-on-surface font-mono-data text-mono-data flex items-center justify-center font-bold">
+                    3
+                  </span>
+<div>
+<div class="font-label-md text-label-md text-on-surface">Faculty of Ayurveda, BHU</div>
+<div class="text-label-sm font-label-sm text-secondary">Varanasi, Uttar Pradesh</div>
+</div>
+</div>
+<div class="text-right">
+<div class="font-mono-data text-mono-data font-semibold text-on-surface">72.8%</div>
+<div class="text-label-sm font-label-sm text-secondary">Skill Score</div>
+</div>
+</div>
+<!-- Bar -->
+<div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden mt-2.5">
+<div class="bg-secondary h-full rounded-full" style="width: 72.8%"></div>
+</div>
+<div class="mt-2 flex items-center justify-between text-label-sm font-label-sm text-secondary">
+<span>Placement Conversion: <strong class="text-on-surface">76.4%</strong></span>
+<span>Delta: <strong class="text-secondary">-5.6%</strong></span>
+</div>
+</div>
+<!-- Rank 4: Gujarat Ayurved University -->
+<div class="p-3 border border-outline-variant rounded bg-surface-container-lowest">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded bg-surface-container text-on-surface font-mono-data text-mono-data flex items-center justify-center font-bold">
+                    4
+                  </span>
+<div>
+<div class="font-label-md text-label-md text-on-surface">Gujarat Ayurved University (ITRA)</div>
+<div class="text-label-sm font-label-sm text-secondary">Jamnagar, Gujarat</div>
+</div>
+</div>
+<div class="text-right">
+<div class="font-mono-data text-mono-data font-semibold text-on-surface">71.5%</div>
+<div class="text-label-sm font-label-sm text-secondary">Skill Score</div>
+</div>
+</div>
+<!-- Bar -->
+<div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden mt-2.5">
+<div class="bg-secondary h-full rounded-full" style="width: 71.5%"></div>
+</div>
+<div class="mt-2 flex items-center justify-between text-label-sm font-label-sm text-secondary">
+<span>Placement Conversion: <strong class="text-on-surface">73.1%</strong></span>
+<span>Delta: <strong class="text-secondary">-6.9%</strong></span>
+</div>
+</div>
+</div>
+</div>
+<!-- Comparative Summary Footer -->
+<div class="px-unit-base py-3 border-t border-outline-variant bg-surface-container-low flex items-center justify-between">
+<span class="text-label-sm font-label-sm text-on-surface font-medium">
+            National Percentile Standing: <strong>Top 1.2%</strong>
+</span>
+<a class="font-label-sm text-label-sm text-primary underline font-medium" href="javascript:void(0)" onclick="downloadPeerMatrix()">Download Peer Matrix</a>
+</div>
+</section>
+</div>
+<!-- STATUTORY RECORD AUDIT TIMELINE / COMPLIANCE NOTE -->
+<div class="border border-outline-variant rounded p-unit-base bg-surface-container-low flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-tertiary-container text-[24px]">verified</span>
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface">Statutory Audit Verification Complete</div>
+<div class="text-body-sm font-body-sm text-secondary">
+            OBE Data Points automatically cryptographically hashed and prepared for National Board of Accreditation (NBA) and NAAC peer verification visit.
           </div>
-
-          <div>
-            <label class="block text-xs text-gray-400 mb-1">Paste Course Syllabus Outline / Syllabus PDF extract</label>
-            <textarea id="audit-syllabus-text" rows="3" class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white font-mono leading-relaxed" placeholder="Unit 1: Introduction to Dravyaguna. Unit 2: Classical nomenclature. Unit 3: Botanical drug standardization. Unit 4: Ayurvedic formulation principles."></textarea>
-          </div>
-
-          <button type="submit" class="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs sm:text-sm shadow-md transition">
-            ⚡ Run Automated Industry Gap Audit
-          </button>
-        </form>
+</div>
+</div>
+<div class="flex items-center gap-2 w-full sm:w-auto">
+<button onclick="viewAuditLog()" class="w-full sm:w-auto px-3.5 py-1.5 border border-outline-variant bg-surface-container-lowest hover:bg-surface-container text-on-surface rounded font-label-md text-label-md transition-colors duration-150">View Audit Log</button>
+</div>
+</div>
+</div>
+<!-- FOOTER -->
+<footer class="w-full bg-surface-container-lowest dark:bg-[#080814] border-t border-outline-variant dark:border-gray-800 mt-12 transition-colors duration-200">
+<div class="w-full max-w-max-width-canvas mx-auto px-gutter-desktop py-unit-lg flex flex-col md:flex-row items-center justify-between gap-unit-md">
+<!-- Copyright text from JSON -->
+<div class="text-body-sm font-body-sm text-secondary text-center md:text-left">
+        © 2025 JOBLEX. All India Institute of Ayurveda &amp; Ministry of Ayush, Government of India. All Statutory Rights Reserved.
       </div>
+<!-- Links from JSON -->
+<div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+<a class="text-label-sm font-label-sm text-secondary hover:text-on-surface transition-colors duration-150" href="#">
+          NAAC &amp; Statutory Governance
+        </a>
+<a class="text-label-sm font-label-sm text-secondary hover:text-on-surface transition-colors duration-150" href="#">
+          AIIA Digital Verification Protocol
+        </a>
+<a class="text-label-sm font-label-sm text-secondary hover:text-on-surface transition-colors duration-150" href="#">
+          Terms of Institutional Access
+        </a>
+<a class="text-label-sm font-label-sm text-secondary hover:text-on-surface transition-colors duration-150" href="#">
+          National Ayush Registry Support
+        </a>
+</div>
+</div>
+</footer>
+</main>
+</div>
+<script>
+  function toggleTheme() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    try {
+      localStorage.setItem('joblex_theme', isDark ? 'dark' : 'light');
+    } catch(e) {}
+    updateThemeIcon();
+  }
 
-      <!-- Audit Results Box -->
-      <div id="audit-results-box" class="hidden space-y-4 p-5 rounded-3xl bg-gray-900/90 border border-purple-500/40 shadow-xl">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="p-4 rounded-2xl bg-black/40 border border-gray-800 text-center">
-            <span class="text-xs text-gray-400">Industry Alignment Score</span>
-            <div id="audit-coverage-score" class="text-3xl font-black text-purple-400 mt-1">68%</div>
-            <span class="text-[10px] text-gray-500">Benchmark: 85% for NAAC A++</span>
-          </div>
-          <div class="p-4 rounded-2xl bg-black/40 border border-gray-800 text-center">
-            <span class="text-xs text-gray-400">Accreditation Compliance</span>
-            <div id="audit-naac-score" class="text-3xl font-black text-emerald-400 mt-1">3.4 / 4.0</div>
-            <span class="text-[10px] text-emerald-400">High Institutional Rating</span>
-          </div>
-        </div>
+  function updateThemeIcon() {
+    const icon = document.getElementById('theme-toggle-icon');
+    if (!icon) return;
+    const isDark = document.documentElement.classList.contains('dark');
+    icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+  }
 
-        <div>
-          <h4 class="font-bold text-sm text-white mb-2">Critical Competency Gaps to Adopt</h4>
-          <div id="audit-critical-gaps-list" class="space-y-2"></div>
-        </div>
+  document.addEventListener('DOMContentLoaded', () => {
+    updateThemeIcon();
+  });
+</script>
+<script>
+  function handleExportAQAR() {
+    alert("Generating Statutory NAAC AQAR Criterion 3.4 & OBE Data Dossier (PDF/CSV)...\nRegistry Reference: AIIA-AC-2025/Q1\nNAAC Cycle: Statutory Cycle IV");
+  }
 
-        <div class="flex justify-end pt-2">
-          <button onclick="alert('Accredited NEP-2020 syllabus compliance dossier downloaded (PDF)!')" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition shadow-sm">
-            Download Official Accreditation Dossier 📄
-          </button>
-        </div>
-      </div>
-    </section>
+  function handleSyndicateChanges() {
+    alert("Curriculum Modernization Proposal successfully submitted to the Academic Council Syndicate.\nRatification queued for upcoming BoS review session.");
+  }
 
-    <!-- TAB 6: SPONSORED BOOTCAMPS (ACADEMY VIEW) (Idea #8) -->
-    <section id="academy-tab-Bootcamps" class="academy-tab-content hidden space-y-5">
-      <div class="p-5 sm:p-7 rounded-3xl bg-gradient-to-r from-indigo-950/60 via-purple-950/60 to-gray-900 border border-indigo-500/40 backdrop-blur-xl shadow-xl space-y-2">
-        <span class="text-[10px] uppercase font-bold text-indigo-300 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/40">
-          Bilateral Campus Acceleration
-        </span>
-        <h3 class="text-xl sm:text-2xl font-extrabold text-white">Active Industry-Sponsored Bootcamps</h3>
-        <p class="text-xs sm:text-sm text-gray-300 max-w-2xl leading-relaxed">
-          Corporations (Dabur, Himalaya) fund specialized 4-week fast-track bootcamps directly at your institution, offering students stipends, bounties, and direct placement opportunities.
-        </p>
-      </div>
+  function handleAdoptSyllabus(name) {
+    alert(`Success: "${name}" curriculum add-on adopted for Academic Council BoS ratification.`);
+  }
 
-      <div id="academy-bootcamps-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Rendered by js/frontend/academy-ui.js -->
-      </div>
-    </section>
+  function viewAuditLog() {
+    alert("Statutory Audit Log:\nNode: AIIA Central Verification Hub\nCryptographic Ledger Hash: SHA-256 (0x7F2A...B94C)\nVerified Status: Compliant under Ministry of Ayush Standards");
+  }
 
-    <!-- TAB 7: FACULTY DEVELOPMENT PROGRAMS -->
-    <section id="academy-tab-FDP" class="academy-tab-content hidden space-y-5">
-      <h3 class="text-lg font-bold text-white">Upcoming Faculty Development Programs (FDP)</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="p-5 rounded-2xl bg-gray-900/60 border border-gray-800 space-y-3">
-          <div class="flex justify-between items-start">
-            <h4 class="font-bold text-sm text-white">Advanced Chromatographic Fingerprinting for Herbal Formulations</h4>
-            <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 font-bold">Offline Lab</span>
-          </div>
-          <p class="text-xs text-gray-400">5-day hands-on immersion in Dabur R&D Labs, Ghaziabad covering HPTLC & LC-MS standardization.</p>
-          <div class="flex justify-between items-center pt-2">
-            <span class="text-xs text-gray-500">Duration: Nov 10 - 15, 2026</span>
-            <button onclick="alert('Faculty nomination submitted to Dean Office!')" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs">
-              Nominate Faculty
-            </button>
-          </div>
-        </div>
+  function downloadPeerMatrix() {
+    alert("Downloading Cross-College Institutional Outcome Benchmark Matrix (CSV)...\nPercentile: Top 1.2% Nationally");
+  }
 
-        <div class="p-5 rounded-2xl bg-gray-900/60 border border-gray-800 space-y-3">
-          <div class="flex justify-between items-start">
-            <h4 class="font-bold text-sm text-white">Artificial Intelligence & NLP for Ancient Ayurvedic Classical Treatises</h4>
-            <span class="px-2 py-0.5 rounded text-[10px] bg-cyan-500/20 text-cyan-300 font-bold">Online</span>
-          </div>
-          <p class="text-xs text-gray-400">National workshop on text-mining Charaka & Sushruta Samhitas using Python Natural Language Processing.</p>
-          <div class="flex justify-between items-center pt-2">
-            <span class="text-xs text-gray-500">Duration: Dec 01 - 06, 2026</span>
-            <button onclick="alert('Faculty nomination submitted to Dean Office!')" class="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs">
-              Nominate Faculty
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- TAB 8: CORPORATE MOUS -->
-    <section id="academy-tab-MoUs" class="academy-tab-content hidden space-y-5">
-      <h3 class="text-lg font-bold text-white">Bilateral Corporate MoUs & Research Grants</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="p-5 rounded-2xl bg-gray-900/60 border border-emerald-500/30 space-y-2">
-          <div class="flex justify-between items-center">
-            <h4 class="font-bold text-sm text-emerald-300">Dabur Research & Development Ltd.</h4>
-            <span class="text-[11px] text-gray-400">Active MoU</span>
-          </div>
-          <p class="text-xs text-gray-300">Grant Allocation: ₹15,00,000 for standardization of classical Ayurvedic Rasayana formulations.</p>
-          <span class="text-[11px] text-gray-500 block">Valid through Dec 2028 · 12 Internships reserved annually</span>
-        </div>
-
-        <div class="p-5 rounded-2xl bg-gray-900/60 border border-emerald-500/30 space-y-2">
-          <div class="flex justify-between items-center">
-            <h4 class="font-bold text-sm text-emerald-300">Himalaya Wellness Company</h4>
-            <span class="text-[11px] text-gray-400">Active MoU</span>
-          </div>
-          <p class="text-xs text-gray-300">Grant Allocation: ₹9,00,000 for Clinical Trial Safety & Phytochemical Stability Research.</p>
-          <span class="text-[11px] text-gray-500 block">Valid through Oct 2027 · Collaborative Faculty Exchange</span>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- Frontend Scripts (Cleanly separated from Backend) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="js/frontend/three-scene.js"></script>
-  <script src="js/frontend/api-client.js"></script>
-  <script src="js/frontend/academy-ui.js"></script>
-</body>
-</html>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.JoblexApiClient && typeof JoblexApiClient.requireAuth === 'function') {
+      JoblexApiClient.requireAuth('academy');
+    }
+  });
+</script>
+<script src="js/frontend/api-client.js"></script>
+<script src="js/frontend/notifications.js"></script>
+<script src="js/frontend/academy-ui.js"></script>
+</body></html>

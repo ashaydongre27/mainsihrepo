@@ -9,6 +9,14 @@ export default function WelcomePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  const navigateToRole = (role) => {
+    if (!user) {
+      navigate(`/auth?role=${encodeURIComponent(role)}&redirect=${encodeURIComponent('/' + role)}`);
+    } else {
+      navigate(`/${role}`);
+    }
+  };
+
   const features = [
     {
       icon: '🎯',
@@ -151,14 +159,14 @@ export default function WelcomePage() {
               <div className="flex flex-wrap justify-center gap-2 text-xs">
                 <span className="text-gray-500 self-center font-medium">Quick access:</span>
                 {[
-                  { label: '🎓 Student', path: '/student', cls: 'border-purple-500/40 text-purple-300 hover:bg-purple-900/40' },
-                  { label: '🏛️ Academy', path: '/academy', cls: 'border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/40' },
-                  { label: '🏢 Industry', path: '/industry', cls: 'border-blue-500/40 text-blue-300 hover:bg-blue-900/40' },
+                  { label: '🎓 Student', role: 'student', cls: 'border-purple-500/40 text-purple-300 hover:bg-purple-900/40' },
+                  { label: '🏛️ Academy', role: 'academy', cls: 'border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/40' },
+                  { label: '🏢 Industry', role: 'industry', cls: 'border-blue-500/40 text-blue-300 hover:bg-blue-900/40' },
                 ].map(b => (
                   <button
-                    key={b.path}
-                    onClick={() => navigate(b.path)}
-                    className={`px-4 py-1.5 rounded-full border bg-white/5 font-semibold transition ${b.cls}`}
+                    key={b.role}
+                    onClick={() => navigateToRole(b.role)}
+                    className={`px-4 py-1.5 rounded-full border bg-white/5 font-semibold transition cursor-pointer ${b.cls}`}
                   >
                     {b.label}
                   </button>
@@ -184,7 +192,7 @@ export default function WelcomePage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
               {/* Student */}
               <div
-                onClick={() => navigate('/student')}
+                onClick={() => navigateToRole('student')}
                 className="group cursor-pointer rounded-2xl border border-purple-500/30 bg-white/[0.03] hover:bg-purple-950/30 hover:border-purple-400/60 p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 shadow-lg"
               >
                 <div>
@@ -204,7 +212,7 @@ export default function WelcomePage() {
 
               {/* Academy */}
               <div
-                onClick={() => navigate('/academy')}
+                onClick={() => navigateToRole('academy')}
                 className="group cursor-pointer rounded-2xl border border-emerald-500/30 bg-white/[0.03] hover:bg-emerald-950/30 hover:border-emerald-400/60 p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 shadow-lg"
               >
                 <div>
@@ -224,7 +232,7 @@ export default function WelcomePage() {
 
               {/* Industry */}
               <div
-                onClick={() => navigate('/industry')}
+                onClick={() => navigateToRole('industry')}
                 className="group cursor-pointer rounded-2xl border border-blue-500/30 bg-white/[0.03] hover:bg-blue-950/30 hover:border-blue-400/60 p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 shadow-lg"
               >
                 <div>

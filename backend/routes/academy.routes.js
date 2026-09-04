@@ -58,18 +58,53 @@ Return ONLY a JSON object matching this schema:
   return null;
 }
 
+const { supabase, isConfigured } = require('../config/supabase');
+
 // GET /api/academy/all-data
-router.get('/all-data', (req, res) => {
+router.get('/all-data', async (req, res) => {
   try {
-    res.json({
+    const [mouRes, sylRes, cgRes, fdpRes, bootRes, ccbRes] = await Promise.allSettled([
+      supabase.from('mou_partnerships').select('*'),
+      supabase.from('syllabus_suggestions').select('*'),
+      supabase.from('consultancy_grants').select('*'),
+      supabase.from('fdp_programs').select('*'),
+      supabase.from('sponsored_bootcamps').select('*'),
+      supabase.from('cross_college_benchmarks').select('*').order('rank', { ascending: true })
+    ]);
+
+    const mouPartnerships = mouRes.status === 'fulfilled' && !mouRes.value.error && mouRes.value.data?.length
+      ? mouRes.value.data
+      : (DB.mou_partnerships || []);
+
+    const syllabusSuggestions = sylRes.status === 'fulfilled' && !sylRes.value.error && sylRes.value.data?.length
+      ? sylRes.value.data
+      : (DB.syllabus_suggestions || []);
+
+    const consultancyGrants = cgRes.status === 'fulfilled' && !cgRes.value.error && cgRes.value.data?.length
+      ? cgRes.value.data
+      : (DB.consultancy_grants || []);
+
+    const fdpPrograms = fdpRes.status === 'fulfilled' && !fdpRes.value.error && fdpRes.value.data?.length
+      ? fdpRes.value.data
+      : (DB.fdp_programs || []);
+
+    const sponsoredBootcamps = bootRes.status === 'fulfilled' && !bootRes.value.error && bootRes.value.data?.length
+      ? bootRes.value.data
+      : (DB.sponsoredBootcamps || []);
+
+    const crossCollegeBenchmarking = ccbRes.status === 'fulfilled' && !ccbRes.value.error && ccbRes.value.data?.length
+      ? ccbRes.value.data
+      : (DB.crossCollegeBenchmarking || []);
+
+    return res.json({
       success: true,
-      mouPartnerships: DB.mou_partnerships || [],
-      syllabusSuggestions: DB.syllabus_suggestions || [],
-      consultancyGrants: DB.consultancy_grants || [],
-      fdpPrograms: DB.fdp_programs || [],
+      mouPartnerships,
+      syllabusSuggestions,
+      consultancyGrants,
+      fdpPrograms,
       tpoMetrics: DB.tpoMetrics || {},
-      crossCollegeBenchmarking: DB.crossCollegeBenchmarking || [],
-      sponsoredBootcamps: DB.sponsoredBootcamps || [],
+      crossCollegeBenchmarking,
+      sponsoredBootcamps,
       studentStats: {
         totalEnrolled: 342,
         avgSkillReadiness: "76.4%",
@@ -84,19 +119,42 @@ router.get('/all-data', (req, res) => {
 });
 
 // GET /api/academy/cross-college-benchmarking
-router.get('/cross-college-benchmarking', (req, res) => {
+router.get('/cross-college-benchmarking', async (req, res) => {
   try {
-    res.json({ success: true, institutions: DB.crossCollegeBenchmarking || [] });
+    const { data, error } = await supabase.from('cross_college_benchmarks').select('*').order('rank', { ascending: true });
+    if (!error && data?.length) {
+      return res.json({ success: true, institutions: data });
+    }
   } catch (err) {
-    console.error('[Cross-College Error]:', err);
-    res.status(500).json({ success: false, message: 'Unable to load benchmark data.' });
+    console.warn('[Cross-College] Supabase warning:', err.message);
   }
+  res.json({ success: true, institutions: DB.crossCollegeBenchmarking || [] });
 });
 
 // POST /api/academy/adopt-syllabus
-router.post('/adopt-syllabus', (req, res) => {
+router.post('/adopt-syllabus', async (req, res) => {
   try {
     const { id } = req.body || {};
+
+    try {
+      const { data, error } = await supabase
+        .from('syllabus_suggestions')
+        .update({ adopted: true, status: 'Ratified by Council' })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (!error && data) {
+        return res.json({
+          success: true,
+          message: 'Curriculum modernization proposal ratified for Academic Council review.',
+          suggestion: data
+        });
+      }
+    } catch (err) {
+      console.warn('[Adopt syllabus] Supabase update warning:', err.message);
+    }
+
     const suggestion = (DB.syllabus_suggestions || []).find(s => s.id === id);
     if (suggestion) {
       suggestion.adopted = true;

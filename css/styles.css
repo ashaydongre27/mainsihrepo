@@ -1,7 +1,21 @@
-/* JOBLEX Platform - Modern Cyberpunk & Ayush Glassmorphism Theme */
+/* JOBLEX Platform - Universal Light & Dark Mode Architecture */
 :root {
+  --bg-dark: #f8f9fa;
+  --bg-card: rgba(255, 255, 255, 0.95);
+  --border-card: rgba(0, 0, 0, 0.08);
+  --accent-purple: #9333ea;
+  --accent-cyan: #0284c7;
+  --accent-emerald: #059669;
+  --accent-blue: #2563eb;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e2e8f0;
+}
+
+html.dark {
   --bg-dark: #07071a;
-  --bg-card: rgba(15, 15, 30, 0.75);
+  --bg-card: rgba(15, 15, 30, 0.85);
   --border-card: rgba(255, 255, 255, 0.08);
   --accent-purple: #a855f7;
   --accent-cyan: #06b6d4;
@@ -9,6 +23,8 @@
   --accent-blue: #3b82f6;
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
+  --sidebar-bg: #080812;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
 }
 
 * {
@@ -24,6 +40,7 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Custom Scrollbars */
@@ -33,15 +50,23 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #07071a;
+  background: var(--bg-dark);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #232342;
+  background: #cbd5e1;
   border-radius: 9999px;
 }
 
+html.dark ::-webkit-scrollbar-thumb {
+  background: #232342;
+}
+
 ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
   background: #3b3b68;
 }
 
@@ -76,7 +101,20 @@ body {
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.25;
+  opacity: 0.12;
+  transition: opacity 0.3s ease;
+}
+
+html.dark #three-canvas-container {
+  opacity: 0.35;
+}
+
+/* Material Symbols */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
 }
 
 /* Glowing text */
@@ -112,36 +150,49 @@ body {
 /* =============================================================
    COLLAPSIBLE SIDEBAR STYLES (Zero Framework / Pure CSS)
    ============================================================= */
-#student-sidebar {
+#student-sidebar,
+#academy-sidebar,
+#industry-sidebar {
   transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s ease !important;
   width: 16rem !important; /* 256px */
   overflow: hidden !important;
 }
 
-#student-sidebar.sidebar-collapsed {
+#student-sidebar.sidebar-collapsed,
+#academy-sidebar.sidebar-collapsed,
+#industry-sidebar.sidebar-collapsed {
   width: 4.75rem !important; /* 76px */
   padding-left: 0.5rem !important;
   padding-right: 0.5rem !important;
 }
 
 #student-sidebar.sidebar-collapsed .sidebar-text-label,
-#student-sidebar.sidebar-collapsed .sidebar-badge-label {
+#student-sidebar.sidebar-collapsed .sidebar-badge-label,
+#academy-sidebar.sidebar-collapsed .sidebar-text-label,
+#academy-sidebar.sidebar-collapsed .sidebar-badge-label,
+#industry-sidebar.sidebar-collapsed .sidebar-text-label,
+#industry-sidebar.sidebar-collapsed .sidebar-badge-label {
   display: none !important;
 }
 
-#student-sidebar.sidebar-collapsed .sidebar-nav-btn {
+#student-sidebar.sidebar-collapsed .sidebar-nav-btn,
+#academy-sidebar.sidebar-collapsed .sidebar-nav-btn,
+#industry-sidebar.sidebar-collapsed .sidebar-nav-btn {
   justify-content: center !important;
   padding-left: 0.5rem !important;
   padding-right: 0.5rem !important;
   gap: 0 !important;
 }
 
-#student-sidebar.sidebar-collapsed .sidebar-nav-btn span.shrink-0 {
+#student-sidebar.sidebar-collapsed .sidebar-nav-btn span.shrink-0,
+#academy-sidebar.sidebar-collapsed .sidebar-nav-btn span.shrink-0,
+#industry-sidebar.sidebar-collapsed .sidebar-nav-btn span.shrink-0 {
   font-size: 1.25rem !important;
   margin: 0 auto !important;
 }
 
-#student-sidebar.sidebar-collapsed #sidebar-collapse-btn {
+#student-sidebar.sidebar-collapsed #sidebar-collapse-btn,
+#academy-sidebar.sidebar-collapsed #academy-sidebar-collapse-btn,
+#industry-sidebar.sidebar-collapsed #industry-sidebar-collapse-btn {
   margin: 0 auto !important;
 }
-

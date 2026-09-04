@@ -1,245 +1,1004 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JOBLEX - Industry Portal | Talent Pipeline & Skill Demands</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Custom Styles -->
-  <link rel="stylesheet" href="css/styles.css">
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>JOBLEX Industry &amp; Pharma Corporate Recruitment Portal</title>
+<!-- Google Fonts: Inter & JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with Forms and Container Queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "secondary-fixed": "var(--secondary-fixed)",
+            "surface-dim": "var(--surface-dim)",
+            "surface-container-low": "var(--surface-container-low)",
+            "background": "var(--background)",
+            "on-primary-container": "var(--on-primary-container)",
+            "outline-variant": "var(--outline-variant)",
+            "tertiary": "var(--tertiary)",
+            "secondary-fixed-dim": "var(--secondary-fixed-dim)",
+            "on-tertiary-container": "var(--on-tertiary-container)",
+            "on-primary-fixed": "var(--on-primary-fixed)",
+            "on-tertiary-fixed-variant": "var(--on-tertiary-fixed-variant)",
+            "tertiary-fixed-dim": "var(--tertiary-fixed-dim)",
+            "on-primary-fixed-variant": "var(--on-primary-fixed-variant)",
+            "primary-fixed-dim": "var(--primary-fixed-dim)",
+            "surface-container-lowest": "var(--surface-container-lowest)",
+            "primary-fixed": "var(--primary-fixed)",
+            "inverse-primary": "var(--inverse-primary)",
+            "secondary-container": "var(--secondary-container)",
+            "surface-tint": "var(--surface-tint)",
+            "on-error-container": "var(--on-error-container)",
+            "on-background": "var(--on-background)",
+            "primary-container": "var(--primary-container)",
+            "error-container": "var(--error-container)",
+            "on-secondary": "var(--on-secondary)",
+            "secondary": "var(--secondary)",
+            "on-primary": "var(--on-primary)",
+            "on-tertiary-fixed": "var(--on-tertiary-fixed)",
+            "tertiary-fixed": "var(--tertiary-fixed)",
+            "on-secondary-fixed": "var(--on-secondary-fixed)",
+            "on-error": "var(--on-error)",
+            "inverse-surface": "var(--inverse-surface)",
+            "on-surface": "var(--on-surface)",
+            "inverse-on-surface": "var(--inverse-on-surface)",
+            "outline": "var(--outline)",
+            "surface": "var(--surface)",
+            "on-secondary-fixed-variant": "var(--on-secondary-fixed-variant)",
+            "surface-container-high": "var(--surface-container-high)",
+            "error": "var(--error)",
+            "surface-container-highest": "var(--surface-container-highest)",
+            "primary": "var(--primary)",
+            "surface-container": "var(--surface-container)",
+            "on-secondary-container": "var(--on-secondary-container)",
+            "on-surface-variant": "var(--on-surface-variant)",
+            "tertiary-container": "var(--tertiary-container)",
+            "surface-variant": "var(--surface-variant)",
+            "on-tertiary": "var(--on-tertiary)",
+            "surface-bright": "var(--surface-bright)"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "unit-md": "0.75rem",
+            "unit-xs": "0.25rem",
+            "unit-2xl": "3rem",
+            "unit-xl": "2rem",
+            "unit-sm": "0.5rem",
+            "max-width-canvas": "1600px",
+            "gutter-desktop": "1.5rem",
+            "unit-lg": "1.5rem",
+            "unit-base": "1rem",
+            "unit-2xs": "0.125rem",
+            "unit-3xl": "4rem",
+            "margin-shell": "2rem"
+          },
+          "fontFamily": {
+            "body-sm": ["Inter"],
+            "label-md": ["Inter"],
+            "label-sm": ["Inter"],
+            "mono-data": ["JetBrains Mono"],
+            "display-lg": ["Inter"],
+            "headline-sm": ["Inter"],
+            "headline-md": ["Inter"],
+            "headline-lg": ["Inter"],
+            "body-md": ["Inter"],
+            "body-lg": ["Inter"]
+          },
+          "fontSize": {
+            "body-sm": ["13px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.03em", "fontWeight": "500" }],
+            "mono-data": ["12px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "500" }],
+            "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.025em", "fontWeight": "700" }],
+            "headline-sm": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+  </style>
+<script>
+  (function() {
+    try {
+      const saved = localStorage.getItem('joblex_theme');
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (saved === 'dark' || (!saved && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    } catch(e) {}
+  })();
+</script>
+<style>
+  :root {
+    --secondary-fixed: #d8e3fb;
+    --surface-dim: #cbdbf5;
+    --surface-container-low: #eff4ff;
+    --background: #f8f9ff;
+    --on-primary-container: #7c839b;
+    --outline-variant: #c6c6cd;
+    --tertiary: #000000;
+    --secondary-fixed-dim: #bcc7de;
+    --on-tertiary-container: #339471;
+    --on-primary-fixed: #131b2e;
+    --on-tertiary-fixed-variant: #00513a;
+    --tertiary-fixed-dim: #7bd8b1;
+    --on-primary-fixed-variant: #3f465c;
+    --primary-fixed-dim: #bec6e0;
+    --surface-container-lowest: #ffffff;
+    --primary-fixed: #dae2fd;
+    --inverse-primary: #bec6e0;
+    --secondary-container: #d5e0f8;
+    --surface-tint: #565e74;
+    --on-error-container: #93000a;
+    --on-background: #0b1c30;
+    --primary-container: #131b2e;
+    --error-container: #ffdad6;
+    --on-secondary: #ffffff;
+    --secondary: #545f73;
+    --on-primary: #ffffff;
+    --on-tertiary-fixed: #002115;
+    --tertiary-fixed: #97f5cc;
+    --on-secondary-fixed: #111c2d;
+    --on-error: #ffffff;
+    --inverse-surface: #213145;
+    --on-surface: #0b1c30;
+    --inverse-on-surface: #eaf1ff;
+    --outline: #76777d;
+    --surface: #f8f9ff;
+    --on-secondary-fixed-variant: #3c475a;
+    --surface-container-high: #dce9ff;
+    --error: #ba1a1a;
+    --surface-container-highest: #d3e4fe;
+    --primary: #000000;
+    --surface-container: #e5eeff;
+    --on-secondary-container: #586377;
+    --on-surface-variant: #45464d;
+    --tertiary-container: #002115;
+    --surface-variant: #d3e4fe;
+    --on-tertiary: #ffffff;
+    --surface-bright: #f8f9ff;
+  }
+
+  html.dark {
+    --secondary-fixed: #6ffbbe;
+    --surface-dim: #111317;
+    --surface-container-low: #1a1c20;
+    --background: #111317;
+    --on-primary-container: #00285d;
+    --outline-variant: #424754;
+    --tertiary: #ffb786;
+    --secondary-fixed-dim: #4edea3;
+    --on-tertiary-container: #461f00;
+    --on-primary-fixed: #001a42;
+    --on-tertiary-fixed-variant: #723600;
+    --tertiary-fixed-dim: #ffb786;
+    --on-primary-fixed-variant: #004395;
+    --primary-fixed-dim: #adc6ff;
+    --surface-container-lowest: #0c0e12;
+    --primary-fixed: #d8e2ff;
+    --inverse-primary: #005ac2;
+    --secondary-container: #00a572;
+    --surface-tint: #adc6ff;
+    --on-error-container: #ffdad6;
+    --on-background: #e2e2e8;
+    --primary-container: #4d8eff;
+    --error-container: #93000a;
+    --on-secondary: #003824;
+    --secondary: #4edea3;
+    --on-primary: #002e6a;
+    --on-tertiary-fixed: #311400;
+    --tertiary-fixed: #ffdcc6;
+    --on-secondary-fixed: #002113;
+    --on-error: #690005;
+    --inverse-surface: #e2e2e8;
+    --on-surface: #e2e2e8;
+    --inverse-on-surface: #2f3035;
+    --outline: #8c909f;
+    --surface: #111317;
+    --on-secondary-fixed-variant: #005236;
+    --surface-container-high: #282a2e;
+    --error: #ffb4ab;
+    --surface-container-highest: #333539;
+    --primary: #adc6ff;
+    --surface-container: #1e2024;
+    --on-secondary-container: #00311f;
+    --on-surface-variant: #c2c6d6;
+    --tertiary-container: #df7412;
+    --surface-variant: #333539;
+    --on-tertiary: #502400;
+    --surface-bright: #37393e;
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+  }
+</style>
+<!-- Custom Styles for Sidebar & Animations -->
+<link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="bg-[#05050a] text-white min-h-screen flex flex-col font-sans relative overflow-x-hidden">
+<body class="bg-background dark:bg-[#07071A] text-on-surface dark:text-white font-body-md antialiased min-h-screen flex flex-col selection:bg-surface-container-high selection:text-primary transition-colors duration-200">
+<!-- Statutory Institutional Super-Header -->
+<div class="bg-surface-container-lowest border-b border-outline-variant px-gutter-desktop py-1 flex items-center justify-between text-secondary">
+<div class="max-w-max-width-canvas mx-auto w-full flex items-center justify-between">
+<div class="flex items-center space-x-unit-md text-label-sm font-label-sm">
+<span class="flex items-center space-x-1 text-on-tertiary-container font-semibold">
+<span class="material-symbols-outlined text-[14px]" data-icon="verified">verified</span>
+<span>AIIA &amp; Ministry of Ayush Accredited Gateway</span>
+</span>
+<span class="text-outline-variant">|</span>
+<span class="font-mono-data text-mono-data text-secondary">REG-ID: IND-CORP-DABUR-9942</span>
+</div>
+<div class="flex items-center space-x-unit-md text-label-sm font-label-sm">
+<span class="text-secondary font-mono-data text-mono-data">Protocol ISO-27001 Certified</span>
+<span class="text-outline-variant">|</span>
+<span class="text-secondary">Statutory Node: Delhi NCR Hub</span>
+</div>
+</div>
+</div>
+<!-- Mandatory TopNavBar (Shared Component) -->
+<header class="bg-surface-container-lowest dark:bg-[#080814]/95 border-b border-outline-variant dark:border-gray-800 sticky top-0 z-50 backdrop-blur-md transition-colors duration-200">
+<div class="w-full max-w-max-width-canvas mx-auto px-gutter-desktop h-16 flex items-center justify-between">
+<!-- Left: Logo and Institutional Identification -->
+<div class="flex items-center gap-4 sm:gap-6">
+<button onclick="toggleIndustryMobileMenu()" class="lg:hidden p-1.5 rounded-lg bg-slate-100 dark:bg-gray-900 border border-slate-200 dark:border-gray-800 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white" title="Toggle Navigation Menu">☰</button>
+<div class="flex items-center space-x-unit-sm">
+<a href="index.html" class="text-headline-md font-headline-md font-bold tracking-tight text-on-surface dark:text-white uppercase">JOBLEX</a>
+<span class="px-unit-xs py-0.5 border border-outline-variant dark:border-gray-800 rounded text-[10px] font-mono-data text-secondary uppercase">Enterprise</span>
+</div>
+<!-- Portal Nav Switcher -->
+<nav class="hidden md:flex items-center space-x-unit-lg h-16">
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-on-surface dark:hover:text-inverse-on-surface font-label-md text-label-md py-4 transition-colors" href="student-roadmap.html">Student Portal</a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-on-surface dark:hover:text-inverse-on-surface font-label-md text-label-md py-4 transition-colors" href="academy.html">Academic Dean &amp; TPO</a>
+<!-- Active tab matching prompt context -->
+<a class="border-b-2 border-primary dark:border-blue-400 text-primary dark:text-blue-300 font-label-md text-label-md py-4" href="industry.html">Industry &amp; Pharma R&amp;D</a>
+</nav>
+</div>
+<!-- Right: Credentials and Corporate Recruiter Account -->
+<div class="flex items-center space-x-unit-md">
+<!-- Verified Credentials Badge -->
+<div class="hidden lg:flex items-center space-x-1.5 px-unit-sm py-1 rounded bg-[#ecfdf5] dark:bg-emerald-950/40 border border-[#a7f3d0] dark:border-emerald-800/60 text-[#065f46] dark:text-emerald-300 text-label-sm font-label-sm">
+<span class="material-symbols-outlined text-[16px]" data-icon="verified_user" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<span>Verified Credentials</span>
+</div>
+<!-- Trailing Icon Actions -->
+<!-- Theme Toggle Button -->
+<button id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Light/Dark Theme" title="Toggle Light/Dark Theme" class="p-1.5 text-secondary hover:text-on-surface rounded hover:bg-surface-container-low transition-colors duration-150 flex items-center justify-center">
+  <span id="theme-toggle-icon" class="material-symbols-outlined text-[20px]">dark_mode</span>
+</button>
+<button id="notification-bell-btn" onclick="toggleNotificationsDropdown(event)" aria-label="Notifications" title="View Institutional Notifications" class="relative p-2 text-secondary hover:text-on-surface rounded hover:bg-surface-container-low transition-colors duration-150 flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="notifications">notifications</span>
+<span class="notification-badge-indicator hidden absolute top-1 right-1 px-1 min-w-[16px] h-4 text-[9px] font-mono font-bold bg-rose-500 text-white rounded-full flex items-center justify-center ring-2 ring-surface-container-lowest dark:ring-[#080814]">3</span>
+</button>
+<button aria-label="Help" class="p-2 text-secondary hover:text-on-surface rounded hover:bg-surface-container-low transition-colors duration-150" title="Statutory Helpdesk">
+<span class="material-symbols-outlined text-[20px]" data-icon="help">help</span>
+</button>
+<div class="h-6 w-px bg-outline-variant dark:border-gray-800"></div>
+<!-- Recruiter Profile Badge -->
+<div class="flex items-center space-x-unit-sm pl-unit-xs">
+<div class="w-8 h-8 rounded-full bg-surface-container-high dark:bg-blue-900/60 border border-outline-variant dark:border-blue-700/60 flex items-center justify-center font-bold text-primary dark:text-blue-200 text-label-sm">AS</div>
+<div class="hidden xl:flex flex-col text-left">
+<span class="font-label-md text-label-md text-on-surface dark:text-white font-semibold leading-tight">Dr. Arvind Swaminathan</span>
+<span class="font-label-sm text-label-sm text-secondary leading-tight">Dabur India Ltd. R&amp;D</span>
+</div>
+</div>
+</div>
+</div>
+</header>
 
-  <!-- 3D Starfield Background -->
-  <div id="three-canvas-container"></div>
-
-  <!-- Top Sticky Header -->
-  <header class="sticky top-0 z-40 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 border-b border-gray-800 bg-[#080814]/95 backdrop-blur-md shrink-0">
-    <a href="index.html" class="flex items-center gap-2.5">
-      <div class="w-2.5 h-7 bg-blue-500 rounded-sm shadow-[0_0_10px_#3b82f6]"></div>
-      <div>
-        <span class="text-xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300 uppercase block">
-          JOBLEX
-        </span>
-        <span class="text-[9px] text-gray-400 block tracking-widest uppercase font-semibold">
-          Industry Recruitment & R&D Portal
-        </span>
+<!-- MOBILE SLIDE-OUT DRAWER -->
+<div id="industry-mobile-drawer" class="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-sm z-50 lg:hidden hidden" onclick="closeIndustryMobileMenu()">
+  <div class="w-72 max-w-[85vw] h-full bg-white dark:bg-[#080814] border-r border-[#E2E8F0] dark:border-blue-500/30 p-4 flex flex-col justify-between overflow-y-auto" onclick="event.stopPropagation()">
+    <div class="space-y-2">
+      <div class="flex justify-between items-center px-2 pb-3 border-b border-slate-200 dark:border-gray-800">
+        <span class="text-xs uppercase tracking-wider text-blue-600 dark:text-blue-400 font-bold">Enterprise Modules</span>
+        <button onclick="closeIndustryMobileMenu()" class="p-1 rounded-lg text-slate-400 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white">✕</button>
       </div>
-    </a>
-
-    <div class="flex items-center gap-3">
-      <!-- Language Switcher (Idea #13) -->
-        🌐 EN / हिंदी
+      <div class="space-y-1 pt-1">
+        <a href="industry.html" class="industry-mobile-nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold transition bg-blue-50 dark:bg-blue-600/25 border border-blue-200 dark:border-blue-500/80 text-blue-700 dark:text-blue-100">
+          <span class="flex items-center gap-3"><span>🏢</span> <span>Talent Gateway</span></span>
+          <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-blue-500 text-white font-bold">Active</span>
+        </a>
+        <a href="#candidate-dossiers-section" onclick="closeIndustryMobileMenu()" class="industry-mobile-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+          <span>👥</span> <span>Candidate Dossiers</span>
+        </a>
+        <a href="#skill-calibrator-section" onclick="closeIndustryMobileMenu()" class="industry-mobile-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+          <span>🎯</span> <span>AI Talent Calibrator</span>
+        </a>
+        <a href="#corporate-requisitions-section" onclick="closeIndustryMobileMenu()" class="industry-mobile-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+          <span>💼</span> <span>Corporate Requisitions</span>
+        </a>
+        <a href="student-resume.html" class="industry-mobile-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+          <span>📄</span> <span>Resume Benchmark Scanner</span>
+        </a>
+        <a href="student-skilltree.html" class="industry-mobile-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+          <span>🌐</span> <span>Skill Constellation Map</span>
+        </a>
+        <a href="student-portfolio.html" class="industry-mobile-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+          <span>🏆</span> <span>Verified Credential Ledger</span>
+        </a>
+      </div>
+    </div>
+    <div class="pt-4 border-t border-slate-200 dark:border-gray-800">
+      <button onclick="JoblexApiClient.logout()" class="w-full py-2 rounded-xl text-center text-xs font-semibold text-slate-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition flex items-center justify-center gap-2">
+        <span>🚪</span> <span>Sign Out</span>
       </button>
+    </div>
+  </div>
+</div>
 
-      <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-xl bg-gray-900 border border-blue-500/30 text-xs">
-        <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
-        <span class="text-gray-300">Rajesh Malhotra (Dabur R&D)</span>
+<div class="flex-1 flex overflow-hidden">
+  <!-- COLLAPSIBLE SIDEBAR -->
+  <aside id="industry-sidebar" class="hidden lg:flex w-64 bg-white/90 dark:bg-[#080812]/90 border-r border-[#E2E8F0] dark:border-gray-800/80 backdrop-blur-md p-3.5 flex-col justify-between shrink-0 transition-all duration-300">
+    <div class="space-y-1">
+      <div class="flex items-center justify-between px-2 pb-2 mb-2 border-b border-slate-200 dark:border-gray-800/80">
+        <span class="sidebar-text-label text-[10px] uppercase tracking-wider text-blue-600 dark:text-blue-400 font-bold">Enterprise Modules</span>
+        <button id="industry-sidebar-collapse-btn" onclick="toggleIndustrySidebarCollapse()" title="Minimize / Expand Sidebar" class="p-1.5 rounded-lg bg-slate-100 dark:bg-gray-900 border border-slate-200 dark:border-gray-800 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white text-xs transition"><span>◀</span></button>
       </div>
-      <a href="auth.html" class="text-xs px-3 py-1.5 rounded-xl bg-purple-900/30 border border-purple-500/40 text-purple-300 font-bold transition">
-        Switch
+      <a href="industry.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all bg-blue-50 dark:bg-blue-600/25 border border-blue-200 dark:border-blue-500/80 text-blue-700 dark:text-blue-100 shadow-sm dark:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
+        <span class="text-base shrink-0">🏢</span>
+        <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
+          <span class="font-bold text-xs text-blue-900 dark:text-white truncate">Talent Gateway</span>
+          <span class="text-[10px] text-blue-600 dark:text-gray-400 truncate">Corporate Recruitment</span>
+        </div>
       </a>
-      <a href="index.html" class="text-xs px-3 py-1.5 rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 font-medium transition">
-        Hub ↵
+      <a href="#candidate-dossiers-section" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+        <span class="text-base shrink-0">👥</span>
+        <span class="sidebar-text-label font-bold text-xs">Candidate Dossiers</span>
+      </a>
+      <a href="#skill-calibrator-section" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+        <span class="text-base shrink-0">🎯</span>
+        <span class="sidebar-text-label font-bold text-xs">AI Talent Calibrator</span>
+      </a>
+      <a href="#corporate-requisitions-section" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+        <span class="text-base shrink-0">💼</span>
+        <span class="sidebar-text-label font-bold text-xs">Corporate Requisitions</span>
+      </a>
+      <a href="student-resume.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+        <span class="text-base shrink-0">📄</span>
+        <span class="sidebar-text-label font-bold text-xs">Resume Benchmark</span>
+      </a>
+      <a href="student-skilltree.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+        <span class="text-base shrink-0">🌐</span>
+        <span class="sidebar-text-label font-bold text-xs">Skill Constellations</span>
+      </a>
+      <a href="student-portfolio.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+        <span class="text-base shrink-0">🏆</span>
+        <span class="sidebar-text-label font-bold text-xs">Verified Dossier Ledger</span>
       </a>
     </div>
-  </header>
+    <div class="mt-4 pt-3 border-t border-slate-200 dark:border-gray-800/80">
+      <button onclick="JoblexApiClient.logout()" class="w-full py-2 rounded-xl text-center text-xs font-semibold text-slate-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition flex items-center justify-center gap-2">
+        <span>🚪</span> <span class="sidebar-text-label">Sign Out</span>
+      </button>
+    </div>
+  </aside>
 
-  <!-- Sub-Header Tabs -->
-  <div class="bg-[#0a0a16] border-b border-gray-800 px-4 sm:px-8 flex overflow-x-auto no-scrollbar gap-6 pt-3">
-    <button data-tab="Candidates" onclick="switchIndustryTab('Candidates')" class="industry-nav-tab pb-2 text-xs sm:text-sm font-bold border-b-2 border-blue-500 text-blue-300 transition whitespace-nowrap">
-      🎯 Pre-Screened Talent Discovery
-    </button>
-    <button data-tab="Forecast" onclick="switchIndustryTab('Forecast')" class="industry-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
-      🔮 Talent Pipeline Forecast (Next 6 Mo)
-    </button>
-    <button data-tab="Post" onclick="switchIndustryTab('Post')" class="industry-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
-      📢 Post Opportunity / Micro-Gig
-    </button>
-    <button data-tab="Demand" onclick="switchIndustryTab('Demand')" class="industry-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
-      💡 Submit Industry Skill Demands
-    </button>
-    <button data-tab="MoUs" onclick="switchIndustryTab('MoUs')" class="industry-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
-      📜 Active Academic MoUs
-    </button>
-  </div>
-
-  <!-- Main Container -->
-  <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6 relative z-10">
-
-    <!-- TAB 1: PRE-SCREENED CANDIDATE DISCOVERY -->
-    <section id="industry-tab-Candidates" class="industry-tab-content space-y-5">
-      <!-- Top Metrics Strip (Idea #7: Skill Match ROI) -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
-          <span class="text-xs text-gray-400 font-medium">Pre-Screened Candidates</span>
-          <div class="text-2xl font-black text-blue-400 mt-0.5">156 Scholars</div>
-          <span class="text-[10px] text-gray-400">Verified by AIIA & Partner Colleges</span>
-        </div>
-        <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
-          <span class="text-xs text-gray-400 font-medium">AI Skill Match Prediction ROI</span>
-          <div class="text-2xl font-black text-emerald-400 mt-0.5">94.2% Accuracy</div>
-          <span class="text-[10px] text-emerald-400">Evaluated on real lab performance</span>
-        </div>
-        <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
-          <span class="text-xs text-gray-400 font-medium">Active Bilateral Grant</span>
-          <div class="text-2xl font-black text-purple-400 mt-0.5">₹15,00,000</div>
-          <span class="text-[10px] text-gray-400">Standardization Lab (Dabur & AIIA)</span>
-        </div>
-      </div>
-
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <div>
-          <h3 class="text-xl font-bold text-white">Pre-Screened Talent Matches</h3>
-          <p class="text-xs text-gray-400">Scholars with faculty-verified credentials from All India Institute of Ayurveda and national institutions.</p>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="text-xs text-blue-300 font-bold px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/30">
-            Filtered by: Dabur Formulation MoU
-          </span>
-        </div>
-      </div>
-
-      <div id="candidates-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Rendered by js/industry.js -->
-      </div>
-    </section>
-
-    <!-- TAB 2: TALENT PIPELINE FORECASTING (Idea #6) -->
-    <section id="industry-tab-Forecast" class="industry-tab-content hidden space-y-5">
-      <div class="p-5 sm:p-7 rounded-3xl bg-gradient-to-r from-blue-950/60 via-indigo-950/60 to-gray-900 border border-blue-500/40 backdrop-blur-xl shadow-xl space-y-2">
-        <span class="text-[10px] uppercase font-bold text-cyan-300 px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/40">
-          B2B Predictive Talent Intelligence
+  <!-- WORKSPACE -->
+  <main class="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 custom-scrollbar">
+    <div class="w-full max-w-max-width-canvas mx-auto flex flex-col gap-unit-xl">
+<!-- Sub-Nav Breadcrumb & Requisition Controls Bar -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-3 sm:p-4">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-unit-sm">
+<div class="flex items-center space-x-unit-xs text-label-sm font-label-sm text-secondary">
+<span>Corporate Gateway</span>
+<span class="material-symbols-outlined text-[14px]" data-icon="chevron_right">chevron_right</span>
+<span>Pharma R&amp;D Division</span>
+<span class="material-symbols-outlined text-[14px]" data-icon="chevron_right">chevron_right</span>
+<span class="text-on-surface font-semibold">Active Recruitment Cohorts (Q1-2025)</span>
+</div>
+<div class="flex items-center space-x-unit-sm">
+<span class="inline-flex items-center px-2 py-0.5 rounded border border-outline-variant bg-surface-container-low font-mono-data text-mono-data text-on-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container mr-1.5"></span>
+          LEDGER NODE: CONNECTED (AIIA-NCR-04)
         </span>
-        <h3 class="text-xl sm:text-2xl font-extrabold text-white">Talent Pipeline Forecasting (Next 6 Months)</h3>
-        <p class="text-xs sm:text-sm text-gray-300 max-w-2xl leading-relaxed">
-          Forecast upcoming talent graduating with specialized Ayush competencies across institutions so corporate teams can plan proactive campus engagement and pre-book internship cohorts.
-        </p>
-      </div>
-
-      <div class="p-5 rounded-3xl bg-gray-900/80 border border-gray-800 space-y-4 shadow-xl">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 border-b border-gray-800">
-          <div>
-            <h4 class="font-bold text-sm text-white">Industry Role Forecast: Herbal Formulation & Phytochemical Scientists</h4>
-            <span class="text-xs text-gray-400">Total Projected Industry Demand: <strong>65 Positions</strong></span>
+<button onclick="handleAuditExport()" class="border border-outline-variant px-unit-sm py-1 rounded text-label-sm font-label-sm text-on-surface hover:bg-surface-container-low transition-colors duration-150 flex items-center space-x-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="download">download</span>
+<span>Audit Export (CSV)</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Primary Main Canvas -->
+<div class="w-full">
+<!-- Page Header & Summary Metric Banner -->
+<div class="mb-unit-xl">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-unit-lg gap-unit-md">
+<div>
+<div class="flex items-center space-x-unit-sm mb-1">
+<span class="font-mono-data text-label-sm text-secondary uppercase">Statutory Recruitment Ledger</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-mono-data text-[10px]">AYUSH-ICMR-R&amp;D</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">Enterprise Talent Gateway &amp; Candidate Dossiers</h1>
+<p class="font-body-sm text-body-sm text-secondary mt-1">Direct cryptographic validation of post-graduate researchers, Ayush formulation scientists, and bio-informatics candidates.</p>
+</div>
+<!-- Right Action Button -->
+<div class="flex items-center space-x-unit-sm">
+<button onclick="handleNewRequisition()" class="px-unit-base py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md flex items-center space-x-unit-xs hover:bg-primary-container transition-colors shadow-none">
+<span class="material-symbols-outlined text-[18px]" data-icon="add">add</span>
+<span>Issue New Corporate Requisition</span>
+</button>
+</div>
+</div>
+<!-- Live Summary Cards Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-unit-md">
+<!-- Metric 1: Total Dossiers Received -->
+<div class="bg-surface-container-lowest border border-outline-variant p-unit-lg rounded-lg shadow-none">
+<div class="flex items-center justify-between mb-unit-xs">
+<span class="font-label-sm text-label-sm text-secondary">Total Dossiers Received</span>
+<span class="material-symbols-outlined text-secondary text-[20px]" data-icon="folder_shared">folder_shared</span>
+</div>
+<div class="flex items-baseline space-x-unit-sm">
+<span class="font-display-lg text-display-lg font-bold text-on-surface">38</span>
+<span class="font-label-sm text-label-sm text-secondary font-mono-data">candidates</span>
+</div>
+<div class="mt-unit-sm flex items-center text-label-sm text-on-tertiary-container font-medium">
+<span class="material-symbols-outlined text-[16px] mr-0.5" data-icon="trending_up">trending_up</span>
+<span>+12 this week from AIIA &amp; GAU</span>
+</div>
+</div>
+<!-- Metric 2: Pre-Screened Fit -->
+<div class="bg-surface-container-lowest border border-outline-variant p-unit-lg rounded-lg shadow-none">
+<div class="flex items-center justify-between mb-unit-xs">
+<span class="font-label-sm text-label-sm text-secondary">Pre-Screened Fit</span>
+<span class="material-symbols-outlined text-secondary text-[20px]" data-icon="analytics">analytics</span>
+</div>
+<div class="flex items-baseline space-x-unit-sm">
+<span class="font-display-lg text-display-lg font-bold text-on-surface">92%</span>
+<span class="font-label-sm text-label-sm text-secondary">Average Match</span>
+</div>
+<div class="mt-unit-sm text-label-sm text-secondary font-mono-data">
+            Weighted on ICMR &amp; NMPB Standards
           </div>
-          <span class="text-xs font-bold text-emerald-400 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40">
-            Total Available Supply: 69 Scholars
-          </span>
-        </div>
-
-        <div id="forecast-colleges-list" class="space-y-3">
-          <!-- Rendered by js/industry.js -->
-        </div>
-      </div>
-    </section>
-
-    <!-- TAB 3: POST OPPORTUNITY & MICRO-GIG FORM (Idea #4) -->
-    <section id="industry-tab-Post" class="industry-tab-content hidden space-y-5">
-      <div class="max-w-2xl mx-auto p-6 sm:p-8 rounded-3xl bg-gray-900/80 border border-blue-500/30 backdrop-blur-xl shadow-xl space-y-5">
-        <h3 class="text-xl font-bold text-blue-300">Publish Corporate Opportunity or Task-Based Micro-Gig</h3>
-        <p class="text-xs text-gray-400">Postings appear immediately on the Student Portal. Micro-Gigs (1-2 weeks) allow rapid testing of talent without long-term relocation commitments.</p>
-
-        <form onsubmit="handlePostOpportunity(event)" class="space-y-4">
-          <div>
-            <label class="block text-xs font-semibold text-gray-300 mb-1">Opportunity / Gig Title</label>
-            <input type="text" id="opp-post-title" required placeholder="e.g. Clean & Standardize 50 Ashwagandha Trial Records" class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white focus:ring-2 focus:ring-blue-500">
+</div>
+<!-- Metric 3: Interviews Scheduled -->
+<div class="bg-surface-container-lowest border border-outline-variant p-unit-lg rounded-lg shadow-none">
+<div class="flex items-center justify-between mb-unit-xs">
+<span class="font-label-sm text-label-sm text-secondary">Interviews Scheduled</span>
+<span class="material-symbols-outlined text-secondary text-[20px]" data-icon="calendar_month">calendar_month</span>
+</div>
+<div class="flex items-baseline space-x-unit-sm">
+<span class="font-display-lg text-display-lg font-bold text-on-surface">6</span>
+<span class="font-label-sm text-label-sm text-secondary font-mono-data">Scholars</span>
+</div>
+<div class="mt-unit-sm flex items-center text-label-sm text-secondary">
+<span class="w-2 h-2 rounded-full bg-on-tertiary-container mr-1.5"></span>
+<span>Next session: Today, 15:30 IST</span>
+</div>
+</div>
+<!-- Metric 4: Talent Forecast -->
+<div class="bg-surface-container-lowest border border-outline-variant p-unit-lg rounded-lg shadow-none">
+<div class="flex items-center justify-between mb-unit-xs">
+<span class="font-label-sm text-label-sm text-secondary">Talent Forecast</span>
+<span class="material-symbols-outlined text-secondary text-[20px]" data-icon="school">school</span>
+</div>
+<div class="flex items-baseline space-x-unit-sm">
+<span class="font-display-lg text-display-lg font-bold text-on-surface">24</span>
+<span class="font-label-sm text-label-sm text-secondary font-mono-data">AIIA Scholars</span>
+</div>
+<div class="mt-unit-sm text-label-sm text-secondary font-mono-data">
+            Graduating next quarter (M.D. / Ph.D.)
           </div>
+</div>
+</div>
+</div>
+<!-- Requisition Type Tab Bar Filter -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-outline-variant mb-unit-lg gap-unit-sm">
+<div class="flex items-center space-x-unit-md overflow-x-auto w-full sm:w-auto">
+<button class="border-b-2 border-primary text-on-surface font-label-md text-label-md py-unit-sm px-unit-xs whitespace-nowrap">
+          All Requisitions <span class="ml-1 font-mono-data text-[11px] px-1.5 py-0.5 rounded-full bg-surface-container-high text-primary">38</span>
+</button>
+<button class="border-b-2 border-transparent text-secondary hover:text-on-surface font-label-md text-label-md py-unit-sm px-unit-xs whitespace-nowrap">
+          Full-Time Placements (Job) <span class="ml-1 font-mono-data text-[11px] px-1.5 py-0.5 rounded-full bg-surface-container-low text-secondary">19</span>
+</button>
+<button class="border-b-2 border-transparent text-secondary hover:text-on-surface font-label-md text-label-md py-unit-sm px-unit-xs whitespace-nowrap">
+          Research Internships <span class="ml-1 font-mono-data text-[11px] px-1.5 py-0.5 rounded-full bg-surface-container-low text-secondary">14</span>
+</button>
+<button class="border-b-2 border-transparent text-secondary hover:text-on-surface font-label-md text-label-md py-unit-sm px-unit-xs whitespace-nowrap">
+          Micro-Gigs (Sprint Tasks) <span class="ml-1 font-mono-data text-[11px] px-1.5 py-0.5 rounded-full bg-surface-container-low text-secondary">5</span>
+</button>
+</div>
+<!-- Quick Filter Bar Controls -->
+<div class="flex items-center space-x-unit-sm pb-unit-sm sm:pb-0">
+<div class="relative">
+<input id="dossier-search-input" oninput="filterCandidateDossiers(this.value)" class="w-64 h-[34px] pl-8 pr-3 text-body-sm font-body-sm border border-outline-variant rounded bg-surface-container-lowest focus:outline-none focus:border-primary" placeholder="Filter by scholar or verified skill..." type="text"/>
+<span class="material-symbols-outlined absolute left-2 top-2 text-secondary text-[16px]" data-icon="search">search</span>
+</div>
+<button class="h-[34px] px- unit-sm px-3 border border-outline-variant rounded bg-surface-container-lowest text-label-sm font-label-sm text-secondary hover:text-on-surface flex items-center space-x-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="tune">tune</span>
+<span>Attributes</span>
+</button>
+</div>
+</div>
+<!-- Main Content Layout (2-Column Grid: Dossiers Feed + Tactical Operations Sidebar) -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-unit-xl">
+<!-- Left Column: Application Dossiers (8 Cols) -->
+<div id="candidate-dossiers-section" class="xl:col-span-8 space-y-unit-md">
+<div class="flex items-center justify-between pb-unit-xs">
+<span class="font-label-md text-label-md text-secondary uppercase">Priority Candidate Dossiers (Validated by Ayush National Council)</span>
+<span class="font-mono-data text-mono-data text-secondary">Displaying 3 of 38 Records</span>
+</div>
+<!-- Candidate Dossier Card 1: Ashay Verma -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-unit-lg shadow-none hover:border-outline transition-colors">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-unit-md pb-unit-md border-b border-outline-variant">
+<div class="flex items-start space-x-unit-md">
+<div class="w-12 h-12 rounded border border-outline-variant bg-surface-container-high flex items-center justify-center font-bold text-primary font-headline-sm">AV</div>
+<div>
+<div class="flex items-center space-x-unit-sm">
+<h3 class="font-headline-sm text-headline-sm font-semibold text-on-surface">Ashay Verma</h3>
+<!-- Statutory Institutional Verification Chip -->
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono-data bg-[#ecfdf5] border border-[#a7f3d0] text-[#065f46]">
+<span class="material-symbols-outlined text-[14px] mr-1" data-icon="verified" style="font-variation-settings: 'FILL' 1;">verified</span>
+                    AIIA Ledger Verified
+                  </span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary mt-0.5">All India Institute of Ayurveda • <span class="font-mono-data">M.D. (Ayurveda - Dravyaguna)</span></p>
+<div class="flex items-center space-x-unit-xs mt-1 text-label-sm font-label-sm text-secondary">
+<span class="font-semibold text-on-surface">Requisition:</span>
+<span>Phytochemical Research Intern</span>
+<span class="text-outline-variant">•</span>
+<span class="text-on-surface-variant">Dabur R&amp;D Centre (Sahibabad)</span>
+</div>
+</div>
+</div>
+<!-- Match Score Indicator & Status -->
+<div class="flex md:flex-col items-end justify-between md:justify-center">
+<div class="flex items-center space-x-1.5 bg-surface-container px-unit-sm py-1 rounded">
+<span class="font-mono-data text-headline-sm font-bold text-primary">94%</span>
+<span class="font-label-sm text-[10px] text-secondary uppercase font-semibold leading-tight">Match<br/>Score</span>
+</div>
+<span class="mt-1.5 inline-flex items-center px-2 py-0.5 rounded text-label-sm font-mono-data bg-[#eff6ff] text-[#1e40af] border border-[#bfdbfe]">
+                Shortlisted
+              </span>
+</div>
+</div>
+<!-- Dossier Body: Verified Skill Matrices & Statutory Credentials -->
+<div class="py-unit-md space-y-unit-sm">
+<div class="text-label-sm font-label-sm text-secondary uppercase font-semibold">Verified Competency Tokens (Block-Validated):</div>
+<div class="flex flex-wrap gap-unit-xs">
+<span class="inline-flex items-center px-2.5 py-1 rounded text-label-sm font-mono-data bg-surface-container-low border border-outline-variant text-on-surface">
+<span class="material-symbols-outlined text-[14px] mr-1 text-on-tertiary-container" data-icon="check_circle">check_circle</span>
+                Herbal Formulation
+              </span>
+<span class="inline-flex items-center px-2.5 py-1 rounded text-label-sm font-mono-data bg-surface-container-low border border-outline-variant text-on-surface">
+<span class="material-symbols-outlined text-[14px] mr-1 text-on-tertiary-container" data-icon="check_circle">check_circle</span>
+                GLP (Good Laboratory Practice)
+              </span>
+<span class="inline-flex items-center px-2.5 py-1 rounded text-label-sm font-mono-data bg-surface-container-low border border-outline-variant text-on-surface">
+<span class="material-symbols-outlined text-[14px] mr-1 text-on-tertiary-container" data-icon="check_circle">check_circle</span>
+                Phytochemistry
+              </span>
+<span class="inline-flex items-center px-2.5 py-1 rounded text-label-sm font-mono-data bg-surface-container-low border border-outline-variant text-on-surface">
+<span class="material-symbols-outlined text-[14px] mr-1 text-on-tertiary-container" data-icon="check_circle">check_circle</span>
+                Python (Cheminformatics)
+              </span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary pt-1">
+              Authored 2 peer-reviewed studies on standardized polyherbal extracts. Possesses verified GLP certification issued by AIIA Central Testing Laboratory.
+            </p>
+</div>
+<!-- Dossier Actions Footer -->
+<div class="pt-unit-md border-t border-outline-variant flex flex-col sm:flex-row items-center justify-between gap-unit-sm">
+<div class="text-label-sm font-mono-data text-secondary flex items-center space-x-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="lock">lock</span>
+<span>Ledger Signature: 0x8F3a...c92D • Validated: 12 Jan 2025</span>
+</div>
+<div class="flex items-center space-x-unit-sm w-full sm:w-auto">
+<button class="flex-1 sm:flex-none border border-outline-variant px-unit-sm py-1.5 rounded text-label-sm font-label-sm text-on-surface hover:bg-surface-container-low transition-colors duration-150 flex items-center justify-center space-x-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span onclick="handleViewLedger('Candidate Record')">View Verified AIIA Ledger</span>
+</button>
+<button class="flex-1 sm:flex-none bg-primary text-on-primary px-unit-base py-1.5 rounded text-label-sm font-label-sm hover:bg-primary-container transition-colors duration-150 flex items-center justify-center space-x-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="event">event</span>
+<span onclick="handleScheduleInterview('Ashay Verma')">Schedule Technical Interview</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Candidate Dossier Card 2: Priya Nair -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-unit-lg shadow-none hover:border-outline transition-colors">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-unit-md pb-unit-md border-b border-outline-variant">
+<div class="flex items-start space-x-unit-md">
+<div class="w-12 h-12 rounded border border-outline-variant bg-surface-container-high flex items-center justify-center font-bold text-secondary font-headline-sm">PN</div>
+<div>
+<div class="flex items-center space-x-unit-sm">
+<h3 class="font-headline-sm text-headline-sm font-semibold text-on-surface">Priya Nair</h3>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono-data bg-[#ecfdf5] border border-[#a7f3d0] text-[#065f46]">
+<span class="material-symbols-outlined text-[14px] mr-1" data-icon="verified" style="font-variation-settings: 'FILL' 1;">verified</span>
+                    GAU Registry Validated
+                  </span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary mt-0.5">Gujarat Ayurved University • <span class="font-mono-data">M.Pharm (Ayurveda Formulation)</span></p>
+<div class="flex items-center space-x-unit-xs mt-1 text-label-sm font-label-sm text-secondary">
+<span class="font-semibold text-on-surface">Role:</span>
+<span>Formulation Scientist</span>
+<span class="text-outline-variant">•</span>
+<span class="text-on-surface-variant">Industrial Drug Standardization</span>
+</div>
+</div>
+</div>
+<!-- Match Score Indicator & Status -->
+<div class="flex md:flex-col items-end justify-between md:justify-center">
+<div class="flex items-center space-x-1.5 bg-surface-container px-unit-sm py-1 rounded">
+<span class="font-mono-data text-headline-sm font-bold text-primary">96%</span>
+<span class="font-label-sm text-[10px] text-secondary uppercase font-semibold leading-tight">Match<br/>Score</span>
+</div>
+<span class="mt-1.5 inline-flex items-center px-2 py-0.5 rounded text-label-sm font-mono-data bg-[#ecfdf5] text-[#065f46] border border-[#a7f3d0]">
+                Ready for Interview
+              </span>
+</div>
+</div>
+<!-- Dossier Body -->
+<div class="py-unit-md space-y-unit-sm">
+<div class="text-label-sm font-label-sm text-secondary uppercase font-semibold">Verified Competency Tokens:</div>
+<div class="flex flex-wrap gap-unit-xs">
+<span class="inline-flex items-center px-2.5 py-1 rounded text-label-sm font-mono-data bg-surface-container-low border border-outline-variant text-on-surface">
+<span class="material-symbols-outlined text-[14px] mr-1 text-on-tertiary-container" data-icon="check_circle">check_circle</span>
+                HPTLC (High-Perf Thin-Layer Chromatography)
+              </span>
+<span class="inline-flex items-center px-2.5 py-1 rounded text-label-sm font-mono-data bg-surface-container-low border border-outline-variant text-on-surface">
+<span class="material-symbols-outlined text-[14px] mr-1 text-on-tertiary-container" data-icon="check_circle">check_circle</span>
+                AutoDock (Molecular Modeling)
+              </span>
+<span class="inline-flex items-center px-2.5 py-1 rounded text-label-sm font-mono-data bg-surface-container-low border border-outline-variant text-on-surface">
+<span class="material-symbols-outlined text-[14px] mr-1 text-on-tertiary-container" data-icon="check_circle">check_circle</span>
+                Drug Discovery
+              </span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary pt-1">
+              Top percentile in in-silico screening of herbal active phytochemicals against inflammatory targets. 3 published monographs.
+            </p>
+</div>
+<!-- Dossier Actions Footer -->
+<div class="pt-unit-md border-t border-outline-variant flex flex-col sm:flex-row items-center justify-between gap-unit-sm">
+<div class="text-label-sm font-mono-data text-secondary flex items-center space-x-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="lock">lock</span>
+<span>Ledger Signature: 0x4B19...eE71 • Validated: 14 Jan 2025</span>
+</div>
+<div class="flex items-center space-x-unit-sm w-full sm:w-auto">
+<button class="flex-1 sm:flex-none border border-outline-variant px-unit-sm py-1.5 rounded text-label-sm font-label-sm text-on-surface hover:bg-surface-container-low transition-colors duration-150 flex items-center justify-center space-x-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="description">description</span>
+<span onclick="handleExamineDossier('Priya Nair')">Examine Full Dossier</span>
+</button>
+<button class="flex-1 sm:flex-none bg-primary text-on-primary px-unit-base py-1.5 rounded text-label-sm font-label-sm hover:bg-primary-container transition-colors duration-150 flex items-center justify-center space-x-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="video_call">video_call</span>
+<span onclick="handleConfirmSlot('Priya Nair')">Confirm Interview Slot</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Candidate Dossier Card 3: Kavya Singh -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-unit-lg shadow-none hover:border-outline transition-colors">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-unit-md pb-unit-md border-b border-outline-variant">
+<div class="flex items-start space-x-unit-md">
+<div class="w-12 h-12 rounded border border-outline-variant bg-surface-container-high flex items-center justify-center font-bold text-tertiary font-headline-sm">KS</div>
+<div>
+<div class="flex items-center space-x-unit-sm">
+<h3 class="font-headline-sm text-headline-sm font-semibold text-on-surface">Kavya Singh</h3>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono-data bg-[#ecfdf5] border border-[#a7f3d0] text-[#065f46]">
+<span class="material-symbols-outlined text-[14px] mr-1" data-icon="verified" style="font-variation-settings: 'FILL' 1;">verified</span>
+                    AIIA New Delhi Validated
+                  </span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary mt-0.5">AIIA New Delhi • <span class="font-mono-data">M.Tech / M.S. (Ayush Health Informatics)</span></p>
+<div class="flex items-center space-x-unit-xs mt-1 text-label-sm font-label-sm text-secondary">
+<span class="font-semibold text-on-surface">Requisition:</span>
+<span>Ayush Health Informatics Specialist</span>
+<span class="text-outline-variant">•</span>
+<span class="text-on-surface-variant">Himalaya Wellness Corp Partnership</span>
+</div>
+</div>
+</div>
+<!-- Match Score Indicator & Status -->
+<div class="flex md:flex-col items-end justify-between md:justify-center">
+<div class="flex items-center space-x-1.5 bg-surface-container px-unit-sm py-1 rounded">
+<span class="font-mono-data text-headline-sm font-bold text-primary">91%</span>
+<span class="font-label-sm text-[10px] text-secondary uppercase font-semibold leading-tight">Match<br/>Score</span>
+</div>
+<span class="mt-1.5 inline-flex items-center px-2 py-0.5 rounded text-label-sm font-mono-data bg-surface-container-high text-primary border border-outline-variant">
+                Under Review
+              </span>
+</div>
+</div>
+<!-- Dossier Body -->
+<div class="py-unit-md space-y-unit-sm">
+<div class="text-label-sm font-label-sm text-secondary uppercase font-semibold">Verified Competency Tokens:</div>
+<div class="flex flex-wrap gap-unit-xs">
+<span class="inline-flex items-center px-2.5 py-1 rounded text-label-sm font-mono-data bg-surface-container-low border border-outline-variant text-on-surface">
+<span class="material-symbols-outlined text-[14px] mr-1 text-on-tertiary-container" data-icon="check_circle">check_circle</span>
+                NLP (Natural Language Processing)
+              </span>
+<span class="inline-flex items-center px-2.5 py-1 rounded text-label-sm font-mono-data bg-surface-container-low border border-outline-variant text-on-surface">
+<span class="material-symbols-outlined text-[14px] mr-1 text-on-tertiary-container" data-icon="check_circle">check_circle</span>
+                Sanskrit Lexicon Processing
+              </span>
+<span class="inline-flex items-center px-2.5 py-1 rounded text-label-sm font-mono-data bg-surface-container-low border border-outline-variant text-on-surface">
+<span class="material-symbols-outlined text-[14px] mr-1 text-on-tertiary-container" data-icon="check_circle">check_circle</span>
+                Health Data Analytics
+              </span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary pt-1">
+              Developed specialized ontology models bridging Charaka Samhita terminology with modern ICD-11 classifications.
+            </p>
+</div>
+<!-- Dossier Actions Footer -->
+<div class="pt-unit-md border-t border-outline-variant flex flex-col sm:flex-row items-center justify-between gap-unit-sm">
+<div class="text-label-sm font-mono-data text-secondary flex items-center space-x-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="lock">lock</span>
+<span>Ledger Signature: 0x992B...21F4 • Validated: 15 Jan 2025</span>
+</div>
+<div class="flex items-center space-x-unit-sm w-full sm:w-auto">
+<button class="flex-1 sm:flex-none border border-outline-variant px-unit-sm py-1.5 rounded text-label-sm font-label-sm text-on-surface hover:bg-surface-container-low transition-colors duration-150 flex items-center justify-center space-x-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span onclick="handleViewLedger('Candidate Record')">View Verified AIIA Ledger</span>
+</button>
+<button class="flex-1 sm:flex-none bg-primary text-on-primary px-unit-base py-1.5 rounded text-label-sm font-label-sm hover:bg-primary-container transition-colors duration-150 flex items-center justify-center space-x-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="schedule">schedule</span>
+<span onclick="handleRequestAssessment('Kavya Singh')">Request Assessment</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column / Sidebar: Corporate Operational Modules (4 Cols) -->
+<div class="xl:col-span-4 space-y-unit-lg">
+<!-- Module 1: Reverse Headhunting Engine (Idea #3) -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-unit-lg shadow-none">
+<div class="flex items-center justify-between pb-unit-sm border-b border-outline-variant">
+<div class="flex items-center space-x-unit-xs">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="radar">radar</span>
+<h2 class="font-headline-sm text-headline-sm font-semibold text-on-surface">Reverse Headhunting Engine</h2>
+</div>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-mono-data text-[10px]">PRE-APPLICATION</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary mt-unit-sm">
+            Search unlisted national research scholars by micro-specialization skills. Dispatch direct statutory inbound recruitment inquiries before open public job posts.
+          </p>
+<!-- Search Input by Skill Tags -->
+<div class="mt-unit-md space-y-unit-sm">
+<label class="font-label-sm text-label-sm text-on-surface font-semibold block">Query Hidden Scholar Pool by Skill Tag</label>
+<div class="relative">
+<input class="w-full h-10 pl-3 pr-8 text-body-sm font-body-sm border border-outline-variant rounded bg-surface-container-lowest focus:outline-none focus:border-primary" type="text" value="HPTLC Standardization, Molecular Docking"/>
+<span class="material-symbols-outlined absolute right-2.5 top-2.5 text-secondary text-[18px]" data-icon="filter_list">filter_list</span>
+</div>
+<!-- Instant Matched Pool Result -->
+<div class="p-unit-sm bg-surface-container-low border border-outline-variant rounded space-y-1">
+<div class="flex justify-between items-center text-label-sm font-label-sm">
+<span class="text-on-surface font-semibold">14 Unreleased Scholars Identified</span>
+<span class="font-mono-data text-on-tertiary-container font-semibold">98.1% Exact Match</span>
+</div>
+<div class="text-label-sm text-secondary">Institutions: AIIA New Delhi (8), GAU Jamnagar (4), NIA Jaipur (2)</div>
+</div>
+<button class="w-full bg-primary text-on-primary py-2 px-unit-sm rounded text-label-sm font-label-sm hover:bg-primary-container transition-colors flex items-center justify-center space-x-1.5">
+<span class="material-symbols-outlined text-[16px]" data-icon="outgoing_mail">outgoing_mail</span>
+<span onclick="handleDispatchInquiry()">Dispatch Direct Corporate Inquiry</span>
+</button>
+</div>
+</div>
+<!-- Module 2: Skill Match ROI & Recruiter Feedback Loop (Idea #7) -->
+<div id="skill-calibrator-section" class="bg-surface-container-lowest border border-outline-variant rounded-lg p-unit-lg shadow-none">
+<div class="flex items-center justify-between pb-unit-sm border-b border-outline-variant">
+<div class="flex items-center space-x-unit-xs">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="tune">tune</span>
+<h2 class="font-headline-sm text-headline-sm font-semibold text-on-surface">Skill Match ROI &amp; Calibrator</h2>
+</div>
+<span class="font-mono-data text-mono-data text-on-tertiary-container font-bold">94.2% ACCURACY</span>
+</div>
+<div class="mt-unit-sm space-y-unit-sm">
+<div class="flex justify-between items-baseline text-label-sm">
+<span class="text-secondary">Predicted vs Evaluated Alignment:</span>
+<span class="font-mono-data text-on-surface font-semibold">High Precision (+3.4%)</span>
+</div>
+<!-- Quick Calibration Submission -->
+<div class="border border-outline-variant rounded p-unit-sm bg-surface space-y-unit-sm">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold block">Calibrate Requisition AI Scoring Weights</span>
+<div class="space-y-1">
+<div class="flex justify-between text-[11px] text-secondary">
+<span>Weight: GLP Certified Lab Hours</span>
+<span class="font-mono-data">40%</span>
+</div>
+<input class="w-full h-1.5 bg-outline-variant rounded appearance-none cursor-pointer accent-primary" max="70" min="10" type="range" value="40"/>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-[11px] text-secondary">
+<span>Weight: Computational AutoDock Skills</span>
+<span class="font-mono-data">35%</span>
+</div>
+<input class="w-full h-1.5 bg-outline-variant rounded appearance-none cursor-pointer accent-primary" max="70" min="10" type="range" value="35"/>
+</div>
+<!-- Recruiter Rating Submission -->
+<div class="pt-unit-xs">
+<label class="text-[11px] font-semibold text-secondary block mb-1">Feedback on Last Interview Batch (Candidate Quality)</label>
+<div class="flex items-center space-x-1">
+<button class="flex-1 py-1 text-center border border-outline-variant rounded hover:bg-surface-container-high text-[11px] font-label-sm text-on-surface">Superior</button>
+<button class="flex-1 py-1 text-center border border-outline-variant rounded bg-primary text-on-primary text-[11px] font-label-sm">Accurate</button>
+<button class="flex-1 py-1 text-center border border-outline-variant rounded hover:bg-surface-container-high text-[11px] font-label-sm text-on-surface">Needs Variance</button>
+</div>
+</div>
+</div>
+<button class="w-full border border-outline-variant text-on-surface py-1.5 px-unit-sm rounded text-label-sm font-label-sm hover:bg-surface-container-low transition-colors text-center">
+              Submit Weight Calibration to AYUSH Model
+            </button>
+</div>
+</div>
+<!-- Module 3: Active Corporate Requisitions Manager -->
+<div id="corporate-requisitions-section" class="bg-surface-container-lowest border border-outline-variant rounded-lg p-unit-lg shadow-none">
+<div class="flex items-center justify-between pb-unit-sm border-b border-outline-variant">
+<div class="flex items-center space-x-unit-xs">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="work">work</span>
+<h2 class="font-headline-sm text-headline-sm font-semibold text-on-surface">Corporate Requisitions</h2>
+</div>
+<span class="text-label-sm font-mono-data text-secondary">3 Active</span>
+</div>
+<div class="divide-y divide-outline-variant mt-unit-sm">
+<!-- Req 1 -->
+<div class="py-unit-sm flex items-center justify-between">
+<div>
+<div class="font-label-md text-label-md font-semibold text-on-surface">Dabur Phytochemical Intern</div>
+<div class="font-label-sm text-label-sm text-secondary">Sahibabad Central R&amp;D • 14 Applicants</div>
+</div>
+<span class="px-2 py-0.5 rounded text-[11px] font-mono-data bg-[#ecfdf5] text-[#065f46] border border-[#a7f3d0]">Active</span>
+</div>
+<!-- Req 2 -->
+<div class="py-unit-sm flex items-center justify-between">
+<div>
+<div class="font-label-md text-label-md font-semibold text-on-surface">Patanjali QC Formulation Scientist</div>
+<div class="font-label-sm text-label-sm text-secondary">Haridwar Division • 19 Applicants</div>
+</div>
+<span class="px-2 py-0.5 rounded text-[11px] font-mono-data bg-[#ecfdf5] text-[#065f46] border border-[#a7f3d0]">Active</span>
+</div>
+<!-- Req 3 -->
+<div class="py-unit-sm flex items-center justify-between">
+<div>
+<div class="font-label-md text-label-md font-semibold text-on-surface">Micro-Gigs (Sprint Tasks: HPTLC)</div>
+<div class="font-label-sm text-label-sm text-secondary">Remote Formulation Audit • 5 Applicants</div>
+</div>
+<span class="px-2 py-0.5 rounded text-[11px] font-mono-data bg-[#fffbeb] text-[#92400e] border border-[#fde68a]">Closing Soon</span>
+</div>
+</div>
+<div class="pt-unit-md mt-unit-xs border-t border-outline-variant">
+<a class="font-label-sm text-label-sm text-primary hover:underline flex items-center justify-between" href="#">
+<span>View Requisition Analytics Ledger</span>
+<span class="material-symbols-outlined text-[14px]" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-gray-300 mb-1">Engagement Type</label>
-              <select class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white">
-                <option value="Micro-Gig">⚡ Micro-Gig (1-2 Weeks Task Project)</option>
-                <option value="Internship">Corporate Summer / Winter Internship</option>
-                <option value="Job">Full-Time Placement Role</option>
-                <option value="Hackathon">R&D Hackathon / Sponsored Grant</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-gray-300 mb-1">Stipend / Task Bounty</label>
-              <input type="text" placeholder="e.g. ₹6,000 Task Bounty or ₹25,000/mo" class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white">
-            </div>
-          </div>
+<!-- Mandatory Unified Institutional Footer (Shared Component) -->
+<footer class="w-full bg-surface-container-lowest dark:bg-[#080814] border-t border-outline-variant dark:border-gray-800 mt-12 transition-colors duration-200">
+<div class="w-full max-w-max-width-canvas mx-auto px-gutter-desktop py-unit-lg flex flex-col md:flex-row items-center justify-between gap-unit-md">
+<!-- Copyright text rendered verbatim from Shared Components JSON -->
+<div class="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-unit-md text-center sm:text-left">
+<span class="text-label-md font-label-md font-bold text-on-surface dark:text-inverse-on-surface">JOBLEX</span>
+<span class="text-secondary dark:text-secondary-fixed-dim text-body-sm font-body-sm">
+          © 2025 JOBLEX. All India Institute of Ayurveda &amp; Ministry of Ayush, Government of India. All Statutory Rights Reserved.
+        </span>
+</div>
+<!-- Links rendered verbatim from Shared Components JSON -->
+<nav class="flex flex-wrap items-center justify-center gap-x-unit-md gap-y-1 text-label-sm font-label-sm">
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-on-surface dark:hover:text-inverse-on-surface transition-colors duration-150" href="#">NAAC &amp; Statutory Governance</a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-on-surface dark:hover:text-inverse-on-surface transition-colors duration-150" href="#">AIIA Digital Verification Protocol</a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-on-surface dark:hover:text-inverse-on-surface transition-colors duration-150" href="#">Terms of Institutional Access</a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-on-surface dark:hover:text-inverse-on-surface transition-colors duration-150" href="#">National Ayush Registry Support</a>
+</nav>
+</div>
+</footer>
+</main>
+</div>
+<script>
+  function toggleTheme() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    try {
+      localStorage.setItem('joblex_theme', isDark ? 'dark' : 'light');
+    } catch(e) {}
+    updateThemeIcon();
+  }
 
-          <div>
-            <label class="block text-xs font-semibold text-gray-300 mb-1">Required Competencies (Comma separated)</label>
-            <input type="text" placeholder="e.g. HPTLC, GLP, Herbal Formulation, Python" class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white">
-          </div>
+  function updateThemeIcon() {
+    const icon = document.getElementById('theme-toggle-icon');
+    if (!icon) return;
+    const isDark = document.documentElement.classList.contains('dark');
+    icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+  }
 
-          <div>
-            <label class="block text-xs font-semibold text-gray-300 mb-1">Role / Deliverables Description</label>
-            <textarea rows="4" placeholder="Detail the task deliverables, expected outputs, and submission deadlines..." class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white"></textarea>
-          </div>
+  document.addEventListener('DOMContentLoaded', () => {
+    updateThemeIcon();
+  });
+</script>
+<script>
+  function handleAuditExport() {
+    alert("Exporting Corporate Recruitment Audit Ledger (CSV)...\nLedger Node: AIIA-NCR-04\nProtocol: ISO-27001 Certified");
+  }
 
-          <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold text-xs sm:text-sm shadow-md transition">
-            Publish to Verified Student Network ➔
-          </button>
-        </form>
-      </div>
-    </section>
+  function handleNewRequisition() {
+    const title = prompt("Enter Corporate Requisition Title (e.g. Lead Ayush Clinical Pharmacologist):");
+    if (title) {
+      alert(`Requisition "${title}" drafted.\nDispatched to AIIA & Ministry of Ayush Dean Syndicate.`);
+    }
+  }
 
-    <!-- TAB 4: SUBMIT SKILL DEMANDS -->
-    <section id="industry-tab-Demand" class="industry-tab-content hidden space-y-5">
-      <div class="max-w-2xl mx-auto p-6 sm:p-8 rounded-3xl bg-gray-900/80 border border-purple-500/30 backdrop-blur-xl shadow-xl space-y-5">
-        <h3 class="text-xl font-bold text-purple-300">Submit Corporate Skill Demands</h3>
-        <p class="text-xs text-gray-400">
-          Inform Academic Councils of emerging technical skills required for upcoming hiring cycles so college syllabi can be updated under NEP-2020.
-        </p>
+  function handleViewLedger(candidate) {
+    alert(`AIIA Cryptographic Ledger Validated:\nCandidate: ${candidate}\nStatus: Block-Validated on National Ayush Academic Registry (NAAR)\nSignatures: Dean Academic Affairs & Central Testing Lab`);
+  }
 
-        <form onsubmit="handleSubmitSkillDemand(event)" class="space-y-4">
-          <div>
-            <label class="block text-xs font-semibold text-gray-300 mb-1">Target Academic Department</label>
-            <select class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white">
-              <option>Faculty of Ayurvedic Pharmacology (Dravyaguna)</option>
-              <option>Pharmaceutical Technology & Nanotechnology</option>
-              <option>Ayush Health Informatics & Data Science</option>
-              <option>Clinical Research & Good Clinical Practice (GCP)</option>
-            </select>
-          </div>
+  function handleScheduleInterview(candidate) {
+    alert(`Technical Interview request sent for ${candidate}.\nInterview notification dispatched to candidate dashboard and AIIA Placement Cell.`);
+  }
 
-          <div>
-            <label class="block text-xs font-semibold text-gray-300 mb-1">High-Priority Missing Skill</label>
-            <input type="text" required placeholder="e.g. Automated High-Performance Thin-Layer Chromatography (HPTLC)" class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white">
-          </div>
+  function handleConfirmSlot(candidate) {
+    alert(`Interview slot confirmed for ${candidate}.\nSession details: Virtual Ayush R&D Panel • Calendar invite dispatched.`);
+  }
 
-          <div>
-            <label class="block text-xs font-semibold text-gray-300 mb-1">Justification & Industry Relevancy</label>
-            <textarea rows="4" placeholder="Describe why this competency is required in commercial manufacturing and research laboratories..." class="w-full p-2.5 rounded-xl bg-gray-950 border border-gray-700 text-xs text-white"></textarea>
-          </div>
+  function handleExamineDossier(candidate) {
+    alert(`Opening Full Validated Dossier for ${candidate}...\nIncluded: HPTLC Spectral Plates, AutoDock Binding Logs, and NABL Lab Hours.`);
+  }
 
-          <button type="submit" class="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs sm:text-sm shadow-md transition">
-            Submit Requirement to University Academic Deans ➔
-          </button>
-        </form>
-      </div>
-    </section>
+  function handleRequestAssessment(candidate) {
+    alert(`Custom technical assessment request issued to ${candidate} through AIIA Health Informatics portal.`);
+  }
 
-    <!-- TAB 5: ACTIVE MOUS -->
-    <section id="industry-tab-MoUs" class="industry-tab-content hidden space-y-5">
-      <h3 class="text-lg font-bold text-white">Active Bilateral MoUs (Dabur Research & Development)</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="p-5 rounded-2xl bg-gray-900/60 border border-blue-500/30 space-y-2">
-          <h4 class="font-bold text-sm text-blue-300">All India Institute of Ayurveda (AIIA), New Delhi</h4>
-          <p class="text-xs text-gray-300">Collaborative formulation standardization laboratory & joint research publications.</p>
-          <span class="text-[11px] text-gray-500 block">Status: Active · Signed Jan 2025 · 12 Interns Assigned</span>
-        </div>
+  function handleDispatchInquiry() {
+    alert("Direct Corporate Inbound Inquiry dispatched to 14 unreleased scholars at AIIA New Delhi, GAU Jamnagar, and NIA Jaipur.");
+  }
 
-        <div class="p-5 rounded-2xl bg-gray-900/60 border border-blue-500/30 space-y-2">
-          <h4 class="font-bold text-sm text-blue-300">National Institute of Ayurveda (NIA), Jaipur</h4>
-          <p class="text-xs text-gray-300">Clinical trials data verification & herbal pharmacopeia development.</p>
-          <span class="text-[11px] text-gray-500 block">Status: Active · Signed Jun 2025 · Annual Faculty Immersion</span>
-        </div>
-      </div>
-    </section>
+  function handleSubmitCalibration() {
+    alert("Updated AI Scoring Weights successfully submitted to AYUSH-ML Talent Recommendation Model.");
+  }
 
-  </main>
+  function filterCandidateDossiers(query) {
+    const q = (query || '').toLowerCase();
+    const articles = document.querySelectorAll('.xl\:col-span-8 > div.bg-surface-container-lowest');
+    articles.forEach(card => {
+      const text = card.textContent.toLowerCase();
+      if (!q || text.includes(q)) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
 
-  <!-- Scripts -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="js/three-scene.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/industry.js"></script>
-</body>
-</html>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.JoblexApiClient && typeof JoblexApiClient.requireAuth === 'function') {
+      JoblexApiClient.requireAuth('industry');
+    }
+  });
+</script>
+<script src="js/frontend/api-client.js"></script>
+<script src="js/frontend/notifications.js"></script>
+<script src="js/frontend/industry-ui.js"></script>
+</body></html>

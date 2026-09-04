@@ -9,75 +9,7 @@ const { supabase, isConfigured } = require('../config/supabase');
 const { authenticateToken } = require('../middleware/auth.middleware');
 const DB = require('../data/database');
 
-// Ensure all 4 user roles are pre-seeded in DB.users
-const DEMO_PERSONAS = [
-  {
-    id: "usr-student-01",
-    name: "Ashay Verma",
-    email: "student@nexus.edu",
-    password: "student123",
-    role: "student",
-    institution: "All India Institute of Ayurveda (AIIA), New Delhi",
-    department: "Ayurvedic Pharmacology & Data Science",
-    year: "3rd Year BAMS / Health Informatics",
-    xp: 1450,
-    streak: 7,
-    verified_skills: ["Herbal Formulation", "Python", "Ayurvedic Pharmacognosy", "Data Analysis", "GLP"]
-  },
-  {
-    id: "usr-academy-01",
-    name: "Dr. Sunita Sharma",
-    email: "dean@aiia.gov.in",
-    password: "dean123",
-    role: "academy",
-    institution: "All India Institute of Ayurveda",
-    designation: "Dean of Academic Affairs & Placement Liaison",
-    department: "Faculty of Ayurveda & Pharmaceutical Technology"
-  },
-  {
-    id: "usr-industry-01",
-    name: "Rajesh Malhotra",
-    email: "hr@dabur-research.com",
-    password: "industry123",
-    role: "industry",
-    company: "Dabur Research & Development Ltd.",
-    designation: "Head of Talent Acquisition & Research MoUs",
-    sector: "Ayurvedic Formulations & Phytopharmaceuticals"
-  },
-  {
-    id: "usr-admin-01",
-    name: "Dr. Rajesh Kotecha",
-    email: "admin@ayush.gov.in",
-    password: "admin123",
-    role: "admin",
-    institution: "Ministry of Ayush / AIIA Central Secretariat",
-    designation: "Central Nodal Officer & Platform Super Admin"
-  }
-];
-
-// Seed DB.users if empty or missing roles
-DEMO_PERSONAS.forEach(p => {
-  if (!DB.users.some(u => u.email.toLowerCase() === p.email.toLowerCase())) {
-    DB.users.push(p);
-  }
-});
-
-/**
- * GET /api/auth/demo-users
- * Returns 1-click test accounts for all 4 roles
- */
-router.get('/demo-users', (req, res) => {
-  const users = DB.users.map(u => ({
-    id: u.id,
-    name: u.name,
-    email: u.email,
-    role: u.role,
-    label: `${u.role.toUpperCase()} — ${u.name} (${u.institution || u.company})`,
-    institution: u.institution || null,
-    company: u.company || null
-  }));
-  res.json({ demoUsers: users, supabaseConnected: isConfigured });
-});
+// Users are managed dynamically via Supabase Auth and Profiles table (no hardcoded accounts)
 
 /**
  * POST /api/auth/register
@@ -96,11 +28,15 @@ router.post('/register', async (req, res) => {
   // 1. Live Supabase Auth Registration
   if (isConfigured && supabase) {
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email: normalizedEmail,
-        password: password,
-        options: {
-          data: {
+      let data = null;
+      let error = null;
+
+      if (supabase.auth?.admin?.createUser) {
+        const adminRes = await supabase.auth.admin.createUser({
+          email: normalizedEmail,
+          password: password,
+          email_confirm: true,
+          user_metadata: {
             name,
             role: userRole,
             institution: institution || (userRole === 'industry' ? null : 'All India Institute of Ayurveda'),
@@ -109,8 +45,30 @@ router.post('/register', async (req, res) => {
             designation: designation || null,
             year: year || '3rd Year'
           }
-        }
-      });
+        });
+        data = adminRes.data;
+        error = adminRes.error;
+      }
+
+      if (!data?.user) {
+        const standardRes = await supabase.auth.signUp({
+          email: normalizedEmail,
+          password: password,
+          options: {
+            data: {
+              name,
+              role: userRole,
+              institution: institution || (userRole === 'industry' ? null : 'All India Institute of Ayurveda'),
+              company: company || (userRole === 'industry' ? 'Ayush Corporate Partner' : null),
+              department: department || 'Ayurvedic Sciences',
+              designation: designation || null,
+              year: year || '3rd Year'
+            }
+          }
+        });
+        data = standardRes.data;
+        error = standardRes.error;
+      }
 
       if (error) {
         return res.status(400).json({ success: false, error: error.message });
@@ -118,17 +76,21 @@ router.post('/register', async (req, res) => {
 
       // Upsert profile into public.profiles
       if (data.user) {
-        await supabase.from('profiles').upsert({
-          id: data.user.id,
-          name,
-          email: normalizedEmail,
-          role: userRole,
-          institution: institution || null,
-          company: company || null,
-          department: department || null,
-          designation: designation || null,
-          year: year || null
-        });
+        try {
+          await supabase.from('profiles').upsert({
+            id: data.user.id,
+            name,
+            email: normalizedEmail,
+            role: userRole,
+            institution: institution || null,
+            company: company || null,
+            department: department || null,
+            designation: designation || null,
+            year: year || null
+          });
+        } catch (dbErr) {
+          console.warn('[Register] Profile table upsert notice:', dbErr.message);
+        }
       }
 
       return res.status(201).json({
@@ -227,40 +189,64 @@ router.post('/login', async (req, res) => {
           }
         });
       }
+
+      if (error && error.message?.toLowerCase().includes('not confirmed') && supabase.auth?.admin?.listUsers) {
+        try {
+          const list = await supabase.auth.admin.listUsers();
+          const existingUser = list.data?.users?.find(u => u.email === normalizedEmail);
+          if (existingUser) {
+            await supabase.auth.admin.updateUserById(existingUser.id, { email_confirm: true });
+            const retryRes = await supabase.auth.signInWithPassword({
+              email: normalizedEmail,
+              password: password
+            });
+            if (!retryRes.error && retryRes.data?.user) {
+              const retryData = retryRes.data;
+              let userProfile = retryData.user.user_metadata || {};
+              try {
+                const { data: profile } = await supabase
+                  .from('profiles')
+                  .select('*')
+                  .eq('id', retryData.user.id)
+                  .single();
+                if (profile) userProfile = { ...userProfile, ...profile };
+              } catch(e) {}
+
+              return res.json({
+                success: true,
+                message: 'Authenticated via Supabase Auth',
+                token: retryData.session?.access_token || `jwt-supabase-${retryData.user.id}`,
+                user: {
+                  id: retryData.user.id,
+                  email: retryData.user.email,
+                  role: userProfile.role || role || 'student',
+                  name: userProfile.name || normalizedEmail.split('@')[0],
+                  institution: userProfile.institution,
+                  company: userProfile.company,
+                  department: userProfile.department
+                }
+              });
+            }
+          }
+        } catch (confirmErr) {
+          console.warn('[Login] Auto-confirm error:', confirmErr.message);
+        }
+      }
+
+      if (error) {
+        return res.status(401).json({ success: false, error: 'Invalid email or password. Please verify your credentials or register.' });
+      }
     } catch (err) {
-      console.warn('[Login] Supabase error, falling back to local validation:', err.message);
+      console.warn('[Login] Supabase error:', err.message);
+      return res.status(401).json({ success: false, error: 'Authentication failed. Please verify your credentials.' });
     }
   }
 
-  // 2. Local Demo User Verification
-  let user = DB.users.find(u => u.email.toLowerCase() === normalizedEmail);
+  // 2. Strict verification for local/offline mode (if Supabase not reachable)
+  const user = DB.users.find(u => u.email.toLowerCase() === normalizedEmail);
 
-  if (user) {
-    // Check password (accepts user's password, password123, or <role>123)
-    const validPasswords = [
-      String(user.password || '').trim(),
-      'password123',
-      `${user.role}123`,
-      'student123',
-      'dean123',
-      'industry123',
-      'admin123'
-    ];
-    if (user.password && !validPasswords.includes(String(password || '').trim())) {
-      return res.status(401).json({ success: false, error: 'Invalid password. Please check your credentials.' });
-    }
-  } else {
-    // Dynamically spawn session for presentation ease
-    user = {
-      id: `usr-${Date.now().toString(36)}`,
-      name: normalizedEmail.split('@')[0].replace('.', ' ').toUpperCase(),
-      email: normalizedEmail,
-      role: role || 'student',
-      institution: role === 'industry' ? 'Dabur India Ltd.' : 'All India Institute of Ayurveda',
-      xp: 1200,
-      streak: 3
-    };
-    DB.users.push(user);
+  if (!user || user.password !== password) {
+    return res.status(401).json({ success: false, error: 'Invalid email or password. Please check your credentials.' });
   }
 
   const { password: _, ...safeUser } = user;

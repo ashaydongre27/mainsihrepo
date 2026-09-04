@@ -4,44 +4,77 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JOBLEX - Academia Industry Collaboration Portal | Ministry of Ayush</title>
+  <!-- Material Symbols Outlined -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Early Theme Detection Script to prevent FOUC -->
+  <script>
+    (function() {
+      try {
+        const saved = localStorage.getItem('joblex_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      } catch(e) {}
+    })();
+  </script>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
   <!-- Custom Styles -->
   <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="bg-[#07071a] text-slate-100 font-sans relative overflow-x-hidden">
+<body class="bg-gradient-to-b from-[#FFFFFF] via-[#F8F9FA] to-[#F1F3F5] dark:from-[#07071A] dark:via-[#090924] dark:to-[#07071A] text-[#0F172A] dark:text-slate-100 font-sans relative overflow-x-hidden transition-colors duration-200">
 
   <!-- 3D Background Starfield Canvas -->
   <div id="three-canvas-container"></div>
 
   <!-- Sticky Responsive Header -->
-  <header class="sticky top-0 z-50 w-full bg-[#07071a]/95 backdrop-blur-md border-b border-white/5">
+  <header class="sticky top-0 z-50 w-full bg-white/90 dark:bg-[#07071A]/95 backdrop-blur-md border-b border-[#E2E8F0] dark:border-white/5 transition-colors duration-200">
     <div class="max-w-6xl mx-auto px-5 sm:px-8 py-3 flex items-center justify-between">
       <!-- Logo -->
       <a href="index.html" class="flex items-center gap-2.5 cursor-pointer select-none">
         <div class="w-1.5 h-8 bg-gradient-to-b from-cyan-400 to-purple-600 rounded-full shadow-[0_0_12px_rgba(99,102,241,0.7)]"></div>
         <div>
-          <span class="text-xl font-extrabold tracking-widest text-white uppercase block">JOBLEX</span>
-          <span class="hidden sm:block text-[9px] text-gray-400 tracking-widest uppercase">Ministry of Ayush · Problem Statement 26044</span>
+          <span class="text-xl font-extrabold tracking-widest text-[#0F172A] dark:text-white uppercase block">JOBLEX</span>
+          <span class="hidden sm:block text-[9px] text-[#64748B] dark:text-gray-400 tracking-widest uppercase font-semibold">Ministry of Ayush · Problem Statement 26044</span>
         </div>
       </a>
 
       <!-- Navigation & Auth Links -->
       <div class="flex items-center gap-2 sm:gap-3">
-          🌐 EN / हिंदी
-        </button>
-        <a href="student.html" class="hidden sm:block px-3 py-1.5 text-xs text-gray-400 hover:text-white border border-gray-800 hover:border-gray-600 rounded-lg transition font-medium">
+        <a href="javascript:void(0)" onclick="JoblexApiClient.navigateToPortal('student')" class="hidden sm:block px-3 py-1.5 text-xs text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white border border-[#E2E8F0] dark:border-gray-800 hover:border-[#CBD5E1] dark:hover:border-gray-600 rounded-lg transition font-medium">
           🎓 Student
         </a>
-        <a href="academy.html" class="hidden sm:block px-3 py-1.5 text-xs text-gray-400 hover:text-white border border-gray-800 hover:border-gray-600 rounded-lg transition font-medium">
+        <a href="javascript:void(0)" onclick="JoblexApiClient.navigateToPortal('academy')" class="hidden sm:block px-3 py-1.5 text-xs text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white border border-[#E2E8F0] dark:border-gray-800 hover:border-[#CBD5E1] dark:hover:border-gray-600 rounded-lg transition font-medium">
           🏛️ Academy
         </a>
-        <a href="industry.html" class="hidden sm:block px-3 py-1.5 text-xs text-gray-400 hover:text-white border border-gray-800 hover:border-gray-600 rounded-lg transition font-medium">
+        <a href="javascript:void(0)" onclick="JoblexApiClient.navigateToPortal('industry')" class="hidden sm:block px-3 py-1.5 text-xs text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white border border-[#E2E8F0] dark:border-gray-800 hover:border-[#CBD5E1] dark:hover:border-gray-600 rounded-lg transition font-medium">
           🏢 Industry
         </a>
-        <a href="auth.html" class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 text-white font-bold text-xs uppercase tracking-wider shadow-[0_0_15px_rgba(168,85,247,0.35)] transition">
-          Sign In / Roles
-        </a>
+        <!-- Theme Toggle Button -->
+        <button id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Light/Dark Theme" title="Toggle Light/Dark Theme" class="p-1.5 rounded-lg border border-[#E2E8F0] dark:border-[#333539] bg-white dark:bg-[#1A1C20] text-[#475569] dark:text-[#C2C6D6] hover:text-[#0F172A] dark:hover:text-white transition-colors duration-150 flex items-center justify-center">
+          <span id="theme-toggle-icon" class="material-symbols-outlined text-[18px]">dark_mode</span>
+        </button>
+        <div class="nav-user-account-container relative"></div>
       </div>
     </div>
   </header>
@@ -53,27 +86,27 @@
     <section class="pt-16 sm:pt-24 lg:pt-32 pb-16 sm:pb-20 text-center">
       <div class="max-w-4xl mx-auto px-5 sm:px-8">
         <!-- Badge -->
-        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-gray-300 text-[11px] sm:text-xs font-semibold uppercase tracking-widest mb-6">
-          <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 text-[#475569] dark:text-gray-300 text-[11px] sm:text-xs font-semibold uppercase tracking-widest mb-6 shadow-sm">
+          <span class="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse"></span>
           Academia-Industry Collaborative Portal
         </div>
 
         <!-- Main Title -->
-        <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-5">
+        <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-[#0F172A] dark:text-white leading-tight mb-5 tracking-tight">
           Next-Gen Skill Synergy on 
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-300 to-purple-400 glow-text-purple">
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 dark:from-cyan-400 dark:via-indigo-300 dark:to-purple-400 glow-text-purple">
             JOBLEX
           </span>
         </h1>
 
         <!-- Subtitle -->
-        <p className="text-sm sm:text-base md:text-lg text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+        <p class="text-sm sm:text-base md:text-lg text-[#64748B] dark:text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
           Bridging academia and industries with AI skill mapping, gamified career roadmaps, dynamic syllabus modernization, and verified placement pipelines.
         </p>
 
-        <!-- Impressive Cyberpunk Button -->
+        <!-- Impressive Button -->
         <div class="flex flex-col items-center gap-4">
-          <a href="auth.html" class="w-full sm:w-auto relative inline-flex items-center justify-center gap-3 px-8 sm:px-12 py-4 sm:py-5 rounded-2xl bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 hover:from-cyan-400 hover:via-indigo-400 hover:to-purple-500 text-white font-bold text-base sm:text-lg glow-btn-purple transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]">
+          <a href="auth.html" class="w-full sm:w-auto relative inline-flex items-center justify-center gap-3 px-8 sm:px-12 py-4 sm:py-5 rounded-2xl bg-[#0F172A] hover:bg-[#1E293B] dark:bg-gradient-to-r dark:from-cyan-500 dark:via-indigo-500 dark:to-purple-600 dark:hover:from-cyan-400 dark:hover:via-indigo-400 dark:hover:to-purple-500 text-white font-bold text-base sm:text-lg shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
             <span class="text-xl animate-bounce">⚡</span>
             <span>Enter JOBLEX Portal / Access Roles</span>
             <span class="text-lg">➔</span>
@@ -81,80 +114,80 @@
 
           <!-- Quick Gateways -->
           <div class="flex flex-wrap justify-center gap-2 text-xs pt-1">
-            <span class="text-gray-500 self-center font-medium">Quick access:</span>
-            <a href="student.html" class="px-4 py-1.5 rounded-full border border-purple-500/40 text-purple-300 bg-white/5 hover:bg-purple-900/40 font-semibold transition">
+            <span class="text-[#64748B] dark:text-gray-500 self-center font-medium">Quick access:</span>
+            <button onclick="JoblexApiClient.navigateToPortal('student')" class="px-4 py-1.5 rounded-full border border-purple-300 dark:border-purple-500/40 text-purple-700 dark:text-purple-300 bg-white/80 dark:bg-white/5 hover:bg-purple-50 dark:hover:bg-purple-900/40 font-semibold transition cursor-pointer shadow-sm">
               🎓 Student
-            </a>
-            <a href="academy.html" class="px-4 py-1.5 rounded-full border border-emerald-500/40 text-emerald-300 bg-white/5 hover:bg-emerald-900/40 font-semibold transition">
+            </button>
+            <button onclick="JoblexApiClient.navigateToPortal('academy')" class="px-4 py-1.5 rounded-full border border-emerald-300 dark:border-emerald-500/40 text-emerald-700 dark:text-emerald-300 bg-white/80 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-emerald-900/40 font-semibold transition cursor-pointer shadow-sm">
               🏛️ Academy
-            </a>
-            <a href="industry.html" class="px-4 py-1.5 rounded-full border border-blue-500/40 text-blue-300 bg-white/5 hover:bg-blue-900/40 font-semibold transition">
+            </button>
+            <button onclick="JoblexApiClient.navigateToPortal('industry')" class="px-4 py-1.5 rounded-full border border-blue-300 dark:border-blue-500/40 text-blue-700 dark:text-blue-300 bg-white/80 dark:bg-white/5 hover:bg-blue-50 dark:hover:bg-blue-900/40 font-semibold transition cursor-pointer shadow-sm">
               🏢 Industry
-            </a>
+            </button>
           </div>
         </div>
       </div>
     </section>
 
     <!-- CHOOSE YOUR PORTAL -->
-    <section class="py-16 sm:py-20 border-t border-white/5">
+    <section class="py-16 sm:py-20 border-t border-[#E2E8F0] dark:border-white/5">
       <div class="max-w-6xl mx-auto px-5 sm:px-8">
         <div class="text-center mb-10 sm:mb-14">
-          <p class="text-xs uppercase font-bold text-cyan-400 tracking-widest mb-2">Role-Based Gateways</p>
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white">Choose Your Portal</h2>
-          <p class="text-gray-400 text-sm mt-2 max-w-xl mx-auto">
+          <p class="text-xs uppercase font-bold text-cyan-600 dark:text-cyan-400 tracking-widest mb-2">Role-Based Gateways</p>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0F172A] dark:text-white">Choose Your Portal</h2>
+          <p class="text-[#64748B] dark:text-gray-400 text-sm mt-2 max-w-xl mx-auto">
             Dedicated workspaces tailored to learners, institutional leaders, and corporate recruiters.
           </p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
           <!-- Student Sector -->
-          <div onclick="window.location.href='student.html'" class="group cursor-pointer rounded-2xl border border-purple-500/30 bg-white/[0.03] hover:bg-purple-950/30 hover:border-purple-400/60 p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 shadow-lg">
+          <div onclick="JoblexApiClient.navigateToPortal('student')" class="group cursor-pointer rounded-2xl border border-[#E2E8F0] dark:border-purple-500/30 bg-white dark:bg-white/[0.03] hover:border-purple-400 dark:hover:border-purple-400/60 p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 shadow-md dark:shadow-lg">
             <div>
-              <div class="w-12 h-12 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform">🎓</div>
-              <h3 class="text-xl font-bold text-white mb-2">Student Sector</h3>
-              <p class="text-sm text-gray-400 leading-relaxed mb-5">Interactive career milestones with anti-decay XP preservation, AI resume gap discovery, skill tests, and verified internships.</p>
-              <ul class="space-y-2 text-xs text-gray-500 mb-6">
-                <li class="flex items-center gap-2"><span class="text-purple-400">✓</span> Gamified Career Roadmap</li>
-                <li class="flex items-center gap-2"><span class="text-purple-400">✓</span> AI Resume Competency Analyzer</li>
-                <li class="flex items-center gap-2"><span class="text-purple-400">✓</span> Zulu AI Career Counselor</li>
+              <div class="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-500/15 border border-purple-200 dark:border-purple-500/30 flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform">🎓</div>
+              <h3 class="text-xl font-bold text-[#0F172A] dark:text-white mb-2">Student Sector</h3>
+              <p class="text-sm text-[#64748B] dark:text-gray-400 leading-relaxed mb-5">Interactive career milestones with anti-decay XP preservation, AI resume gap discovery, skill tests, and verified internships.</p>
+              <ul class="space-y-2 text-xs text-[#64748B] dark:text-gray-500 mb-6">
+                <li class="flex items-center gap-2"><span class="text-purple-600 dark:text-purple-400">✓</span> Gamified Career Roadmap</li>
+                <li class="flex items-center gap-2"><span class="text-purple-600 dark:text-purple-400">✓</span> AI Resume Competency Analyzer</li>
+                <li class="flex items-center gap-2"><span class="text-purple-600 dark:text-purple-400">✓</span> Zulu AI Career Counselor</li>
               </ul>
             </div>
-            <span class="block w-full text-center py-2.5 rounded-xl bg-purple-600/20 group-hover:bg-purple-600/40 text-purple-300 border border-purple-500/40 font-bold text-xs uppercase tracking-wider transition">
+            <span class="block w-full text-center py-2.5 rounded-xl bg-purple-50 dark:bg-purple-600/20 group-hover:bg-purple-100 dark:group-hover:bg-purple-600/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/40 font-bold text-xs uppercase tracking-wider transition">
               Enter Student Portal ➔
             </span>
           </div>
 
           <!-- Academy Sector -->
-          <div onclick="window.location.href='academy.html'" class="group cursor-pointer rounded-2xl border border-emerald-500/30 bg-white/[0.03] hover:bg-emerald-950/30 hover:border-emerald-400/60 p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 shadow-lg">
+          <div onclick="JoblexApiClient.navigateToPortal('academy')" class="group cursor-pointer rounded-2xl border border-[#E2E8F0] dark:border-emerald-500/30 bg-white dark:bg-white/[0.03] hover:border-emerald-400 dark:hover:border-emerald-400/60 p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 shadow-md dark:shadow-lg">
             <div>
-              <div class="w-12 h-12 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform">🏛️</div>
-              <h3 class="text-xl font-bold text-white mb-2">Academy Sector</h3>
-              <p class="text-sm text-gray-400 leading-relaxed mb-5">Curriculum modernization engine aligning college syllabi with industry needs under NEP-2020, student skill analytics, and FDP nominations.</p>
-              <ul class="space-y-2 text-xs text-gray-500 mb-6">
-                <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> AI-Driven Syllabus Modernization</li>
-                <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Student Skill Matrix & Verification</li>
-                <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Bilateral Corporate MoUs & FDP</li>
+              <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform">🏛️</div>
+              <h3 class="text-xl font-bold text-[#0F172A] dark:text-white mb-2">Academy Sector</h3>
+              <p class="text-sm text-[#64748B] dark:text-gray-400 leading-relaxed mb-5">Curriculum modernization engine aligning college syllabi with industry needs under NEP-2020, student skill analytics, and FDP nominations.</p>
+              <ul class="space-y-2 text-xs text-[#64748B] dark:text-gray-500 mb-6">
+                <li class="flex items-center gap-2"><span class="text-emerald-600 dark:text-emerald-400">✓</span> AI-Driven Syllabus Modernization</li>
+                <li class="flex items-center gap-2"><span class="text-emerald-600 dark:text-emerald-400">✓</span> Student Skill Matrix & Verification</li>
+                <li class="flex items-center gap-2"><span class="text-emerald-600 dark:text-emerald-400">✓</span> Bilateral Corporate MoUs & FDP</li>
               </ul>
             </div>
-            <span class="block w-full text-center py-2.5 rounded-xl bg-emerald-600/20 group-hover:bg-emerald-600/40 text-emerald-300 border border-emerald-500/40 font-bold text-xs uppercase tracking-wider transition">
+            <span class="block w-full text-center py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-600/20 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-600/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/40 font-bold text-xs uppercase tracking-wider transition">
               Enter Academy Portal ➔
             </span>
           </div>
 
           <!-- Industry Sector -->
-          <div onclick="window.location.href='industry.html'" class="group cursor-pointer rounded-2xl border border-blue-500/30 bg-white/[0.03] hover:bg-blue-950/30 hover:border-blue-400/60 p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 shadow-lg">
+          <div onclick="JoblexApiClient.navigateToPortal('industry')" class="group cursor-pointer rounded-2xl border border-[#E2E8F0] dark:border-blue-500/30 bg-white dark:bg-white/[0.03] hover:border-blue-400 dark:hover:border-blue-400/60 p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 shadow-md dark:shadow-lg">
             <div>
-              <div class="w-12 h-12 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform">🏢</div>
-              <h3 class="text-xl font-bold text-white mb-2">Industry Sector</h3>
-              <p class="text-sm text-gray-400 leading-relaxed mb-5">Direct recruitment gateway for posting internships, submitting emerging technological skill requirements to colleges, and sponsoring R&D.</p>
-              <ul class="space-y-2 text-xs text-gray-500 mb-6">
-                <li class="flex items-center gap-2"><span class="text-blue-400">✓</span> Pre-Screened Talent Discovery</li>
-                <li class="flex items-center gap-2"><span class="text-blue-400">✓</span> Submit Skill Demands to Colleges</li>
-                <li class="flex items-center gap-2"><span class="text-blue-400">✓</span> Sponsor R&D Grants & Hackathons</li>
+              <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-500/15 border border-blue-200 dark:border-blue-500/30 flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform">🏢</div>
+              <h3 class="text-xl font-bold text-[#0F172A] dark:text-white mb-2">Industry Sector</h3>
+              <p class="text-sm text-[#64748B] dark:text-gray-400 leading-relaxed mb-5">Direct recruitment gateway for posting internships, submitting emerging technological skill requirements to colleges, and sponsoring R&D.</p>
+              <ul class="space-y-2 text-xs text-[#64748B] dark:text-gray-500 mb-6">
+                <li class="flex items-center gap-2"><span class="text-blue-600 dark:text-blue-400">✓</span> Pre-Screened Talent Discovery</li>
+                <li class="flex items-center gap-2"><span class="text-blue-600 dark:text-blue-400">✓</span> Submit Skill Demands to Colleges</li>
+                <li class="flex items-center gap-2"><span class="text-blue-600 dark:text-blue-400">✓</span> Sponsor R&D Grants & Hackathons</li>
               </ul>
             </div>
-            <span class="block w-full text-center py-2.5 rounded-xl bg-blue-600/20 group-hover:bg-blue-600/40 text-blue-300 border border-blue-500/40 font-bold text-xs uppercase tracking-wider transition">
+            <span class="block w-full text-center py-2.5 rounded-xl bg-blue-50 dark:bg-blue-600/20 group-hover:bg-blue-100 dark:group-hover:bg-blue-600/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-500/40 font-bold text-xs uppercase tracking-wider transition">
               Enter Industry Portal ➔
             </span>
           </div>
@@ -163,146 +196,146 @@
     </section>
 
     <!-- PLATFORM CAPABILITIES -->
-    <section class="py-16 sm:py-20 border-t border-white/5">
+    <section class="py-16 sm:py-20 border-t border-[#E2E8F0] dark:border-white/5">
       <div class="max-w-6xl mx-auto px-5 sm:px-8">
         <div class="text-center mb-10 sm:mb-14">
-          <p class="text-xs uppercase font-bold text-purple-400 tracking-widest mb-2">Platform Features</p>
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white">Built for the Ayush Ecosystem</h2>
-          <p class="text-gray-400 text-sm mt-2 max-w-xl mx-auto">
+          <p class="text-xs uppercase font-bold text-purple-600 dark:text-purple-400 tracking-widest mb-2">Platform Features</p>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0F172A] dark:text-white">Built for the Ayush Ecosystem</h2>
+          <p class="text-[#64748B] dark:text-gray-400 text-sm mt-2 max-w-xl mx-auto">
             Solving Ministry of Ayush Problem Statement 26044 with production-ready AI tools, anti-decay gamification, and institutional synergy.
           </p>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           <!-- Feature 1 -->
-          <div class="p-5 sm:p-6 rounded-2xl bg-white/[0.03] border border-white/8 hover:border-white/15 flex flex-col justify-between transition-all duration-300 hover:-translate-y-0.5 shadow-md">
+          <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-white/[0.03] border border-[#E2E8F0] dark:border-white/8 hover:border-purple-300 dark:hover:border-white/15 flex flex-col justify-between transition-all duration-300 hover:-translate-y-0.5 shadow-sm dark:shadow-md">
             <div>
               <div class="flex items-start justify-between mb-4">
                 <span class="text-3xl">🎯</span>
-                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full border bg-purple-500/20 text-purple-300 border-purple-500/40">AI ENGINE</span>
+                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full border bg-purple-50 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-500/40">AI ENGINE</span>
               </div>
-              <h3 class="text-lg font-bold text-white mb-2">AI Skill Gap Discovery</h3>
-              <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">Benchmark student CVs against live pharmaceutical and Ayush industrial standards (GLP, HPTLC, Phytochemistry) with instant gap diagnosis.</p>
+              <h3 class="text-lg font-bold text-[#0F172A] dark:text-white mb-2">AI Skill Gap Discovery</h3>
+              <p class="text-xs sm:text-sm text-[#64748B] dark:text-gray-400 leading-relaxed">Benchmark student CVs against live pharmaceutical and Ayush industrial standards (GLP, HPTLC, Phytochemistry) with instant gap diagnosis.</p>
             </div>
-            <div class="mt-4 pt-3 border-t border-white/5 text-[11px] text-gray-500 font-medium">Verified Feature · Live on JOBLEX ✓</div>
+            <div class="mt-4 pt-3 border-t border-[#E2E8F0] dark:border-white/5 text-[11px] text-[#94A3B8] dark:text-gray-500 font-medium">Verified Feature · Live on JOBLEX ✓</div>
           </div>
 
           <!-- Feature 2 -->
-          <div class="p-5 sm:p-6 rounded-2xl bg-white/[0.03] border border-white/8 hover:border-white/15 flex flex-col justify-between transition-all duration-300 hover:-translate-y-0.5 shadow-md">
+          <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-white/[0.03] border border-[#E2E8F0] dark:border-white/8 hover:border-cyan-300 dark:hover:border-white/15 flex flex-col justify-between transition-all duration-300 hover:-translate-y-0.5 shadow-sm dark:shadow-md">
             <div>
               <div class="flex items-start justify-between mb-4">
                 <span class="text-3xl">🗺️</span>
-                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full border bg-cyan-500/20 text-cyan-300 border-cyan-500/40">ANTI-DECAY</span>
+                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full border bg-cyan-50 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-500/40">ANTI-DECAY</span>
               </div>
-              <h3 class="text-lg font-bold text-white mb-2">Gamified Career Roadmap</h3>
-              <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">Follow 4 progressive milestones, earn +50 XP per laboratory competency, and prevent point decay through active streak check-ins.</p>
+              <h3 class="text-lg font-bold text-[#0F172A] dark:text-white mb-2">Gamified Career Roadmap</h3>
+              <p class="text-xs sm:text-sm text-[#64748B] dark:text-gray-400 leading-relaxed">Follow 4 progressive milestones, earn +50 XP per laboratory competency, and prevent point decay through active streak check-ins.</p>
             </div>
-            <div class="mt-4 pt-3 border-t border-white/5 text-[11px] text-gray-500 font-medium">Verified Feature · Live on JOBLEX ✓</div>
+            <div class="mt-4 pt-3 border-t border-[#E2E8F0] dark:border-white/5 text-[11px] text-[#94A3B8] dark:text-gray-500 font-medium">Verified Feature · Live on JOBLEX ✓</div>
           </div>
 
           <!-- Feature 3 -->
-          <div class="p-5 sm:p-6 rounded-2xl bg-white/[0.03] border border-white/8 hover:border-white/15 flex flex-col justify-between transition-all duration-300 hover:-translate-y-0.5 shadow-md">
+          <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-white/[0.03] border border-[#E2E8F0] dark:border-white/8 hover:border-emerald-300 dark:hover:border-white/15 flex flex-col justify-between transition-all duration-300 hover:-translate-y-0.5 shadow-sm dark:shadow-md">
             <div>
               <div class="flex items-start justify-between mb-4">
                 <span class="text-3xl">🧠</span>
-                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full border bg-emerald-500/20 text-emerald-300 border-emerald-500/40">NEP-2020</span>
+                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full border bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/40">NEP-2020</span>
               </div>
-              <h3 class="text-lg font-bold text-white mb-2">AI Syllabus Modernization</h3>
-              <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">Bridges college curriculums with industrial advancements. Academic Deans review and adopt automated syllabus add-ons sponsored by MoU partners.</p>
+              <h3 class="text-lg font-bold text-[#0F172A] dark:text-white mb-2">AI Syllabus Modernization</h3>
+              <p class="text-xs sm:text-sm text-[#64748B] dark:text-gray-400 leading-relaxed">Bridges college curriculums with industrial advancements. Academic Deans review and adopt automated syllabus add-ons sponsored by MoU partners.</p>
             </div>
-            <div class="mt-4 pt-3 border-t border-white/5 text-[11px] text-gray-500 font-medium">Verified Feature · Live on JOBLEX ✓</div>
+            <div class="mt-4 pt-3 border-t border-[#E2E8F0] dark:border-white/5 text-[11px] text-[#94A3B8] dark:text-gray-500 font-medium">Verified Feature · Live on JOBLEX ✓</div>
           </div>
 
           <!-- Feature 4 -->
-          <div class="p-5 sm:p-6 rounded-2xl bg-white/[0.03] border border-white/8 hover:border-white/15 flex flex-col justify-between transition-all duration-300 hover:-translate-y-0.5 shadow-md">
+          <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-white/[0.03] border border-[#E2E8F0] dark:border-white/8 hover:border-blue-300 dark:hover:border-white/15 flex flex-col justify-between transition-all duration-300 hover:-translate-y-0.5 shadow-sm dark:shadow-md">
             <div>
               <div class="flex items-start justify-between mb-4">
                 <span class="text-3xl">💼</span>
-                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full border bg-blue-500/20 text-blue-300 border-blue-500/40">RECRUITMENT</span>
+                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full border bg-blue-50 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-500/40">RECRUITMENT</span>
               </div>
-              <h3 class="text-lg font-bold text-white mb-2">Direct Industry Hiring Pipeline</h3>
-              <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">Verified candidate portfolios are pre-screened and matched directly with top corporate recruiters including Dabur, Himalaya Wellness, and Patanjali.</p>
+              <h3 class="text-lg font-bold text-[#0F172A] dark:text-white mb-2">Direct Industry Hiring Pipeline</h3>
+              <p class="text-xs sm:text-sm text-[#64748B] dark:text-gray-400 leading-relaxed">Verified candidate portfolios are pre-screened and matched directly with top corporate recruiters including Dabur, Himalaya Wellness, and Patanjali.</p>
             </div>
-            <div class="mt-4 pt-3 border-t border-white/5 text-[11px] text-gray-500 font-medium">Verified Feature · Live on JOBLEX ✓</div>
+            <div class="mt-4 pt-3 border-t border-[#E2E8F0] dark:border-white/5 text-[11px] text-[#94A3B8] dark:text-gray-500 font-medium">Verified Feature · Live on JOBLEX ✓</div>
           </div>
 
           <!-- Feature 5 -->
-          <div class="p-5 sm:p-6 rounded-2xl bg-white/[0.03] border border-white/8 hover:border-white/15 flex flex-col justify-between transition-all duration-300 hover:-translate-y-0.5 shadow-md">
+          <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-white/[0.03] border border-[#E2E8F0] dark:border-white/8 hover:border-amber-300 dark:hover:border-white/15 flex flex-col justify-between transition-all duration-300 hover:-translate-y-0.5 shadow-sm dark:shadow-md">
             <div>
               <div class="flex items-start justify-between mb-4">
                 <span class="text-3xl">📜</span>
-                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full border bg-amber-500/20 text-amber-300 border-amber-500/40">COLLABORATION</span>
+                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full border bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/40">COLLABORATION</span>
               </div>
-              <h3 class="text-lg font-bold text-white mb-2">Bilateral MoUs & R&D Grants</h3>
-              <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">Institutions bid for corporate-funded research grants (₹24L+) and nominate faculty members for specialized industrial immersion (FDP).</p>
+              <h3 class="text-lg font-bold text-[#0F172A] dark:text-white mb-2">Bilateral MoUs & R&D Grants</h3>
+              <p class="text-xs sm:text-sm text-[#64748B] dark:text-gray-400 leading-relaxed">Institutions bid for corporate-funded research grants (₹24L+) and nominate faculty members for specialized industrial immersion (FDP).</p>
             </div>
-            <div class="mt-4 pt-3 border-t border-white/5 text-[11px] text-gray-500 font-medium">Verified Feature · Live on JOBLEX ✓</div>
+            <div class="mt-4 pt-3 border-t border-[#E2E8F0] dark:border-white/5 text-[11px] text-[#94A3B8] dark:text-gray-500 font-medium">Verified Feature · Live on JOBLEX ✓</div>
           </div>
 
           <!-- Feature 6 -->
-          <div class="p-5 sm:p-6 rounded-2xl bg-white/[0.03] border border-white/8 hover:border-white/15 flex flex-col justify-between transition-all duration-300 hover:-translate-y-0.5 shadow-md">
+          <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-white/[0.03] border border-[#E2E8F0] dark:border-white/8 hover:border-pink-300 dark:hover:border-white/15 flex flex-col justify-between transition-all duration-300 hover:-translate-y-0.5 shadow-sm dark:shadow-md">
             <div>
               <div class="flex items-start justify-between mb-4">
                 <span class="text-3xl">🤖</span>
-                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full border bg-pink-500/20 text-pink-300 border-pink-500/40">24/7 ADVISOR</span>
+                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full border bg-pink-50 dark:bg-pink-500/20 text-pink-700 dark:text-pink-300 border-pink-200 dark:border-pink-500/40">24/7 ADVISOR</span>
               </div>
-              <h3 class="text-lg font-bold text-white mb-2">Zulu AI Career Counselor</h3>
-              <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">Context-aware intelligence companion powered by Google AI Studio, offering real-time guidance on internships, electives, and interview readiness.</p>
+              <h3 class="text-lg font-bold text-[#0F172A] dark:text-white mb-2">Zulu AI Career Counselor</h3>
+              <p class="text-xs sm:text-sm text-[#64748B] dark:text-gray-400 leading-relaxed">Context-aware intelligence companion powered by Google AI Studio, offering real-time guidance on internships, electives, and interview readiness.</p>
             </div>
-            <div class="mt-4 pt-3 border-t border-white/5 text-[11px] text-gray-500 font-medium">Verified Feature · Live on JOBLEX ✓</div>
+            <div class="mt-4 pt-3 border-t border-[#E2E8F0] dark:border-white/5 text-[11px] text-[#94A3B8] dark:text-gray-500 font-medium">Verified Feature · Live on JOBLEX ✓</div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- STATS STRIP -->
-    <section class="py-10 border-t border-white/5">
+    <section class="py-10 border-t border-[#E2E8F0] dark:border-white/5">
       <div class="max-w-6xl mx-auto px-5 sm:px-8">
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 text-center">
-          <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/8">
-            <div class="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 mb-1">15,000+</div>
-            <div class="text-xs text-gray-400 font-medium">Students Registered</div>
+          <div class="p-5 rounded-2xl bg-white/80 dark:bg-white/[0.03] border border-[#E2E8F0] dark:border-white/8 shadow-sm">
+            <div class="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-purple-600 dark:from-cyan-400 dark:to-purple-400 mb-1">15,000+</div>
+            <div class="text-xs text-[#64748B] dark:text-gray-400 font-medium">Students Registered</div>
           </div>
-          <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/8">
-            <div class="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 mb-1">48</div>
-            <div class="text-xs text-gray-400 font-medium">Partner Institutions</div>
+          <div class="p-5 rounded-2xl bg-white/80 dark:bg-white/[0.03] border border-[#E2E8F0] dark:border-white/8 shadow-sm">
+            <div class="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-purple-600 dark:from-cyan-400 dark:to-purple-400 mb-1">48</div>
+            <div class="text-xs text-[#64748B] dark:text-gray-400 font-medium">Partner Institutions</div>
           </div>
-          <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/8">
-            <div class="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 mb-1">₹24L+</div>
-            <div class="text-xs text-gray-400 font-medium">R&D Grants Active</div>
+          <div class="p-5 rounded-2xl bg-white/80 dark:bg-white/[0.03] border border-[#E2E8F0] dark:border-white/8 shadow-sm">
+            <div class="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-purple-600 dark:from-cyan-400 dark:to-purple-400 mb-1">₹24L+</div>
+            <div class="text-xs text-[#64748B] dark:text-gray-400 font-medium">R&D Grants Active</div>
           </div>
-          <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/8">
-            <div class="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 mb-1">92%</div>
-            <div class="text-xs text-gray-400 font-medium">Placement Accuracy</div>
+          <div class="p-5 rounded-2xl bg-white/80 dark:bg-white/[0.03] border border-[#E2E8F0] dark:border-white/8 shadow-sm">
+            <div class="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-purple-600 dark:from-cyan-400 dark:to-purple-400 mb-1">92%</div>
+            <div class="text-xs text-[#64748B] dark:text-gray-400 font-medium">Placement Accuracy</div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- CALL TO ACTION BANNER -->
-    <section class="py-16 sm:py-20 border-t border-white/5">
+    <section class="py-16 sm:py-20 border-t border-[#E2E8F0] dark:border-white/5">
       <div class="max-w-3xl mx-auto px-5 sm:px-8 text-center">
-        <div class="p-8 sm:p-12 rounded-3xl border border-white/10 bg-gradient-to-br from-purple-950/50 via-indigo-950/50 to-blue-950/50 backdrop-blur-md space-y-5 sm:space-y-6 shadow-2xl">
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white">Ready to Experience JOBLEX?</h2>
-          <p class="text-sm sm:text-base text-gray-300 max-w-lg mx-auto leading-relaxed">
+        <div class="p-8 sm:p-12 rounded-3xl border border-[#E2E8F0] dark:border-white/10 bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 dark:from-purple-950/50 dark:via-indigo-950/50 dark:to-blue-950/50 backdrop-blur-md space-y-5 sm:space-y-6 shadow-xl dark:shadow-2xl">
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0F172A] dark:text-white">Ready to Experience JOBLEX?</h2>
+          <p class="text-sm sm:text-base text-[#475569] dark:text-gray-300 max-w-lg mx-auto leading-relaxed">
             Join students, academic deans, and pharma industry leaders in transforming skill readiness and placement outcomes.
           </p>
           <div class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 pt-1">
-            <a href="auth.html" class="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-white text-gray-950 font-black text-sm uppercase tracking-wider hover:bg-gray-100 shadow-lg transition hover:scale-105">
-              ⚡ Access Portal & Demos
+            <a href="auth.html" class="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-[#0F172A] dark:bg-white hover:bg-[#1E293B] dark:hover:bg-gray-100 text-white dark:text-gray-950 font-black text-sm uppercase tracking-wider shadow-lg transition hover:scale-105 inline-flex items-center justify-center">
+              ⚡ Access Portal / Sign In
             </a>
-            <a href="student.html" class="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white font-bold text-sm transition">
+            <button onclick="JoblexApiClient.navigateToPortal('student')" class="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 border border-[#CBD5E1] dark:border-white/15 text-[#0F172A] dark:text-white font-bold text-sm transition cursor-pointer shadow-sm">
               Explore Career Roadmap →
-            </a>
+            </button>
           </div>
         </div>
       </div>
     </section>
 
     <!-- FOOTER -->
-    <footer class="py-8 border-t border-white/5 text-center text-xs text-gray-500 px-5 space-y-1">
-      <p class="font-bold text-gray-400">JOBLEX · Academia–Industry Collaboration Portal</p>
-      <p>Developed for Ministry of Ayush · AIIA New Delhi · Problem Statement ID 26044</p>
+    <footer class="py-8 border-t border-[#E2E8F0] dark:border-white/5 text-center text-xs text-[#64748B] dark:text-gray-500 px-5 space-y-1">
+      <p class="font-bold text-[#475569] dark:text-gray-400">JOBLEX · Academia–Industry Collaboration Portal</p>
+      <p>© 2025 JOBLEX. Developed for Ministry of Ayush · AIIA New Delhi · Problem Statement ID 26044</p>
     </footer>
 
   </main>
@@ -310,8 +343,29 @@
   <!-- Three.js CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <!-- Background Starfield Script -->
-  <script src="js/three-scene.js"></script>
+  <script src="js/frontend/three-scene.js"></script>
   <!-- API Client -->
-  <script src="js/api.js"></script>
+  <script src="js/frontend/api-client.js"></script>
+  <!-- Theme Toggle Logic -->
+  <script>
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      try {
+        localStorage.setItem('joblex_theme', isDark ? 'dark' : 'light');
+      } catch(e) {}
+      updateThemeIcon();
+    }
+
+    function updateThemeIcon() {
+      const icon = document.getElementById('theme-toggle-icon');
+      if (!icon) return;
+      const isDark = document.documentElement.classList.contains('dark');
+      icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateThemeIcon();
+    });
+  </script>
 </body>
 </html>

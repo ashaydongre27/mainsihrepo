@@ -43,7 +43,7 @@ const portalRoutes = [
   'student', 'academy', 'industry', 'auth',
   'student-roadmap', 'student-internships', 'student-jobs',
   'student-quiz', 'student-resume', 'student-skilltree',
-  'student-portfolio', 'student-zulu'
+  'student-portfolio', 'student-zulu', 'clean-white-ui'
 ];
 
 portalRoutes.forEach(route => {
