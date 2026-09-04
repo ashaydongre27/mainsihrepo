@@ -4,12 +4,13 @@
 -- 
 -- Instructions:
 -- 1. Open your Supabase Project Dashboard: https://supabase.com/dashboard
--- 2. Go to the "SQL Editor" tab on the left sidebar
--- 3. Click "New Query", paste this entire script, and click "RUN"
+-- 2. Go to the "SQL Editor" tab on the left navigation sidebar
+-- 3. Click "New Query", paste this entire script, and click "RUN" (Ctrl + Enter)
 -- ============================================================================
 
 -- Enable required extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- ============================================================================
 -- 1. ENUMS & CUSTOM TYPES
@@ -39,11 +40,22 @@ EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
+-- Helper function: auto-update updated_at timestamp
+CREATE OR REPLACE FUNCTION public.set_current_timestamp_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = timezone('utc'::text, now());
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 -- ============================================================================
--- 2. CORE TABLES
+-- 2. CORE PLATFORM TABLES
 -- ============================================================================
 
+-- ----------------------------------------------------------------------------
 -- Table 1: Profiles (Linked to Supabase auth.users)
+-- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
@@ -63,7 +75,14 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+DROP TRIGGER IF EXISTS trg_profiles_updated_at ON public.profiles;
+CREATE TRIGGER trg_profiles_updated_at
+    BEFORE UPDATE ON public.profiles
+    FOR EACH ROW EXECUTE FUNCTION public.set_current_timestamp_updated_at();
+
+-- ----------------------------------------------------------------------------
 -- Table 2: Opportunities & Micro-Gigs
+-- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.opportunities (
     id TEXT PRIMARY KEY DEFAULT ('opp-' || substr(md5(random()::text), 1, 8)),
     title TEXT NOT NULL,
@@ -73,13 +92,15 @@ CREATE TABLE IF NOT EXISTS public.opportunities (
     location TEXT DEFAULT 'New Delhi / Hybrid' NOT NULL,
     stipend TEXT NOT NULL,
     deadline DATE NOT NULL,
-    match_percentage INTEGER DEFAULT 85,
+    match INTEGER DEFAULT 85 NOT NULL,
     description TEXT NOT NULL,
     created_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Table 3: Applications Pipeline
+-- ----------------------------------------------------------------------------
+-- Table 3: Applications Pipeline (Connecting Students & Industry)
+-- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.applications (
     id TEXT PRIMARY KEY DEFAULT ('app-' || substr(md5(random()::text), 1, 8)),
     opportunity_id TEXT REFERENCES public.opportunities(id) ON DELETE CASCADE,
@@ -91,29 +112,48 @@ CREATE TABLE IF NOT EXISTS public.applications (
     student_email TEXT NOT NULL,
     college TEXT NOT NULL,
     skills TEXT[] DEFAULT '{}'::TEXT[] NOT NULL,
-    match_score INTEGER DEFAULT 85 NOT NULL,
+    match INTEGER DEFAULT 85 NOT NULL,
     applied_date DATE DEFAULT CURRENT_DATE NOT NULL,
     status public.application_status DEFAULT 'Pending Review'::public.application_status NOT NULL,
-    verified_badge TEXT,
+    verified_badge TEXT DEFAULT 'AIIA Verified',
     cover_note TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    -- Generated columns for direct JavaScript camelCase compatibility
+    "opportunityId" TEXT GENERATED ALWAYS AS (opportunity_id) STORED,
+    "opportunityTitle" TEXT GENERATED ALWAYS AS (opportunity_title) STORED,
+    "studentName" TEXT GENERATED ALWAYS AS (student_name) STORED,
+    "studentEmail" TEXT GENERATED ALWAYS AS (student_email) STORED,
+    "appliedDate" DATE GENERATED ALWAYS AS (applied_date) STORED,
+    "verifiedBadge" TEXT GENERATED ALWAYS AS (verified_badge) STORED,
+    "coverNote" TEXT GENERATED ALWAYS AS (cover_note) STORED
 );
 
--- Table 4: Student Career Roadmaps
+-- ----------------------------------------------------------------------------
+-- Table 4: Student Career Roadmaps & Anti-Decay Status
+-- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.student_roadmaps (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     student_id UUID REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
     career_goal TEXT NOT NULL,
-    current_level TEXT DEFAULT 'Level 1 - Foundation Scholar',
-    total_xp INTEGER DEFAULT 1000 NOT NULL,
-    streak_days INTEGER DEFAULT 1 NOT NULL,
+    current_level TEXT DEFAULT 'Level 3 - Intermediate Innovator',
+    total_xp INTEGER DEFAULT 1450 NOT NULL,
+    streak_days INTEGER DEFAULT 7 NOT NULL,
     decay_status TEXT DEFAULT 'Active - Decay Frozen for 72 hrs',
     current_phase INTEGER DEFAULT 1,
     phases JSONB NOT NULL DEFAULT '[]'::JSONB,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    -- Generated columns for JavaScript camelCase compatibility
+    "careerGoal" TEXT GENERATED ALWAYS AS (career_goal) STORED,
+    "currentLevel" TEXT GENERATED ALWAYS AS (current_level) STORED,
+    "totalXp" INTEGER GENERATED ALWAYS AS (total_xp) STORED,
+    "streakDays" INTEGER GENERATED ALWAYS AS (streak_days) STORED,
+    "decayStatus" TEXT GENERATED ALWAYS AS (decay_status) STORED,
+    "currentPhase" INTEGER GENERATED ALWAYS AS (current_phase) STORED
 );
 
+-- ----------------------------------------------------------------------------
 -- Table 5: Academic-Industry MoUs
+-- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.mou_partnerships (
     id TEXT PRIMARY KEY DEFAULT ('mou-' || substr(md5(random()::text), 1, 8)),
     partner TEXT NOT NULL,
@@ -124,24 +164,38 @@ CREATE TABLE IF NOT EXISTS public.mou_partnerships (
     focus_areas TEXT[] DEFAULT '{}'::TEXT[] NOT NULL,
     internships_provided INTEGER DEFAULT 0,
     curriculum_sponsors TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    -- Generated columns for camelCase compatibility
+    "signedDate" DATE GENERATED ALWAYS AS (signed_date) STORED,
+    "validUntil" DATE GENERATED ALWAYS AS (valid_until) STORED,
+    "focusAreas" TEXT[] GENERATED ALWAYS AS (focus_areas) STORED,
+    "internshipsProvided" INTEGER GENERATED ALWAYS AS (internships_provided) STORED,
+    "curriculumSponsors" TEXT GENERATED ALWAYS AS (curriculum_sponsors) STORED
 );
 
--- Table 6: Curriculum Updates & NEP-2020 Syllabus Suggestions
+-- ----------------------------------------------------------------------------
+-- Table 6: NEP-2020 Curriculum Modernization & Syllabus Suggestions
+-- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.syllabus_suggestions (
     id TEXT PRIMARY KEY DEFAULT ('syl-' || substr(md5(random()::text), 1, 8)),
     current_topic TEXT NOT NULL,
     suggested_addition TEXT NOT NULL,
     source TEXT NOT NULL,
     impact TEXT,
-    urgency TEXT DEFAULT 'Medium',
+    urgency TEXT DEFAULT 'High',
     status TEXT DEFAULT 'Proposed',
     credits_impact TEXT DEFAULT '+1 Practical Credit',
     adopted BOOLEAN DEFAULT false,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    -- Generated columns for camelCase compatibility
+    "currentTopic" TEXT GENERATED ALWAYS AS (current_topic) STORED,
+    "suggestedAddition" TEXT GENERATED ALWAYS AS (suggested_addition) STORED,
+    "creditsImpact" TEXT GENERATED ALWAYS AS (credits_impact) STORED
 );
 
+-- ----------------------------------------------------------------------------
 -- Table 7: Faculty Consultancy Grants
+-- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.consultancy_grants (
     id TEXT PRIMARY KEY DEFAULT ('cg-' || substr(md5(random()::text), 1, 8)),
     title TEXT NOT NULL,
@@ -150,10 +204,15 @@ CREATE TABLE IF NOT EXISTS public.consultancy_grants (
     deadline DATE NOT NULL,
     target_dept TEXT NOT NULL,
     status TEXT DEFAULT 'Open for Faculty Proposals' NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    -- Generated columns for camelCase compatibility
+    "grantAmount" TEXT GENERATED ALWAYS AS (grant_amount) STORED,
+    "targetDept" TEXT GENERATED ALWAYS AS (target_dept) STORED
 );
 
+-- ----------------------------------------------------------------------------
 -- Table 8: Faculty Development Programs (FDP)
+-- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.fdp_programs (
     id TEXT PRIMARY KEY DEFAULT ('fdp-' || substr(md5(random()::text), 1, 8)),
     title TEXT NOT NULL,
@@ -166,7 +225,9 @@ CREATE TABLE IF NOT EXISTS public.fdp_programs (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+-- ----------------------------------------------------------------------------
 -- Table 9: Sponsored Skill Bootcamps
+-- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.sponsored_bootcamps (
     id TEXT PRIMARY KEY DEFAULT ('bc-' || substr(md5(random()::text), 1, 8)),
     title TEXT NOT NULL,
@@ -178,10 +239,18 @@ CREATE TABLE IF NOT EXISTS public.sponsored_bootcamps (
     stipend TEXT NOT NULL,
     guaranteed_outcome TEXT NOT NULL,
     status TEXT DEFAULT 'Cohort Enrolling' NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    -- Generated columns for camelCase compatibility
+    "partnerCollege" TEXT GENERATED ALWAYS AS (partner_college) STORED,
+    "targetHires" INTEGER GENERATED ALWAYS AS (target_hires) STORED,
+    "matchedScholars" INTEGER GENERATED ALWAYS AS (matched_scholars) STORED,
+    "startDate" DATE GENERATED ALWAYS AS (start_date) STORED,
+    "guaranteedOutcome" TEXT GENERATED ALWAYS AS (guaranteed_outcome) STORED
 );
 
--- Table 10: Skill ROI & AI Evaluation Logs
+-- ----------------------------------------------------------------------------
+-- Table 10: Skill ROI & AI Evaluation Calibration Logs
+-- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.skill_roi_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     candidate_name TEXT NOT NULL,
@@ -189,10 +258,16 @@ CREATE TABLE IF NOT EXISTS public.skill_roi_logs (
     actual_lab_rating NUMERIC(3, 2) NOT NULL,
     company TEXT NOT NULL,
     note TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    -- Generated columns for camelCase compatibility
+    candidate TEXT GENERATED ALWAYS AS (candidate_name) STORED,
+    "predictedMatch" INTEGER GENERATED ALWAYS AS (predicted_match) STORED,
+    "actualLabRating" NUMERIC(3, 2) GENERATED ALWAYS AS (actual_lab_rating) STORED
 );
 
--- Table 11: Cross-College Benchmarks
+-- ----------------------------------------------------------------------------
+-- Table 11: Cross-College Benchmarking & NAAC Rankings
+-- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.cross_college_benchmarks (
     id SERIAL PRIMARY KEY,
     rank INTEGER NOT NULL,
@@ -201,11 +276,61 @@ CREATE TABLE IF NOT EXISTS public.cross_college_benchmarks (
     placement_rate TEXT NOT NULL,
     mou_count INTEGER DEFAULT 0,
     naac_grade TEXT NOT NULL,
-    status TEXT NOT NULL
+    status TEXT NOT NULL,
+    -- Generated columns for camelCase compatibility
+    "avgSkillScore" NUMERIC(4, 1) GENERATED ALWAYS AS (avg_skill_score) STORED,
+    "placementRate" TEXT GENERATED ALWAYS AS (placement_rate) STORED,
+    "mouCount" INTEGER GENERATED ALWAYS AS (mou_count) STORED,
+    "naacGrade" TEXT GENERATED ALWAYS AS (naac_grade) STORED
+);
+
+-- ----------------------------------------------------------------------------
+-- Table 12: Candidates Pool (Reverse Discovery & Recruiter Inbound)
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.candidates (
+    id TEXT PRIMARY KEY DEFAULT ('cand-' || substr(md5(random()::text), 1, 8)),
+    name TEXT NOT NULL,
+    college TEXT NOT NULL,
+    match INTEGER DEFAULT 90 NOT NULL,
+    skills TEXT[] DEFAULT '{}'::TEXT[] NOT NULL,
+    status TEXT DEFAULT 'Ready for Interview' NOT NULL,
+    outreach_status TEXT DEFAULT 'Ready for Inbound Invitation',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    "outreachStatus" TEXT GENERATED ALWAYS AS (outreach_status) STORED
+);
+
+-- ----------------------------------------------------------------------------
+-- Table 13: Peer Benchmarking (Student Cohort Percentiles)
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.peer_benchmarking (
+    id SERIAL PRIMARY KEY,
+    user_percentile INTEGER DEFAULT 78 NOT NULL,
+    branch_average_score INTEGER DEFAULT 72 NOT NULL,
+    placed_peer_average_score INTEGER DEFAULT 86 NOT NULL,
+    target_companies TEXT[] DEFAULT ARRAY['Dabur India', 'Himalaya Wellness', 'Patanjali Research'] NOT NULL,
+    top_missing_skills JSONB DEFAULT '[]'::JSONB NOT NULL,
+    -- Generated columns for camelCase compatibility
+    "userPercentile" INTEGER GENERATED ALWAYS AS (user_percentile) STORED,
+    "branchAverageScore" INTEGER GENERATED ALWAYS AS (branch_average_score) STORED,
+    "placedPeerAverageScore" INTEGER GENERATED ALWAYS AS (placed_peer_average_score) STORED,
+    "targetCompanies" TEXT[] GENERATED ALWAYS AS (target_companies) STORED,
+    "topMissingSkills" JSONB GENERATED ALWAYS AS (top_missing_skills) STORED
 );
 
 -- ============================================================================
--- 3. ROW LEVEL SECURITY (RLS) POLICIES
+-- 3. INDEXES FOR HIGH-PERFORMANCE SEARCH & FOREIGN KEYS
+-- ============================================================================
+CREATE INDEX IF NOT EXISTS idx_profiles_role ON public.profiles(role);
+CREATE INDEX IF NOT EXISTS idx_profiles_email ON public.profiles(email);
+CREATE INDEX IF NOT EXISTS idx_opportunities_type ON public.opportunities(type);
+CREATE INDEX IF NOT EXISTS idx_applications_student_id ON public.applications(student_id);
+CREATE INDEX IF NOT EXISTS idx_applications_opportunity_id ON public.applications(opportunity_id);
+CREATE INDEX IF NOT EXISTS idx_applications_status ON public.applications(status);
+CREATE INDEX IF NOT EXISTS idx_mou_status ON public.mou_partnerships(status);
+CREATE INDEX IF NOT EXISTS idx_syllabus_status ON public.syllabus_suggestions(status);
+
+-- ============================================================================
+-- 4. ROW LEVEL SECURITY (RLS) POLICIES
 -- ============================================================================
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
@@ -219,42 +344,70 @@ ALTER TABLE public.fdp_programs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sponsored_bootcamps ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.skill_roi_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.cross_college_benchmarks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.candidates ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.peer_benchmarking ENABLE ROW LEVEL SECURITY;
 
 -- Profiles Policies
+DROP POLICY IF EXISTS "Public profiles are readable by authenticated users" ON public.profiles;
 CREATE POLICY "Public profiles are readable by authenticated users" 
 ON public.profiles FOR SELECT TO authenticated USING (true);
 
+DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
 CREATE POLICY "Users can update their own profile" 
 ON public.profiles FOR UPDATE TO authenticated USING (auth.uid() = id);
 
--- Opportunities Policies (Publicly readable, industry/admin can insert/update)
+-- Opportunities Policies
+DROP POLICY IF EXISTS "Opportunities are readable by everyone" ON public.opportunities;
 CREATE POLICY "Opportunities are readable by everyone" 
 ON public.opportunities FOR SELECT TO authenticated, anon USING (true);
 
+DROP POLICY IF EXISTS "Authenticated users can create opportunities" ON public.opportunities;
 CREATE POLICY "Authenticated users can create opportunities" 
 ON public.opportunities FOR INSERT TO authenticated WITH CHECK (true);
 
 -- Applications Policies
-CREATE POLICY "Students can view their own applications" 
-ON public.applications FOR SELECT TO authenticated USING (auth.uid() = student_id OR true);
+DROP POLICY IF EXISTS "Students and recruiters can view applications" ON public.applications;
+CREATE POLICY "Students and recruiters can view applications" 
+ON public.applications FOR SELECT TO authenticated USING (true);
 
+DROP POLICY IF EXISTS "Students can submit applications" ON public.applications;
 CREATE POLICY "Students can submit applications" 
 ON public.applications FOR INSERT TO authenticated WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Recruiters and admins can update application statuses" ON public.applications;
 CREATE POLICY "Recruiters and admins can update application statuses" 
 ON public.applications FOR UPDATE TO authenticated USING (true);
 
--- Academic & Industry Records (Readable by all authenticated)
-CREATE POLICY "MoUs readable by authenticated users" ON public.mou_partnerships FOR SELECT TO authenticated, anon USING (true);
+-- Academic & Industry Records (Readable by all authenticated and anonymous viewers)
+DROP POLICY IF EXISTS "MoUs readable by all" ON public.mou_partnerships;
+CREATE POLICY "MoUs readable by all" ON public.mou_partnerships FOR SELECT TO authenticated, anon USING (true);
+
+DROP POLICY IF EXISTS "Syllabus suggestions readable by all" ON public.syllabus_suggestions;
 CREATE POLICY "Syllabus suggestions readable by all" ON public.syllabus_suggestions FOR SELECT TO authenticated, anon USING (true);
+
+DROP POLICY IF EXISTS "Grants readable by all" ON public.consultancy_grants;
 CREATE POLICY "Grants readable by all" ON public.consultancy_grants FOR SELECT TO authenticated, anon USING (true);
+
+DROP POLICY IF EXISTS "FDPs readable by all" ON public.fdp_programs;
 CREATE POLICY "FDPs readable by all" ON public.fdp_programs FOR SELECT TO authenticated, anon USING (true);
+
+DROP POLICY IF EXISTS "Bootcamps readable by all" ON public.sponsored_bootcamps;
 CREATE POLICY "Bootcamps readable by all" ON public.sponsored_bootcamps FOR SELECT TO authenticated, anon USING (true);
+
+DROP POLICY IF EXISTS "Skill ROI readable by all" ON public.skill_roi_logs;
 CREATE POLICY "Skill ROI readable by all" ON public.skill_roi_logs FOR SELECT TO authenticated, anon USING (true);
+
+DROP POLICY IF EXISTS "Benchmarks readable by all" ON public.cross_college_benchmarks;
 CREATE POLICY "Benchmarks readable by all" ON public.cross_college_benchmarks FOR SELECT TO authenticated, anon USING (true);
 
+DROP POLICY IF EXISTS "Candidates readable by all" ON public.candidates;
+CREATE POLICY "Candidates readable by all" ON public.candidates FOR SELECT TO authenticated, anon USING (true);
+
+DROP POLICY IF EXISTS "Peer benchmarking readable by all" ON public.peer_benchmarking;
+CREATE POLICY "Peer benchmarking readable by all" ON public.peer_benchmarking FOR SELECT TO authenticated, anon USING (true);
+
 -- ============================================================================
--- 4. AUTOMATIC USER PROFILE TRIGGER ON AUTH SIGNUP
+-- 5. AUTOMATIC USER PROFILE TRIGGER ON AUTH SIGNUP
 -- ============================================================================
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
@@ -268,6 +421,7 @@ BEGIN
         company, 
         department, 
         designation,
+        year,
         xp,
         streak
     )
@@ -280,6 +434,7 @@ BEGIN
         NEW.raw_user_meta_data->>'company',
         NEW.raw_user_meta_data->>'department',
         NEW.raw_user_meta_data->>'designation',
+        NEW.raw_user_meta_data->>'year',
         1000,
         1
     )
@@ -294,33 +449,27 @@ CREATE TRIGGER on_auth_user_created
     FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- ============================================================================
--- 5. INITIAL SEED RECORDS (INSTITUTIONAL METADATA)
+-- 6. INITIAL INSTITUTIONAL SEED RECORDS
 -- ============================================================================
 
 -- Opportunities
-INSERT INTO public.opportunities (id, title, company, type, skills, location, stipend, deadline, match_percentage, description)
+INSERT INTO public.opportunities (id, title, company, type, skills, location, stipend, deadline, match, description)
 VALUES 
-('opp-1', 'Phytochemical Research Intern', 'Dabur India Ltd.', 'Internship', ARRAY['Herbal Formulation', 'Clinical Research', 'Phytochemistry', 'GLP'], 'Ghaziabad / Hybrid', '₹22,000/mo', '2026-10-15', 92, 'Work on standardization and chromatographic profiling of classical Ayurvedic herbal formulations.')
+('opp-1', 'Phytochemical Research Intern', 'Dabur India Ltd.', 'Internship', ARRAY['Herbal Formulation', 'Clinical Research', 'Phytochemistry', 'GLP'], 'Ghaziabad / Hybrid', '₹22,000/mo', '2026-10-15', 92, 'Work on standardization and chromatographic profiling of classical Ayurvedic herbal formulations.'),
+('opp-2', 'Ayush AI Innovation Challenge 2026', 'Ministry of Ayush & AIIA', 'Hackathon', ARRAY['Python', 'Machine Learning', 'NLP for Classical Texts', 'Data Science'], 'New Delhi / National', 'Cash Bounty: ₹3,00,000', '2026-11-01', 88, 'National hackathon to build predictive Prakriti assessment engines and herbal drug-interaction databases.'),
+('opp-3', 'Formulation Development Scientist', 'Patanjali Research Foundation', 'Job', ARRAY['Ayurvedic Pharmacognosy', 'Nanotechnology in Herbal Drug Delivery', 'Quality Control'], 'Haridwar', '₹8.5 - 12.0 LPA', '2026-10-30', 75, 'Full-time position for postgraduate researchers in formulation optimization and stability testing.'),
+('opp-4', 'Health Informatics & EHR Analytics Intern', 'Himalaya Wellness Company', 'Internship', ARRAY['Python', 'Clinical Trials Data', 'Health Informatics'], 'Bengaluru', '₹25,000/mo', '2026-10-25', 84, 'Analyze clinical trial databases to correlate phytochemical markers with patient therapeutic outcomes.'),
+('opp-gig-1', 'Clean & Standardize 50 Ashwagandha Trial Records', 'Dabur Research Labs', 'Micro-Gig', ARRAY['Data Analysis', 'Phytochemistry', 'Excel/Python'], 'Remote (10 Days)', '₹6,000 Task Bounty', '2026-10-12', 90, 'Short sprint micro-project to clean chromatographic dataset for Withania somnifera.'),
+('opp-gig-2', 'Annotate Charaka Samhita Sanskrit Botanical Lexicon', 'AIIA Digital Informatics Cell', 'Micro-Gig', ARRAY['Ayurvedic Pharmacognosy', 'NLP Annotation', 'Sanskrit'], 'Remote (7 Days)', '₹4,500 Task Bounty', '2026-10-18', 85, 'Annotation of classical botanical synonyms for NLP machine learning models.')
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO public.opportunities (id, title, company, type, skills, location, stipend, deadline, match_percentage, description)
+-- Applications Pipeline Seed
+INSERT INTO public.applications (id, opportunity_id, opportunity_title, company, type, student_name, student_email, college, skills, match, applied_date, status, verified_badge, cover_note)
 VALUES 
-('opp-2', 'Ayush AI Innovation Challenge 2026', 'Ministry of Ayush & AIIA', 'Hackathon', ARRAY['Python', 'Machine Learning', 'NLP for Classical Texts', 'Data Science'], 'New Delhi / National', 'Cash Bounty: ₹3,00,000', '2026-11-01', 88, 'National hackathon to build predictive Prakriti assessment engines and herbal drug-interaction databases.')
-ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO public.opportunities (id, title, company, type, skills, location, stipend, deadline, match_percentage, description)
-VALUES 
-('opp-3', 'Formulation Development Scientist', 'Patanjali Research Foundation', 'Job', ARRAY['Ayurvedic Pharmacognosy', 'Nanotechnology in Herbal Drug Delivery', 'Quality Control'], 'Haridwar', '₹8.5 - 12.0 LPA', '2026-10-30', 75, 'Full-time position for postgraduate researchers in formulation optimization and stability testing.')
-ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO public.opportunities (id, title, company, type, skills, location, stipend, deadline, match_percentage, description)
-VALUES 
-('opp-4', 'Health Informatics & EHR Analytics Intern', 'Himalaya Wellness Company', 'Internship', ARRAY['Python', 'Clinical Trials Data', 'Health Informatics'], 'Bengaluru', '₹25,000/mo', '2026-10-25', 84, 'Analyze clinical trial databases to correlate phytochemical markers with patient therapeutic outcomes.')
-ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO public.opportunities (id, title, company, type, skills, location, stipend, deadline, match_percentage, description)
-VALUES 
-('opp-gig-1', 'Clean & Standardize 50 Ashwagandha Trial Records', 'Dabur Research Labs', 'Micro-Gig', ARRAY['Data Analysis', 'Phytochemistry', 'Excel/Python'], 'Remote (10 Days)', '₹6,000 Task Bounty', '2026-10-12', 90, 'Short sprint micro-project to clean chromatographic dataset for Withania somnifera.')
+('app-seed-01', 'opp-1', 'Phytochemical Research Intern', 'Dabur India Ltd.', 'Internship', 'Ashay Verma', 'student@nexus.edu', 'All India Institute of Ayurveda (AIIA), New Delhi', ARRAY['Herbal Formulation', 'Phytochemistry', 'GLP', 'Python'], 94, '2026-09-03', 'Shortlisted', 'AIIA-CERT-2026-9842', 'Strong background in botanical extraction protocols and AutoDock docking simulations.'),
+('app-seed-02', 'opp-2', 'Ayush AI Innovation Challenge 2026', 'Ministry of Ayush & AIIA', 'Hackathon', 'Priya Nair', 'priya@nexus.edu', 'Gujarat Ayurved University, Jamnagar', ARRAY['Drug Discovery', 'Phytochemistry', 'HPTLC', 'AutoDock'], 96, '2026-09-02', 'Interview Scheduled', 'GAU-CERT-2026-1104', 'Expert in HPTLC standardization and molecular docking.'),
+('app-seed-03', 'opp-3', 'Formulation Development Scientist', 'Patanjali Research Foundation', 'Job', 'Kavya Singh', 'kavya@nexus.edu', 'All India Institute of Ayurveda (AIIA), New Delhi', ARRAY['Health Informatics', 'Python', 'NLP for Classical Texts', 'SQL'], 91, '2026-09-04', 'Pending Review', 'AIIA-CERT-2026-8831', 'Prakriti classification ML models and classical NLP extraction pipelines.'),
+('app-seed-04', 'opp-gig-1', 'Clean & Standardize 50 Ashwagandha Trial Records', 'Dabur Research Labs', 'Micro-Gig', 'Ashay Verma', 'student@nexus.edu', 'All India Institute of Ayurveda (AIIA), New Delhi', ARRAY['Data Analysis', 'Phytochemistry'], 90, '2026-09-04', 'Offer Extended', 'AIIA-CERT-2026-9842', 'Micro-gig completed with high accuracy.')
 ON CONFLICT (id) DO NOTHING;
 
 -- MoUs
@@ -339,7 +488,7 @@ VALUES
 ('syl-103', 'Clinical Medicine Protocols (Unit 2)', 'Digital Health Records & AI-Powered Prakriti Profiling Databases', 'National AYUSH Mission Initiative 2026', 'Meets NEP-2020 technology integration benchmarks', 'Medium', 'Approved by Board of Studies', 'Elective Certification', false)
 ON CONFLICT (id) DO NOTHING;
 
--- Cross College Benchmarking
+-- Cross College Benchmarks
 INSERT INTO public.cross_college_benchmarks (rank, institution, avg_skill_score, placement_rate, mou_count, naac_grade, status)
 VALUES 
 (1, 'All India Institute of Ayurveda (AIIA), New Delhi', 78.4, '86%', 8, 'A++', 'Your Institution'),
@@ -348,7 +497,7 @@ VALUES
 (4, 'Gujarat Ayurved University, Jamnagar', 71.5, '76%', 4, 'A', 'Peer Tier-1')
 ON CONFLICT DO NOTHING;
 
--- Grants & FDPs
+-- Consultancy Grants & FDPs
 INSERT INTO public.consultancy_grants (id, title, industry, grant_amount, deadline, target_dept, status)
 VALUES 
 ('cg-01', 'Standardization of Ashwagandha Active Withanolides in Water-Soluble Matrix', 'Dabur R&D', '₹18,50,000', '2026-11-15', 'Dravyaguna / Pharmaceutical Sciences', 'Open for Faculty Proposals'),
@@ -368,9 +517,35 @@ VALUES
 ('bc-02', 'Himalaya In-Silico Molecular Docking & Drug Screening Sprint', 'Himalaya Wellness Company', 'National Institute of Ayurveda', 15, 12, '2026-11-15', 'Cloud GPU Compute Grants + ₹12,000 Bounty', 'Direct Pre-Placement Offers (PPOs) for Top 5', 'Cohort Enrolling')
 ON CONFLICT (id) DO NOTHING;
 
--- Grant access to standard roles
+-- Candidates (Reverse Inbound Pool)
+INSERT INTO public.candidates (id, name, college, match, skills, status, outreach_status)
+VALUES 
+('cand-01', 'Ashay Verma', 'All India Institute of Ayurveda', 94, ARRAY['Herbal Formulation', 'GLP', 'Phytochemistry', 'Python'], 'Ready for Interview', 'Ready for Inbound Invitation'),
+('cand-02', 'Kavya Singh', 'AIIA New Delhi', 91, ARRAY['Health Informatics', 'Python', 'NLP for Classical Texts', 'SQL'], 'Shortlisted', 'Ready for Inbound Invitation'),
+('cand-03', 'Rohan Sharma', 'National Institute of Ayurveda, Jaipur', 82, ARRAY['Ayurvedic Pharmacognosy', 'Standardization', 'Quality Control'], 'Under Review', 'Ready for Inbound Invitation'),
+('cand-04', 'Ananya Roy', 'Banaras Hindu University (IMS)', 88, ARRAY['Clinical Research', 'Pharmacology', 'Herbal Formulation'], 'Shortlisted', 'Ready for Inbound Invitation'),
+('cand-05', 'Priya Nair', 'Gujarat Ayurved University, Jamnagar', 96, ARRAY['Drug Discovery', 'Phytochemistry', 'HPTLC', 'AutoDock'], 'Top Applicant', 'Ready for Inbound Invitation')
+ON CONFLICT (id) DO NOTHING;
+
+-- Peer Benchmarking
+INSERT INTO public.peer_benchmarking (user_percentile, branch_average_score, placed_peer_average_score, target_companies, top_missing_skills)
+VALUES (
+    78, 
+    72, 
+    86, 
+    ARRAY['Dabur India', 'Himalaya Wellness', 'Patanjali Research'], 
+    '[{"name": "HPTLC Fingerprinting", "prevalence": "88% of placed peers"}, {"name": "In-Silico AutoDock Molecular Docking", "prevalence": "74% of placed peers"}, {"name": "GCP Clinical Trial Protocols", "prevalence": "69% of placed peers"}]'::JSONB
+)
+ON CONFLICT DO NOTHING;
+
+-- ============================================================================
+-- 7. ROLES & PRIVILEGES (AUTHENTICATED, ANON, SERVICE_ROLE)
+-- ============================================================================
 GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO service_role;
-GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO authenticated;
-GRANT SELECT ON public.opportunities, public.mou_partnerships, public.syllabus_suggestions, public.consultancy_grants, public.fdp_programs, public.sponsored_bootcamps, public.cross_college_benchmarks TO anon;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO service_role;
 
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO authenticated;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO authenticated;
+
+GRANT SELECT ON public.opportunities, public.mou_partnerships, public.syllabus_suggestions, public.consultancy_grants, public.fdp_programs, public.sponsored_bootcamps, public.cross_college_benchmarks, public.candidates, public.peer_benchmarking TO anon;
