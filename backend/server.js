@@ -3,9 +3,12 @@
  * Ministry of Ayush / All India Institute of Ayurveda | Problem Statement ID: 26044
  */
 
+const path = require('path');
+// Load environment variables from project root .env
+require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
+
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 
 const authRoutes = require('./routes/auth.routes');
 const roadmapRoutes = require('./routes/roadmap.routes');
@@ -52,6 +55,15 @@ portalRoutes.forEach(route => {
 // Root route sends index.html
 app.get('/', (req, res) => {
   res.sendFile(path.join(ROOT_DIR, 'index.html'));
+});
+
+// Production Safe Error Handler (Never expose raw backend stack traces or internal errors to user)
+app.use((err, req, res, next) => {
+  console.error('[Server Error]:', err);
+  res.status(err.status || 500).json({
+    success: false,
+    message: 'An unexpected error occurred while processing your request. Please try again later.'
+  });
 });
 
 // Start Server

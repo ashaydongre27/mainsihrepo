@@ -1,196 +1,221 @@
 /**
- * JOBLEX Zulu AI Career Counselor Routes (JavaScript / Node.js)
- * Features:
- * - Live Google Gemini LLM API integration (when GEMINI_API_KEY is configured in .env)
- * - Rich context-aware Ayush & HealthTech offline intelligence engine
- * - Student profile context awareness (target role, XP, missing skills)
+ * JOBLEX Zulu AI Career Counselor Routes (Node.js / Express)
+ * Powered by Google Gemini API (@google/generative-ai & REST)
+ * Ministry of Ayush / All India Institute of Ayurveda | Problem Statement ID: 26044
  */
 
 const express = require('express');
 const router = express.Router();
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-const SYSTEM_INSTRUCTION = `You are Zulu, an intelligent, empathetic, and expert AI Career Counselor for JOBLEX — the flagship Academia-Industry bridge portal for the Ministry of Ayush and All India Institute of Ayurveda (AIIA) (SIH 26044).
-Your mission is to guide students on:
-1. Bridging ancient Ayush pharmacognosy with modern analytical science (HPTLC, LC-MS, HPLC, in-silico AutoDock molecular docking).
-2. Career roadmaps targeting research roles in Dabur, Himalaya Wellness, Patanjali, and national institutes.
-3. Micro-gigs, bilateral MoUs, NEP-2020 syllabus modernizations, and anti-decay gamified learning.
-Keep answers concise (under 3-4 paragraphs), highly actionable, encouraging, and use bullet points where helpful.`;
+const ZULU_SYSTEM_INSTRUCTION = `You are Zulu, the premier AI Career & Research Counselor for JOBLEX — the flagship Academia-Industry Collaboration Platform developed for the Ministry of Ayush and All India Institute of Ayurveda (AIIA) (Problem Statement ID: 26044).
+
+Your role & expertise:
+1. Provide deep, actionable guidance bridging classical Ayush traditions (Ayurveda, Yoga, Unani, Siddha, Homeopathy) with modern analytical scientific methodologies (HPLC, HPTLC fingerprinting, LC-MS, phytochemistry, in-silico AutoDock molecular docking, clinical trials, GLP/GCP standards).
+2. Recommend concrete career milestones, corporate research roles at industry partners (Dabur Research, Himalaya Wellness, Patanjali, Charak, etc.), sponsored research fellowships, and paid micro-gigs.
+3. Guide students on closing competency gaps identified in their resumes against corporate hiring benchmarks.
+4. Support curriculum modernization initiatives aligned with the National Education Policy (NEP-2020) and NAAC criteria.
+5. Emphasize gamified learning: explain how Anti-Decay XP freezes upon completing quizzes and active check-ins, boosting priority in Reverse Application inbound talent pools.
+
+Tone & Style:
+- Professional, knowledgeable, inspiring, and culturally respectful (you may greet with "Namaste 🌿").
+- Structure complex advice with clear bullet points and bold highlights.
+- Keep responses focused, encouraging, and free of fluff or technical jargon unless contextual.
+- Never output programming syntax errors or system trace dumps.`;
 
 /**
- * Query Gemini 1.5 Flash API
+ * Helper to get a configured Google Generative AI client
  */
-async function queryGemini(userMessage, studentContext) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey || apiKey.includes('your_gemini_api_key') || apiKey === 'placeholder') {
+function getGeminiApiKey() {
+  const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  if (!key || key.trim() === '' || key.includes('your_gemini_api_key')) {
+    return null;
+  }
+  return key.trim();
+}
+
+/**
+ * Call Google Gemini using official SDK with model fallback
+ */
+async function generateWithGemini(userMessage, conversationHistory = [], studentContext = null) {
+  const apiKey = getGeminiApiKey();
+  if (!apiKey) {
     return null;
   }
 
-  try {
-    const prompt = studentContext 
-      ? `Student Profile Context: ${JSON.stringify(studentContext)}\n\nStudent Query: "${userMessage}"`
-      : `Student Query: "${userMessage}"`;
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const candidateModels = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'];
 
+  // Format context prefix
+  let contextPrompt = '';
+  if (studentContext && typeof studentContext === 'object') {
+    const { name, institution, department, xp, streak, verifiedSkills, targetRole } = studentContext;
+    contextPrompt = `[Student Profile Context: Name: ${name || 'Scholar'}, Institution: ${institution || 'AIIA'}, Department: ${department || 'Ayush'}, Current XP: ${xp || 1450}, Streak: ${streak || 7} days, Target Role: ${targetRole || 'Research Scientist'}, Verified Skills: ${(verifiedSkills || []).join(', ') || 'Ayurvedic Pharmacognosy'}]\n\n`;
+  }
+
+  for (const modelName of candidateModels) {
+    try {
+      const model = genAI.getGenerativeModel({
+        model: modelName,
+        systemInstruction: ZULU_SYSTEM_INSTRUCTION
+      });
+
+      // Format conversation history for multi-turn chat
+      if (Array.isArray(conversationHistory) && conversationHistory.length > 0) {
+        const formattedHistory = conversationHistory
+          .filter(h => h.role && h.text)
+          .map(h => ({
+            role: h.role === 'user' ? 'user' : 'model',
+            parts: [{ text: h.text }]
+          }));
+
+        const chat = model.startChat({
+          history: formattedHistory,
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 1000
+          }
+        });
+
+        const promptToSend = contextPrompt ? `${contextPrompt}${userMessage}` : userMessage;
+        const result = await chat.sendMessage(promptToSend);
+        const responseText = result.response.text();
+        if (responseText) {
+          return { text: responseText.trim(), model: modelName };
+        }
+      } else {
+        // Single prompt generation
+        const fullPrompt = `${contextPrompt}${userMessage}`;
+        const result = await model.generateContent({
+          contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 1000
+          }
+        });
+
+        const responseText = result.response.text();
+        if (responseText) {
+          return { text: responseText.trim(), model: modelName };
+        }
+      }
+    } catch (err) {
+      console.error(`[Zulu Gemini SDK Error on ${modelName}]:`, err.message);
+      // Try next candidate model
+      continue;
+    }
+  }
+
+  // Fallback to direct REST API if SDK encountered issues
+  try {
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-    const response = await fetch(endpoint, {
+    const restResponse = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [
           {
             role: 'user',
-            parts: [{ text: `${SYSTEM_INSTRUCTION}\n\n${prompt}` }]
+            parts: [{ text: `${ZULU_SYSTEM_INSTRUCTION}\n\n${contextPrompt}${userMessage}` }]
           }
         ],
         generationConfig: {
           temperature: 0.7,
-          maxOutputTokens: 600
+          maxOutputTokens: 1000
         }
       })
     });
 
-    if (!response.ok) {
-      console.warn(`[Zulu Gemini API] Request failed with status: ${response.status}`);
-      return null;
+    if (restResponse.ok) {
+      const data = await restResponse.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (text) {
+        return { text: text.trim(), model: 'gemini-1.5-flash-rest' };
+      }
+    } else {
+      console.error('[Zulu Gemini REST API Error]: Status', restResponse.status);
     }
-
-    const data = await response.json();
-    const candidateText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    return candidateText ? candidateText.trim() : null;
-  } catch (err) {
-    console.warn('[Zulu Gemini API Error]:', err.message);
-    return null;
+  } catch (restErr) {
+    console.error('[Zulu Gemini REST Call Failed]:', restErr.message);
   }
+
+  return null;
 }
 
 /**
- * Domain-Aware Offline Intelligence Engine
+ * Intelligent Guided Assistant response when Google API key is pending configuration
  */
-function getDomainFallback(message, context = {}) {
-  const lower = message.toLowerCase().trim();
+function getSystemGuidance(userMessage, studentContext) {
+  return `Namaste! 🌿 I am **Zulu**, your AI Career & Research Counselor for the Ministry of Ayush & AIIA collaboration bridge.
 
-  // Greetings
-  if (lower === 'hi' || lower === 'hello' || lower === 'hey' || lower.startsWith('hello') || lower.startsWith('hi zulu')) {
-    return `Namaste! 🌿 I am **Zulu**, your AI Career & Research Counselor for the Ayush sector. How can I assist you today? You can ask me about:
-• Closing your skill gaps for **Dabur** or **Himalaya**
-• Finding paid **Micro-Gigs** (task bounties)
-• How **Anti-Decay XP** protects your verified credentials
-• Recommending your next **Career Roadmap** milestone`;
-  }
+To connect live real-time conversational responses with Google's Gemini models, please configure your **Google Gemini API Key** in the project's \`.env\` file:
+\`\`\`env
+GEMINI_API_KEY=your_actual_google_api_key_here
+\`\`\`
 
-  // Resume & Skill Gap Analysis
-  if (lower.includes('resume') || lower.includes('cv') || lower.includes('gap') || lower.includes('analyze')) {
-    return `### 📄 Resume Gap Discovery
-To analyze your CV against real industry criteria:
-1. Navigate to the **AI Resume Analyzer** tab on your portal.
-2. Paste your CV or upload your credentials, and select your target role (e.g., *Herbal Formulation Scientist*).
-3. The platform cross-references your text against **Dabur** and **Patanjali** hiring standards.
-4. Any missing skills (like *HPTLC Fingerprinting* or *GLP Compliance*) are automatically converted into actionable modules in your **Career Roadmap**!`;
-  }
+### 🌟 What I Can Assist You With:
+• **Career Roadmap Acceleration**: Guiding your progression from classical botany to advanced chromatographic analysis (HPTLC/HPLC) and in-silico drug discovery.
+• **AI Resume Gap Discovery**: Cross-referencing your CV against real research hiring criteria from Dabur, Himalaya Wellness, and Patanjali.
+• **Anti-Decay Competency XP**: Keeping your verified credentials active to maintain top placement ranking in recruiter inbound pools.
+• **Academic Syllabus Modernization**: Aligning institution courses with emerging bio-technological industry demands under NEP-2020.
 
-  // Anti-Decay XP & Streak
-  if (lower.includes('decay') || lower.includes('streak') || lower.includes('freeze') || lower.includes('point') || /\bxp\b/.test(lower)) {
-    return `### 🔥 Anti-Decay XP Mechanism
-In JOBLEX, skills reflect active mastery rather than static certificates:
-• If you remain inactive for **72 hours**, your competency points decay at **50 XP/day**.
-• Complete any module, quiz, or simply click **"Daily Check-In"** in your Career Roadmap to freeze decay for 72 hours.
-• Maintaining a **7-Day Streak** grants you priority visibility in the **Reverse Application Inbound Pool** where Dabur recruiters headhunt top candidates directly!`;
-  }
-
-  // HPTLC & Chromatography / Analytical Techniques
-  if (lower.includes('hptlc') || lower.includes('chromatography') || lower.includes('hplc') || lower.includes('spectroscopy')) {
-    return `### 🧪 High-Performance Thin-Layer Chromatography (HPTLC)
-HPTLC is the gold standard for botanical standardization in commercial Ayurveda:
-• **Why It Matters**: 82% of pharma recruiters (Dabur, Himalaya) require HPTLC to verify active phytochemical markers (e.g., *Withanolides* in Ashwagandha or *Curcuminoids* in Turmeric).
-• **How to Learn It**: Complete Phase 2 of your Career Roadmap and enroll in the **Dabur-AIIA 4-Week Rapid HPTLC Bootcamp** listed under your Opportunities Board to earn a verified institutional badge!`;
-  }
-
-  // Micro-Internships / Task-Based Gigs
-  if (lower.includes('micro') || lower.includes('gig') || lower.includes('bounty') || lower.includes('task')) {
-    return `### ⚡ Micro-Internships & Paid Task Gigs
-Micro-gigs allow you to gain verified corporate experience without relocating for months:
-• **Current Top Gig**: *Clean & Standardize 50 Ashwagandha Trial Records* (Dabur Research Labs) — **₹6,000 Task Bounty**.
-• **Duration**: Typically 1 to 2 weeks remote.
-• **Benefit**: Successful submissions are audited by AIIA faculty and immediately added to your verified digital credential ledger!`;
-  }
-
-  // Job & Internship Opportunities / Dabur / Himalaya
-  if (lower.includes('internship') || lower.includes('job') || lower.includes('dabur') || lower.includes('himalaya') || lower.includes('patanjali') || lower.includes('apply')) {
-    return `### 💼 Top Verified Corporate Openings
-Your verified AIIA profile is currently matched with:
-1. **Dabur India Ltd.**: *Phytochemical Research Intern* — ₹22,000/mo (94% Skill Fit).
-2. **Patanjali Research Foundation**: *Formulation Scientist* — ₹8.5 - 12 LPA.
-3. **Ministry of Ayush**: *Ayush AI Innovation Challenge 2026* — ₹3,00,000 Prize Pool.
-Head to the **Opportunities Board** tab to apply with 1-click verified credentials!`;
-  }
-
-  // Reverse Application & Inbound Headhunting
-  if (lower.includes('reverse') || lower.includes('headhunt') || lower.includes('inbound') || lower.includes('invite')) {
-    return `### ⚡ Reverse Application Protocol
-In traditional hiring, students apply and wait. In JOBLEX:
-• Corporate talent teams query our verified competency database for specific skills (e.g., *AutoDock*, *Phytochemistry*, *GLP*).
-• If your **Inbound Recruiter Discovery** toggle in your Portfolio is **Active**, recruiters can directly transmit interview invitations to you—even before you submit an application!`;
-  }
-
-  // Hackathons & Competitions
-  if (lower.includes('hackathon') || lower.includes('challenge') || lower.includes('competition')) {
-    return `### 🏆 Ayush AI Innovation Challenge 2026
-The Ministry of Ayush & AIIA are hosting national innovation challenges:
-• **Prize Bounty**: ₹3,00,000 for top winning prototypes.
-• **Key Focus Areas**: Machine learning Prakriti classification, NLP for ancient Sanskrit medical lexicons, and IoT botanical shelf-life tracking.
-• **How to Join**: Check the Opportunities Board tab to register your team directly!`;
-  }
-
-  // MoUs, Syllabus & NEP 2020
-  if (lower.includes('mou') || lower.includes('syllabus') || lower.includes('curriculum') || lower.includes('nep')) {
-    return `### 🏛️ Academic-Industry Curriculum Sync
-Under the **National Education Policy (NEP-2020)**:
-• When partner pharma companies submit critical skill needs, our AI performs an automated audit on college syllabi.
-• Dean councils receive ready-to-adopt modern syllabus add-ons (such as *In-Silico Molecular Docking* and *Digital Health Informatics*) to keep your coursework aligned with corporate job markets.`;
-  }
-
-  // Quiz Arena & Preparation
-  if (lower.includes('quiz') || lower.includes('arena') || lower.includes('test') || lower.includes('exam')) {
-    return `### 🎯 Quiz Arena Strategy
-Taking quizzes in the **Quiz Arena** validates your practical understanding:
-• Each completed quiz awards **+50 to +100 XP** and extends your Anti-Decay freeze by 24 hours.
-• High scorers (above 80%) unlock the **Verified Skill Badge** on their institutional profile, visible to corporate partners.`;
-  }
-
-  // Default contextual advice
-  return `### 💡 Zulu AI Career Advice
-Regarding **"${message}"**:
-In the modern Ayush bio-economy, the highest-compensated graduates are those who combine **classical Ayurvedic foundations** with **cutting-edge analytical techniques** (HPLC, digital health informatics, and data science).
-
-**Recommended Next Steps**:
-1. Check your **Career Roadmap** for active milestones to earn +100 XP.
-2. Complete a 2-minute refresh quiz to prevent skill decay.
-3. Explore active **Micro-Gigs** to earn paid task bounties while building your verified portfolio!`;
+Once your API key is configured in \`.env\`, every query will be analyzed dynamically by Google Gemini!`;
 }
 
-// POST /api/zulu/chat
+/**
+ * POST /api/zulu/chat
+ * Primary chat endpoint for Zulu AI
+ */
 router.post('/chat', async (req, res) => {
-  const { message = '', context = {} } = req.body || {};
+  try {
+    const { message = '', history = [], context = {} } = req.body || {};
 
-  if (!message.trim()) {
-    return res.status(400).json({ success: false, error: 'Message cannot be empty.' });
-  }
+    const cleanMessage = (typeof message === 'string' ? message : '').trim();
+    if (!cleanMessage) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid question or message for Zulu AI.'
+      });
+    }
 
-  // 1. Attempt Live Gemini LLM if configured
-  const geminiResponse = await queryGemini(message, context);
-  if (geminiResponse) {
+    // 1. Attempt Live Google Gemini Generation
+    const geminiResult = await generateWithGemini(cleanMessage, history, context);
+    if (geminiResult && geminiResult.text) {
+      return res.json({
+        success: true,
+        provider: geminiResult.model,
+        reply: geminiResult.text
+      });
+    }
+
+    // 2. If API Key is not set or temporarily unavailable, provide professional system guidance
+    const guidanceReply = getSystemGuidance(cleanMessage, context);
     return res.json({
       success: true,
-      provider: 'google-gemini-1.5-flash',
-      reply: geminiResponse
+      provider: 'zulu-guided-engine',
+      reply: guidanceReply
+    });
+  } catch (err) {
+    console.error('[Zulu Chat Handler Error]:', err);
+    // Return friendly, safe response without raw backend stack trace
+    return res.status(500).json({
+      success: false,
+      message: 'Zulu AI is currently taking a brief moment to synchronize. Please try asking your question again.'
     });
   }
+});
 
-  // 2. High-grade Domain Fallback Engine
-  const fallbackReply = getDomainFallback(message, context);
-  return res.json({
+/**
+ * GET /api/zulu/status
+ * Health and configuration status of Zulu AI engine
+ */
+router.get('/status', (req, res) => {
+  const hasKey = Boolean(getGeminiApiKey());
+  res.json({
     success: true,
-    provider: 'zulu-domain-engine',
-    reply: fallbackReply
+    engine: 'Zulu AI Career Companion',
+    googleApiConfigured: hasKey,
+    activeModel: hasKey ? 'gemini-1.5-flash / gemini-2.0-flash' : 'guided-engine'
   });
 });
 
