@@ -108,3 +108,40 @@ body {
 .soft-pulse {
   animation: softPulse 3s infinite ease-in-out;
 }
+
+/* =============================================================
+   COLLAPSIBLE SIDEBAR STYLES (Zero Framework / Pure CSS)
+   ============================================================= */
+#student-sidebar {
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s ease !important;
+  width: 16rem !important; /* 256px */
+  overflow: hidden !important;
+}
+
+#student-sidebar.sidebar-collapsed {
+  width: 4.75rem !important; /* 76px */
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+}
+
+#student-sidebar.sidebar-collapsed .sidebar-text-label,
+#student-sidebar.sidebar-collapsed .sidebar-badge-label {
+  display: none !important;
+}
+
+#student-sidebar.sidebar-collapsed .sidebar-nav-btn {
+  justify-content: center !important;
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+  gap: 0 !important;
+}
+
+#student-sidebar.sidebar-collapsed .sidebar-nav-btn span.shrink-0 {
+  font-size: 1.25rem !important;
+  margin: 0 auto !important;
+}
+
+#student-sidebar.sidebar-collapsed #sidebar-collapse-btn {
+  margin: 0 auto !important;
+}
+

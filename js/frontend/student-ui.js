@@ -93,19 +93,27 @@ function applySidebarState(collapsed) {
   if (!sidebar) return;
 
   if (collapsed) {
-    sidebar.classList.add('sidebar-collapsed', 'w-20');
-    sidebar.classList.remove('w-64');
-    if (toggleBtn) toggleBtn.innerHTML = '<span>▶</span>';
-    document.querySelectorAll('.sidebar-text-label').forEach(el => el.classList.add('hidden'));
-    document.querySelectorAll('.sidebar-badge-label').forEach(el => el.classList.add('hidden'));
+    sidebar.classList.add('sidebar-collapsed');
+    if (toggleBtn) {
+      toggleBtn.innerHTML = '<span>▶</span>';
+      toggleBtn.title = 'Expand Sidebar';
+    }
   } else {
-    sidebar.classList.remove('sidebar-collapsed', 'w-20');
-    sidebar.classList.add('w-64');
-    if (toggleBtn) toggleBtn.innerHTML = '<span>◀</span>';
-    document.querySelectorAll('.sidebar-text-label').forEach(el => el.classList.remove('hidden'));
-    document.querySelectorAll('.sidebar-badge-label').forEach(el => el.classList.remove('hidden'));
+    sidebar.classList.remove('sidebar-collapsed');
+    if (toggleBtn) {
+      toggleBtn.innerHTML = '<span>◀</span>';
+      toggleBtn.title = 'Collapse Sidebar';
+    }
   }
 }
+
+// Global window bindings
+window.toggleSidebarCollapse = toggleSidebarCollapse;
+window.initSidebarState = initSidebarState;
+window.applySidebarState = applySidebarState;
+
+// Run immediate init in case script loaded after DOM parsing
+initSidebarState();
 
 function toggleMobileMenu() {
   const drawer = document.getElementById('mobile-drawer');
