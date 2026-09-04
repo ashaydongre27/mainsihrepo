@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JOBLEX - Student Portal | Career Roadmap & AI Gap Engine</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-[#05050a] text-white min-h-screen flex flex-col font-sans relative overflow-x-hidden">
+
+  <!-- 3D Starfield Background -->
+  <div id="three-canvas-container"></div>
+
+  <!-- Top Sticky Navbar -->
+  <header class="sticky top-0 z-40 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 border-b border-gray-800 bg-[#080814]/95 backdrop-blur-md shrink-0">
+    <div class="flex items-center gap-3">
+      <!-- Mobile Hamburger Button -->
+      <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-xl bg-gray-900 border border-purple-500/30 text-purple-300 text-xs font-bold flex items-center gap-1.5" aria-label="Toggle Navigation Menu">
+        ☰ Modules
+      </button>
+
+      <a href="index.html" class="cursor-pointer flex items-center gap-2 group">
+        <div class="w-2.5 h-6 sm:h-7 bg-purple-500 rounded-sm shadow-[0_0_10px_#a855f7] group-hover:scale-110 transition"></div>
+        <div>
+          <span class="text-lg sm:text-xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-300 uppercase">
+            JOBLEX
+          </span>
+          <span class="hidden sm:block text-[9px] text-gray-400 tracking-widest uppercase font-semibold">
+            Student Portal
+          </span>
+        </div>
+      </a>
+    </div>
+
+    <!-- User Status Metrics & Actions -->
+    <div class="flex items-center gap-2 sm:gap-3">
+      <!-- Language Switcher (Idea #13) -->
+      <button onclick="JoblexAPI.setLang(JoblexAPI.getLang() === 'en' ? 'hi' : 'en')" class="text-[11px] sm:text-xs px-2.5 py-1 rounded-xl bg-gray-900 border border-purple-500/30 text-purple-200 hover:text-white font-bold transition">
+        🌐 EN / हिंदी
+      </button>
+
+      <div class="flex items-center gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-gray-900/90 border border-purple-500/30 text-[11px] sm:text-xs">
+        <span id="header-xp-badge" class="text-purple-400 font-bold">🔥 1450 XP</span>
+        <span class="text-gray-600 hidden sm:inline">|</span>
+        <span id="header-streak-badge" class="text-cyan-400 font-semibold hidden sm:inline">🎯 7-Day Streak</span>
+      </div>
+
+      <div class="hidden md:flex items-center gap-2 px-2.5 py-1 rounded-xl bg-gray-900/90 border border-gray-800 text-xs">
+        <div class="w-5 h-5 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center font-bold text-white text-[10px]">
+          A
+        </div>
+        <span class="font-semibold text-gray-200 user-name-display">Ashay Verma</span>
+      </div>
+
+      <a href="auth.html" class="text-[11px] sm:text-xs px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-purple-900/30 hover:bg-purple-900/60 border border-purple-500/40 text-purple-300 font-bold transition">
+        Switch
+      </a>
+      <a href="index.html" class="text-[11px] sm:text-xs px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 font-medium transition">
+        Hub ↵
+      </a>
+    </div>
+  </header>
+
+  <!-- Skill Decay Alert Banner (Idea #1) -->
+  <div id="skill-decay-alert-banner" class="bg-gradient-to-r from-amber-950/90 via-purple-950/80 to-blue-950/90 border-b border-amber-500/40 px-4 sm:px-8 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs z-30 relative">
+    <div class="flex items-center gap-2">
+      <span class="text-base animate-pulse">⚠️</span>
+      <span class="text-gray-200">
+        <strong class="text-amber-300">Skill Decay Warning:</strong> Your <em>Good Laboratory Practice (GLP)</em> competency was certified 6 months ago. Industry GLP standards have been updated.
+      </span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="triggerQuickRefreshQuiz()" class="px-3 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold transition">
+        Take 2-Min Refresh Quiz (+50 XP)
+      </button>
+      <button onclick="dismissDecayAlert()" class="text-gray-400 hover:text-white text-sm">✕</button>
+    </div>
+  </div>
+
+  <!-- Mobile Quick-Pills Navigation Bar -->
+  <div class="lg:hidden flex overflow-x-auto gap-2 px-3 py-2 bg-[#0a0a16] border-b border-gray-800/80 no-scrollbar z-30 shrink-0">
+    <button data-module="Roadmap" onclick="switchModule('Roadmap')" class="quick-pill-btn whitespace-nowrap px-3 py-1 rounded-lg text-xs font-bold transition-all border bg-purple-600 text-white border-purple-400 shadow-sm">🗺️ Roadmap</button>
+    <button data-module="Resume" onclick="switchModule('Resume')" class="quick-pill-btn whitespace-nowrap px-3 py-1 rounded-lg text-xs font-bold transition-all border bg-gray-900 text-gray-400 border-gray-800 hover:text-white">📄 Resume AI</button>
+    <button data-module="Dashboard" onclick="switchModule('Dashboard')" class="quick-pill-btn whitespace-nowrap px-3 py-1 rounded-lg text-xs font-bold transition-all border bg-gray-900 text-gray-400 border-gray-800 hover:text-white">📊 Overview</button>
+    <button data-module="Quiz" onclick="switchModule('Quiz')" class="quick-pill-btn whitespace-nowrap px-3 py-1 rounded-lg text-xs font-bold transition-all border bg-gray-900 text-gray-400 border-gray-800 hover:text-white">⚡ Quiz</button>
+    <button data-module="Opportunities" onclick="switchModule('Opportunities')" class="quick-pill-btn whitespace-nowrap px-3 py-1 rounded-lg text-xs font-bold transition-all border bg-gray-900 text-gray-400 border-gray-800 hover:text-white">💼 Opportunities</button>
+    <button data-module="Zulu" onclick="switchModule('Zulu')" class="quick-pill-btn whitespace-nowrap px-3 py-1 rounded-lg text-xs font-bold transition-all border bg-gray-900 text-gray-400 border-gray-800 hover:text-white">🤖 Zulu AI</button>
+    <button data-module="SkillTree" onclick="switchModule('SkillTree')" class="quick-pill-btn whitespace-nowrap px-3 py-1 rounded-lg text-xs font-bold transition-all border bg-gray-900 text-gray-400 border-gray-800 hover:text-white">🌐 Skill Tree</button>
+    <button data-module="Portfolio" onclick="switchModule('Portfolio')" class="quick-pill-btn whitespace-nowrap px-3 py-1 rounded-lg text-xs font-bold transition-all border bg-gray-900 text-gray-400 border-gray-800 hover:text-white">🏆 Portfolio</button>
+  </div>
+
+  <!-- Main Container -->
+  <div class="flex flex-1 relative z-10 min-h-[calc(100vh-115px)] lg:min-h-[calc(100vh-60px)]">
+
+    <!-- MOBILE SLIDE-OUT DRAWER -->
+    <div id="mobile-drawer" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 lg:hidden hidden" onclick="closeMobileMenu()">
+      <div class="w-72 max-w-[85vw] h-full bg-[#080814] border-r border-purple-500/30 p-4 flex flex-col justify-between overflow-y-auto" onclick="event.stopPropagation()">
+        <div class="space-y-2">
+          <div class="flex justify-between items-center px-2 pb-3 border-b border-gray-800">
+            <span class="text-xs uppercase tracking-wider text-purple-400 font-bold">Student Modules</span>
+            <button onclick="closeMobileMenu()" class="p-1 rounded-lg text-gray-400 hover:text-white">✕</button>
+          </div>
+          <div class="space-y-1 pt-1">
+            <button onclick="switchModule('Roadmap')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold text-gray-300 hover:bg-white/5">
+              <span>🗺️ Career Roadmap</span>
+              <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-500 text-white">Anti-Decay</span>
+            </button>
+            <button onclick="switchModule('Resume')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold text-gray-300 hover:bg-white/5">
+              <span>📄 AI Resume Analyzer</span>
+              <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-500 text-white">AI Tool</span>
+            </button>
+            <button onclick="switchModule('Dashboard')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold text-gray-300 hover:bg-white/5">
+              <span>📊 Student Overview</span>
+            </button>
+            <button onclick="switchModule('Quiz')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold text-gray-300 hover:bg-white/5">
+              <span>⚡ Quiz Arena</span>
+              <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-500 text-white">+XP</span>
+            </button>
+            <button onclick="switchModule('Opportunities')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold text-gray-300 hover:bg-white/5">
+              <span>💼 Opportunities & Micro-Gigs</span>
+              <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-blue-500 text-white">New Gigs</span>
+            </button>
+            <button onclick="switchModule('Zulu')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold text-gray-300 hover:bg-white/5">
+              <span>🤖 Zulu AI Companion</span>
+            </button>
+            <button onclick="switchModule('SkillTree')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold text-gray-300 hover:bg-white/5">
+              <span>🌐 Skill Constellation</span>
+            </button>
+            <button onclick="switchModule('Portfolio')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold text-gray-300 hover:bg-white/5">
+              <span>🏆 Verified Portfolio</span>
+            </button>
+          </div>
+        </div>
+        <div class="pt-4 border-t border-gray-800">
+          <button onclick="JoblexAPI.logout()" class="w-full py-2 rounded-lg text-center text-xs font-semibold text-gray-400 hover:text-red-400 hover:bg-red-950/20 transition">
+            Sign Out
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DESKTOP PINNED SIDEBAR -->
+    <aside class="hidden lg:flex w-64 bg-[#080812]/90 border-r border-gray-800/80 backdrop-blur-md p-4 flex-col justify-between shrink-0">
+      <div class="space-y-1">
+        <div class="px-3 py-1.5 text-[11px] uppercase tracking-wider text-purple-400 font-bold">
+          Student Modules
+        </div>
+
+        <button data-module="Roadmap" onclick="switchModule('Roadmap')" class="sidebar-nav-btn w-full flex flex-col items-start px-3.5 py-2 rounded-xl text-left transition-all bg-purple-600/25 border border-purple-500/80 text-purple-100 shadow-[0_0_15px_rgba(168,85,247,0.25)]">
+          <div class="flex items-center justify-between w-full">
+            <span class="font-bold text-xs text-white">🗺️ Career Roadmap</span>
+            <span class="text-[9px] font-black px-1.5 py-0.5 rounded-full bg-purple-500 text-white">Anti-Decay</span>
+          </div>
+          <span class="text-[11px] text-gray-400 mt-0.5">Milestones & Tasks</span>
+        </button>
+
+        <button data-module="Resume" onclick="switchModule('Resume')" class="sidebar-nav-btn w-full flex flex-col items-start px-3.5 py-2 rounded-xl text-left transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <div class="flex items-center justify-between w-full">
+            <span class="font-bold text-xs text-white">📄 AI Resume Analyzer</span>
+            <span class="text-[9px] font-black px-1.5 py-0.5 rounded-full bg-gray-800 text-purple-300">AI Tool</span>
+          </div>
+          <span class="text-[11px] text-gray-400 mt-0.5">Gap discovery & sync</span>
+        </button>
+
+        <button data-module="Dashboard" onclick="switchModule('Dashboard')" class="sidebar-nav-btn w-full flex flex-col items-start px-3.5 py-2 rounded-xl text-left transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <div class="flex items-center justify-between w-full">
+            <span class="font-bold text-xs text-white">📊 Student Overview</span>
+          </div>
+          <span class="text-[11px] text-gray-400 mt-0.5">Peer benchmarks & KPIs</span>
+        </button>
+
+        <button data-module="Quiz" onclick="switchModule('Quiz')" class="sidebar-nav-btn w-full flex flex-col items-start px-3.5 py-2 rounded-xl text-left transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <div class="flex items-center justify-between w-full">
+            <span class="font-bold text-xs text-white">⚡ Quiz Arena</span>
+            <span class="text-[9px] font-black px-1.5 py-0.5 rounded-full bg-gray-800 text-purple-300">+XP</span>
+          </div>
+          <span class="text-[11px] text-gray-400 mt-0.5">Knowledge tests</span>
+        </button>
+
+        <button data-module="Opportunities" onclick="switchModule('Opportunities')" class="sidebar-nav-btn w-full flex flex-col items-start px-3.5 py-2 rounded-xl text-left transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <div class="flex items-center justify-between w-full">
+            <span class="font-bold text-xs text-white">💼 Opportunities & Micro-Gigs</span>
+            <span class="text-[9px] font-black px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300">Gigs</span>
+          </div>
+          <span class="text-[11px] text-gray-400 mt-0.5">Internships & Task Gigs</span>
+        </button>
+
+        <button data-module="Zulu" onclick="switchModule('Zulu')" class="sidebar-nav-btn w-full flex flex-col items-start px-3.5 py-2 rounded-xl text-left transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <div class="flex items-center justify-between w-full">
+            <span class="font-bold text-xs text-white">🤖 Zulu AI Companion</span>
+          </div>
+          <span class="text-[11px] text-gray-400 mt-0.5">24/7 AI Counselor</span>
+        </button>
+
+        <button data-module="SkillTree" onclick="switchModule('SkillTree')" class="sidebar-nav-btn w-full flex flex-col items-start px-3.5 py-2 rounded-xl text-left transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <div class="flex items-center justify-between w-full">
+            <span class="font-bold text-xs text-white">🌐 Skill Constellation</span>
+          </div>
+          <span class="text-[11px] text-gray-400 mt-0.5">Visual 2D tree</span>
+        </button>
+
+        <button data-module="Portfolio" onclick="switchModule('Portfolio')" class="sidebar-nav-btn w-full flex flex-col items-start px-3.5 py-2 rounded-xl text-left transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <div class="flex items-center justify-between w-full">
+            <span class="font-bold text-xs text-white">🏆 Verified Portfolio</span>
+          </div>
+          <span class="text-[11px] text-gray-400 mt-0.5">QR Verified Credentials</span>
+        </button>
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="mt-6 pt-4 border-t border-gray-800/80 space-y-2">
+        <div class="p-3 rounded-xl bg-purple-950/20 border border-purple-500/20 text-xs text-purple-200">
+          <span class="font-bold block mb-0.5">Ministry of Ayush Network</span>
+          <p class="text-[10px] text-gray-400 leading-tight">All India Institute of Ayurveda Affiliated Placement Hub.</p>
+        </div>
+        <button onclick="JoblexAPI.logout()" class="w-full py-1.5 rounded-lg text-center text-xs font-semibold text-gray-400 hover:text-red-400 hover:bg-red-950/20 transition">
+          Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT WORKSPACE -->
+    <main class="flex-1 overflow-y-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 custom-scrollbar">
+      <div class="max-w-5xl mx-auto space-y-6 pb-12 w-full">
+
+        <!-- ========================================================= -->
+        <!-- MODULE 1: CAREER ROADMAP (Default)                       -->
+        <!-- ========================================================= -->
+        <section id="module-Roadmap" class="student-module-section space-y-5">
+          <!-- Banner & Streak Header -->
+          <div class="p-5 sm:p-7 rounded-3xl bg-gradient-to-r from-purple-900/50 via-indigo-900/40 to-blue-900/40 border border-purple-500/40 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="space-y-1">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/50 text-cyan-300 text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                Anti-Decay Preservation Engine Active
+              </div>
+              <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Interactive Career Roadmap</h2>
+              <p class="text-gray-300 text-xs sm:text-sm max-w-xl leading-relaxed">
+                Complete verified lab tasks to advance your Ayush industry tier. Inactive skills undergo weekly point decay unless preserved.
+              </p>
+            </div>
+
+            <!-- Daily Checkin Button -->
+            <div class="flex flex-col items-start md:items-end gap-2 shrink-0">
+              <button id="streak-checkin-btn" onclick="handleCheckIn()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-black text-xs uppercase tracking-wider shadow-lg transition hover:scale-105">
+                ❄️ Daily Check-In (+50 XP)
+              </button>
+              <span id="streak-freeze-status" class="text-[11px] text-gray-300 font-medium">
+                Freezes decay for 72h upon check-in
+              </span>
+            </div>
+          </div>
+
+          <!-- Overall Progress Bar -->
+          <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
+            <div class="w-full sm:w-auto">
+              <span class="text-xs text-gray-400 block font-bold uppercase tracking-wider">Roadmap Completion</span>
+              <span id="roadmap-overall-percent" class="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-300">22% Complete</span>
+            </div>
+            <div class="w-full sm:flex-1 h-3 bg-gray-950 rounded-full overflow-hidden border border-gray-800 p-0.5">
+              <div id="roadmap-overall-bar" class="h-full rounded-full bg-gradient-to-r from-purple-500 via-indigo-500 to-cyan-400 progress-bar-fill" style="width: 22%;"></div>
+            </div>
+          </div>
+
+          <!-- Milestone Phases Container -->
+          <div id="roadmap-phases-container" class="space-y-4">
+            <!-- Rendered dynamically by student.js -->
+          </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- MODULE 2: AI RESUME ANALYZER                             -->
+        <!-- ========================================================= -->
+        <section id="module-Resume" class="student-module-section hidden space-y-6">
+          <div class="p-5 sm:p-7 rounded-3xl bg-gradient-to-r from-purple-900/50 via-indigo-900/40 to-blue-900/40 border border-purple-500/40 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/50 text-purple-300 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
+                AI Competency Engine
+              </div>
+              <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">AI Resume & Skill Gap Analyzer</h2>
+              <p class="text-gray-300 text-xs sm:text-sm max-w-xl leading-relaxed">
+                Benchmark your CV against real-time Ministry of Ayush & Pharma hiring criteria to find missing competencies.
+              </p>
+            </div>
+            <div class="flex flex-wrap gap-2 shrink-0">
+              <button onclick="loadSampleResume('herbal')" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 transition">
+                Load Herbal CV
+              </button>
+              <button onclick="loadSampleResume('tech')" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-blue-600/30 hover:bg-blue-600/50 text-blue-200 border border-blue-500/40 transition">
+                Load HealthTech CV
+              </button>
+            </div>
+          </div>
+
+          <!-- Input Controls -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div class="lg:col-span-2 p-5 sm:p-7 rounded-3xl bg-gray-900/80 border border-gray-800 backdrop-blur-xl space-y-4 shadow-xl">
+              <div>
+                <label class="block text-xs sm:text-sm font-bold text-gray-200 mb-1.5">Target Industry Career Role</label>
+                <select id="resume-role-select" class="w-full p-3 rounded-xl bg-gray-950 border border-purple-500/50 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                  <option value="Herbal Formulation Scientist">Herbal Formulation Scientist (Dabur / Patanjali / Aimil)</option>
+                  <option value="Quality Control & Regulatory Affairs Analyst">Quality Control & Regulatory Affairs Analyst</option>
+                  <option value="Ayush Health-Tech & NLP Informatics Specialist">Ayush Health-Tech & NLP Informatics Specialist</option>
+                  <option value="Clinical Trial Research Associate (Ayurveda)">Clinical Trial Research Associate (Ayurveda)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs sm:text-sm font-bold text-gray-200 mb-1.5">Paste Resume / CV Content</label>
+                <textarea id="resume-textarea" rows="7" class="w-full p-3 rounded-xl bg-gray-950 border border-gray-700 text-xs sm:text-sm text-gray-100 font-mono focus:outline-none focus:ring-2 focus:ring-purple-500 leading-relaxed"></textarea>
+              </div>
+
+              <button id="resume-analyze-btn" onclick="runResumeAnalysis()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs sm:text-sm shadow-md transition">
+                ⚡ Run AI Gap Analysis
+              </button>
+            </div>
+
+            <!-- Benchmark Standards Card -->
+            <div class="p-5 sm:p-6 rounded-3xl bg-gray-900/80 border border-purple-500/20 backdrop-blur-xl flex flex-col justify-between shadow-xl">
+              <div>
+                <h3 class="text-base font-bold text-white mb-2 flex items-center gap-1.5">
+                  <span>🏛️</span> Industry Benchmarks
+                </h3>
+                <p class="text-xs text-gray-300 mb-3">Established via bilateral MoUs with <strong>Dabur Research Labs</strong> & <strong>AIIA</strong>:</p>
+                <ul class="space-y-2 text-xs text-gray-300">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span> Good Laboratory Practice (GLP)</li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span> HPTLC Fingerprint Profiling</li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span> Computational Herbal Chemistry</li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span> Clinical Documentation (GCP)</li>
+                </ul>
+              </div>
+              <div class="mt-4 p-3 rounded-xl bg-purple-950/30 border border-purple-500/20 text-[11px] text-purple-200">
+                💡 Identified gaps will be synced into your active roadmap milestones.
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic Analysis Results -->
+          <div id="resume-results-container" class="hidden space-y-5 animate-fade-in">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+              <div class="p-4 sm:p-5 rounded-2xl bg-gray-900/80 border border-purple-500/40 text-center shadow-md">
+                <span class="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wider font-bold">Match Score</span>
+                <div id="analysis-match-score" class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 mt-1">78%</div>
+                <span id="analysis-benchmark-score" class="text-xs text-purple-300 mt-1 block font-medium">Industry Benchmark: 85%</span>
+              </div>
+              <div class="p-4 sm:p-5 rounded-2xl bg-gray-900/80 border border-emerald-500/40 text-center shadow-md">
+                <span class="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wider font-bold">Verified Strengths</span>
+                <div id="analysis-verified-count" class="text-3xl sm:text-4xl font-black text-emerald-400 mt-1">4</div>
+                <span class="text-xs text-emerald-300 mt-1 block font-medium">Competencies Found</span>
+              </div>
+              <div class="p-4 sm:p-5 rounded-2xl bg-gray-900/80 border border-amber-500/40 text-center shadow-md">
+                <span class="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wider font-bold">Missing Gaps</span>
+                <div id="analysis-missing-count" class="text-3xl sm:text-4xl font-black text-amber-400 mt-1">3</div>
+                <span class="text-xs text-amber-300 mt-1 block font-medium">Needs Training</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+              <div class="p-5 sm:p-6 rounded-2xl bg-gray-900/80 border border-emerald-500/40 shadow-md space-y-3">
+                <h3 class="text-lg font-bold text-emerald-300 flex items-center gap-1.5">
+                  <span>✅</span> Verified Strengths
+                </h3>
+                <div id="analysis-strengths-box" class="flex flex-wrap gap-2 mb-2"></div>
+              </div>
+
+              <div class="p-5 sm:p-6 rounded-2xl bg-gray-900/80 border border-amber-500/40 shadow-md space-y-3">
+                <h3 class="text-lg font-bold text-amber-300 flex items-center gap-1.5">
+                  <span>⚠️</span> Critical Missing Gaps
+                </h3>
+                <div id="analysis-gaps-box" class="flex flex-wrap gap-2 mb-2"></div>
+              </div>
+            </div>
+
+            <div class="p-5 sm:p-6 rounded-2xl bg-purple-900/25 border border-purple-500/40 backdrop-blur-xl shadow-md space-y-4">
+              <h3 class="text-lg font-bold text-purple-200 flex items-center gap-1.5">
+                <span>🎯</span> AI Action Plan & Recommended Interventions
+              </h3>
+              <ul id="analysis-recs-list" class="space-y-2"></ul>
+
+              <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-purple-500/20">
+                <span class="text-xs text-gray-300">Incorporate these customized gap modules into your active Career Roadmap.</span>
+                <button id="sync-roadmap-btn" onclick="syncGapsWithRoadmap()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition shadow-md whitespace-nowrap">
+                  🔄 Sync Gaps with Roadmap
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- MODULE 3: STUDENT OVERVIEW DASHBOARD                     -->
+        <!-- ========================================================= -->
+        <section id="module-Dashboard" class="student-module-section hidden space-y-6">
+          <div class="p-5 sm:p-8 rounded-3xl bg-gradient-to-r from-purple-900/40 via-indigo-900/30 to-blue-900/30 border border-purple-500/30 backdrop-blur-md relative overflow-hidden shadow-xl">
+            <h1 class="text-2xl sm:text-3xl font-black mb-1 text-white">Welcome back, <span class="user-name-display">Ashay Verma</span></h1>
+            <p class="text-xs sm:text-sm text-gray-300">
+              Ayurvedic Pharmacology & Data Science • All India Institute of Ayurveda (AIIA), New Delhi
+            </p>
+            <div class="mt-5 flex flex-wrap gap-2.5">
+              <button onclick="switchModule('Roadmap')" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition shadow-md flex items-center gap-1.5">
+                <span>🗺️ Open Career Roadmap</span>
+                <span>➔</span>
+              </button>
+              <button onclick="switchModule('Resume')" class="px-4 py-2 rounded-xl bg-gray-900 hover:bg-gray-800 text-gray-200 text-xs font-semibold border border-gray-700 transition">
+                Upload Resume for AI Gap Analysis
+              </button>
+            </div>
+          </div>
+
+          <!-- Stats Row -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="p-5 rounded-2xl bg-gray-900/60 border border-gray-800 backdrop-blur-md shadow-md">
+              <span class="text-xs text-gray-400 block mb-1 font-medium">Skills Assessed & Verified</span>
+              <div class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-300">12</div>
+              <span class="text-[11px] text-gray-400 mt-1 block">Verified by Academic Faculty</span>
+            </div>
+            <div class="p-5 rounded-2xl bg-gray-900/60 border border-gray-800 backdrop-blur-md shadow-md">
+              <span class="text-xs text-gray-400 block mb-1 font-medium">Quizzes Cleared</span>
+              <div class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-300">8</div>
+              <span class="text-[11px] text-gray-400 mt-1 block">Average Score: 86%</span>
+            </div>
+            <div class="p-5 rounded-2xl bg-gray-900/60 border border-gray-800 backdrop-blur-md shadow-md">
+              <span class="text-xs text-gray-400 block mb-1 font-medium">Active Applications</span>
+              <div class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-300">3</div>
+              <span class="text-[11px] text-emerald-400 mt-1 block">1 Shortlisted by Dabur</span>
+            </div>
+          </div>
+
+          <!-- PEER BENCHMARKING WIDGET (Idea #2) -->
+          <div class="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-indigo-950/60 via-purple-950/60 to-gray-900/80 border border-purple-500/30 backdrop-blur-xl shadow-lg space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+              <div class="flex items-center gap-2">
+                <span class="text-2xl">👥</span>
+                <div>
+                  <h3 class="text-base sm:text-lg font-bold text-white">Anonymized Peer Benchmarking (AIIA Cohort)</h3>
+                  <p class="text-xs text-gray-400">See how your verified skills match against peers already hired at Dabur & Himalaya.</p>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-cyan-300 px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/40">
+                Top 22nd Percentile
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+              <div class="p-4 rounded-2xl bg-black/40 border border-gray-800 space-y-2">
+                <span class="text-xs text-gray-400 font-bold uppercase tracking-wider block">Cohort Comparison</span>
+                <div id="peer-score-diff" class="text-sm sm:text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-300">
+                  You: 78% vs Placed Peers: 86%
+                </div>
+                <p class="text-[11px] text-gray-400">Peers who secured offers at Dabur India & Patanjali average an 86% competence rating in analytical phytochemistry.</p>
+              </div>
+
+              <div class="p-4 rounded-2xl bg-black/40 border border-gray-800 space-y-2">
+                <span class="text-xs text-gray-400 font-bold uppercase tracking-wider block">Top Skills Placed Peers Have (That You Don't)</span>
+                <div id="peer-missing-skills-list" class="space-y-1.5">
+                  <!-- Rendered by js/student.js -->
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-end pt-1">
+              <button onclick="syncPeerSkillsToRoadmap()" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition shadow-sm">
+                + Sync Missing Peer Skills to Roadmap
+              </button>
+            </div>
+          </div>
+
+          <!-- FAILURE-AWARE RECOMMENDATION LOOP (Idea #5) -->
+          <div class="p-5 rounded-3xl bg-gray-900/80 border border-cyan-500/30 backdrop-blur-xl shadow-lg space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">🔄</span>
+                <h4 class="font-bold text-sm text-cyan-300">Application Feedback Loop: Dabur Formulation Associate</h4>
+              </div>
+              <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-cyan-950 text-cyan-200 border border-cyan-500/40">
+                Self-Improving Engine
+              </span>
+            </div>
+            <p class="text-xs text-gray-300 leading-relaxed">
+              <strong>Automated Interview Debrief:</strong> Candidate demonstrated strong botanical taxonomy, but lacked <em>Chromatographic HPLC Stability Profiling</em>. 
+              <strong>Remediation Action:</strong> 1 interactive HPTLC Chromatography module was automatically added to your Phase 2 Career Roadmap to close this gap for future hiring cycles!
+            </p>
+          </div>
+
+          <!-- Live Industry Demands -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="p-5 rounded-2xl bg-gray-900/60 border border-purple-500/20 backdrop-blur-md space-y-3">
+              <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                <span>🔥</span> High-Demand Industry Skills
+              </h3>
+              <p class="text-xs text-gray-400">Live requirements submitted by pharma corporate partners:</p>
+              <div class="space-y-2">
+                <div class="flex justify-between items-center p-3 rounded-xl bg-black/40 border border-gray-800 text-xs">
+                  <span class="font-medium text-white">HPTLC & Chromatography</span>
+                  <span class="text-emerald-400 font-bold">+25% hiring surge</span>
+                </div>
+                <div class="flex justify-between items-center p-3 rounded-xl bg-black/40 border border-gray-800 text-xs">
+                  <span class="font-medium text-white">Computational Phytochemistry</span>
+                  <span class="text-purple-300 font-bold">New MoU Need</span>
+                </div>
+                <div class="flex justify-between items-center p-3 rounded-xl bg-black/40 border border-gray-800 text-xs">
+                  <span class="font-medium text-white">Clinical Trial Protocols (GCP)</span>
+                  <span class="text-cyan-300 font-bold">High Demand</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-gray-900/60 border border-purple-500/20 backdrop-blur-md flex flex-col justify-between">
+              <div>
+                <h3 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
+                  <span>🤖</span> Ask Zulu AI Counselor
+                </h3>
+                <p class="text-xs text-gray-300 leading-relaxed mb-4">
+                  Get personalized guidance on which elective subjects improve your placement odds and prepare for technical interviews.
+                </p>
+              </div>
+              <button onclick="switchModule('Zulu')" class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-xs shadow-md hover:opacity-95 transition">
+                Open Zulu AI Companion ➔
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- MODULE 4: QUIZ ARENA                                     -->
+        <!-- ========================================================= -->
+        <section id="module-Quiz" class="student-module-section hidden">
+          <div class="w-full flex flex-col items-center justify-center p-2 sm:p-4">
+            <!-- Intro State -->
+            <div id="quiz-intro-card" class="w-full text-center bg-gray-900/60 p-6 sm:p-10 rounded-2xl border border-purple-500/30 backdrop-blur-md max-w-lg shadow-xl">
+              <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-purple-600 to-cyan-500 rounded-full flex items-center justify-center text-3xl shadow-[0_0_20px_#a855f7] animate-pulse">
+                ⚔️
+              </div>
+              <h2 class="text-2xl sm:text-3xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">Quiz Arena</h2>
+              <p class="text-xs sm:text-sm text-gray-300 mb-6">Test your knowledge across Technology and Ayush domains to earn XP and unlock new skill nodes.</p>
+              <button onclick="startQuiz()" class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg transition transform hover:scale-105">
+                Start Challenge
+              </button>
+            </div>
+
+            <!-- Active Quiz State -->
+            <div id="quiz-active-card" class="w-full max-w-2xl bg-gray-900/60 p-5 sm:p-8 rounded-2xl border border-gray-700 backdrop-blur-md hidden">
+              <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-3">
+                <span id="quiz-question-counter" class="text-purple-400 font-mono font-bold tracking-widest text-xs sm:text-sm">QUESTION 1/5</span>
+                <span id="quiz-score-counter" class="text-cyan-400 font-mono text-xs sm:text-sm">Score: 0</span>
+              </div>
+              <h3 id="quiz-question-text" class="text-base sm:text-lg font-semibold mb-6 text-white leading-snug"></h3>
+              <div id="quiz-options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6"></div>
+              <div class="flex justify-end">
+                <button id="quiz-next-btn" onclick="handleQuizNext()" disabled class="w-full sm:w-auto px-8 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition bg-cyan-600 hover:bg-cyan-500 text-white disabled:bg-gray-700 disabled:text-gray-500">
+                  Next Question ➔
+                </button>
+              </div>
+            </div>
+
+            <!-- Completed Result State -->
+            <div id="quiz-result-card" class="w-full text-center bg-gray-900/80 p-6 sm:p-10 rounded-2xl border border-cyan-500/50 backdrop-blur-md max-w-lg shadow-xl hidden">
+              <h2 class="text-2xl sm:text-3xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Assessment Complete</h2>
+              <div id="quiz-final-score" class="text-4xl sm:text-5xl font-black my-6 text-white">4/5</div>
+              <div class="bg-purple-900/30 border border-purple-500/30 p-3 rounded-xl mb-6 inline-block">
+                <span id="quiz-earned-xp" class="text-purple-400 font-bold text-base">Earned 200 XP 🔥</span>
+              </div>
+              <div>
+                <button onclick="startQuiz()" class="px-6 py-2.5 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-xl transition text-xs sm:text-sm font-semibold text-white">
+                  Retry Quiz
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- MODULE 5: OPPORTUNITIES & MICRO-GIGS (Idea #4)           -->
+        <!-- ========================================================= -->
+        <section id="module-Opportunities" class="student-module-section hidden space-y-5">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div>
+              <h2 class="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">JOBLEX Opportunities & Micro-Gigs</h2>
+              <p class="text-gray-400 text-xs sm:text-sm mt-0.5">Discover full internships, corporate jobs, hackathons, and paid 1-2 week micro-gigs.</p>
+            </div>
+            <div class="flex bg-gray-900/80 p-1 rounded-xl border border-gray-700 overflow-x-auto no-scrollbar self-stretch sm:self-auto">
+              <button data-filter="All" onclick="renderOpportunities('All')" class="opp-filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-700 text-white shadow-sm transition">All</button>
+              <button data-filter="Micro-Gig" onclick="renderOpportunities('Micro-Gig')" class="opp-filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold text-amber-300 hover:text-white transition">⚡ Micro-Gigs (1-2 Wks)</button>
+              <button data-filter="Internship" onclick="renderOpportunities('Internship')" class="opp-filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-white transition">Internship</button>
+              <button data-filter="Job" onclick="renderOpportunities('Job')" class="opp-filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-white transition">Job</button>
+              <button data-filter="Hackathon" onclick="renderOpportunities('Hackathon')" class="opp-filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-white transition">Hackathon</button>
+            </div>
+          </div>
+
+          <div id="opps-cards-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-6">
+            <!-- Rendered dynamically by student.js -->
+          </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- MODULE 6: ZULU AI COMPANION                              -->
+        <!-- ========================================================= -->
+        <section id="module-Zulu" class="student-module-section hidden">
+          <div class="flex flex-col max-w-4xl mx-auto h-[520px] sm:h-[600px] bg-gray-900/80 rounded-2xl border border-purple-500/30 backdrop-blur-xl overflow-hidden shadow-lg w-full">
+            <!-- Header -->
+            <div class="bg-gray-950/80 px-4 py-3 border-b border-purple-500/20 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-500 flex items-center justify-center font-black text-white text-sm relative">
+                  Z
+                  <div class="absolute bottom-0 right-0 w-2 h-2 bg-emerald-400 border-2 border-gray-900 rounded-full animate-ping"></div>
+                  <div class="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 border-2 border-gray-900 rounded-full"></div>
+                </div>
+                <div>
+                  <h3 class="font-bold text-white text-xs sm:text-sm flex items-center gap-1.5">
+                    Zulu AI Counselor
+                    <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40">Active</span>
+                  </h3>
+                  <p class="text-[10px] text-purple-300/80">Context-Aware Career Guidance & Skill Mapping</p>
+                </div>
+              </div>
+              <span class="hidden sm:block text-[11px] text-gray-400">Powered by Google AI Studio</span>
+            </div>
+
+            <!-- Messages Stream -->
+            <div id="zulu-messages-box" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+              <div class="flex justify-start">
+                <div class="max-w-[85%] p-3.5 rounded-2xl bg-gray-900/90 border border-purple-500/30 text-gray-100 rounded-bl-none text-xs sm:text-sm leading-relaxed shadow-sm">
+                  Greetings! I am Zulu, your AI Career & Skill Intelligence Companion for the Ayush & HealthTech sectors. How can I assist with your career roadmap, skill gaps, or industry internships today? 🚀
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Suggestions -->
+            <div class="px-3 py-2 bg-black/40 border-t border-gray-800/80 overflow-x-auto no-scrollbar flex gap-2">
+              <button onclick="sendQuickPrompt('How does the point decay system work?')" class="whitespace-nowrap px-2.5 py-1 rounded-lg bg-gray-800/60 hover:bg-gray-700 text-gray-300 text-[11px] border border-gray-700 transition">How does point decay work?</button>
+              <button onclick="sendQuickPrompt('Which skills does Dabur require for interns?')" class="whitespace-nowrap px-2.5 py-1 rounded-lg bg-gray-800/60 hover:bg-gray-700 text-gray-300 text-[11px] border border-gray-700 transition">What does Dabur require?</button>
+              <button onclick="sendQuickPrompt('How to prepare for Ayush AI Hackathon?')" class="whitespace-nowrap px-2.5 py-1 rounded-lg bg-gray-800/60 hover:bg-gray-700 text-gray-300 text-[11px] border border-gray-700 transition">Ayush AI Hackathon prep</button>
+            </div>
+
+            <!-- Input Form -->
+            <form id="zulu-chat-form" onsubmit="handleZuluSend(event)" class="p-3 bg-gray-950/90 border-t border-purple-500/20 flex gap-2">
+              <input id="zulu-input" type="text" placeholder="Ask Zulu about skills, Dabur internships, electives..." class="flex-1 bg-gray-900 border border-purple-500/30 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-400">
+              <button type="submit" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs sm:text-sm transition shrink-0">
+                Send ➔
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- MODULE 7: 2D SKILL CONSTELLATION MAP                     -->
+        <!-- ========================================================= -->
+        <section id="module-SkillTree" class="student-module-section hidden space-y-4">
+          <div class="p-4 rounded-2xl bg-gray-900/60 border border-purple-500/30">
+            <h3 class="text-base font-bold text-white mb-1">Interactive 2D Skill Constellation</h3>
+            <p class="text-xs text-gray-400">Visual mapping of acquired competencies and prerequisite connections.</p>
+          </div>
+          <div class="w-full h-[450px] sm:h-[550px] bg-gray-950 rounded-2xl border border-gray-800 relative overflow-hidden shadow-inner flex items-center justify-center">
+            <canvas id="skill-tree-canvas" class="w-full h-full"></canvas>
+          </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- MODULE 8: VERIFIED PORTFOLIO & QR VERIFIER (Idea #14)    -->
+        <!-- ========================================================= -->
+        <section id="module-Portfolio" class="student-module-section hidden space-y-6">
+          <div class="bg-gradient-to-r from-gray-900/80 to-purple-900/40 p-5 sm:p-7 rounded-3xl border border-purple-500/30 backdrop-blur-sm flex flex-col sm:flex-row items-center gap-5 shadow-lg">
+            <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-purple-600 to-cyan-500 flex items-center justify-center text-3xl font-bold text-white border-4 border-gray-900 shadow-[0_0_15px_#a855f7] shrink-0">
+              A
+            </div>
+            <div class="flex-1 text-center sm:text-left">
+              <h1 class="text-2xl sm:text-3xl font-bold text-white mb-1 user-name-display">Ashay Verma</h1>
+              <p class="text-sm text-gray-400 mb-3">Student • All India Institute of Ayurveda</p>
+              <div class="flex flex-wrap justify-center sm:justify-start gap-2">
+                <span class="px-3 py-1.5 bg-gray-800/80 rounded-xl border border-gray-700 font-mono text-xs text-purple-400">🔥 1450 XP Points</span>
+                <span class="px-3 py-1.5 bg-gray-800/80 rounded-xl border border-gray-700 font-mono text-xs text-cyan-400">🎯 7-Day Streak</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Institutional Trust & Verification Badge (Idea #14) -->
+          <div class="p-5 rounded-3xl bg-gradient-to-r from-emerald-950/60 via-purple-950/50 to-gray-900 border border-emerald-500/40 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="text-emerald-400 font-black text-xs uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40">
+                  ✓ Verified by Institutional Authority
+                </span>
+                <span class="text-[10px] text-gray-400 font-mono">ID: AIIA-CERT-2026-9842</span>
+              </div>
+              <h3 class="text-base font-bold text-white">Tamper-Proof AIIA Verified Competency Ledger</h3>
+              <p class="text-xs text-gray-300">
+                Corporate recruiters (Dabur, Himalaya) scan this digital credential to verify lab certificates, clinical training hours, and faculty approvals.
+              </p>
+            </div>
+            <div class="p-2.5 rounded-2xl bg-white flex flex-col items-center shrink-0 shadow-lg">
+              <!-- QR Code Mock SVG -->
+              <svg width="70" height="70" viewBox="0 0 100 100" fill="black">
+                <rect width="30" height="30" fill="black"/>
+                <rect x="5" y="5" width="20" height="20" fill="white"/>
+                <rect x="10" y="10" width="10" height="10" fill="black"/>
+                <rect x="70" width="30" height="30" fill="black"/>
+                <rect x="75" y="5" width="20" height="20" fill="white"/>
+                <rect x="80" y="10" width="10" height="10" fill="black"/>
+                <rect y="70" width="30" height="30" fill="black"/>
+                <rect x="5" y="75" width="20" height="20" fill="white"/>
+                <rect x="10" y="80" width="10" height="10" fill="black"/>
+                <rect x="40" y="20" width="10" height="30" fill="black"/>
+                <rect x="45" y="60" width="20" height="15" fill="black"/>
+                <rect x="70" y="70" width="25" height="25" fill="black"/>
+              </svg>
+              <span class="text-[8px] text-gray-900 font-black tracking-tighter uppercase mt-1">Scan to Verify</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div class="lg:col-span-1 space-y-5">
+              <div class="bg-gray-900/60 p-5 rounded-2xl border border-gray-700 shadow-md">
+                <h3 class="text-base font-bold mb-3 border-b border-gray-700 pb-2 text-white">Verified Skills</h3>
+                <div class="space-y-2 text-xs">
+                  <div class="flex justify-between items-center bg-gray-800/50 p-2.5 rounded-xl"><span>Python</span><span>⭐⭐⭐⭐</span></div>
+                  <div class="flex justify-between items-center bg-gray-800/50 p-2.5 rounded-xl"><span>Communication</span><span>⭐⭐⭐⭐</span></div>
+                  <div class="flex justify-between items-center bg-gray-800/50 p-2.5 rounded-xl"><span>Ayurvedic Pharmacognosy</span><span>⭐⭐⭐</span></div>
+                  <div class="flex justify-between items-center bg-gray-800/50 p-2.5 rounded-xl"><span>Data Analysis</span><span>⭐⭐⭐</span></div>
+                  <div class="flex justify-between items-center bg-gray-800/50 p-2.5 rounded-xl"><span>NLP</span><span>⭐⭐</span></div>
+                </div>
+              </div>
+
+              <div class="bg-gray-900/60 p-5 rounded-2xl border border-gray-700 shadow-md">
+                <h3 class="text-base font-bold mb-3 border-b border-gray-700 pb-2 text-white">Achievements</h3>
+                <div class="grid grid-cols-2 gap-3 text-center">
+                  <div class="bg-purple-900/20 p-3 rounded-xl border border-purple-500/20">
+                    <span class="text-2xl mb-1 block">🏆</span>
+                    <span class="text-[11px] text-purple-300 font-medium">Quiz Master</span>
+                  </div>
+                  <div class="bg-cyan-900/20 p-3 rounded-xl border border-cyan-500/20">
+                    <span class="text-2xl mb-1 block">🔥</span>
+                    <span class="text-[11px] text-cyan-300 font-medium">7-Day Streak</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="lg:col-span-2 space-y-5">
+              <div class="bg-gray-900/60 p-5 rounded-2xl border border-gray-700 shadow-md">
+                <h3 class="text-base font-bold mb-3 border-b border-gray-700 pb-2 text-white">Projects</h3>
+                <div class="space-y-3">
+                  <div class="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                    <h4 class="text-sm font-bold text-cyan-400 mb-1">Ayush Herb Identifier App</h4>
+                    <p class="text-gray-400 text-xs mb-3">Mobile application utilizing convolutional neural networks to classify medicinal botanicals from live camera feed.</p>
+                    <div class="flex flex-wrap gap-1.5">
+                      <span class="px-2 py-0.5 bg-gray-900 rounded text-[10px] text-gray-300">Python</span>
+                      <span class="px-2 py-0.5 bg-gray-900 rounded text-[10px] text-gray-300">CNN</span>
+                    </div>
+                  </div>
+                  <div class="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                    <h4 class="text-sm font-bold text-purple-400 mb-1">Clinical Trials Analytics Dashboard</h4>
+                    <p class="text-gray-400 text-xs mb-3">Interactive visualization suite mapping Ayurvedic formulation efficacy metrics against standard control cohorts.</p>
+                    <div class="flex flex-wrap gap-1.5">
+                      <span class="px-2 py-0.5 bg-gray-900 rounded text-[10px] text-gray-300">Data Analysis</span>
+                      <span class="px-2 py-0.5 bg-gray-900 rounded text-[10px] text-gray-300">D3.js</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="js/three-scene.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/student.js"></script>
+</body>
+</html>
