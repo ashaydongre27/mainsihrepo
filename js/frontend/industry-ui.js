@@ -8,7 +8,8 @@
  * 8. Sponsored Skill Bootcamps
  */
 
-let activeIndustryTab = 'Candidates';
+let activeIndustryTab = 'Applications';
+let currentAppFilter = 'All';
 
 const CANDIDATES_DATA = [
   { name: 'Ashay Verma', college: 'All India Institute of Ayurveda', match: 94, skills: ['Herbal Formulation', 'GLP', 'Phytochemistry', 'Python'], status: 'Ready for Interview' },
@@ -19,6 +20,7 @@ const CANDIDATES_DATA = [
 ];
 
 document.addEventListener('DOMContentLoaded', async () => {
+  renderIndustryApplications('All');
   renderCandidates();
   renderTalentForecast();
   renderReverseCandidates('');
@@ -34,13 +36,169 @@ function switchIndustryTab(tabId) {
   const target = document.getElementById(`industry-tab-${tabId}`);
   if (target) target.classList.remove('hidden');
 
+  if (tabId === 'Applications') {
+    renderIndustryApplications(currentAppFilter);
+  }
+
   document.querySelectorAll('.industry-nav-tab').forEach(btn => {
     if (btn.getAttribute('data-tab') === tabId) {
-      btn.className = 'industry-nav-tab pb-2 text-xs sm:text-sm font-bold border-b-2 border-blue-500 text-blue-300 transition whitespace-nowrap';
+      btn.className = 'industry-nav-tab pb-2 text-xs sm:text-sm font-bold border-b-2 border-blue-500 text-blue-300 transition whitespace-nowrap flex items-center gap-1.5';
     } else {
-      btn.className = 'industry-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap';
+      btn.className = 'industry-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap flex items-center gap-1.5';
     }
   });
+}
+
+// ─────────────────────────────────────────────────────────────
+// STUDENT APPLICATIONS RECEIVED (Internships & Jobs)
+// ─────────────────────────────────────────────────────────────
+async function renderIndustryApplications(typeFilter = 'All') {
+  currentAppFilter = typeFilter;
+  const container = document.getElementById('industry-applications-grid');
+  if (!container) return;
+
+  const res = await JoblexApiClient.getIndustryApplications('All', typeFilter);
+  const apps = res.applications || [];
+
+  // Update overall counters
+  const allRes = await JoblexApiClient.getIndustryApplications('All', 'All');
+  const allApps = allRes.applications || [];
+
+  const totalCount = allApps.length;
+  const pendingCount = allApps.filter(a => a.status === 'Pending Review').length;
+  const interviewCount = allApps.filter(a => ['Shortlisted', 'Interview Scheduled', 'Offer Extended'].includes(a.status)).length;
+
+  const badgeEl = document.getElementById('applications-badge-count');
+  if (badgeEl) badgeEl.innerText = totalCount;
+
+  const totalEl = document.getElementById('industry-app-stat-total');
+  if (totalEl) totalEl.innerText = `${totalCount} Dossiers`;
+
+  const pendingEl = document.getElementById('industry-app-stat-pending');
+  if (pendingEl) pendingEl.innerText = `${pendingCount} Candidate${pendingCount === 1 ? '' : 's'}`;
+
+  const interviewEl = document.getElementById('industry-app-stat-interview');
+  if (interviewEl) interviewEl.innerText = `${interviewCount} Candidate${interviewCount === 1 ? '' : 's'}`;
+
+  if (apps.length === 0) {
+    container.innerHTML = `
+      <div class="col-span-full p-8 rounded-3xl bg-gray-900/40 border border-gray-800 text-center space-y-3">
+        <div class="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-xl mx-auto text-blue-400">📥</div>
+        <h4 class="text-base font-bold text-white">No Applications in this category yet</h4>
+        <p class="text-xs text-gray-400 max-w-md mx-auto">When students submit applications from the Internships or Jobs module in the Student Portal, their verified dossiers appear here.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = apps.map(app => {
+    let statusClass = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+    if (app.status === 'Shortlisted') statusClass = 'bg-blue-500/20 text-blue-300 border-blue-500/40';
+    if (app.status === 'Interview Scheduled') statusClass = 'bg-purple-500/20 text-purple-300 border-purple-500/40';
+    if (app.status === 'Offer Extended') statusClass = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
+    if (app.status === 'Rejected') statusClass = 'bg-rose-500/20 text-rose-300 border-rose-500/40';
+
+    const isInternship = app.type === 'Internship' || app.type === 'Micro-Gig';
+
+    return `
+      <div class="p-5 sm:p-6 rounded-3xl bg-gray-900/80 border border-gray-800 hover:border-blue-500/50 transition shadow-lg flex flex-col justify-between space-y-4">
+        <div class="space-y-3">
+          <div class="flex justify-between items-start gap-2">
+            <div>
+              <div class="flex items-center gap-2">
+                <h4 class="text-base font-extrabold text-white">${app.studentName}</h4>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 font-semibold">
+                  🛡️ ${app.verifiedBadge || 'AIIA Verified'}
+                </span>
+              </div>
+              <p class="text-xs text-gray-400 mt-0.5">${app.college}</p>
+            </div>
+            <div class="text-right">
+              <span class="text-sm font-mono font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">
+                ${app.match}% Match
+              </span>
+              <span class="text-[10px] text-gray-500 block">Applied: ${app.appliedDate}</span>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-black/40 border border-gray-800 space-y-1.5">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-gray-400">Position Applied:</span>
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${
+                isInternship ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+              }">${app.type}</span>
+            </div>
+            <div class="font-bold text-white text-xs sm:text-sm">${app.opportunityTitle}</div>
+            <div class="text-[11px] text-blue-300">${app.company}</div>
+          </div>
+
+          <p class="text-xs text-gray-300 italic border-l-2 border-purple-500/60 pl-2.5 py-0.5">
+            "${app.coverNote || 'Application submitted with AIIA verified credentials.'}"
+          </p>
+
+          <div>
+            <span class="text-[10px] text-gray-400 font-semibold block mb-1.5">Verified Institutional Competencies:</span>
+            <div class="flex flex-wrap gap-1.5">
+              ${(app.skills || []).map(s => `
+                <span class="px-2 py-0.5 rounded-md bg-blue-950/40 border border-blue-500/30 text-[11px] text-blue-200">${s}</span>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-gray-800 space-y-2.5">
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-gray-400">Current Status:</span>
+            <span class="px-2.5 py-1 rounded-full text-xs font-bold border ${statusClass}">
+              ${app.status}
+            </span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <button onclick="handleApplicationAction('${app.id}', 'Shortlisted')" class="py-1.5 px-2 rounded-xl text-[11px] font-bold transition ${
+              app.status === 'Shortlisted' 
+                ? 'bg-blue-600 text-white cursor-default' 
+                : 'bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700'
+            }">
+              ${app.status === 'Shortlisted' ? '✓ Shortlisted' : 'Shortlist'}
+            </button>
+            <button onclick="handleApplicationAction('${app.id}', 'Interview Scheduled')" class="py-1.5 px-2 rounded-xl text-[11px] font-bold transition ${
+              app.status === 'Interview Scheduled' 
+                ? 'bg-purple-600 text-white cursor-default' 
+                : 'bg-purple-950/40 hover:bg-purple-900/50 text-purple-200 border border-purple-500/40'
+            }">
+              ${app.status === 'Interview Scheduled' ? '✓ Interviewed' : 'Interview'}
+            </button>
+            <button onclick="handleApplicationAction('${app.id}', 'Offer Extended')" class="py-1.5 px-2 rounded-xl text-[11px] font-bold transition ${
+              app.status === 'Offer Extended' 
+                ? 'bg-emerald-600 text-white cursor-default' 
+                : 'bg-emerald-950/40 hover:bg-emerald-900/50 text-emerald-200 border border-emerald-500/40'
+            }">
+              ${app.status === 'Offer Extended' ? '✓ Offered' : 'Offer'}
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function filterIndustryApplications(type) {
+  document.querySelectorAll('.industry-app-filter-btn').forEach(btn => {
+    btn.className = 'industry-app-filter-btn px-3 py-1 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium text-xs transition';
+  });
+  const activeBtn = document.getElementById(`filter-app-${type}`);
+  if (activeBtn) {
+    activeBtn.className = 'industry-app-filter-btn px-3 py-1 rounded-xl bg-blue-600 text-white font-bold text-xs transition';
+  }
+  renderIndustryApplications(type);
+}
+
+async function handleApplicationAction(appId, newStatus) {
+  const res = await JoblexApiClient.updateApplicationStatus(appId, newStatus);
+  if (res && res.success) {
+    renderIndustryApplications(currentAppFilter);
+  }
 }
 
 function renderCandidates() {

@@ -38,9 +38,6 @@
         <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
         <span class="text-gray-300">Rajesh Malhotra (Dabur R&D)</span>
       </div>
-      <a href="auth.html" class="text-xs px-3 py-1.5 rounded-xl bg-purple-900/30 border border-purple-500/40 text-purple-300 font-bold transition">
-        Switch
-      </a>
       <a href="index.html" class="text-xs px-3 py-1.5 rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 font-medium transition">
         Hub ↵
       </a>
@@ -49,7 +46,10 @@
 
   <!-- Sub-Header Tabs -->
   <div class="bg-[#0a0a16] border-b border-gray-800 px-4 sm:px-8 flex overflow-x-auto no-scrollbar gap-5 pt-3">
-    <button data-tab="Candidates" onclick="switchIndustryTab('Candidates')" class="industry-nav-tab pb-2 text-xs sm:text-sm font-bold border-b-2 border-blue-500 text-blue-300 transition whitespace-nowrap">
+    <button data-tab="Applications" onclick="switchIndustryTab('Applications')" class="industry-nav-tab pb-2 text-xs sm:text-sm font-bold border-b-2 border-blue-500 text-blue-300 transition whitespace-nowrap flex items-center gap-1.5">
+      📥 Applications Received <span id="applications-badge-count" class="px-1.5 py-0.5 rounded-full bg-blue-500 text-black font-black text-[10px]">3</span>
+    </button>
+    <button data-tab="Candidates" onclick="switchIndustryTab('Candidates')" class="industry-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
       🎯 Pre-Screened Talent
     </button>
     <button data-tab="Reverse" onclick="switchIndustryTab('Reverse')" class="industry-nav-tab pb-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition whitespace-nowrap">
@@ -78,8 +78,62 @@
   <!-- Main Container -->
   <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6 relative z-10">
 
+    <!-- TAB 0: LIVE APPLICATIONS RECEIVED (FROM STUDENT INTERNSHIPS & JOBS) -->
+    <section id="industry-tab-Applications" class="industry-tab-content space-y-5">
+      <!-- Status Metrics Bar -->
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
+          <span class="text-xs text-gray-400 font-medium">Applications Received</span>
+          <div id="industry-app-stat-total" class="text-2xl font-black text-blue-400 mt-0.5">3 Dossiers</div>
+          <span class="text-[10px] text-gray-400">Direct from Student Portal</span>
+        </div>
+        <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
+          <span class="text-xs text-gray-400 font-medium">Pending Review</span>
+          <div id="industry-app-stat-pending" class="text-2xl font-black text-amber-400 mt-0.5">1 Candidate</div>
+          <span class="text-[10px] text-amber-400">Awaiting recruiter action</span>
+        </div>
+        <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
+          <span class="text-xs text-gray-400 font-medium">Shortlisted / Interviewing</span>
+          <div id="industry-app-stat-interview" class="text-2xl font-black text-emerald-400 mt-0.5">2 Candidates</div>
+          <span class="text-[10px] text-emerald-400">Under Active Assessment</span>
+        </div>
+        <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
+          <span class="text-xs text-gray-400 font-medium">Platform Pipeline Status</span>
+          <div class="text-xs font-bold text-cyan-300 mt-2 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            Real-Time Sync Active
+          </div>
+          <span class="text-[10px] text-gray-400">AIIA Institutional Link</span>
+        </div>
+      </div>
+
+      <!-- Controls & Filters -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 p-4 rounded-2xl bg-gray-900/40 border border-gray-800">
+        <div>
+          <h3 class="text-lg font-bold text-white">Student Job & Internship Applications</h3>
+          <p class="text-xs text-gray-400">Review student credentials, verified skills, match scores, and change candidate status.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="filter-app-All" onclick="filterIndustryApplications('All')" class="industry-app-filter-btn px-3 py-1 rounded-xl bg-blue-600 text-white font-bold text-xs transition">
+            All
+          </button>
+          <button id="filter-app-Internship" onclick="filterIndustryApplications('Internship')" class="industry-app-filter-btn px-3 py-1 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium text-xs transition">
+            🔬 Internships
+          </button>
+          <button id="filter-app-Job" onclick="filterIndustryApplications('Job')" class="industry-app-filter-btn px-3 py-1 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium text-xs transition">
+            💼 Full-Time Jobs
+          </button>
+        </div>
+      </div>
+
+      <!-- Applications Container Grid -->
+      <div id="industry-applications-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Rendered by js/frontend/industry-ui.js -->
+      </div>
+    </section>
+
     <!-- TAB 1: PRE-SCREENED CANDIDATE DISCOVERY -->
-    <section id="industry-tab-Candidates" class="industry-tab-content space-y-5">
+    <section id="industry-tab-Candidates" class="industry-tab-content hidden space-y-5">
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="p-4 rounded-2xl bg-gray-900/70 border border-gray-800">
           <span class="text-xs text-gray-400 font-medium">Pre-Screened Candidates</span>

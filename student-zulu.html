@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JOBLEX - Zulu AI Companion</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-[#05050a] text-white min-h-screen flex flex-col font-sans relative overflow-x-hidden">
+
+  <!-- 3D Starfield Background Canvas -->
+  <div id="three-canvas-container"></div>
+
+  <!-- Top Sticky Header -->
+  <header class="sticky top-0 z-40 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 border-b border-gray-800 bg-[#080814]/95 backdrop-blur-md shrink-0">
+    <div class="flex items-center gap-3">
+      <button onclick="toggleMobileMenu()" class="lg:hidden p-1.5 rounded-lg bg-gray-900 border border-gray-800 text-gray-400 hover:text-white">☰</button>
+      <a href="index.html" class="flex items-center gap-2.5">
+        <div class="w-2.5 h-7 bg-gradient-to-b from-purple-500 to-cyan-400 rounded-sm shadow-[0_0_10px_#a855f7]"></div>
+        <div>
+          <span class="text-xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-300 uppercase block">JOBLEX</span>
+          <span class="text-[9px] text-gray-400 block tracking-widest uppercase font-semibold">Zulu AI Intelligence</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="flex items-center gap-2 sm:gap-3">
+      <button onclick="JoblexApiClient.setLang(JoblexApiClient.getLang() === 'en' ? 'hi' : 'en')" class="text-[11px] sm:text-xs px-2.5 py-1 rounded-xl bg-gray-900 border border-purple-500/30 text-purple-200 hover:text-white font-bold transition">🌐 EN / हिंदी</button>
+      <button onclick="clearZuluChat()" title="Start New Conversation" class="text-xs px-3 py-1.5 rounded-xl bg-gray-900 hover:bg-gray-800 border border-purple-500/30 text-purple-200 font-semibold transition flex items-center gap-1.5 shadow-sm">
+        <span>✨</span> <span>New Chat</span>
+      </button>
+      <a href="index.html" class="text-xs px-2.5 sm:px-3 py-1.5 rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 font-medium transition">Hub ↵</a>
+    </div>
+  </header>
+
+  <div class="flex flex-1 relative z-10 min-h-[calc(100vh-60px)]">
+
+    <!-- COLLAPSIBLE SIDEBAR -->
+    <aside id="student-sidebar" class="hidden lg:flex w-64 bg-[#080812]/90 border-r border-gray-800/80 backdrop-blur-md p-3.5 flex-col justify-between shrink-0 transition-all duration-300">
+      <div class="space-y-1">
+        <div class="flex items-center justify-between px-2 pb-2 mb-2 border-b border-gray-800/80">
+          <span class="sidebar-text-label text-[10px] uppercase tracking-wider text-purple-400 font-bold">Navigation</span>
+          <button id="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" title="Minimize / Expand Sidebar" class="p-1.5 rounded-lg bg-gray-900 border border-gray-800 text-gray-400 hover:text-white text-xs transition"><span>◀</span></button>
+        </div>
+        <a href="student.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <span class="text-base shrink-0">📊</span>
+          <span class="sidebar-text-label font-bold text-xs">Student Overview</span>
+        </a>
+        <a href="student-roadmap.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <span class="text-base shrink-0">🗺️</span>
+          <span class="sidebar-text-label font-bold text-xs">Career Roadmap</span>
+        </a>
+        <a href="student-resume.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <span class="text-base shrink-0">📄</span>
+          <span class="sidebar-text-label font-bold text-xs">AI Resume Analyzer</span>
+        </a>
+        <a href="student-quiz.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <span class="text-base shrink-0">⚡</span>
+          <span class="sidebar-text-label font-bold text-xs">Quiz Arena</span>
+        </a>
+        <a href="student-internships.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <span class="text-base shrink-0">💼</span>
+          <span class="sidebar-text-label font-bold text-xs">Apply for Internships</span>
+        </a>
+        <a href="student-jobs.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <span class="text-base shrink-0">🏢</span>
+          <span class="sidebar-text-label font-bold text-xs">Apply for Jobs</span>
+        </a>
+        <a href="student-zulu.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all bg-purple-600/25 border border-purple-500/80 text-purple-100 shadow-[0_0_15px_rgba(168,85,247,0.25)]">
+          <span class="text-base shrink-0">🤖</span>
+          <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
+            <span class="font-bold text-xs text-white truncate">Zulu AI Companion</span>
+            <span class="text-[10px] text-gray-400 truncate">Gemini-Style AI Console</span>
+          </div>
+        </a>
+        <a href="student-skilltree.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <span class="text-base shrink-0">🌐</span>
+          <span class="sidebar-text-label font-bold text-xs">Skill Constellation</span>
+        </a>
+        <a href="student-portfolio.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <span class="text-base shrink-0">🏆</span>
+          <span class="sidebar-text-label font-bold text-xs">Verified Portfolio</span>
+        </a>
+      </div>
+      <div class="mt-4 pt-3 border-t border-gray-800/80">
+        <button onclick="JoblexApiClient.logout()" class="w-full py-2 rounded-xl text-center text-xs font-semibold text-gray-400 hover:text-red-400 transition flex items-center justify-center gap-2">
+          <span>🚪</span> <span class="sidebar-text-label">Sign Out</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- GEMINI-STYLE CENTERED CONSOLE (NO RIGID BOX) -->
+    <main class="flex-1 flex flex-col justify-between h-[calc(100vh-60px)] relative overflow-hidden">
+      
+      <!-- Scrollable Message Stream -->
+      <div id="zulu-scroll-area" class="flex-1 overflow-y-auto custom-scrollbar px-4 sm:px-6 py-6 sm:py-8">
+        <div class="max-w-3xl mx-auto w-full space-y-6 pb-28">
+
+          <!-- Centered Welcome Hero (Visible when conversation is fresh) -->
+          <div id="zulu-welcome-hero" class="text-center py-10 sm:py-16 space-y-4">
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-400 text-2xl shadow-[0_0_20px_rgba(168,85,247,0.5)]">
+              ✨
+            </div>
+            <h1 class="text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-200 to-cyan-300 tracking-tight">
+              Hello, <span class="user-name-display">Ashay</span>
+            </h1>
+            <p class="text-gray-400 text-sm sm:text-base max-w-lg mx-auto leading-relaxed">
+              Where should we focus your Ayush career and research goals today?
+            </p>
+
+            <!-- Gemini-Style Suggestion Cards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto pt-6 text-left">
+              <button onclick="sendQuickPrompt('How do I close my skill gap for Dabur Formulation Scientist?')" class="p-4 rounded-2xl bg-gray-900/60 hover:bg-gray-900/90 border border-gray-800 hover:border-purple-500/50 transition shadow-sm space-y-1 group">
+                <span class="text-base">⚡</span>
+                <h4 class="text-xs font-bold text-white group-hover:text-purple-300 transition">Dabur Skill Gaps</h4>
+                <p class="text-[11px] text-gray-400 leading-normal">Analyze requirements for Formulation Scientist internships.</p>
+              </button>
+
+              <button onclick="sendQuickPrompt('Explain HPTLC fingerprinting in simple terms.')" class="p-4 rounded-2xl bg-gray-900/60 hover:bg-gray-900/90 border border-gray-800 hover:border-purple-500/50 transition shadow-sm space-y-1 group">
+                <span class="text-base">🧪</span>
+                <h4 class="text-xs font-bold text-white group-hover:text-purple-300 transition">Explain HPTLC</h4>
+                <p class="text-[11px] text-gray-400 leading-normal">Chromatography standardization concepts in commercial Ayurveda.</p>
+              </button>
+
+              <button onclick="sendQuickPrompt('What are Micro-Gigs and how do I earn bounties?')" class="p-4 rounded-2xl bg-gray-900/60 hover:bg-gray-900/90 border border-gray-800 hover:border-purple-500/50 transition shadow-sm space-y-1 group">
+                <span class="text-base">💼</span>
+                <h4 class="text-xs font-bold text-white group-hover:text-purple-300 transition">Micro-Gigs & Bounties</h4>
+                <p class="text-[11px] text-gray-400 leading-normal">Earn paid task bounties through 1-2 week remote sprints.</p>
+              </button>
+
+              <button onclick="sendQuickPrompt('How does the Anti-Decay XP preservation system work?')" class="p-4 rounded-2xl bg-gray-900/60 hover:bg-gray-900/90 border border-gray-800 hover:border-purple-500/50 transition shadow-sm space-y-1 group">
+                <span class="text-base">🔥</span>
+                <h4 class="text-xs font-bold text-white group-hover:text-purple-300 transition">Anti-Decay XP</h4>
+                <p class="text-[11px] text-gray-400 leading-normal">Understand 72h decay freeze and streak preservation.</p>
+              </button>
+            </div>
+          </div>
+
+          <!-- Dynamic Chat Message Stream -->
+          <div id="zulu-messages-box" class="space-y-6"></div>
+
+        </div>
+      </div>
+
+      <!-- Centered Bottom Input Capsule (Gemini Pill) -->
+      <div class="fixed bottom-4 left-0 right-0 z-30 px-4 pointer-events-none">
+        <div class="max-w-3xl mx-auto w-full pointer-events-auto">
+          <form id="zulu-chat-form" onsubmit="handleZuluSend(event)" class="flex items-center gap-2 p-2 sm:p-2.5 rounded-full bg-[#121124]/95 border border-purple-500/40 backdrop-blur-xl shadow-[0_10px_35px_rgba(0,0,0,0.8)] focus-within:border-purple-400 transition">
+            
+            <!-- Context Sparkle Icon -->
+            <div class="w-8 h-8 rounded-full bg-purple-950/80 border border-purple-500/30 flex items-center justify-center text-sm text-purple-300 shrink-0 ml-1">
+              ✨
+            </div>
+
+            <!-- Input Field -->
+            <input 
+              id="zulu-input" 
+              type="text" 
+              autocomplete="off"
+              placeholder="Ask Zulu anything about Ayush research, Dabur roles, roadmaps..." 
+              class="flex-1 bg-transparent px-3 py-2 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none"
+            >
+
+            <!-- Send Button -->
+            <button 
+              type="submit" 
+              class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white flex items-center justify-center font-bold text-sm shadow-md transition hover:scale-105 shrink-0"
+              title="Send Message"
+            >
+              ➔
+            </button>
+          </form>
+          <div class="text-center mt-2">
+            <span class="text-[10px] text-gray-500">Zulu AI may produce specialized insights. Verify clinical dosages with institutional faculty.</span>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="js/frontend/three-scene.js"></script>
+  <script src="js/frontend/api-client.js"></script>
+  <script src="js/frontend/student-ui.js"></script>
+</body>
+</html>

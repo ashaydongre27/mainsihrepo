@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JOBLEX - Student | Verified Portfolio</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-[#05050a] text-white min-h-screen flex flex-col font-sans relative overflow-x-hidden">
+
+  <div id="three-canvas-container"></div>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 border-b border-gray-800 bg-[#080814]/95 backdrop-blur-md shrink-0">
+    <div class="flex items-center gap-3">
+      <button onclick="toggleMobileMenu()" class="lg:hidden p-1.5 rounded-lg bg-gray-900 border border-gray-800 text-gray-400 hover:text-white">☰</button>
+      <a href="index.html" class="flex items-center gap-2.5">
+        <div class="w-2.5 h-7 bg-purple-500 rounded-sm shadow-[0_0_10px_#a855f7]"></div>
+        <div>
+          <span class="text-xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-300 uppercase block">JOBLEX</span>
+          <span class="text-[9px] text-gray-400 block tracking-widest uppercase font-semibold">Verified Portfolio</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="flex items-center gap-2 sm:gap-3">
+      <button onclick="JoblexApiClient.setLang(JoblexApiClient.getLang() === 'en' ? 'hi' : 'en')" class="text-[11px] sm:text-xs px-2.5 py-1 rounded-xl bg-gray-900 border border-purple-500/30 text-purple-200 hover:text-white font-bold transition">🌐 EN / हिंदी</button>
+      <span id="header-xp-badge" class="px-2.5 sm:px-3 py-1 bg-purple-950/60 rounded-xl border border-purple-500/40 font-mono text-xs text-purple-300 font-bold">🔥 1450 XP</span>
+      <a href="index.html" class="text-xs px-2.5 sm:px-3 py-1.5 rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 font-medium transition">Hub ↵</a>
+    </div>
+  </header>
+
+  <div class="flex flex-1 relative z-10 min-h-[calc(100vh-60px)]">
+
+    <!-- COLLAPSIBLE SIDEBAR -->
+    <aside id="student-sidebar" class="hidden lg:flex w-64 bg-[#080812]/90 border-r border-gray-800/80 backdrop-blur-md p-3.5 flex-col justify-between shrink-0 transition-all duration-300">
+      <div class="space-y-1">
+        <div class="flex items-center justify-between px-2 pb-2 mb-2 border-b border-gray-800/80">
+          <span class="sidebar-text-label text-[10px] uppercase tracking-wider text-purple-400 font-bold">Navigation</span>
+          <button id="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" title="Minimize / Expand Sidebar" class="p-1.5 rounded-lg bg-gray-900 border border-gray-800 text-gray-400 hover:text-white text-xs transition"><span>◀</span></button>
+        </div>
+        <a href="student.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <span class="text-base shrink-0">📊</span>
+          <span class="sidebar-text-label font-bold text-xs">Student Overview</span>
+        </a>
+        <a href="student-roadmap.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <span class="text-base shrink-0">🗺️</span>
+          <span class="sidebar-text-label font-bold text-xs">Career Roadmap</span>
+        </a>
+        <a href="student-resume.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <span class="text-base shrink-0">📄</span>
+          <span class="sidebar-text-label font-bold text-xs">AI Resume Analyzer</span>
+        </a>
+        <a href="student-quiz.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <span class="text-base shrink-0">⚡</span>
+          <span class="sidebar-text-label font-bold text-xs">Quiz Arena</span>
+        </a>
+        <a href="student-internships.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <span class="text-base shrink-0">💼</span>
+          <span class="sidebar-text-label font-bold text-xs">Apply for Internships</span>
+        </a>
+        <a href="student-jobs.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <span class="text-base shrink-0">🏢</span>
+          <span class="sidebar-text-label font-bold text-xs">Apply for Jobs</span>
+        </a>
+        <a href="student-zulu.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <span class="text-base shrink-0">🤖</span>
+          <span class="sidebar-text-label font-bold text-xs">Zulu AI Companion</span>
+        </a>
+        <a href="student-skilltree.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent">
+          <span class="text-base shrink-0">🌐</span>
+          <span class="sidebar-text-label font-bold text-xs">Skill Constellation</span>
+        </a>
+        <a href="student-portfolio.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all bg-purple-600/25 border border-purple-500/80 text-purple-100 shadow-[0_0_15px_rgba(168,85,247,0.25)]">
+          <span class="text-base shrink-0">🏆</span>
+          <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
+            <span class="font-bold text-xs text-white truncate">Verified Portfolio</span>
+            <span class="text-[10px] text-gray-400 truncate">QR Credential Ledger</span>
+          </div>
+        </a>
+      </div>
+      <div class="mt-4 pt-3 border-t border-gray-800/80">
+        <button onclick="JoblexApiClient.logout()" class="w-full py-2 rounded-xl text-center text-xs font-semibold text-gray-400 hover:text-red-400 transition flex items-center justify-center gap-2">
+          <span>🚪</span> <span class="sidebar-text-label">Sign Out</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- WORKSPACE -->
+    <main class="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 custom-scrollbar">
+      <div class="max-w-5xl mx-auto space-y-6 pb-12 w-full">
+
+        <div class="bg-gradient-to-r from-gray-900/80 to-purple-900/40 p-6 sm:p-8 rounded-3xl border border-purple-500/30 backdrop-blur-sm flex flex-col sm:flex-row items-center gap-5 shadow-lg">
+          <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-purple-600 to-cyan-500 flex items-center justify-center text-3xl font-bold text-white border-4 border-gray-900 shadow-[0_0_15px_#a855f7] shrink-0">
+            A
+          </div>
+          <div class="flex-1 text-center sm:text-left">
+            <h1 class="text-2xl sm:text-3xl font-bold text-white mb-1 user-name-display">Ashay Verma</h1>
+            <p class="text-sm text-gray-400 mb-3">Student • All India Institute of Ayurveda</p>
+            <div class="flex flex-wrap justify-center sm:justify-start gap-2">
+              <span class="px-3 py-1.5 bg-gray-800/80 rounded-xl border border-gray-700 font-mono text-xs text-purple-400">🔥 1450 XP Points</span>
+              <span class="px-3 py-1.5 bg-gray-800/80 rounded-xl border border-gray-700 font-mono text-xs text-cyan-400">🎯 7-Day Streak</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reverse Headhunting Opt-in (Idea #3) -->
+        <div class="p-5 rounded-3xl bg-gradient-to-r from-blue-950/60 via-purple-950/50 to-gray-900 border border-blue-500/40 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="text-blue-400 font-black text-xs uppercase px-2.5 py-0.5 rounded-full bg-blue-500/20 border border-blue-500/40">
+                ⚡ Reverse Application Protocol Active
+              </span>
+            </div>
+            <h3 class="text-base font-bold text-white">Inbound Industry Headhunting Pool</h3>
+            <p class="text-xs text-gray-300">
+              Allow partner companies (Dabur, Patanjali, Himalaya) to query your verified skill constellation and send direct interview invites—even before you submit an application.
+            </p>
+          </div>
+          <div class="flex items-center gap-3 shrink-0">
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" checked onchange="alert('Inbound headhunting visibility status updated!')" class="sr-only peer">
+              <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+            <span class="text-xs font-bold text-blue-300">Open to Inbound</span>
+          </div>
+        </div>
+
+        <!-- Institutional Trust & Verification Badge (Idea #14) -->
+        <div class="p-5 rounded-3xl bg-gradient-to-r from-emerald-950/60 via-purple-950/50 to-gray-900 border border-emerald-500/40 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-400 font-black text-xs uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40">
+                ✓ Verified by Institutional Authority
+              </span>
+              <span class="text-[10px] text-gray-400 font-mono">ID: AIIA-CERT-2026-9842</span>
+            </div>
+            <h3 class="text-base font-bold text-white">Tamper-Proof AIIA Verified Competency Ledger</h3>
+            <p class="text-xs text-gray-300">
+              Corporate recruiters (Dabur, Himalaya) scan this digital credential to verify lab certificates, clinical training hours, and faculty approvals.
+            </p>
+          </div>
+          <div class="p-2.5 rounded-2xl bg-white flex flex-col items-center shrink-0 shadow-lg">
+            <svg width="70" height="70" viewBox="0 0 100 100" fill="black">
+              <rect width="30" height="30" fill="black"/>
+              <rect x="5" y="5" width="20" height="20" fill="white"/>
+              <rect x="10" y="10" width="10" height="10" fill="black"/>
+              <rect x="70" width="30" height="30" fill="black"/>
+              <rect x="75" y="5" width="20" height="20" fill="white"/>
+              <rect x="80" y="10" width="10" height="10" fill="black"/>
+              <rect y="70" width="30" height="30" fill="black"/>
+              <rect x="5" y="75" width="20" height="20" fill="white"/>
+              <rect x="10" y="80" width="10" height="10" fill="black"/>
+              <rect x="40" y="20" width="10" height="30" fill="black"/>
+              <rect x="45" y="60" width="20" height="15" fill="black"/>
+              <rect x="70" y="70" width="25" height="25" fill="black"/>
+            </svg>
+            <span class="text-[8px] text-gray-900 font-black tracking-tighter uppercase mt-1">Scan to Verify</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div class="lg:col-span-1 space-y-5">
+            <div class="bg-gray-900/60 p-5 rounded-2xl border border-gray-700 shadow-md">
+              <h3 class="text-base font-bold mb-3 border-b border-gray-700 pb-2 text-white">Verified Skills</h3>
+              <div class="space-y-2 text-xs">
+                <div class="flex justify-between items-center bg-gray-800/50 p-2.5 rounded-xl"><span>Python</span><span>⭐⭐⭐⭐</span></div>
+                <div class="flex justify-between items-center bg-gray-800/50 p-2.5 rounded-xl"><span>Communication</span><span>⭐⭐⭐⭐</span></div>
+                <div class="flex justify-between items-center bg-gray-800/50 p-2.5 rounded-xl"><span>Ayurvedic Pharmacognosy</span><span>⭐⭐⭐</span></div>
+                <div class="flex justify-between items-center bg-gray-800/50 p-2.5 rounded-xl"><span>Data Analysis</span><span>⭐⭐⭐</span></div>
+                <div class="flex justify-between items-center bg-gray-800/50 p-2.5 rounded-xl"><span>NLP</span><span>⭐⭐</span></div>
+              </div>
+            </div>
+
+            <div class="bg-gray-900/60 p-5 rounded-2xl border border-gray-700 shadow-md">
+              <h3 class="text-base font-bold mb-3 border-b border-gray-700 pb-2 text-white">Achievements</h3>
+              <div class="grid grid-cols-2 gap-3 text-center">
+                <div class="bg-purple-900/20 p-3 rounded-xl border border-purple-500/20">
+                  <span class="text-2xl mb-1 block">🏆</span>
+                  <span class="text-[11px] text-purple-300 font-medium">Quiz Master</span>
+                </div>
+                <div class="bg-cyan-900/20 p-3 rounded-xl border border-cyan-500/20">
+                  <span class="text-2xl mb-1 block">🔥</span>
+                  <span class="text-[11px] text-cyan-300 font-medium">7-Day Streak</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-2 space-y-5">
+            <div class="bg-gray-900/60 p-5 rounded-2xl border border-gray-700 shadow-md">
+              <h3 class="text-base font-bold mb-3 border-b border-gray-700 pb-2 text-white">Research & Capstone Projects</h3>
+              <div class="space-y-3">
+                <div class="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                  <h4 class="text-sm font-bold text-cyan-400 mb-1">Ayush Herb Identifier App</h4>
+                  <p class="text-gray-400 text-xs mb-3">Mobile application utilizing convolutional neural networks to classify medicinal botanicals from live camera feed.</p>
+                  <div class="flex flex-wrap gap-1.5">
+                    <span class="px-2 py-0.5 bg-gray-900 rounded text-[10px] text-gray-300">Python</span>
+                    <span class="px-2 py-0.5 bg-gray-900 rounded text-[10px] text-gray-300">CNN</span>
+                  </div>
+                </div>
+                <div class="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                  <h4 class="text-sm font-bold text-purple-400 mb-1">Clinical Trials Analytics Dashboard</h4>
+                  <p class="text-gray-400 text-xs mb-3">Interactive visualization suite mapping Ayurvedic formulation efficacy metrics against standard control cohorts.</p>
+                  <div class="flex flex-wrap gap-1.5">
+                    <span class="px-2 py-0.5 bg-gray-900 rounded text-[10px] text-gray-300">Data Analysis</span>
+                    <span class="px-2 py-0.5 bg-gray-900 rounded text-[10px] text-gray-300">D3.js</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="js/frontend/three-scene.js"></script>
+  <script src="js/frontend/api-client.js"></script>
+  <script src="js/frontend/student-ui.js"></script>
+</body>
+</html>

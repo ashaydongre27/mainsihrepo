@@ -116,6 +116,54 @@ const DB = {
     }
   ],
 
+  applications: [
+    {
+      id: "app-101",
+      opportunityId: "opp-1",
+      opportunityTitle: "Phytochemical Research Intern",
+      company: "Dabur India Ltd.",
+      type: "Internship",
+      studentName: "Ashay Verma",
+      studentEmail: "student@nexus.edu",
+      college: "All India Institute of Ayurveda (AIIA), New Delhi",
+      skills: ["Herbal Formulation", "Phytochemistry", "GLP", "Python"],
+      match: 92,
+      appliedDate: "2026-09-02",
+      status: "Shortlisted",
+      verifiedBadge: "AIIA-CERT-2026-9842"
+    },
+    {
+      id: "app-102",
+      opportunityId: "opp-3",
+      opportunityTitle: "Formulation Scientist",
+      company: "Patanjali Research Foundation",
+      type: "Job",
+      studentName: "Kavya Singh",
+      studentEmail: "kavya@aiia.edu",
+      college: "All India Institute of Ayurveda (AIIA), New Delhi",
+      skills: ["Health Informatics", "NLP", "Python", "SQL"],
+      match: 94,
+      appliedDate: "2026-09-03",
+      status: "Under Review",
+      verifiedBadge: "AIIA-CERT-2026-9845"
+    },
+    {
+      id: "app-103",
+      opportunityId: "opp-gig-1",
+      opportunityTitle: "Clean & Standardize 50 Ashwagandha Trial Records",
+      company: "Dabur Research Labs",
+      type: "Micro-Gig",
+      studentName: "Ashay Verma",
+      studentEmail: "student@nexus.edu",
+      college: "All India Institute of Ayurveda (AIIA), New Delhi",
+      skills: ["Data Analysis", "Phytochemistry"],
+      match: 90,
+      appliedDate: "2026-09-04",
+      status: "Offer Extended",
+      verifiedBadge: "AIIA-CERT-2026-9842"
+    }
+  ],
+
   student_roadmap: {
     userId: "usr-student-01",
     careerGoal: "Ayush Health-Tech & Formulation Specialist",
@@ -286,7 +334,58 @@ const DB = {
       { candidate: "Ashay Verma", predictedMatch: 94, actualLabRating: 4.9, company: "Dabur R&D", note: "Exceptional botanical extraction & Python modeling accuracy." },
       { candidate: "Pooja Verma", predictedMatch: 86, actualLabRating: 4.6, company: "Himalaya", note: "Solid chromatography fundamentals; fast learner." }
     ]
-  }
+  },
+
+  applications: [
+    {
+      id: "app-seed-01",
+      opportunityId: "opp-1",
+      opportunityTitle: "Ayush Clinical Research Intern",
+      company: "Dabur India Ltd.",
+      type: "Internship",
+      studentName: "Ashay Verma",
+      studentEmail: "student@nexus.edu",
+      college: "All India Institute of Ayurveda (AIIA), New Delhi",
+      skills: ["Herbal Formulation", "Phytochemistry", "GLP", "Python"],
+      match: 94,
+      appliedDate: "2026-09-03",
+      status: "Shortlisted",
+      verifiedBadge: "AIIA-CERT-2026-9842",
+      coverNote: "Strong background in botanical extraction protocols and AutoDock docking simulations."
+    },
+    {
+      id: "app-seed-02",
+      opportunityId: "opp-2",
+      opportunityTitle: "Formulation Scientist (Full-Time)",
+      company: "Patanjali Research Foundation",
+      type: "Job",
+      studentName: "Priya Nair",
+      studentEmail: "priya@nexus.edu",
+      college: "Gujarat Ayurved University, Jamnagar",
+      skills: ["Drug Discovery", "Phytochemistry", "HPTLC", "AutoDock"],
+      match: 96,
+      appliedDate: "2026-09-02",
+      status: "Interview Scheduled",
+      verifiedBadge: "GAU-CERT-2026-1104",
+      coverNote: "Expert in HPTLC standardization and molecular docking."
+    },
+    {
+      id: "app-seed-03",
+      opportunityId: "opp-3",
+      opportunityTitle: "Herbal Data Scientist (Full-Time)",
+      company: "Himalaya Wellness Company",
+      type: "Job",
+      studentName: "Kavya Singh",
+      studentEmail: "kavya@nexus.edu",
+      college: "AIIA New Delhi",
+      skills: ["Health Informatics", "Python", "NLP for Classical Texts", "SQL"],
+      match: 91,
+      appliedDate: "2026-09-04",
+      status: "Pending Review",
+      verifiedBadge: "AIIA-CERT-2026-8831",
+      coverNote: "Prakriti classification ML models and classical NLP extraction pipelines."
+    }
+  ]
 };
 
 module.exports = DB;

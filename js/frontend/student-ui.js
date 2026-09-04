@@ -1,6 +1,11 @@
 /**
  * JOBLEX Student Portal UI Controller (Client-Side JavaScript)
  * Pure frontend DOM, rendering, and interaction logic
+ * Features:
+ * - Collapsible Sidebar (w-64 <-> w-20) with localStorage persistence
+ * - Modular Navigation across dedicated student pages
+ * - Separate Application pipelines for Internships & Full-Time Jobs linked to Industry Portal
+ * - Gemini-style centered Zulu AI Counselor
  */
 
 let roadmapState = null;
@@ -29,6 +34,8 @@ const QUIZ_DATA = [
 let quizState = { started: false, currentIndex: 0, selectedAnswer: null, score: 0, finished: false };
 
 document.addEventListener('DOMContentLoaded', async () => {
+  initSidebarState();
+
   const user = JoblexApiClient.getCurrentUser();
   if (user) {
     document.querySelectorAll('.user-name-display').forEach(el => el.innerText = user.name);
@@ -38,53 +45,65 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   updateHeaderMetrics();
 
-  roadmapState = await JoblexApiClient.getRoadmap();
-  renderRoadmap();
+  // Page-specific initializations
+  if (document.getElementById('roadmap-phases-container')) {
+    roadmapState = await JoblexApiClient.getRoadmap();
+    renderRoadmap();
+  }
 
-  renderOpportunities('All');
-  renderPeerBenchmarking();
-  initSkillTree();
+  if (document.getElementById('internships-container')) {
+    renderInternshipsBoard('All');
+  }
+
+  if (document.getElementById('jobs-container')) {
+    renderJobsBoard();
+  }
+
+  if (document.getElementById('peer-benchmarking-card')) {
+    renderPeerBenchmarking();
+  }
+
+  if (document.getElementById('skill-tree-canvas')) {
+    initSkillTree();
+  }
 
   const resumeTextarea = document.getElementById('resume-textarea');
   if (resumeTextarea) resumeTextarea.value = SAMPLE_RESUMES.herbal;
 });
 
-function updateHeaderMetrics() {
-  const xpEl = document.getElementById('header-xp-badge');
-  const streakEl = document.getElementById('header-streak-badge');
-  if (xpEl) xpEl.innerText = `🔥 ${currentXp} XP`;
-  if (streakEl) streakEl.innerText = `🎯 ${currentStreak}-Day Streak`;
+// ─────────────────────────────────────────────────────────────
+// SIDEBAR COLLAPSE CONTROLLER
+// ─────────────────────────────────────────────────────────────
+function initSidebarState() {
+  const isCollapsed = localStorage.getItem('joblex_sidebar_collapsed') === 'true';
+  applySidebarState(isCollapsed);
 }
 
-function switchModule(moduleId) {
-  activeModule = moduleId;
-  document.querySelectorAll('.student-module-section').forEach(sec => sec.classList.add('hidden'));
+function toggleSidebarCollapse() {
+  const sidebar = document.getElementById('student-sidebar');
+  if (!sidebar) return;
+  const isNowCollapsed = !sidebar.classList.contains('sidebar-collapsed');
+  localStorage.setItem('joblex_sidebar_collapsed', isNowCollapsed ? 'true' : 'false');
+  applySidebarState(isNowCollapsed);
+}
 
-  const target = document.getElementById(`module-${moduleId}`);
-  if (target) target.classList.remove('hidden');
+function applySidebarState(collapsed) {
+  const sidebar = document.getElementById('student-sidebar');
+  const toggleBtn = document.getElementById('sidebar-collapse-btn');
+  if (!sidebar) return;
 
-  document.querySelectorAll('.sidebar-nav-btn').forEach(btn => {
-    const btnId = btn.getAttribute('data-module');
-    if (btnId === moduleId) {
-      btn.className = 'sidebar-nav-btn w-full flex flex-col items-start px-3.5 py-2 rounded-xl text-left transition-all bg-purple-600/25 border border-purple-500/80 text-purple-100 shadow-[0_0_15px_rgba(168,85,247,0.25)]';
-    } else {
-      btn.className = 'sidebar-nav-btn w-full flex flex-col items-start px-3.5 py-2 rounded-xl text-left transition-all text-gray-400 hover:text-white hover:bg-white/5 border border-transparent';
-    }
-  });
-
-  document.querySelectorAll('.quick-pill-btn').forEach(btn => {
-    const btnId = btn.getAttribute('data-module');
-    if (btnId === moduleId) {
-      btn.className = 'quick-pill-btn whitespace-nowrap px-3 py-1 rounded-lg text-xs font-bold transition-all border bg-purple-600 text-white border-purple-400 shadow-sm';
-    } else {
-      btn.className = 'quick-pill-btn whitespace-nowrap px-3 py-1 rounded-lg text-xs font-bold transition-all border bg-gray-900 text-gray-400 border-gray-800 hover:text-white';
-    }
-  });
-
-  closeMobileMenu();
-
-  if (moduleId === 'SkillTree') {
-    setTimeout(drawSkillTree, 50);
+  if (collapsed) {
+    sidebar.classList.add('sidebar-collapsed', 'w-20');
+    sidebar.classList.remove('w-64');
+    if (toggleBtn) toggleBtn.innerHTML = '<span>▶</span>';
+    document.querySelectorAll('.sidebar-text-label').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.sidebar-badge-label').forEach(el => el.classList.add('hidden'));
+  } else {
+    sidebar.classList.remove('sidebar-collapsed', 'w-20');
+    sidebar.classList.add('w-64');
+    if (toggleBtn) toggleBtn.innerHTML = '<span>◀</span>';
+    document.querySelectorAll('.sidebar-text-label').forEach(el => el.classList.remove('hidden'));
+    document.querySelectorAll('.sidebar-badge-label').forEach(el => el.classList.remove('hidden'));
   }
 }
 
@@ -98,7 +117,159 @@ function closeMobileMenu() {
   if (drawer) drawer.classList.add('hidden');
 }
 
-// Roadmap UI
+function updateHeaderMetrics() {
+  const xpEl = document.getElementById('header-xp-badge');
+  const streakEl = document.getElementById('header-streak-badge');
+  if (xpEl) xpEl.innerText = `🔥 ${currentXp} XP`;
+  if (streakEl) streakEl.innerText = `🎯 ${currentStreak}-Day Streak`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// INTERNSHIPS & MICRO-GIGS MODULE
+// ─────────────────────────────────────────────────────────────
+async function renderInternshipsBoard(typeFilter = 'All') {
+  const container = document.getElementById('internships-container');
+  if (!container) return;
+
+  const res = await JoblexApiClient.getOpportunities('All');
+  const allOpps = res.opportunities || [];
+  
+  // Filter for Internships & Micro-Gigs only
+  const filtered = allOpps.filter(o => {
+    const isInternshipOrGig = o.type === 'Internship' || o.type === 'Micro-Gig';
+    if (!isInternshipOrGig) return false;
+    if (typeFilter === 'Internship') return o.type === 'Internship';
+    if (typeFilter === 'Micro-Gig') return o.type === 'Micro-Gig';
+    return true;
+  });
+
+  container.innerHTML = filtered.map((opp, idx) => `
+    <div class="p-5 rounded-2xl bg-gray-900/70 border border-purple-500/30 hover:border-purple-500/60 transition shadow-md flex flex-col justify-between space-y-4">
+      <div>
+        <div class="flex justify-between items-start gap-2">
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+            opp.type === 'Micro-Gig' 
+              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' 
+              : 'bg-blue-500/20 text-blue-300 border border-blue-500/40'
+          }">
+            ${opp.type === 'Micro-Gig' ? '⚡ ' + opp.type : opp.type}
+          </span>
+          <span class="text-xs font-mono font-bold text-cyan-300">${opp.match}% Skill Fit</span>
+        </div>
+
+        <h3 class="font-bold text-base text-white mt-2 mb-0.5">${opp.title}</h3>
+        <p class="text-xs text-purple-300 font-medium">${opp.company}</p>
+        <p class="text-xs text-gray-400 mt-2 line-clamp-2 leading-relaxed">${opp.description}</p>
+
+        <div class="flex flex-wrap gap-1.5 mt-3">
+          ${opp.skills.map(s => `
+            <span class="px-2 py-0.5 rounded-md bg-purple-950/40 border border-purple-500/20 text-[11px] text-purple-200">${s}</span>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-gray-800/80 flex justify-between items-center text-xs">
+        <div>
+          <span class="text-gray-400 block text-[10px]">Stipend / Bounty</span>
+          <span class="font-bold text-white font-mono">${opp.stipend}</span>
+        </div>
+        <button id="apply-btn-${opp.id}" onclick="handleApplyOpportunity('${opp.id}', '${opp.title}', '${opp.company}', '${opp.type}', ${opp.match})" class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold text-xs shadow-md transition hover:scale-105">
+          Apply for ${opp.type} ➔
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────────────────────────
+// JOBS MODULE
+// ─────────────────────────────────────────────────────────────
+async function renderJobsBoard() {
+  const container = document.getElementById('jobs-container');
+  if (!container) return;
+
+  const res = await JoblexApiClient.getOpportunities('All');
+  const allOpps = res.opportunities || [];
+  
+  // Filter for Full-Time Jobs
+  const jobs = allOpps.filter(o => o.type === 'Job');
+
+  container.innerHTML = jobs.map((opp, idx) => `
+    <div class="p-6 rounded-3xl bg-gray-900/80 border border-blue-500/40 hover:border-blue-500 transition shadow-xl flex flex-col justify-between space-y-4">
+      <div>
+        <div class="flex justify-between items-start gap-2">
+          <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+            Full-Time Corporate Placement
+          </span>
+          <span class="text-xs font-mono font-bold text-cyan-300">${opp.match}% Skill Fit</span>
+        </div>
+
+        <h3 class="font-black text-lg text-white mt-2.5 mb-1">${opp.title}</h3>
+        <p class="text-xs text-blue-300 font-semibold">${opp.company} • ${opp.location}</p>
+        <p class="text-xs text-gray-300 mt-2.5 leading-relaxed">${opp.description}</p>
+
+        <div class="flex flex-wrap gap-1.5 mt-3.5">
+          ${opp.skills.map(s => `
+            <span class="px-2.5 py-1 rounded-lg bg-blue-950/40 border border-blue-500/30 text-xs text-blue-200">${s}</span>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div>
+          <span class="text-gray-400 block text-[10px]">Compensation Package</span>
+          <span class="font-bold text-emerald-400 text-sm font-mono">${opp.stipend}</span>
+          <span class="text-[10px] text-gray-500 block">Deadline: ${opp.deadline}</span>
+        </div>
+        <button id="apply-btn-${opp.id}" onclick="handleApplyOpportunity('${opp.id}', '${opp.title}', '${opp.company}', '${opp.type}', ${opp.match})" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold text-xs shadow-lg transition hover:scale-105">
+          Apply for Job ➔
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────────────────────────
+// APPLICATION SUBMISSION DISPATCH (To Industry Portal)
+// ─────────────────────────────────────────────────────────────
+async function handleApplyOpportunity(oppId, oppTitle, company, type, match) {
+  const btn = document.getElementById(`apply-btn-${oppId}`);
+  if (btn) {
+    btn.disabled = true;
+    btn.innerText = 'Transmitting...';
+  }
+
+  const user = JoblexApiClient.getCurrentUser() || {
+    name: 'Ashay Verma',
+    email: 'student@nexus.edu',
+    institution: 'All India Institute of Ayurveda (AIIA), New Delhi'
+  };
+
+  const payload = {
+    opportunityId: oppId,
+    opportunityTitle: oppTitle,
+    company: company,
+    type: type,
+    studentName: user.name,
+    studentEmail: user.email,
+    college: user.institution || 'All India Institute of Ayurveda',
+    skills: ['Herbal Formulation', 'Phytochemistry', 'GLP', 'Python'],
+    match: match || 92
+  };
+
+  const res = await JoblexApiClient.applyOpportunity(payload);
+
+  if (btn) {
+    btn.innerText = '✓ Applied';
+    btn.className = 'px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs cursor-default';
+  }
+
+  alert(`Application Transmitted! 🚀\n\nYour verified institutional dossier has been submitted to ${company} for the "${oppTitle}" position. The recruiter will review it in their Industry Portal dashboard.`);
+}
+
+// ─────────────────────────────────────────────────────────────
+// ROADMAP MODULE
+// ─────────────────────────────────────────────────────────────
 function renderRoadmap() {
   if (!roadmapState) return;
   const container = document.getElementById('roadmap-phases-container');
@@ -108,287 +279,206 @@ function renderRoadmap() {
   let totalTasks = 0;
   let completedTasks = 0;
 
-  roadmapState.phases.forEach((phase, phaseIdx) => {
-    totalTasks += phase.tasks.length;
-    completedTasks += phase.tasks.filter(t => t.completed).length;
+  roadmapState.phases.forEach((phase, pIdx) => {
+    const phaseDiv = document.createElement('div');
+    phaseDiv.className = 'p-5 rounded-2xl bg-gray-900/60 border border-gray-800 backdrop-blur-md space-y-3';
 
-    const isPhaseComplete = phase.tasks.every(t => t.completed);
-    const phaseCard = document.createElement('div');
-    phaseCard.className = `p-4 sm:p-5 rounded-2xl border transition shadow-md ${
-      phase.status === 'IN_PROGRESS' 
-        ? 'bg-gray-900/90 border-purple-500/50' 
-        : (isPhaseComplete ? 'bg-gray-900/60 border-emerald-500/40' : 'bg-gray-950/60 border-gray-800 opacity-80')
-    }`;
+    const pTotal = phase.tasks.length;
+    const pDone = phase.tasks.filter(t => t.completed).length;
+    totalTasks += pTotal;
+    completedTasks += pDone;
 
-    phaseCard.innerHTML = `
-      <div class="flex items-center justify-between mb-3 border-b border-gray-800 pb-2.5">
-        <div class="flex items-center gap-2">
-          <span class="text-xs font-black px-2 py-0.5 rounded-full ${
-            isPhaseComplete ? 'bg-emerald-500/20 text-emerald-300' : 'bg-purple-500/20 text-purple-300'
-          }">
-            PHASE ${phase.id}
-          </span>
-          <h4 class="text-xs sm:text-sm font-bold text-white">${phase.name}</h4>
+    phaseDiv.innerHTML = `
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+        <div>
+          <span class="text-[10px] uppercase font-bold text-purple-400 tracking-wider">Phase 0${phase.phaseNumber}</span>
+          <h3 class="font-bold text-sm sm:text-base text-white">${phase.title}</h3>
         </div>
-        <span class="text-xs font-bold text-purple-400 font-mono">+${phase.xpReward} XP</span>
+        <span class="text-xs font-mono px-2.5 py-0.5 rounded-full bg-purple-950/60 text-purple-300 border border-purple-500/30">
+          ${pDone} / ${pTotal} Tasks
+        </span>
       </div>
-
-      <div class="space-y-2">
-        ${phase.tasks.map((task) => `
-          <label class="flex items-start gap-2.5 p-2 rounded-xl bg-black/30 border border-white/5 hover:border-purple-500/30 transition cursor-pointer">
-            <input 
-              type="checkbox" 
-              ${task.completed ? 'checked' : ''} 
-              onchange="toggleTask('${task.id}', ${phaseIdx})"
-              class="mt-0.5 rounded bg-gray-900 border-gray-700 text-purple-600 focus:ring-0 focus:outline-none"
-            >
-            <div class="flex-1 text-xs">
-              <span class="${task.completed ? 'line-through text-gray-500' : 'text-gray-200'} font-medium block">
-                ${task.title}
-              </span>
+      <div class="space-y-2 pt-1">
+        ${phase.tasks.map(t => `
+          <div class="flex items-start gap-3 p-2.5 rounded-xl bg-black/40 border border-gray-800/80 hover:border-purple-500/30 transition">
+            <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="handleTaskToggle(${t.id})" class="mt-1 w-4 h-4 rounded text-purple-600 bg-gray-950 border-gray-700 focus:ring-purple-500 cursor-pointer">
+            <div class="flex-1">
+              <span class="text-xs sm:text-sm font-medium ${t.completed ? 'line-through text-gray-500' : 'text-gray-200'}">${t.title}</span>
+              <div class="flex items-center gap-2 mt-0.5">
+                <span class="text-[10px] text-purple-400 font-mono">+${t.xpReward} XP</span>
+                <span class="text-[10px] text-gray-500">• ${t.skill}</span>
+              </div>
             </div>
-            <span class="text-[10px] font-mono text-purple-300 shrink-0 font-bold">+${task.xp} XP</span>
-          </label>
+          </div>
         `).join('')}
       </div>
     `;
-
-    container.appendChild(phaseCard);
+    container.appendChild(phaseDiv);
   });
 
-  const percent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-  const bar = document.getElementById('roadmap-overall-bar');
-  const text = document.getElementById('roadmap-overall-percent');
-  if (bar) bar.style.width = `${percent}%`;
-  if (text) text.innerText = `${percent}% Complete`;
+  const overallPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const percentEl = document.getElementById('roadmap-overall-percent');
+  const barEl = document.getElementById('roadmap-overall-bar');
+  if (percentEl) percentEl.innerText = `${overallPercent}% Complete`;
+  if (barEl) barEl.style.width = `${overallPercent}%`;
 }
 
-async function toggleTask(taskId, phaseIdx) {
-  const phase = roadmapState.phases[phaseIdx];
-  const task = phase.tasks.find(t => t.id === taskId);
-  if (task) {
-    task.completed = !task.completed;
-    if (task.completed) {
-      currentXp += task.xp;
-    } else {
-      currentXp = Math.max(0, currentXp - task.xp);
+async function handleTaskToggle(taskId) {
+  const res = await JoblexApiClient.toggleRoadmapTask(taskId);
+  if (res && res.task) {
+    if (res.xpAwarded) {
+      currentXp += res.xpAwarded;
+      updateHeaderMetrics();
     }
-    updateHeaderMetrics();
+    roadmapState = await JoblexApiClient.getRoadmap();
     renderRoadmap();
-    await JoblexApiClient.toggleTask(taskId, phaseIdx);
   }
 }
 
 async function handleCheckIn() {
-  currentStreak += 1;
+  const btn = document.getElementById('streak-checkin-btn');
+  if (btn) btn.disabled = true;
+
+  const res = await JoblexApiClient.checkInStreak();
   currentXp += 50;
+  currentStreak += 1;
   updateHeaderMetrics();
 
-  const checkinBtn = document.getElementById('streak-checkin-btn');
-  if (checkinBtn) {
-    checkinBtn.innerText = '✓ Checked In Today! (+50 XP)';
-    checkinBtn.disabled = true;
-    checkinBtn.className = 'w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-600/30 border border-emerald-500/50 text-emerald-300 font-bold text-xs cursor-default';
-  }
-
-  const alertBox = document.getElementById('streak-freeze-status');
-  if (alertBox) {
-    alertBox.innerText = 'Active: Point Decay Protected for next 72 Hours.';
-    alertBox.className = 'text-xs text-emerald-400 font-medium';
-  }
-
-  await JoblexApiClient.checkIn();
+  const statusEl = document.getElementById('streak-freeze-status');
+  if (statusEl) statusEl.innerText = `✓ Decay frozen until ${new Date(res.decayFrozenUntil).toLocaleDateString()}!`;
+  if (btn) btn.innerText = '✓ Checked In (+50 XP)';
+  alert('Streak Protected! ❄️ Your competencies are frozen against decay for the next 72 hours.');
 }
 
-// Peer Benchmarking & Decay Alert
-async function renderPeerBenchmarking() {
-  const benchData = await JoblexApiClient.getPeerBenchmarking();
-  if (!benchData) return;
-
-  const scoreDiffEl = document.getElementById('peer-score-diff');
-  const peerMissingBox = document.getElementById('peer-missing-skills-list');
-
-  if (scoreDiffEl) {
-    scoreDiffEl.innerText = `You: ${benchData.userPercentile}% vs Placed Peers: ${benchData.placedPeerAverageScore}%`;
-  }
-
-  if (peerMissingBox && benchData.topMissingPeerSkills) {
-    peerMissingBox.innerHTML = benchData.topMissingPeerSkills.map(s => `
-      <div class="flex items-center justify-between p-2 rounded-xl bg-black/40 border border-purple-500/20 text-xs">
-        <span class="font-medium text-purple-200">• ${s.name}</span>
-        <span class="text-[10px] text-gray-400 font-mono">${s.prevalence}</span>
-      </div>
-    `).join('');
-  }
-}
-
-function syncPeerSkillsToRoadmap() {
-  if (roadmapState && roadmapState.phases && roadmapState.phases[0]) {
-    roadmapState.phases[0].tasks.push({
-      id: `peer-gap-${Date.now()}`,
-      title: 'HPTLC Fingerprinting (Peer Benchmarking Insight)',
-      xp: 75,
-      completed: false
-    });
-    renderRoadmap();
-    alert('Peer competency gaps synced directly into your Career Roadmap Phase 1!');
-  }
-}
-
-function dismissDecayAlert() {
-  const alertEl = document.getElementById('skill-decay-alert-banner');
-  if (alertEl) alertEl.classList.add('hidden');
-}
-
-function triggerQuickRefreshQuiz() {
-  switchModule('Quiz');
-  startQuiz();
-}
-
-// AI Resume Analyzer
-function loadSampleResume(type) {
+// ─────────────────────────────────────────────────────────────
+// AI RESUME ANALYZER MODULE
+// ─────────────────────────────────────────────────────────────
+async function handleAnalyzeResume() {
   const textarea = document.getElementById('resume-textarea');
-  if (textarea && SAMPLE_RESUMES[type]) {
-    textarea.value = SAMPLE_RESUMES[type];
-  }
-}
+  const roleSelect = document.getElementById('target-role-select');
+  const resultsBox = document.getElementById('resume-results-box');
 
-async function runResumeAnalysis() {
-  const textarea = document.getElementById('resume-textarea');
-  const roleSelect = document.getElementById('resume-role-select');
-  const btn = document.getElementById('resume-analyze-btn');
-  const resultsContainer = document.getElementById('resume-results-container');
+  const text = textarea ? textarea.value : '';
+  const role = roleSelect ? roleSelect.value : 'Herbal Formulation Scientist';
 
-  if (!textarea || !roleSelect || !btn) return;
+  const res = await JoblexApiClient.analyzeResume(text, role);
 
-  btn.disabled = true;
-  btn.innerText = 'Analyzing with Google AI & Ayush Benchmarks...';
+  if (resultsBox && res) {
+    resultsBox.classList.remove('hidden');
 
-  const res = await JoblexApiClient.analyzeResume(textarea.value, roleSelect.value);
+    const scoreEl = document.getElementById('resume-match-score');
+    if (scoreEl) scoreEl.innerText = `${res.matchPercentage}%`;
 
-  btn.disabled = false;
-  btn.innerText = '⚡ Run AI Gap Analysis';
-
-  if (res && resultsContainer) {
-    resultsContainer.classList.remove('hidden');
-
-    document.getElementById('analysis-match-score').innerText = `${res.matchPercentage}%`;
-    document.getElementById('analysis-benchmark-score').innerText = `Industry Benchmark: ${res.benchmark}%`;
-    document.getElementById('analysis-verified-count').innerText = res.extractedSkills ? res.extractedSkills.length : 0;
-    document.getElementById('analysis-missing-count').innerText = res.missingSkills ? res.missingSkills.length : 0;
-
-    const strengthsBox = document.getElementById('analysis-strengths-box');
-    if (strengthsBox && res.extractedSkills) {
-      strengthsBox.innerHTML = res.extractedSkills.map(s => `
-        <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/40 text-emerald-200 text-xs font-semibold">✓ ${s}</span>
+    const extractedBox = document.getElementById('resume-extracted-skills');
+    if (extractedBox && res.extractedSkills) {
+      extractedBox.innerHTML = res.extractedSkills.map(s => `
+        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/50 border border-emerald-500/40 text-xs text-emerald-200">✓ ${s}</span>
       `).join('');
     }
 
-    const gapsBox = document.getElementById('analysis-gaps-box');
-    if (gapsBox && res.missingSkills) {
-      gapsBox.innerHTML = res.missingSkills.map(g => `
-        <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/40 text-amber-200 text-xs font-semibold">+ ${g}</span>
+    const missingBox = document.getElementById('resume-missing-skills');
+    if (missingBox && res.missingSkills) {
+      missingBox.innerHTML = res.missingSkills.map(s => `
+        <span class="px-2.5 py-1 rounded-lg bg-amber-950/50 border border-amber-500/40 text-xs text-amber-200">⚠️ ${s}</span>
       `).join('');
     }
 
-    const recsList = document.getElementById('analysis-recs-list');
-    if (recsList && res.recommendations) {
-      recsList.innerHTML = res.recommendations.map((r, i) => `
-        <li class="flex items-start gap-2.5 bg-black/40 p-3 rounded-xl border border-white/5 text-xs text-gray-200 leading-relaxed">
-          <span class="text-purple-400 font-bold">${i + 1}.</span>
-          <span>${r}</span>
-        </li>
-      `).join('');
-    }
-
-    resultsContainer.scrollIntoView({ behavior: 'smooth' });
+    resultsBox.scrollIntoView({ behavior: 'smooth' });
   }
 }
 
-function syncGapsWithRoadmap() {
-  const syncBtn = document.getElementById('sync-roadmap-btn');
-  if (syncBtn) {
-    syncBtn.innerText = '✓ Synced with Roadmap!';
-    syncBtn.className = 'w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs transition cursor-default';
-  }
-  if (roadmapState && roadmapState.phases && roadmapState.phases[0]) {
-    roadmapState.phases[0].tasks.push({
-      id: `synced-${Date.now()}`,
-      title: 'HPTLC / HPLC Fingerprinting Certification (Synced from AI Analyzer)',
-      xp: 75,
-      completed: false
-    });
-    renderRoadmap();
-  }
-}
-
-// Quiz Arena
+// ─────────────────────────────────────────────────────────────
+// QUIZ ARENA MODULE
+// ─────────────────────────────────────────────────────────────
 function startQuiz() {
   quizState = { started: true, currentIndex: 0, selectedAnswer: null, score: 0, finished: false };
   renderQuiz();
 }
 
 function renderQuiz() {
-  const intro = document.getElementById('quiz-intro-card');
-  const active = document.getElementById('quiz-active-card');
-  const result = document.getElementById('quiz-result-card');
+  const container = document.getElementById('quiz-arena-container');
+  if (!container) return;
 
   if (!quizState.started) {
-    intro.classList.remove('hidden');
-    active.classList.add('hidden');
-    result.classList.add('hidden');
+    container.innerHTML = `
+      <div class="text-center py-12 space-y-4 max-w-md mx-auto">
+        <div class="w-16 h-16 rounded-3xl bg-purple-600/20 border border-purple-500/40 flex items-center justify-center text-3xl mx-auto shadow-inner">
+          ⚡
+        </div>
+        <h3 class="text-xl font-black text-white">Ayush Technical Mastery Arena</h3>
+        <p class="text-xs sm:text-sm text-gray-400">Validate pharmacognosy and bio-data science competencies. Earn up to +250 XP to boost recruiter rankings.</p>
+        <button onclick="startQuiz()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-xs uppercase tracking-wider shadow-lg transition hover:scale-105">
+          Start Assessment (+250 XP) ➔
+        </button>
+      </div>
+    `;
     return;
   }
 
   if (quizState.finished) {
-    intro.classList.add('hidden');
-    active.classList.add('hidden');
-    result.classList.remove('hidden');
-
-    document.getElementById('quiz-final-score').innerText = `${quizState.score}/${QUIZ_DATA.length}`;
-    document.getElementById('quiz-earned-xp').innerText = `Earned ${quizState.score * 50} XP 🔥`;
-
-    currentXp += (quizState.score * 50);
-    updateHeaderMetrics();
+    const xpWon = quizState.score * 50;
+    container.innerHTML = `
+      <div class="text-center py-12 space-y-4 max-w-md mx-auto">
+        <div class="w-16 h-16 rounded-3xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-3xl mx-auto">
+          🏆
+        </div>
+        <h3 class="text-2xl font-black text-white">Quiz Completed!</h3>
+        <p class="text-sm text-gray-300">Score: <strong class="text-emerald-400 font-mono text-lg">${quizState.score} / ${QUIZ_DATA.length}</strong></p>
+        <div class="p-3.5 rounded-2xl bg-purple-950/40 border border-purple-500/30 text-purple-300 text-xs font-mono">
+          +${xpWon} XP Awarded to Student Profile!
+        </div>
+        <button onclick="startQuiz()" class="px-6 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-white text-xs font-bold transition">
+          Retake Quiz ↺
+        </button>
+      </div>
+    `;
     return;
   }
 
-  intro.classList.add('hidden');
-  active.classList.remove('hidden');
-  result.classList.add('hidden');
-
   const q = QUIZ_DATA[quizState.currentIndex];
-  document.getElementById('quiz-question-counter').innerText = `QUESTION ${quizState.currentIndex + 1}/${QUIZ_DATA.length}`;
-  document.getElementById('quiz-score-counter').innerText = `Score: ${quizState.score}`;
-  document.getElementById('quiz-question-text').innerText = q.question;
-
-  const optsContainer = document.getElementById('quiz-options-container');
-  optsContainer.innerHTML = '';
-
-  q.options.forEach((opt, idx) => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    const isSelected = quizState.selectedAnswer === idx;
-    btn.className = `p-3.5 rounded-xl text-left transition-all border text-xs sm:text-sm font-medium ${
-      isSelected 
-        ? 'bg-purple-900/40 border-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.4)] text-white' 
-        : 'bg-gray-800/50 border-gray-700 hover:border-gray-500 text-gray-300'
-    }`;
-    btn.innerHTML = `<span class="inline-block w-6 font-mono text-purple-400 opacity-70">${['A','B','C','D'][idx]}.</span> ${opt}`;
-    btn.onclick = () => {
-      quizState.selectedAnswer = idx;
-      renderQuiz();
-    };
-    optsContainer.appendChild(btn);
-  });
-
-  const nextBtn = document.getElementById('quiz-next-btn');
-  nextBtn.disabled = quizState.selectedAnswer === null;
-  nextBtn.innerText = quizState.currentIndex === QUIZ_DATA.length - 1 ? 'Submit' : 'Next Question ➔';
+  container.innerHTML = `
+    <div class="space-y-5 max-w-xl mx-auto py-4">
+      <div class="flex justify-between items-center text-xs text-gray-400">
+        <span>Question ${quizState.currentIndex + 1} of ${QUIZ_DATA.length}</span>
+        <span class="font-mono text-purple-400">+50 XP</span>
+      </div>
+      <div class="w-full bg-gray-900 rounded-full h-1.5 overflow-hidden">
+        <div class="bg-purple-600 h-full transition-all" style="width: ${((quizState.currentIndex + 1) / QUIZ_DATA.length) * 100}%"></div>
+      </div>
+      <h3 class="text-base sm:text-lg font-bold text-white">${q.question}</h3>
+      <div class="space-y-2.5 pt-2">
+        ${q.options.map((opt, i) => `
+          <button onclick="selectQuizAnswer(${i})" class="w-full p-3.5 rounded-2xl text-left text-xs sm:text-sm transition flex items-center justify-between ${
+            quizState.selectedAnswer === i 
+              ? 'bg-purple-600 border border-purple-400 text-white font-bold' 
+              : 'bg-black/40 border border-gray-800 text-gray-300 hover:border-purple-500/40'
+          }">
+            <span>${opt}</span>
+            <span class="w-4 h-4 rounded-full border border-gray-700 flex items-center justify-center text-[10px]">
+              ${quizState.selectedAnswer === i ? '✓' : ''}
+            </span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="flex justify-end pt-3">
+        <button onclick="nextQuizQuestion()" class="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition">
+          ${quizState.currentIndex === QUIZ_DATA.length - 1 ? 'Submit Answers ➔' : 'Next Question ➔'}
+        </button>
+      </div>
+    </div>
+  `;
 }
 
-function handleQuizNext() {
-  if (quizState.selectedAnswer === null) return;
+function selectQuizAnswer(idx) {
+  quizState.selectedAnswer = idx;
+  renderQuiz();
+}
+
+function nextQuizQuestion() {
+  if (quizState.selectedAnswer === null) {
+    alert('Please select an option before continuing.');
+    return;
+  }
 
   if (quizState.selectedAnswer === QUIZ_DATA[quizState.currentIndex].correct) {
     quizState.score += 1;
@@ -400,112 +490,62 @@ function handleQuizNext() {
     renderQuiz();
   } else {
     quizState.finished = true;
+    currentXp += quizState.score * 50;
+    updateHeaderMetrics();
     renderQuiz();
   }
 }
 
-// Opportunities & Micro-Gigs
-async function renderOpportunities(filter) {
-  const container = document.getElementById('opps-cards-grid');
-  if (!container) return;
-
-  document.querySelectorAll('.opp-filter-pill').forEach(btn => {
-    if (btn.getAttribute('data-filter') === filter) {
-      btn.className = 'opp-filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-700 text-white shadow-sm transition';
-    } else {
-      btn.className = 'opp-filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-white transition';
-    }
-  });
-
-  const res = await JoblexApiClient.getOpportunities(filter);
-  const list = res.opportunities || [];
-
-  container.innerHTML = list.map(opp => {
-    let badgeClass = 'bg-gray-800 text-gray-300 border-gray-600';
-    if (opp.type === 'Internship') badgeClass = 'bg-green-900/50 text-green-400 border-green-500/50';
-    if (opp.type === 'Job') badgeClass = 'bg-blue-900/50 text-blue-400 border-blue-500/50';
-    if (opp.type === 'Hackathon') badgeClass = 'bg-purple-900/50 text-purple-400 border-purple-500/50';
-    if (opp.type === 'Micro-Gig') badgeClass = 'bg-amber-900/50 text-amber-300 border-amber-500/50';
-
-    return `
-      <div class="bg-gray-900/50 p-5 rounded-2xl border border-gray-800 hover:border-cyan-500/50 transition-all flex flex-col justify-between backdrop-blur-sm group hover:-translate-y-0.5 shadow-md">
-        <div>
-          <div class="flex justify-between items-start mb-3">
-            <div>
-              <h3 class="text-base font-bold text-white group-hover:text-cyan-400 transition-colors">${opp.title}</h3>
-              <p class="text-xs text-gray-400 font-medium mt-0.5">${opp.company}</p>
-            </div>
-            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeClass}">
-              ${opp.type}
-            </span>
-          </div>
-
-          <div class="flex flex-wrap gap-1.5 mb-4">
-            ${(opp.skills || []).map(s => `
-              <span class="px-2 py-0.5 bg-gray-800 rounded-md border border-gray-700 text-[11px] text-gray-300">${s}</span>
-            `).join('')}
-          </div>
-        </div>
-
-        <div>
-          <div class="grid grid-cols-2 gap-2 text-xs text-gray-400 mb-4 pt-3 border-t border-gray-800">
-            <div><span class="mr-1 opacity-60">📍</span> ${opp.location}</div>
-            <div><span class="mr-1 opacity-60">💰</span> ${opp.stipend}</div>
-            <div class="col-span-2"><span class="mr-1 opacity-60">⏳</span> Deadline: ${opp.deadline}</div>
-          </div>
-          <button 
-            onclick="alert('Application submitted for ${opp.title}! Profile verified via AIIA institutional credentials.')" 
-            class="w-full py-2 bg-gray-800 hover:bg-cyan-900/40 border border-gray-700 hover:border-cyan-500 text-white rounded-xl transition text-xs font-semibold"
-          >
-            Apply Now
-          </button>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-// Zulu AI Chat
+// ─────────────────────────────────────────────────────────────
+// ZULU AI GEMINI-STYLE CHAT CONTROLLER
+// ─────────────────────────────────────────────────────────────
 function formatZuluMarkdown(text) {
   if (!text) return '';
   return text
-    .replace(/^### (.*$)/gim, '<h4 class="font-bold text-white text-sm my-1.5 text-purple-300">$1</h4>')
-    .replace(/^## (.*$)/gim, '<h3 class="font-bold text-white text-base my-2 text-purple-200">$1</h3>')
+    .replace(/^### (.*$)/gim, '<h4 class="font-bold text-white text-base my-2 text-purple-300">$1</h4>')
+    .replace(/^## (.*$)/gim, '<h3 class="font-bold text-white text-lg my-2 text-purple-200">$1</h3>')
     .replace(/\*\*(.*?)\*\*/gim, '<strong class="text-white font-semibold">$1</strong>')
     .replace(/\*(.*?)\*/gim, '<em class="text-purple-200">$1</em>')
     .replace(/`([^`]+)`/gim, '<code class="bg-black/60 px-1.5 py-0.5 rounded text-cyan-300 font-mono text-[11px]">$1</code>')
-    .replace(/^• (.*$)/gim, '<li class="ml-4 list-disc text-gray-200 text-xs sm:text-sm my-0.5">$1</li>')
-    .replace(/^- (.*$)/gim, '<li class="ml-4 list-disc text-gray-200 text-xs sm:text-sm my-0.5">$1</li>')
+    .replace(/^• (.*$)/gim, '<li class="ml-4 list-disc text-gray-200 text-sm my-1">$1</li>')
+    .replace(/^- (.*$)/gim, '<li class="ml-4 list-disc text-gray-200 text-sm my-1">$1</li>')
     .replace(/\n\n/g, '<br/><br/>')
     .replace(/\n/g, '<br/>');
 }
 
 async function handleZuluSend(e) {
-  e.preventDefault();
+  if (e) e.preventDefault();
   const input = document.getElementById('zulu-input');
   if (!input || !input.value.trim()) return;
 
   const text = input.value.trim();
   input.value = '';
 
-  const messagesBox = document.getElementById('zulu-messages-box');
+  const heroEl = document.getElementById('zulu-welcome-hero');
+  if (heroEl) heroEl.classList.add('hidden');
 
+  const messagesBox = document.getElementById('zulu-messages-box');
+  if (!messagesBox) return;
+
+  // Render User Message (clean, spacious right-aligned bubble)
   const userDiv = document.createElement('div');
   userDiv.className = 'flex justify-end';
   userDiv.innerHTML = `
-    <div class="max-w-[85%] p-3.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-br-none text-xs sm:text-sm leading-relaxed shadow-md">
+    <div class="max-w-[85%] sm:max-w-[75%] p-4 rounded-3xl rounded-br-md bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm leading-relaxed shadow-lg">
       ${text}
     </div>
   `;
   messagesBox.appendChild(userDiv);
   messagesBox.scrollTop = messagesBox.scrollHeight;
 
+  // Typing Indicator
   const typingDiv = document.createElement('div');
   typingDiv.id = 'zulu-typing-indicator';
-  typingDiv.className = 'flex justify-start';
+  typingDiv.className = 'flex justify-start items-center gap-3';
   typingDiv.innerHTML = `
-    <div class="bg-gray-900/90 border border-purple-500/30 px-3.5 py-2.5 rounded-2xl rounded-bl-none flex items-center gap-1.5 shadow-sm">
-      <span class="text-xs text-purple-300 mr-1.5 font-medium">Zulu is synthesizing...</span>
+    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-cyan-500 flex items-center justify-center text-xs text-white shrink-0">✨</div>
+    <div class="bg-gray-900/90 border border-purple-500/30 px-4 py-2.5 rounded-2xl flex items-center gap-2 shadow-sm">
+      <span class="text-xs text-purple-300 font-medium">Zulu is thinking...</span>
       <div class="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce"></div>
       <div class="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce [animation-delay:0.2s]"></div>
       <div class="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce [animation-delay:0.4s]"></div>
@@ -528,11 +568,15 @@ async function handleZuluSend(e) {
   const ind = document.getElementById('zulu-typing-indicator');
   if (ind) ind.remove();
 
+  // Render Zulu Response (Gemini-style open text with avatar)
   const formattedReply = formatZuluMarkdown(res.reply);
   const zuluDiv = document.createElement('div');
-  zuluDiv.className = 'flex justify-start';
+  zuluDiv.className = 'flex justify-start items-start gap-3';
   zuluDiv.innerHTML = `
-    <div class="max-w-[85%] p-4 rounded-2xl bg-gray-900/95 border border-purple-500/30 text-gray-100 rounded-bl-none text-xs sm:text-sm leading-relaxed shadow-md space-y-1">
+    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-500 flex items-center justify-center text-xs text-white shrink-0 shadow-[0_0_10px_rgba(168,85,247,0.4)]">
+      ✨
+    </div>
+    <div class="max-w-[85%] sm:max-w-[78%] p-4 sm:p-5 rounded-3xl rounded-tl-md bg-gray-900/90 border border-gray-800 text-gray-100 text-sm leading-relaxed shadow-md space-y-2">
       ${formattedReply}
     </div>
   `;
@@ -544,102 +588,102 @@ function sendQuickPrompt(promptText) {
   const input = document.getElementById('zulu-input');
   if (input) {
     input.value = promptText;
-    document.getElementById('zulu-chat-form').dispatchEvent(new Event('submit'));
+    handleZuluSend();
   }
 }
 
 function clearZuluChat() {
   const box = document.getElementById('zulu-messages-box');
-  if (box) {
-    box.innerHTML = `
-      <div class="flex justify-start">
-        <div class="max-w-[85%] p-3.5 rounded-2xl bg-gray-900/90 border border-purple-500/30 text-gray-100 rounded-bl-none text-xs sm:text-sm leading-relaxed shadow-sm">
-          Conversation refreshed! I am <strong>Zulu</strong>, your AI Career & Skill Intelligence Companion. How can I assist you with your career roadmap, skill gaps, or industry internships today? 🚀
-        </div>
+  const heroEl = document.getElementById('zulu-welcome-hero');
+  if (box) box.innerHTML = '';
+  if (heroEl) heroEl.classList.remove('hidden');
+}
+
+// ─────────────────────────────────────────────────────────────
+// PEER BENCHMARKING (Idea #2)
+// ─────────────────────────────────────────────────────────────
+function renderPeerBenchmarking() {
+  const card = document.getElementById('peer-benchmarking-card');
+  if (!card) return;
+  card.innerHTML = `
+    <div class="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-purple-950/60 via-indigo-950/50 to-gray-900 border border-purple-500/40 shadow-xl space-y-3">
+      <div class="flex justify-between items-start">
+        <span class="text-[10px] uppercase font-bold text-purple-300 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/40">
+          Anonymized Peer Benchmark
+        </span>
+        <span class="text-xs font-mono font-black text-cyan-300">78th Percentile</span>
       </div>
-    `;
-  }
+      <h3 class="text-base sm:text-lg font-bold text-white">Compare With Scholars Placed at Dabur & Himalaya</h3>
+      <p class="text-xs text-gray-300 leading-relaxed">
+        Scholars with verified offers averaged an <strong>86% Competency Score</strong>. Your profile matches 3 out of 5 required industrial skills.
+      </p>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2 text-xs">
+        <div class="p-2.5 rounded-xl bg-black/40 border border-gray-800"><span class="text-gray-400 block text-[10px]">Your Score</span><strong class="text-purple-400">74%</strong></div>
+        <div class="p-2.5 rounded-xl bg-black/40 border border-gray-800"><span class="text-gray-400 block text-[10px]">Placed Peers</span><strong class="text-emerald-400">86% Avg</strong></div>
+        <div class="p-2.5 rounded-xl bg-black/40 border border-gray-800 col-span-2 sm:col-span-1"><span class="text-gray-400 block text-[10px]">Delta</span><strong class="text-amber-400">-12% Gap</strong></div>
+      </div>
+    </div>
+  `;
 }
 
-function toggleFloatingZulu() {
-  switchModule('Zulu');
-  const zuluSection = document.getElementById('module-Zulu');
-  if (zuluSection) {
-    zuluSection.scrollIntoView({ behavior: 'smooth' });
-    const input = document.getElementById('zulu-input');
-    if (input) setTimeout(() => input.focus(), 150);
-  }
-}
-
-// 2D Skill Tree Canvas
+// ─────────────────────────────────────────────────────────────
+// 2D SKILL TREE CONSTELLATION
+// ─────────────────────────────────────────────────────────────
 function initSkillTree() {
   window.addEventListener('resize', drawSkillTree);
+  setTimeout(drawSkillTree, 50);
 }
 
 function drawSkillTree() {
   const canvas = document.getElementById('skill-tree-canvas');
   if (!canvas) return;
 
-  const parent = canvas.parentElement;
-  canvas.width = parent.clientWidth;
-  canvas.height = parent.clientHeight || 450;
-
   const ctx = canvas.getContext('2d');
+  canvas.width = canvas.parentElement.clientWidth;
+  canvas.height = canvas.parentElement.clientHeight;
+
   const w = canvas.width;
   const h = canvas.height;
 
   ctx.clearRect(0, 0, w, h);
 
-  const skills = [
-    { name: 'Core Foundations', x: 0.5, y: 0.85, level: 5 },
-    { name: 'Python', x: 0.3, y: 0.65, level: 4 },
-    { name: 'Ayurvedic Pharmacognosy', x: 0.7, y: 0.65, level: 4 },
-    { name: 'Data Analysis', x: 0.2, y: 0.45, level: 3 },
-    { name: 'Machine Learning', x: 0.4, y: 0.45, level: 2 },
-    { name: 'Herbal Formulation', x: 0.6, y: 0.45, level: 3 },
-    { name: 'Clinical Research', x: 0.8, y: 0.45, level: 2 },
-    { name: 'NLP in Ayurveda', x: 0.35, y: 0.25, level: 1 },
-    { name: 'HPTLC Standardization', x: 0.65, y: 0.25, level: 2 }
+  const nodes = [
+    { name: 'Classical Botany', x: w * 0.2, y: h * 0.5, acquired: true },
+    { name: 'Ayurvedic Pharmacognosy', x: w * 0.4, y: h * 0.35, acquired: true },
+    { name: 'Herbal Formulation', x: w * 0.4, y: h * 0.65, acquired: true },
+    { name: 'HPTLC Standardization', x: w * 0.65, y: h * 0.35, acquired: false },
+    { name: 'Python Health Data', x: w * 0.65, y: h * 0.65, acquired: true },
+    { name: 'In-Silico AutoDock', x: w * 0.85, y: h * 0.5, acquired: false }
   ];
 
-  const connections = [
-    [0, 1], [0, 2], [1, 3], [1, 4], [2, 5], [2, 6], [4, 7], [5, 8]
+  const edges = [
+    [0, 1], [0, 2], [1, 3], [2, 4], [3, 5], [4, 5]
   ];
 
-  connections.forEach(([fromIdx, toIdx]) => {
-    const from = skills[fromIdx];
-    const to = skills[toIdx];
-
+  // Draw Edges
+  edges.forEach(([from, to]) => {
     ctx.beginPath();
-    ctx.moveTo(from.x * w, from.y * h);
-    ctx.lineTo(to.x * w, to.y * h);
-
-    const grad = ctx.createLinearGradient(from.x * w, from.y * h, to.x * w, to.y * h);
-    grad.addColorStop(0, 'rgba(168, 85, 247, 0.6)');
-    grad.addColorStop(1, 'rgba(56, 189, 248, 0.4)');
-
-    ctx.strokeStyle = grad;
+    ctx.moveTo(nodes[from].x, nodes[from].y);
+    ctx.lineTo(nodes[to].x, nodes[to].y);
+    ctx.strokeStyle = '#4b5563';
     ctx.lineWidth = 2;
     ctx.stroke();
   });
 
-  skills.forEach(skill => {
-    const px = skill.x * w;
-    const py = skill.y * h;
-
+  // Draw Nodes
+  nodes.forEach(n => {
     ctx.beginPath();
-    ctx.arc(px, py, 14, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(168, 85, 247, 0.2)';
+    ctx.arc(n.x, n.y, 14, 0, Math.PI * 2);
+    ctx.fillStyle = n.acquired ? '#a855f7' : '#374151';
     ctx.fill();
+    ctx.strokeStyle = n.acquired ? '#c084fc' : '#6b7280';
+    ctx.lineWidth = 3;
+    ctx.stroke();
 
-    ctx.beginPath();
-    ctx.arc(px, py, 7, 0, Math.PI * 2);
-    ctx.fillStyle = skill.level >= 3 ? '#a855f7' : '#38bdf8';
-    ctx.fill();
-
-    ctx.font = '11px sans-serif';
-    ctx.fillStyle = '#f1f5f9';
+    // Node Text
+    ctx.fillStyle = n.acquired ? '#ffffff' : '#9ca3af';
+    ctx.font = 'bold 11px Segoe UI, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(skill.name, px, py - 16);
+    ctx.fillText(n.name, n.x, n.y + 28);
   });
 }

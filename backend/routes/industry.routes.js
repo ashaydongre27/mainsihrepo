@@ -115,4 +115,38 @@ router.post('/submit-skill-demand', (req, res) => {
   });
 });
 
+// GET /api/industry/applications (Received from students applying to jobs/internships)
+router.get('/applications', (req, res) => {
+  const { company, type } = req.query;
+  let list = DB.applications || [];
+  if (company && company !== 'All') {
+    list = list.filter(a => a.company.toLowerCase().includes(company.toLowerCase()));
+  }
+  if (type && type !== 'All') {
+    list = list.filter(a => a.type.toLowerCase() === type.toLowerCase());
+  }
+  res.json({
+    totalApplications: list.length,
+    applications: list
+  });
+});
+
+// POST /api/industry/applications/:id/status
+router.post('/applications/:id/status', (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body || {};
+
+  const app = (DB.applications || []).find(a => a.id === id);
+  if (!app) {
+    return res.status(404).json({ success: false, error: 'Application not found.' });
+  }
+
+  app.status = status || 'Shortlisted';
+  res.json({
+    success: true,
+    message: `Application status updated to "${app.status}" for ${app.studentName}!`,
+    application: app
+  });
+});
+
 module.exports = router;

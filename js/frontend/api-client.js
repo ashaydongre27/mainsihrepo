@@ -232,6 +232,59 @@ const JoblexApiClient = {
     return { success: true, message: 'Opportunity published successfully!' };
   },
 
+  // Apply to Internship or Job (Sends application to Industry Portal)
+  async applyOpportunity(payload) {
+    try {
+      const res = await fetch(`${API_BASE}/opportunities/apply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) return await res.json();
+    } catch(e) {}
+    return {
+      success: true,
+      message: `Application for "${payload.opportunityTitle || 'Role'}" successfully transmitted to ${payload.company || 'Company'}!`
+    };
+  },
+
+  async getMyApplications(email) {
+    try {
+      const url = email ? `${API_BASE}/opportunities/my-applications?email=${encodeURIComponent(email)}` : `${API_BASE}/opportunities/my-applications`;
+      const res = await fetch(url);
+      if (res.ok) return await res.json();
+    } catch(e) {}
+    return { applications: [] };
+  },
+
+  async getIndustryApplications(company = 'All', type = 'All') {
+    try {
+      const url = `${API_BASE}/industry/applications?company=${encodeURIComponent(company)}&type=${encodeURIComponent(type)}`;
+      const res = await fetch(url);
+      if (res.ok) return await res.json();
+    } catch(e) {}
+    return {
+      totalApplications: 3,
+      applications: [
+        { id: "app-101", opportunityTitle: "Phytochemical Research Intern", company: "Dabur India Ltd.", type: "Internship", studentName: "Ashay Verma", college: "All India Institute of Ayurveda", match: 92, appliedDate: "2026-09-02", status: "Shortlisted" },
+        { id: "app-102", opportunityTitle: "Formulation Scientist", company: "Patanjali Research Foundation", type: "Job", studentName: "Kavya Singh", college: "All India Institute of Ayurveda", match: 94, appliedDate: "2026-09-03", status: "Under Review" },
+        { id: "app-103", opportunityTitle: "Clean 50 Ashwagandha Trial Records", company: "Dabur Research Labs", type: "Micro-Gig", studentName: "Ashay Verma", college: "All India Institute of Ayurveda", match: 90, appliedDate: "2026-09-04", status: "Offer Extended" }
+      ]
+    };
+  },
+
+  async updateApplicationStatus(id, status) {
+    try {
+      const res = await fetch(`${API_BASE}/industry/applications/${id}/status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      if (res.ok) return await res.json();
+    } catch(e) {}
+    return { success: true, message: `Status updated to "${status}"!` };
+  },
+
   // Zulu AI Chat
   async askZulu(message, context = {}) {
     try {
@@ -446,6 +499,52 @@ const JoblexApiClient = {
       if (res.ok) return await res.json();
     } catch(e) {}
     return { success: true };
+  },
+
+  // Student Application Dispatch & Industry Portal Pipeline
+  async applyOpportunity(payload) {
+    try {
+      const res = await fetch(`${API_BASE}/opportunities/apply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) return await res.json();
+    } catch(e) {}
+    return { success: true, message: 'Application transmitted successfully!' };
+  },
+
+  async getMyApplications(email) {
+    try {
+      const query = email ? `?email=${encodeURIComponent(email)}` : '';
+      const res = await fetch(`${API_BASE}/opportunities/my-applications${query}`);
+      if (res.ok) return await res.json();
+    } catch(e) {}
+    return { applications: [] };
+  },
+
+  async getIndustryApplications(company = 'All', type = 'All') {
+    try {
+      const params = new URLSearchParams();
+      if (company && company !== 'All') params.append('company', company);
+      if (type && type !== 'All') params.append('type', type);
+      const queryString = params.toString() ? `?${params.toString()}` : '';
+      const res = await fetch(`${API_BASE}/industry/applications${queryString}`);
+      if (res.ok) return await res.json();
+    } catch(e) {}
+    return { totalApplications: 0, applications: [] };
+  },
+
+  async updateApplicationStatus(id, status) {
+    try {
+      const res = await fetch(`${API_BASE}/industry/applications/${id}/status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      if (res.ok) return await res.json();
+    } catch(e) {}
+    return { success: true, message: `Application status updated to ${status}` };
   }
 };
 
