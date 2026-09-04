@@ -67,14 +67,18 @@ router.get('/all-data', (req, res) => {
   try {
     res.json({
       success: true,
+      mouPartnerships: DB.mou_partnerships || [],
       syllabusSuggestions: DB.syllabus_suggestions || [],
+      consultancyGrants: DB.consultancy_grants || [],
+      fdpPrograms: DB.fdp_programs || [],
       tpoMetrics: DB.tpoMetrics || {},
       crossCollegeBenchmarking: DB.crossCollegeBenchmarking || [],
       sponsoredBootcamps: DB.sponsoredBootcamps || [],
       studentStats: {
         totalEnrolled: 342,
-        avgSkillReadiness: "74.0%",
-        placedUnderMoU: 52
+        avgSkillReadiness: "76.4%",
+        placedUnderMoU: 48,
+        activeResearchProjects: 14
       }
     });
   } catch (err) {

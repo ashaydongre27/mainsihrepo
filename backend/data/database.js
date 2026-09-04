@@ -116,54 +116,6 @@ const DB = {
     }
   ],
 
-  applications: [
-    {
-      id: "app-101",
-      opportunityId: "opp-1",
-      opportunityTitle: "Phytochemical Research Intern",
-      company: "Dabur India Ltd.",
-      type: "Internship",
-      studentName: "Ashay Verma",
-      studentEmail: "student@nexus.edu",
-      college: "All India Institute of Ayurveda (AIIA), New Delhi",
-      skills: ["Herbal Formulation", "Phytochemistry", "GLP", "Python"],
-      match: 92,
-      appliedDate: "2026-09-02",
-      status: "Shortlisted",
-      verifiedBadge: "AIIA-CERT-2026-9842"
-    },
-    {
-      id: "app-102",
-      opportunityId: "opp-3",
-      opportunityTitle: "Formulation Scientist",
-      company: "Patanjali Research Foundation",
-      type: "Job",
-      studentName: "Kavya Singh",
-      studentEmail: "kavya@aiia.edu",
-      college: "All India Institute of Ayurveda (AIIA), New Delhi",
-      skills: ["Health Informatics", "NLP", "Python", "SQL"],
-      match: 94,
-      appliedDate: "2026-09-03",
-      status: "Under Review",
-      verifiedBadge: "AIIA-CERT-2026-9845"
-    },
-    {
-      id: "app-103",
-      opportunityId: "opp-gig-1",
-      opportunityTitle: "Clean & Standardize 50 Ashwagandha Trial Records",
-      company: "Dabur Research Labs",
-      type: "Micro-Gig",
-      studentName: "Ashay Verma",
-      studentEmail: "student@nexus.edu",
-      college: "All India Institute of Ayurveda (AIIA), New Delhi",
-      skills: ["Data Analysis", "Phytochemistry"],
-      match: 90,
-      appliedDate: "2026-09-04",
-      status: "Offer Extended",
-      verifiedBadge: "AIIA-CERT-2026-9842"
-    }
-  ],
-
   student_roadmap: {
     userId: "usr-student-01",
     careerGoal: "Ayush Health-Tech & Formulation Specialist",
@@ -340,7 +292,7 @@ const DB = {
     {
       id: "app-seed-01",
       opportunityId: "opp-1",
-      opportunityTitle: "Ayush Clinical Research Intern",
+      opportunityTitle: "Phytochemical Research Intern",
       company: "Dabur India Ltd.",
       type: "Internship",
       studentName: "Ashay Verma",
@@ -356,9 +308,9 @@ const DB = {
     {
       id: "app-seed-02",
       opportunityId: "opp-2",
-      opportunityTitle: "Formulation Scientist (Full-Time)",
-      company: "Patanjali Research Foundation",
-      type: "Job",
+      opportunityTitle: "Ayush AI Innovation Challenge 2026",
+      company: "Ministry of Ayush & AIIA",
+      type: "Hackathon",
       studentName: "Priya Nair",
       studentEmail: "priya@nexus.edu",
       college: "Gujarat Ayurved University, Jamnagar",
@@ -372,8 +324,8 @@ const DB = {
     {
       id: "app-seed-03",
       opportunityId: "opp-3",
-      opportunityTitle: "Herbal Data Scientist (Full-Time)",
-      company: "Himalaya Wellness Company",
+      opportunityTitle: "Formulation Development Scientist",
+      company: "Patanjali Research Foundation",
       type: "Job",
       studentName: "Kavya Singh",
       studentEmail: "kavya@nexus.edu",
@@ -384,6 +336,101 @@ const DB = {
       status: "Pending Review",
       verifiedBadge: "AIIA-CERT-2026-8831",
       coverNote: "Prakriti classification ML models and classical NLP extraction pipelines."
+    },
+    {
+      id: "app-103",
+      opportunityId: "opp-gig-1",
+      opportunityTitle: "Clean & Standardize 50 Ashwagandha Trial Records",
+      company: "Dabur Research Labs",
+      type: "Micro-Gig",
+      studentName: "Ashay Verma",
+      studentEmail: "student@nexus.edu",
+      college: "All India Institute of Ayurveda (AIIA), New Delhi",
+      skills: ["Data Analysis", "Phytochemistry"],
+      match: 90,
+      appliedDate: "2026-09-04",
+      status: "Offer Extended",
+      verifiedBadge: "AIIA-CERT-2026-9842"
+    }
+  ],
+
+  mou_partnerships: [
+    {
+      id: "mou-01",
+      partner: "Dabur Research Laboratories",
+      institution: "All India Institute of Ayurveda",
+      status: "Active",
+      signedDate: "2025-06-12",
+      validUntil: "2028-06-12",
+      focusAreas: ["Nanomedicine in Ayurveda", "Student Internships", "Joint Patents"],
+      internshipsProvided: 18,
+      curriculumSponsors: "Standardization of Kwatha Formulations"
+    },
+    {
+      id: "mou-02",
+      partner: "Himalaya Drug Company",
+      institution: "All India Institute of Ayurveda",
+      status: "Active",
+      signedDate: "2025-09-20",
+      validUntil: "2027-09-20",
+      focusAreas: ["Pharmacovigilance", "Clinical Trial Protocols", "Faculty Industrial Training"],
+      internshipsProvided: 12,
+      curriculumSponsors: "Computational Herbal Discovery"
+    },
+    {
+      id: "mou-03",
+      partner: "Aimil Pharmaceuticals",
+      institution: "All India Institute of Ayurveda",
+      status: "Reviewing Renewal",
+      signedDate: "2024-02-15",
+      validUntil: "2026-12-31",
+      focusAreas: ["Metabolic Disorders Formulations", "Sponsored PG Dissertations"],
+      internshipsProvided: 9,
+      curriculumSponsors: "Herbal Quality Control & HPTLC"
+    }
+  ],
+
+  consultancy_grants: [
+    {
+      id: "cg-01",
+      title: "Standardization of Ashwagandha Active Withanolides in Water-Soluble Matrix",
+      industry: "Dabur R&D",
+      grantAmount: "₹18,50,000",
+      deadline: "2026-11-15",
+      targetDept: "Dravyaguna / Pharmaceutical Sciences",
+      status: "Open for Faculty Proposals"
+    },
+    {
+      id: "cg-02",
+      title: "Bio-Efficacy Validation of Triphala Nano-Suspension in Gut Microbiome Models",
+      industry: "Himalaya Drug Co.",
+      grantAmount: "₹24,00,000",
+      deadline: "2026-12-01",
+      targetDept: "Kaya Chikitsa & Microbiology",
+      status: "Open for Faculty Proposals"
+    }
+  ],
+
+  fdp_programs: [
+    {
+      id: "fdp-01",
+      title: "Industrial Immersion in High-Throughput Herbal Extraction & HPTLC",
+      organizer: "National Medicinal Plants Board (NMPB) & Dabur Labs",
+      duration: "2 Weeks (Hands-on Lab Immersion)",
+      mode: "Offline at R&D Campus, Ghaziabad",
+      eligibility: "Assistant / Associate Professors in Ayush",
+      enrolled: 24,
+      seats: 30
+    },
+    {
+      id: "fdp-02",
+      title: "Generative AI & Data Analytics for Traditional Medicine Curriculums",
+      organizer: "All India Institute of Ayurveda & IIT Delhi Ayush Cell",
+      duration: "1 Week (30 Hours)",
+      mode: "Hybrid (Virtual + Weekend Hands-on)",
+      eligibility: "All Ayush Faculty Members",
+      enrolled: 68,
+      seats: 100
     }
   ]
 };

@@ -10,6 +10,44 @@ const express = require('express');
 const router = express.Router();
 const DB = require('../data/database');
 
+// GET /api/industry/all-data
+router.get('/all-data', (req, res) => {
+  res.json({
+    success: true,
+    opportunities: DB.opportunities || [],
+    mouPartnerships: DB.mou_partnerships || [],
+    candidates: DB.candidates || [],
+    forecast: DB.talentForecast || {},
+    bootcamps: DB.sponsoredBootcamps || [],
+    skillRoi: DB.skillRoiMetrics || {}
+  });
+});
+
+// POST /api/industry/post-opportunity
+router.post('/post-opportunity', (req, res) => {
+  const data = req.body || {};
+  const newOpp = {
+    id: `opp-${Date.now().toString(36)}`,
+    title: data.title || 'Research Associate',
+    company: data.company || 'Ayush Industry Partner',
+    type: data.type || 'Internship',
+    skills: Array.isArray(data.skills) ? data.skills : (data.skills ? data.skills.split(',').map(s => s.trim()) : ['Herbal Formulation', 'Research']),
+    location: data.location || 'New Delhi / Hybrid',
+    stipend: data.stipend || '₹18,000/mo',
+    deadline: data.deadline || '2026-11-30',
+    match: 88,
+    description: data.description || 'Opportunity posted via JOBLEX Industry Portal.'
+  };
+
+  if (!DB.opportunities) DB.opportunities = [];
+  DB.opportunities.unshift(newOpp);
+  res.status(201).json({
+    success: true,
+    message: 'Opportunity published successfully!',
+    opportunity: newOpp
+  });
+});
+
 // GET /api/industry/candidates
 router.get('/candidates', (req, res) => {
   res.json({ candidates: DB.candidates });
@@ -138,7 +176,7 @@ router.post('/applications/:id/status', (req, res) => {
 
   const app = (DB.applications || []).find(a => a.id === id);
   if (!app) {
-    return res.status(404).json({ success: false, error: 'Application not found.' });
+    return res.status(404).json({ success: false, message: 'Application not found.', error: 'Application not found.' });
   }
 
   app.status = status || 'Shortlisted';
