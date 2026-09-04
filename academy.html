@@ -1,485 +1,331 @@
 <!DOCTYPE html>
-
-<html lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>JOBLEX Academic Dean &amp; Accreditation Audit Command Center</title>
-<!-- Google Fonts: Inter & JetBrains Mono -->
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/>
-<!-- Material Symbols Outlined -->
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<!-- Tailwind CSS CDN -->
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JOBLEX | Academic Dean & Accreditation Audit Command Center</title>
+  <!-- Material Symbols Outlined -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Early Theme Detection Script to prevent FOUC -->
+  <script>
+    (function() {
+      try {
+        const saved = localStorage.getItem('joblex_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      } catch(e) {}
+    })();
+  </script>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
     tailwind.config = {
       darkMode: "class",
       theme: {
         extend: {
-          "colors": {
-            "secondary-fixed": "var(--secondary-fixed)",
-            "surface-dim": "var(--surface-dim)",
-            "surface-container-low": "var(--surface-container-low)",
-            "background": "var(--background)",
-            "on-primary-container": "var(--on-primary-container)",
-            "outline-variant": "var(--outline-variant)",
-            "tertiary": "var(--tertiary)",
-            "secondary-fixed-dim": "var(--secondary-fixed-dim)",
-            "on-tertiary-container": "var(--on-tertiary-container)",
-            "on-primary-fixed": "var(--on-primary-fixed)",
-            "on-tertiary-fixed-variant": "var(--on-tertiary-fixed-variant)",
-            "tertiary-fixed-dim": "var(--tertiary-fixed-dim)",
-            "on-primary-fixed-variant": "var(--on-primary-fixed-variant)",
-            "primary-fixed-dim": "var(--primary-fixed-dim)",
-            "surface-container-lowest": "var(--surface-container-lowest)",
-            "primary-fixed": "var(--primary-fixed)",
-            "inverse-primary": "var(--inverse-primary)",
-            "secondary-container": "var(--secondary-container)",
-            "surface-tint": "var(--surface-tint)",
-            "on-error-container": "var(--on-error-container)",
-            "on-background": "var(--on-background)",
-            "primary-container": "var(--primary-container)",
-            "error-container": "var(--error-container)",
-            "on-secondary": "var(--on-secondary)",
-            "secondary": "var(--secondary)",
-            "on-primary": "var(--on-primary)",
-            "on-tertiary-fixed": "var(--on-tertiary-fixed)",
-            "tertiary-fixed": "var(--tertiary-fixed)",
-            "on-secondary-fixed": "var(--on-secondary-fixed)",
-            "on-error": "var(--on-error)",
-            "inverse-surface": "var(--inverse-surface)",
-            "on-surface": "var(--on-surface)",
-            "inverse-on-surface": "var(--inverse-on-surface)",
-            "outline": "var(--outline)",
-            "surface": "var(--surface)",
-            "on-secondary-fixed-variant": "var(--on-secondary-fixed-variant)",
-            "surface-container-high": "var(--surface-container-high)",
-            "error": "var(--error)",
-            "surface-container-highest": "var(--surface-container-highest)",
-            "primary": "var(--primary)",
-            "surface-container": "var(--surface-container)",
-            "on-secondary-container": "var(--on-secondary-container)",
-            "on-surface-variant": "var(--on-surface-variant)",
-            "tertiary-container": "var(--tertiary-container)",
-            "surface-variant": "var(--surface-variant)",
-            "on-tertiary": "var(--on-tertiary)",
-            "surface-bright": "var(--surface-bright)"
-          },
-          "borderRadius": {
-            "DEFAULT": "0.125rem",
-            "lg": "0.25rem",
-            "xl": "0.5rem",
-            "full": "0.75rem"
-          },
-          "spacing": {
-            "unit-md": "0.75rem",
-            "unit-xs": "0.25rem",
-            "unit-2xl": "3rem",
-            "unit-xl": "2rem",
-            "unit-sm": "0.5rem",
-            "max-width-canvas": "1600px",
-            "gutter-desktop": "1.5rem",
-            "unit-lg": "1.5rem",
-            "unit-base": "1rem",
-            "unit-2xs": "0.125rem",
-            "unit-3xl": "4rem",
-            "margin-shell": "2rem"
-          },
-          "fontFamily": {
-            "body-sm": ["Inter"],
-            "label-md": ["Inter"],
-            "label-sm": ["Inter"],
-            "mono-data": ["JetBrains Mono"],
-            "display-lg": ["Inter"],
-            "headline-sm": ["Inter"],
-            "headline-md": ["Inter"],
-            "headline-lg": ["Inter"],
-            "body-md": ["Inter"],
-            "body-lg": ["Inter"]
-          },
-          "fontSize": {
-            "body-sm": ["13px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400" }],
-            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
-            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.03em", "fontWeight": "500" }],
-            "mono-data": ["12px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "500" }],
-            "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.025em", "fontWeight": "700" }],
-            "headline-sm": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
-            "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
-            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
-            "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }],
-            "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "400" }]
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
           }
         }
       }
     }
   </script>
-<script>
-  (function() {
-    try {
-      const saved = localStorage.getItem('joblex_theme');
-      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (saved === 'dark' || (!saved && prefersDark)) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    } catch(e) {}
-  })();
-</script>
-<style>
-  :root {
-    --secondary-fixed: #d8e3fb;
-    --surface-dim: #cbdbf5;
-    --surface-container-low: #eff4ff;
-    --background: #f8f9ff;
-    --on-primary-container: #7c839b;
-    --outline-variant: #c6c6cd;
-    --tertiary: #000000;
-    --secondary-fixed-dim: #bcc7de;
-    --on-tertiary-container: #339471;
-    --on-primary-fixed: #131b2e;
-    --on-tertiary-fixed-variant: #00513a;
-    --tertiary-fixed-dim: #7bd8b1;
-    --on-primary-fixed-variant: #3f465c;
-    --primary-fixed-dim: #bec6e0;
-    --surface-container-lowest: #ffffff;
-    --primary-fixed: #dae2fd;
-    --inverse-primary: #bec6e0;
-    --secondary-container: #d5e0f8;
-    --surface-tint: #565e74;
-    --on-error-container: #93000a;
-    --on-background: #0b1c30;
-    --primary-container: #131b2e;
-    --error-container: #ffdad6;
-    --on-secondary: #ffffff;
-    --secondary: #545f73;
-    --on-primary: #ffffff;
-    --on-tertiary-fixed: #002115;
-    --tertiary-fixed: #97f5cc;
-    --on-secondary-fixed: #111c2d;
-    --on-error: #ffffff;
-    --inverse-surface: #213145;
-    --on-surface: #0b1c30;
-    --inverse-on-surface: #eaf1ff;
-    --outline: #76777d;
-    --surface: #f8f9ff;
-    --on-secondary-fixed-variant: #3c475a;
-    --surface-container-high: #dce9ff;
-    --error: #ba1a1a;
-    --surface-container-highest: #d3e4fe;
-    --primary: #000000;
-    --surface-container: #e5eeff;
-    --on-secondary-container: #586377;
-    --on-surface-variant: #45464d;
-    --tertiary-container: #002115;
-    --surface-variant: #d3e4fe;
-    --on-tertiary: #ffffff;
-    --surface-bright: #f8f9ff;
-  }
-
-  html.dark {
-    --secondary-fixed: #6ffbbe;
-    --surface-dim: #111317;
-    --surface-container-low: #1a1c20;
-    --background: #111317;
-    --on-primary-container: #00285d;
-    --outline-variant: #424754;
-    --tertiary: #ffb786;
-    --secondary-fixed-dim: #4edea3;
-    --on-tertiary-container: #461f00;
-    --on-primary-fixed: #001a42;
-    --on-tertiary-fixed-variant: #723600;
-    --tertiary-fixed-dim: #ffb786;
-    --on-primary-fixed-variant: #004395;
-    --primary-fixed-dim: #adc6ff;
-    --surface-container-lowest: #0c0e12;
-    --primary-fixed: #d8e2ff;
-    --inverse-primary: #005ac2;
-    --secondary-container: #00a572;
-    --surface-tint: #adc6ff;
-    --on-error-container: #ffdad6;
-    --on-background: #e2e2e8;
-    --primary-container: #4d8eff;
-    --error-container: #93000a;
-    --on-secondary: #003824;
-    --secondary: #4edea3;
-    --on-primary: #002e6a;
-    --on-tertiary-fixed: #311400;
-    --tertiary-fixed: #ffdcc6;
-    --on-secondary-fixed: #002113;
-    --on-error: #690005;
-    --inverse-surface: #e2e2e8;
-    --on-surface: #e2e2e8;
-    --inverse-on-surface: #2f3035;
-    --outline: #8c909f;
-    --surface: #111317;
-    --on-secondary-fixed-variant: #005236;
-    --surface-container-high: #282a2e;
-    --error: #ffb4ab;
-    --surface-container-highest: #333539;
-    --primary: #adc6ff;
-    --surface-container: #1e2024;
-    --on-secondary-container: #00311f;
-    --on-surface-variant: #c2c6d6;
-    --tertiary-container: #df7412;
-    --surface-variant: #333539;
-    --on-tertiary: #502400;
-    --surface-bright: #37393e;
-  }
-
-  .material-symbols-outlined {
-    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
-    display: inline-block;
-    vertical-align: middle;
-    line-height: 1;
-  }
-</style>
-<!-- Custom Styles for Sidebar & Animations -->
-<link rel="stylesheet" href="css/styles.css">
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.3);
+      border-radius: 9999px;
+    }
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .sidebar-collapsed {
+      width: 5rem !important;
+    }
+    .sidebar-collapsed .sidebar-text-label,
+    .sidebar-collapsed .sidebar-badge-label {
+      display: none !important;
+    }
+    .sidebar-collapsed .sidebar-nav-btn {
+      justify-content: center !important;
+      padding-left: 0.5rem !important;
+      padding-right: 0.5rem !important;
+    }
+  </style>
 </head>
-<body class="bg-surface-container-lowest dark:bg-[#07071A] text-on-surface dark:text-white antialiased min-h-screen flex flex-col font-body-sm transition-colors duration-200">
-<!-- TOP APP BAR -->
-<header class="w-full bg-surface-container-lowest dark:bg-[#080814]/95 border-b border-outline-variant dark:border-gray-800 sticky top-0 z-50 backdrop-blur-md transition-colors duration-200">
-<div class="w-full max-w-max-width-canvas mx-auto px-gutter-desktop h-16 flex items-center justify-between">
-<!-- Brand & Affiliation Crest -->
-<div class="flex items-center gap-4 sm:gap-6">
-<button onclick="toggleAcademyMobileMenu()" class="lg:hidden p-1.5 rounded-lg bg-slate-100 dark:bg-gray-900 border border-slate-200 dark:border-gray-800 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white" title="Toggle Navigation Menu">☰</button>
-<div class="flex items-baseline gap-2">
-<a href="index.html" class="text-headline-md font-headline-md font-bold tracking-tight text-on-surface dark:text-white uppercase">JOBLEX</a>
-<span class="text-label-sm font-label-sm text-secondary tracking-normal font-medium border-l border-outline-variant dark:border-gray-800 pl-2 hidden sm:inline">
-            AIIA • Ministry of Ayush
-          </span>
-</div>
-<!-- Institutional Segment Switcher -->
-<nav class="hidden md:flex items-center gap-6 border-l border-outline-variant dark:border-gray-800 pl-6">
-<a class="text-secondary hover:text-on-surface font-label-md text-label-md py-4 transition-colors duration-150" href="student-roadmap.html">Student Portal</a>
-<a class="border-b-2 border-primary text-primary font-label-md text-label-md py-4 transition-colors duration-150" href="academy.html">Academic Dean &amp; TPO</a>
-<a class="text-secondary hover:text-on-surface font-label-md text-label-md py-4 transition-colors duration-150" href="industry.html">Industry &amp; Pharma R&amp;D</a>
-</nav>
-</div>
-<!-- Trailing Action Utilities & Verified Profile -->
-<div class="flex items-center gap-2 sm:gap-4">
-<!-- Verified Credentials Badge -->
-<div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-surface-container-low dark:bg-emerald-950/40 border border-outline-variant dark:border-emerald-800/60 rounded">
-<span class="material-symbols-outlined text-tertiary-container text-[16px]" style="font-variation-settings: 'FILL' 1;">verified</span>
-<span class="font-label-sm text-label-sm text-on-surface dark:text-emerald-300 font-semibold">Verified Credentials</span>
-</div>
-<!-- Theme Toggle Button -->
-<button id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Light/Dark Theme" title="Toggle Light/Dark Theme" class="p-1.5 text-secondary hover:text-on-surface rounded hover:bg-surface-container-low transition-colors duration-150 flex items-center justify-center">
-  <span id="theme-toggle-icon" class="material-symbols-outlined text-[20px]">dark_mode</span>
-</button>
-<!-- System Icons -->
-<div class="flex items-center gap-1 border-x border-outline-variant dark:border-gray-800 px-2">
-<button id="notification-bell-btn" onclick="toggleNotificationsDropdown(event)" aria-label="Notifications" title="View Institutional Notifications" class="relative p-1.5 text-secondary hover:text-on-surface rounded hover:bg-surface-container-low transition-colors duration-150 flex items-center justify-center">
-<span class="material-symbols-outlined text-[20px]" data-icon="notifications">notifications</span>
-<span class="notification-badge-indicator hidden absolute top-1 right-1 px-1 min-w-[16px] h-4 text-[9px] font-mono font-bold bg-rose-500 text-white rounded-full flex items-center justify-center ring-2 ring-surface-container-lowest dark:ring-[#080814]">3</span>
-</button>
-<button aria-label="Help" class="p-1.5 text-secondary hover:text-on-surface rounded hover:bg-surface-container-low transition-colors duration-150">
-<span class="material-symbols-outlined text-[20px]" data-icon="help">help</span>
-</button>
-</div>
-<!-- Administrator Profile -->
-<div class="flex items-center gap-2.5 pl-1">
-<div class="w-9 h-9 rounded bg-surface-container-high dark:bg-emerald-900/60 border border-outline-variant dark:border-emerald-700/60 flex items-center justify-center font-bold text-primary dark:text-emerald-200 font-label-md">AT</div>
-<div class="hidden lg:block text-left leading-tight">
-<div class="font-label-md text-label-md text-on-surface dark:text-white">Prof. Alok Tripathi</div>
-<div class="font-label-sm text-label-sm text-secondary">Dean of Academics, AIIA</div>
-</div>
-</div>
-</div>
-</div>
+<body class="bg-gradient-to-b from-[#FFFFFF] via-[#F8F9FA] to-[#F1F3F5] dark:from-[#07071A] dark:via-[#090924] dark:to-[#07071A] text-[#0F172A] dark:text-slate-100 font-sans min-h-screen flex flex-col antialiased transition-colors duration-200">
+
+
+<header class="sticky top-0 z-50 w-full bg-white/90 dark:bg-[#07071A]/95 backdrop-blur-md border-b border-[#E2E8F0] dark:border-white/5 transition-colors duration-200">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-3 flex items-center justify-between">
+    <!-- Mobile Hamburger + Brand Logo -->
+    <div class="flex items-center gap-3">
+      <button onclick="toggleAcademyMobileMenu()" class="lg:hidden p-2 rounded-xl text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 border border-slate-200 dark:border-gray-800 transition" aria-label="Toggle Navigation">
+        <span class="material-symbols-outlined text-[20px]">menu</span>
+      </button>
+      <a href="academy.html" class="flex items-center gap-2.5 cursor-pointer select-none">
+        <div class="w-1.5 h-8 bg-gradient-to-b from-emerald-400 to-teal-600 rounded-full shadow-[0_0_12px_rgba(16,185,129,0.7)]"></div>
+        <div>
+          <span class="text-xl font-extrabold tracking-widest text-[#0F172A] dark:text-white uppercase block">JOBLEX</span>
+          <span class="hidden sm:block text-[9px] text-[#64748B] dark:text-gray-400 tracking-widest uppercase font-semibold">Ministry of Ayush · Academic Dean &amp; TPO</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Navigation Links + Status + Notification + Theme + Avatar -->
+    <div class="flex items-center gap-2 sm:gap-3">
+      <a href="javascript:void(0)" onclick="JoblexApiClient.navigateToPortal('student')" class="hidden sm:block px-3 py-1.5 text-xs text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white border border-[#E2E8F0] dark:border-gray-800 hover:border-[#CBD5E1] dark:hover:border-gray-600 rounded-lg transition font-medium">
+        🎓 Student
+      </a>
+      <a href="javascript:void(0)" onclick="JoblexApiClient.navigateToPortal('industry')" class="hidden sm:block px-3 py-1.5 text-xs text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white border border-[#E2E8F0] dark:border-gray-800 hover:border-[#CBD5E1] dark:hover:border-gray-600 rounded-lg transition font-medium">
+        🏢 Industry
+      </a>
+
+      <!-- NAAC Badge -->
+      <span class="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-bold border border-emerald-200 dark:border-emerald-800/60">
+        🏛️ NAAC Cycle IV
+      </span>
+
+      <!-- Notification Bell -->
+      <button id="notification-bell-btn" type="button" aria-label="Open Notifications" class="relative p-2 rounded-xl text-[#475569] dark:text-gray-300 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 border border-[#E2E8F0] dark:border-white/10 transition-colors">
+        <span class="material-symbols-outlined text-[20px]">notifications</span>
+        <span class="notification-badge-indicator absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-emerald-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
+          3
+        </span>
+      </button>
+
+      <!-- Theme Switcher -->
+      <button id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Light/Dark Theme" title="Toggle Light/Dark Theme" class="p-2 rounded-xl border border-[#E2E8F0] dark:border-white/10 bg-white dark:bg-white/5 text-[#475569] dark:text-gray-300 hover:text-[#0F172A] dark:hover:text-white transition-colors duration-150 flex items-center justify-center">
+        <span id="theme-toggle-icon" class="material-symbols-outlined text-[18px]">dark_mode</span>
+      </button>
+
+      <!-- Dean Avatar Chip -->
+      <div class="flex items-center gap-2 pl-2 border-l border-[#E2E8F0] dark:border-white/10">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-600 text-white font-bold text-xs flex items-center justify-center shadow-sm">
+          AD
+        </div>
+        <div class="hidden xl:flex flex-col text-left">
+          <span class="text-xs font-bold text-[#0F172A] dark:text-white truncate">Dean (Acad.)</span>
+          <span class="text-[10px] text-[#64748B] dark:text-gray-400 font-mono">AIIA Delhi</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </header>
 
 <!-- MOBILE SLIDE-OUT DRAWER -->
-<div id="academy-mobile-drawer" class="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-sm z-50 lg:hidden hidden" onclick="closeAcademyMobileMenu()">
-  <div class="w-72 max-w-[85vw] h-full bg-white dark:bg-[#080814] border-r border-[#E2E8F0] dark:border-emerald-500/30 p-4 flex flex-col justify-between overflow-y-auto" onclick="event.stopPropagation()">
-    <div class="space-y-2">
-      <div class="flex justify-between items-center px-2 pb-3 border-b border-slate-200 dark:border-gray-800">
-        <span class="text-xs uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-bold">Academic Modules</span>
-        <button onclick="closeAcademyMobileMenu()" class="p-1 rounded-lg text-slate-400 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white">✕</button>
+<div id="academy-mobile-drawer" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden lg:hidden">
+  <div class="fixed inset-y-0 left-0 w-72 bg-white dark:bg-[#0c0e14] p-5 flex flex-col justify-between shadow-2xl border-r border-[#E2E8F0] dark:border-white/10 overflow-y-auto">
+    <div class="space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-gray-800">
+        <span class="text-xs uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-bold">Academic Navigation</span>
+        <button onclick="closeAcademyMobileMenu()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white">✕</button>
       </div>
       <div class="space-y-1 pt-1">
-        <a href="academy.html" class="academy-mobile-nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold transition bg-emerald-50 dark:bg-emerald-600/25 border border-emerald-200 dark:border-emerald-500/80 text-emerald-700 dark:text-emerald-100">
+        <a href="academy.html" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold transition bg-[#0F172A] text-white dark:bg-white/10 dark:text-white shadow-sm">
           <span class="flex items-center gap-3"><span>🏛️</span> <span>Command Center</span></span>
           <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500 text-white font-bold">Active</span>
         </a>
-        <a href="#dept-readiness-section" onclick="closeAcademyMobileMenu()" class="academy-mobile-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>📊</span> <span>Departmental Readiness &amp; NAAC</span>
+        <a href="#dept-readiness-section" onclick="closeAcademyMobileMenu()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+          <span>📊</span> <span>Departmental Readiness</span>
         </a>
-        <a href="#curriculum-gap-section" onclick="closeAcademyMobileMenu()" class="academy-mobile-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+        <a href="#curriculum-gap-section" onclick="closeAcademyMobileMenu()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
           <span>🧠</span> <span>Curriculum Gap Audit</span>
         </a>
-        <a href="#peer-benchmarking-section" onclick="closeAcademyMobileMenu()" class="academy-mobile-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>🌐</span> <span>Cross-College Benchmarking</span>
+        <a href="#peer-benchmarking-section" onclick="closeAcademyMobileMenu()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+          <span>🌐</span> <span>Peer Benchmarking</span>
         </a>
-        <a href="student-quiz.html" class="academy-mobile-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>⚡</span> <span>Quiz Assessment Arena</span>
+        <a href="student-quiz.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+          <span>⚡</span> <span>Quiz Arena</span>
         </a>
-        <a href="student-resume.html" class="academy-mobile-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>📄</span> <span>AI Resume Auditing</span>
+        <a href="student-resume.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+          <span>📄</span> <span>AI Resume Analyzer</span>
         </a>
-        <a href="student-skilltree.html" class="academy-mobile-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+        <a href="student-skilltree.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
           <span>🌌</span> <span>Skill Constellations</span>
         </a>
-        <a href="student-portfolio.html" class="academy-mobile-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+        <a href="student-portfolio.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
           <span>🏆</span> <span>Verified Dossier Ledger</span>
         </a>
       </div>
     </div>
     <div class="pt-4 border-t border-slate-200 dark:border-gray-800">
-      <button onclick="JoblexApiClient.logout()" class="w-full py-2 rounded-xl text-center text-xs font-semibold text-slate-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition flex items-center justify-center gap-2">
+      <button onclick="JoblexApiClient.logout()" class="w-full py-2.5 rounded-xl text-center text-xs font-semibold text-slate-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition flex items-center justify-center gap-2">
         <span>🚪</span> <span>Sign Out</span>
       </button>
     </div>
   </div>
 </div>
-
 <div class="flex-1 flex overflow-hidden">
   <!-- COLLAPSIBLE SIDEBAR -->
-  <aside id="academy-sidebar" class="hidden lg:flex w-64 bg-white/90 dark:bg-[#080812]/90 border-r border-[#E2E8F0] dark:border-gray-800/80 backdrop-blur-md p-3.5 flex-col justify-between shrink-0 transition-all duration-300">
+  <aside id="academy-sidebar" class="hidden lg:flex w-64 bg-white/90 dark:bg-[#080812]/90 border-r border-[#E2E8F0] dark:border-white/5 backdrop-blur-md p-3.5 flex-col justify-between shrink-0 transition-all duration-300">
     <div class="space-y-1">
       <div class="flex items-center justify-between px-2 pb-2 mb-2 border-b border-slate-200 dark:border-gray-800/80">
         <span class="sidebar-text-label text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-bold">Academic Modules</span>
-        <button id="academy-sidebar-collapse-btn" onclick="toggleAcademySidebarCollapse()" title="Minimize / Expand Sidebar" class="p-1.5 rounded-lg bg-slate-100 dark:bg-gray-900 border border-slate-200 dark:border-gray-800 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white text-xs transition"><span>◀</span></button>
+        <button id="academy-sidebar-collapse-btn" onclick="toggleAcademySidebarCollapse()" title="Minimize / Expand Sidebar" class="p-1.5 rounded-lg bg-slate-100 dark:bg-gray-900 border border-slate-200 dark:border-gray-800 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white text-xs transition">
+          <span>◀</span>
+        </button>
       </div>
-      <a href="academy.html" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all bg-emerald-50 dark:bg-emerald-600/25 border border-emerald-200 dark:border-emerald-500/80 text-emerald-700 dark:text-emerald-100 shadow-sm dark:shadow-[0_0_15px_rgba(16,185,129,0.25)]">
+      <a href="academy.html" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all bg-[#0F172A] text-white dark:bg-white/10 dark:text-white shadow-sm">
         <span class="text-base shrink-0">🏛️</span>
         <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
-          <span class="font-bold text-xs text-emerald-900 dark:text-white truncate">Command Center</span>
-          <span class="text-[10px] text-emerald-600 dark:text-gray-400 truncate">Council &amp; TPO Overview</span>
+          <span class="font-bold text-xs truncate">Command Center</span>
+          <span class="text-[10px] text-gray-300 dark:text-gray-400 truncate">Council &amp; TPO Overview</span>
         </div>
       </a>
-      <a href="#dept-readiness-section" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+      <a href="#dept-readiness-section" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="text-base shrink-0">📊</span>
         <span class="sidebar-text-label font-bold text-xs">Departmental Readiness</span>
       </a>
-      <a href="#curriculum-gap-section" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+      <a href="#curriculum-gap-section" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="text-base shrink-0">🧠</span>
         <span class="sidebar-text-label font-bold text-xs">Curriculum Gap Audit</span>
       </a>
-      <a href="#peer-benchmarking-section" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+      <a href="#peer-benchmarking-section" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="text-base shrink-0">🌐</span>
         <span class="sidebar-text-label font-bold text-xs">Peer Benchmarking</span>
       </a>
-      <a href="student-quiz.html" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+      <a href="student-quiz.html" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="text-base shrink-0">⚡</span>
-        <span class="sidebar-text-label font-bold text-xs">Quiz Assessment Arena</span>
+        <span class="sidebar-text-label font-bold text-xs">Quiz Arena</span>
       </a>
-      <a href="student-resume.html" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+      <a href="student-resume.html" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="text-base shrink-0">📄</span>
-        <span class="sidebar-text-label font-bold text-xs">AI Resume Auditing</span>
+        <span class="sidebar-text-label font-bold text-xs">AI Resume Analyzer</span>
       </a>
-      <a href="student-skilltree.html" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+      <a href="student-skilltree.html" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="text-base shrink-0">🌌</span>
         <span class="sidebar-text-label font-bold text-xs">Skill Constellations</span>
       </a>
-      <a href="student-portfolio.html" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+      <a href="student-portfolio.html" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="text-base shrink-0">🏆</span>
         <span class="sidebar-text-label font-bold text-xs">Verified Dossier Ledger</span>
       </a>
     </div>
     <div class="mt-4 pt-3 border-t border-slate-200 dark:border-gray-800/80">
-      <button onclick="JoblexApiClient.logout()" class="w-full py-2 rounded-xl text-center text-xs font-semibold text-slate-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition flex items-center justify-center gap-2">
+      <button onclick="JoblexApiClient.logout()" class="w-full py-2 rounded-xl text-center text-xs font-semibold text-slate-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition flex items-center justify-center gap-2">
         <span>🚪</span> <span class="sidebar-text-label">Sign Out</span>
       </button>
     </div>
   </aside>
-
   <!-- WORKSPACE -->
   <main class="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 custom-scrollbar">
-    <div class="w-full max-w-max-width-canvas mx-auto flex flex-col gap-unit-xl">
+    <div class="w-full max-w-6xl mx-auto flex flex-col gap-6">
+
+    <div class="w-full max-w-6xl mx-auto flex flex-col gap-6">
 <!-- SUB-HEADER / TITLE BANNER -->
-<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 sm:p-5">
+<section class="bg-white dark:bg-white/[0.03] shadow-sm border border-[#E2E8F0] dark:border-white/10 rounded-xl p-4 sm:p-5">
 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
 <div>
 <div class="flex items-center gap-2 mb-0.5">
-<span class="font-mono-data text-mono-data uppercase text-secondary">REGISTRY REF: AIIA-AC-2025/Q1</span>
+<span class="font-mono font-mono text-xs uppercase text-[#64748B] dark:text-gray-400">REGISTRY REF: AIIA-AC-2025/Q1</span>
 <span class="text-outline-variant">•</span>
-<span class="inline-flex items-center px-2 py-0.5 rounded bg-surface-container text-on-surface font-label-sm text-label-sm">
+<span class="inline-flex items-center px-2 py-0.5 rounded bg-slate-100 dark:bg-white/[0.04] text-[#0F172A] dark:text-white font-semibold text-[11px] font-semibold uppercase tracking-wider">
               NAAC Statutory Cycle IV
             </span>
 </div>
-<h1 class="text-headline-lg font-headline-lg text-on-surface">Academic Council &amp; TPO Command Center</h1>
-<p class="text-body-sm font-body-sm text-secondary mt-0.5">
+<h1 class="text-2xl sm:text-3xl font-bold font-bold text-[#0F172A] dark:text-white">Academic Council &amp; TPO Command Center</h1>
+<p class="text-xs font-normal text-[#64748B] dark:text-gray-400 mt-0.5">
             Outcome-Based Education (OBE), NAAC Criterion 3.4 Compliance &amp; Industry MoU Syndication
           </p>
 </div>
 <!-- Quick Governance Actions -->
 <div class="flex items-center gap-2">
-<button onclick="handleExportAQAR()" class="px-3 py-1.5 border border-outline-variant bg-surface-container-lowest hover:bg-surface-container-low text-on-surface rounded font-label-md text-label-md transition-colors duration-150 flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">file_download</span>NAAC AQAR Export</button>
-<button onclick="handleSyndicateChanges()" class="px-3 py-1.5 bg-primary text-on-primary rounded font-label-md text-label-md hover:bg-primary-container transition-colors duration-150 flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">verified</span>Syndicate Curriculum Changes</button>
+<button onclick="handleExportAQAR()" class="px-3 py-1.5 border border-[#E2E8F0] dark:border-white/10 bg-white dark:bg-white/[0.03] shadow-sm hover:bg-slate-50 dark:bg-white/[0.02] text-[#0F172A] dark:text-white rounded font-semibold text-xs font-semibold transition-colors duration-150 flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">file_download</span>NAAC AQAR Export</button>
+<button onclick="handleSyndicateChanges()" class="px-3 py-1.5 bg-[#0F172A] dark:bg-white/10 text-white dark:text-gray-100 rounded font-semibold text-xs font-semibold hover:bg-[#1E293B] dark:bg-white/20 transition-colors duration-150 flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">verified</span>Syndicate Curriculum Changes</button>
 </div>
 </div>
 </section>
 <!-- MAIN CANVAS -->
-<div class="flex flex-col gap-unit-xl">
+<div class="flex flex-col gap-6">
 <!-- KPI ROW (4 CLEAN METRIC CARDS) -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 <!-- Metric 1 -->
-<div class="border border-outline-variant p-unit-base rounded bg-surface-container-lowest">
-<div class="flex items-center justify-between text-secondary mb-1">
-<span class="font-label-sm text-label-sm uppercase">Total Scholars Enrolled</span>
+<div class="border border-[#E2E8F0] dark:border-white/10 p-5 rounded bg-white dark:bg-white/[0.03] shadow-sm">
+<div class="flex items-center justify-between text-[#64748B] dark:text-gray-400 mb-1">
+<span class="font-semibold text-[11px] font-semibold uppercase tracking-wider uppercase">Total Scholars Enrolled</span>
 <span class="material-symbols-outlined text-[18px]">school</span>
 </div>
-<div class="text-display-lg font-display-lg text-on-surface">342</div>
-<div class="flex items-center gap-1 text-label-sm font-label-sm text-on-tertiary-container mt-1">
+<div class="text-3xl sm:text-4xl font-extrabold font-mono font-extrabold text-[#0F172A] dark:text-white">342</div>
+<div class="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
 <span class="material-symbols-outlined text-[14px]">trending_up</span>
 <span>+8.4% YoY Verified Enrollment</span>
 </div>
 </div>
 <!-- Metric 2 -->
-<div class="border border-outline-variant p-unit-base rounded bg-surface-container-lowest">
-<div class="flex items-center justify-between text-secondary mb-1">
-<span class="font-label-sm text-label-sm uppercase">OBE Curriculum Attainment</span>
+<div class="border border-[#E2E8F0] dark:border-white/10 p-5 rounded bg-white dark:bg-white/[0.03] shadow-sm">
+<div class="flex items-center justify-between text-[#64748B] dark:text-gray-400 mb-1">
+<span class="font-semibold text-[11px] font-semibold uppercase tracking-wider uppercase">OBE Curriculum Attainment</span>
 <span class="material-symbols-outlined text-[18px]">verified_user</span>
 </div>
-<div class="text-display-lg font-display-lg text-on-surface">94.2%</div>
-<div class="flex items-center gap-1 text-label-sm font-label-sm text-on-tertiary-container mt-1">
+<div class="text-3xl sm:text-4xl font-extrabold font-mono font-extrabold text-[#0F172A] dark:text-white">94.2%</div>
+<div class="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
 <span class="material-symbols-outlined text-[14px]">check_circle</span>
 <span>Target &gt; 90% (NAAC Criterion 2.6)</span>
 </div>
 </div>
 <!-- Metric 3 -->
-<div class="border border-outline-variant p-unit-base rounded bg-surface-container-lowest">
-<div class="flex items-center justify-between text-secondary mb-1">
-<span class="font-label-sm text-label-sm uppercase">Placed Under Bilateral MoUs</span>
+<div class="border border-[#E2E8F0] dark:border-white/10 p-5 rounded bg-white dark:bg-white/[0.03] shadow-sm">
+<div class="flex items-center justify-between text-[#64748B] dark:text-gray-400 mb-1">
+<span class="font-semibold text-[11px] font-semibold uppercase tracking-wider uppercase">Placed Under Bilateral MoUs</span>
 <span class="material-symbols-outlined text-[18px]">handshake</span>
 </div>
 <div class="flex items-baseline gap-2">
-<span class="text-display-lg font-display-lg text-on-surface">52</span>
-<span class="font-mono-data text-mono-data text-secondary">/ 60 Scholars</span>
+<span class="text-3xl sm:text-4xl font-extrabold font-mono font-extrabold text-[#0F172A] dark:text-white">52</span>
+<span class="font-mono font-mono text-xs text-[#64748B] dark:text-gray-400">/ 60 Scholars</span>
 </div>
-<div class="flex items-center gap-1 text-label-sm font-label-sm text-on-tertiary-container mt-1">
-<span class="font-bold text-label-sm">86% Placement Rate</span>
-<span class="text-secondary">(Phase 1 Drive)</span>
+<div class="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
+<span class="font-bold text-[11px] font-semibold uppercase tracking-wider">86% Placement Rate</span>
+<span class="text-[#64748B] dark:text-gray-400">(Phase 1 Drive)</span>
 </div>
 </div>
 <!-- Metric 4 -->
-<div class="border border-outline-variant p-unit-base rounded bg-surface-container-lowest">
-<div class="flex items-center justify-between text-secondary mb-1">
-<span class="font-label-sm text-label-sm uppercase">Active Corporate R&amp;D Grants</span>
+<div class="border border-[#E2E8F0] dark:border-white/10 p-5 rounded bg-white dark:bg-white/[0.03] shadow-sm">
+<div class="flex items-center justify-between text-[#64748B] dark:text-gray-400 mb-1">
+<span class="font-semibold text-[11px] font-semibold uppercase tracking-wider uppercase">Active Corporate R&amp;D Grants</span>
 <span class="material-symbols-outlined text-[18px]">account_balance</span>
 </div>
-<div class="text-display-lg font-display-lg text-on-surface">₹54.5 L</div>
-<div class="flex items-center gap-1 text-label-sm font-label-sm text-on-surface-variant mt-1">
-<span class="font-mono-data text-mono-data">5 Active Grants</span>
-<span class="text-secondary">• Dabur &amp; Himalaya Corp</span>
+<div class="text-3xl sm:text-4xl font-extrabold font-mono font-extrabold text-[#0F172A] dark:text-white">₹54.5 L</div>
+<div class="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400 mt-1">
+<span class="font-mono font-mono text-xs">5 Active Grants</span>
+<span class="text-[#64748B] dark:text-gray-400">• Dabur &amp; Himalaya Corp</span>
 </div>
 </div>
 </div>
 <!-- MAIN SECTION 1: DEPARTMENTAL READINESS & NAAC ACCREDITATION TABLE -->
-<section id="dept-readiness-section" class="border border-outline-variant rounded bg-surface-container-lowest">
+<section id="dept-readiness-section" class="border border-[#E2E8F0] dark:border-white/10 rounded bg-white dark:bg-white/[0.03] shadow-sm">
 <!-- Section Header -->
-<div class="px-unit-base py-3 border-b border-outline-variant flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+<div class="px-5 py-3 border-b border-[#E2E8F0] dark:border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
 <div>
-<h2 class="text-headline-sm font-headline-sm text-on-surface">Departmental Readiness &amp; NAAC Accreditation Table</h2>
-<p class="text-label-sm font-label-sm text-secondary">Statutory monitoring of Post-Graduate &amp; Doctoral departments across academic indicators</p>
+<h2 class="text-base sm:text-lg font-bold font-bold text-[#0F172A] dark:text-white">Departmental Readiness &amp; NAAC Accreditation Table</h2>
+<p class="text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">Statutory monitoring of Post-Graduate &amp; Doctoral departments across academic indicators</p>
 </div>
 <div class="flex items-center gap-2">
-<span class="font-mono-data text-mono-data text-secondary text-label-sm">Criteria Matrix: v3.4.1</span>
-<button class="p-1 text-secondary hover:text-on-surface">
+<span class="font-mono font-mono text-xs text-[#64748B] dark:text-gray-400 text-[11px] font-semibold uppercase tracking-wider">Criteria Matrix: v3.4.1</span>
+<button class="p-1 text-[#64748B] dark:text-gray-400 hover:text-[#0F172A] dark:text-white">
 <span class="material-symbols-outlined text-[18px]">tune</span>
 </button>
 </div>
@@ -488,169 +334,169 @@
 <div class="overflow-x-auto">
 <table class="w-full text-left border-collapse">
 <thead>
-<tr class="bg-surface-container-low border-b border-outline-variant">
-<th class="py-2.5 px-unit-base text-label-sm font-label-sm text-secondary uppercase tracking-wider">Department</th>
-<th class="py-2.5 px-unit-base text-label-sm font-label-sm text-secondary uppercase tracking-wider">Head of Department</th>
-<th class="py-2.5 px-unit-base text-label-sm font-label-sm text-secondary uppercase tracking-wider">OBE Attainment</th>
-<th class="py-2.5 px-unit-base text-label-sm font-label-sm text-secondary uppercase tracking-wider">Lab Infra Index</th>
-<th class="py-2.5 px-unit-base text-label-sm font-label-sm text-secondary uppercase tracking-wider">Board of Studies (BoS) Status</th>
-<th class="py-2.5 px-unit-base text-label-sm font-label-sm text-secondary uppercase tracking-wider">NAAC Criterion</th>
+<tr class="bg-slate-50 dark:bg-white/[0.02] border-b border-[#E2E8F0] dark:border-white/10">
+<th class="py-2.5 px-5 text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400 uppercase tracking-wider">Department</th>
+<th class="py-2.5 px-5 text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400 uppercase tracking-wider">Head of Department</th>
+<th class="py-2.5 px-5 text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400 uppercase tracking-wider">OBE Attainment</th>
+<th class="py-2.5 px-5 text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400 uppercase tracking-wider">Lab Infra Index</th>
+<th class="py-2.5 px-5 text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400 uppercase tracking-wider">Board of Studies (BoS) Status</th>
+<th class="py-2.5 px-5 text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400 uppercase tracking-wider">NAAC Criterion</th>
 </tr>
 </thead>
-<tbody class="divide-y divide-outline-variant">
+<tbody class="divide-y divide-[#E2E8F0] dark:divide-white/10">
 <!-- Row 1 -->
-<tr class="hover:bg-surface-container-low transition-colors duration-150">
-<td class="py-3 px-unit-base font-label-md text-label-md text-on-surface">
+<tr class="hover:bg-slate-50 dark:bg-white/[0.02] transition-colors duration-150">
+<td class="py-3 px-5 font-semibold text-xs font-semibold text-[#0F172A] dark:text-white">
                 Ayurvedic Pharmacology (Dravyaguna)
               </td>
-<td class="py-3 px-unit-base text-body-sm font-body-sm text-on-surface-variant">
+<td class="py-3 px-5 text-xs font-normal text-[#64748B] dark:text-gray-400">
                 Prof. M. K. Sharma
               </td>
-<td class="py-3 px-unit-base">
+<td class="py-3 px-5">
 <div class="flex items-center gap-2">
-<div class="w-20 bg-surface-container h-1.5 rounded-full overflow-hidden">
-<div class="bg-tertiary-container h-full rounded-full" style="width: 96.5%"></div>
+<div class="w-20 bg-slate-100 dark:bg-white/[0.04] h-1.5 rounded-full overflow-hidden">
+<div class="bg-emerald-500 h-full rounded-full" style="width: 96.5%"></div>
 </div>
-<span class="font-mono-data text-mono-data text-on-surface">96.5%</span>
+<span class="font-mono font-mono text-xs text-[#0F172A] dark:text-white">96.5%</span>
 </div>
 </td>
-<td class="py-3 px-unit-base">
-<span class="inline-flex items-center px-2 py-0.5 rounded font-mono-data text-mono-data bg-surface-container text-on-surface">
+<td class="py-3 px-5">
+<span class="inline-flex items-center px-2 py-0.5 rounded font-mono font-mono text-xs bg-slate-100 dark:bg-white/[0.04] text-[#0F172A] dark:text-white">
                   Tier-1 (NABL Accr.)
                 </span>
 </td>
-<td class="py-3 px-unit-base">
-<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-tertiary-container font-medium">
+<td class="py-3 px-5">
+<span class="inline-flex items-center gap-1 font-semibold text-[11px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-medium">
 <span class="material-symbols-outlined text-[14px]">check_circle</span>
                   Ratified 2024-25
                 </span>
 </td>
-<td class="py-3 px-unit-base">
-<span class="font-mono-data text-mono-data text-on-surface-variant">3.4.2 • Research Clean</span>
+<td class="py-3 px-5">
+<span class="font-mono font-mono text-xs text-[#64748B] dark:text-gray-400">3.4.2 • Research Clean</span>
 </td>
 </tr>
 <!-- Row 2 -->
-<tr class="hover:bg-surface-container-low transition-colors duration-150">
-<td class="py-3 px-unit-base font-label-md text-label-md text-on-surface">
+<tr class="hover:bg-slate-50 dark:bg-white/[0.02] transition-colors duration-150">
+<td class="py-3 px-5 font-semibold text-xs font-semibold text-[#0F172A] dark:text-white">
                 Pharmaceutics (Rasashastra)
               </td>
-<td class="py-3 px-unit-base text-body-sm font-body-sm text-on-surface-variant">
+<td class="py-3 px-5 text-xs font-normal text-[#64748B] dark:text-gray-400">
                 Dr. Sunita Varma
               </td>
-<td class="py-3 px-unit-base">
+<td class="py-3 px-5">
 <div class="flex items-center gap-2">
-<div class="w-20 bg-surface-container h-1.5 rounded-full overflow-hidden">
-<div class="bg-tertiary-container h-full rounded-full" style="width: 92.8%"></div>
+<div class="w-20 bg-slate-100 dark:bg-white/[0.04] h-1.5 rounded-full overflow-hidden">
+<div class="bg-emerald-500 h-full rounded-full" style="width: 92.8%"></div>
 </div>
-<span class="font-mono-data text-mono-data text-on-surface">92.8%</span>
+<span class="font-mono font-mono text-xs text-[#0F172A] dark:text-white">92.8%</span>
 </div>
 </td>
-<td class="py-3 px-unit-base">
-<span class="inline-flex items-center px-2 py-0.5 rounded font-mono-data text-mono-data bg-surface-container text-on-surface">
+<td class="py-3 px-5">
+<span class="inline-flex items-center px-2 py-0.5 rounded font-mono font-mono text-xs bg-slate-100 dark:bg-white/[0.04] text-[#0F172A] dark:text-white">
                   GMP Certified Pilot
                 </span>
 </td>
-<td class="py-3 px-unit-base">
-<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-tertiary-container font-medium">
+<td class="py-3 px-5">
+<span class="inline-flex items-center gap-1 font-semibold text-[11px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-medium">
 <span class="material-symbols-outlined text-[14px]">check_circle</span>
                   Ratified 2024-25
                 </span>
 </td>
-<td class="py-3 px-unit-base">
-<span class="font-mono-data text-mono-data text-on-surface-variant">3.4.1 • Innovations</span>
+<td class="py-3 px-5">
+<span class="font-mono font-mono text-xs text-[#64748B] dark:text-gray-400">3.4.1 • Innovations</span>
 </td>
 </tr>
 <!-- Row 3 -->
-<tr class="hover:bg-surface-container-low transition-colors duration-150">
-<td class="py-3 px-unit-base font-label-md text-label-md text-on-surface">
+<tr class="hover:bg-slate-50 dark:bg-white/[0.02] transition-colors duration-150">
+<td class="py-3 px-5 font-semibold text-xs font-semibold text-[#0F172A] dark:text-white">
                 Ayush Health Informatics &amp; Data Science
               </td>
-<td class="py-3 px-unit-base text-body-sm font-body-sm text-on-surface-variant">
+<td class="py-3 px-5 text-xs font-normal text-[#64748B] dark:text-gray-400">
                 Dr. Rajeshwar Rao
               </td>
-<td class="py-3 px-unit-base">
+<td class="py-3 px-5">
 <div class="flex items-center gap-2">
-<div class="w-20 bg-surface-container h-1.5 rounded-full overflow-hidden">
-<div class="bg-secondary h-full rounded-full" style="width: 88.4%"></div>
+<div class="w-20 bg-slate-100 dark:bg-white/[0.04] h-1.5 rounded-full overflow-hidden">
+<div class="bg-slate-500 dark:bg-gray-600 h-full rounded-full" style="width: 88.4%"></div>
 </div>
-<span class="font-mono-data text-mono-data text-on-surface">88.4%</span>
+<span class="font-mono font-mono text-xs text-[#0F172A] dark:text-white">88.4%</span>
 </div>
 </td>
-<td class="py-3 px-unit-base">
-<span class="inline-flex items-center px-2 py-0.5 rounded font-mono-data text-mono-data bg-surface-container text-on-surface">
+<td class="py-3 px-5">
+<span class="inline-flex items-center px-2 py-0.5 rounded font-mono font-mono text-xs bg-slate-100 dark:bg-white/[0.04] text-[#0F172A] dark:text-white">
                   Compute Cluster (GPU)
                 </span>
 </td>
-<td class="py-3 px-unit-base">
-<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-secondary font-medium">
+<td class="py-3 px-5">
+<span class="inline-flex items-center gap-1 font-semibold text-[11px] font-semibold uppercase tracking-wider text-[#64748B] dark:text-gray-400 font-medium">
 <span class="material-symbols-outlined text-[14px]">pending</span>
                   Revision Pending (Unit 5)
                 </span>
 </td>
-<td class="py-3 px-unit-base">
-<span class="font-mono-data text-mono-data text-on-surface-variant">3.4.4 • Interdisciplinary</span>
+<td class="py-3 px-5">
+<span class="font-mono font-mono text-xs text-[#64748B] dark:text-gray-400">3.4.4 • Interdisciplinary</span>
 </td>
 </tr>
 <!-- Row 4 -->
-<tr class="hover:bg-surface-container-low transition-colors duration-150">
-<td class="py-3 px-unit-base font-label-md text-label-md text-on-surface">
+<tr class="hover:bg-slate-50 dark:bg-white/[0.02] transition-colors duration-150">
+<td class="py-3 px-5 font-semibold text-xs font-semibold text-[#0F172A] dark:text-white">
                 Swasthavritta &amp; Preventive Medicine
               </td>
-<td class="py-3 px-unit-base text-body-sm font-body-sm text-on-surface-variant">
+<td class="py-3 px-5 text-xs font-normal text-[#64748B] dark:text-gray-400">
                 Prof. Geeta Bhattacharya
               </td>
-<td class="py-3 px-unit-base">
+<td class="py-3 px-5">
 <div class="flex items-center gap-2">
-<div class="w-20 bg-surface-container h-1.5 rounded-full overflow-hidden">
-<div class="bg-tertiary-container h-full rounded-full" style="width: 95.1%"></div>
+<div class="w-20 bg-slate-100 dark:bg-white/[0.04] h-1.5 rounded-full overflow-hidden">
+<div class="bg-emerald-500 h-full rounded-full" style="width: 95.1%"></div>
 </div>
-<span class="font-mono-data text-mono-data text-on-surface">95.1%</span>
+<span class="font-mono font-mono text-xs text-[#0F172A] dark:text-white">95.1%</span>
 </div>
 </td>
-<td class="py-3 px-unit-base">
-<span class="inline-flex items-center px-2 py-0.5 rounded font-mono-data text-mono-data bg-surface-container text-on-surface">
+<td class="py-3 px-5">
+<span class="inline-flex items-center px-2 py-0.5 rounded font-mono font-mono text-xs bg-slate-100 dark:bg-white/[0.04] text-[#0F172A] dark:text-white">
                   Clinical Diagnostics
                 </span>
 </td>
-<td class="py-3 px-unit-base">
-<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-tertiary-container font-medium">
+<td class="py-3 px-5">
+<span class="inline-flex items-center gap-1 font-semibold text-[11px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-medium">
 <span class="material-symbols-outlined text-[14px]">check_circle</span>
                   Ratified 2024-25
                 </span>
 </td>
-<td class="py-3 px-unit-base">
-<span class="font-mono-data text-mono-data text-on-surface-variant">3.4.3 • Extension Outreach</span>
+<td class="py-3 px-5">
+<span class="font-mono font-mono text-xs text-[#64748B] dark:text-gray-400">3.4.3 • Extension Outreach</span>
 </td>
 </tr>
 <!-- Row 5 -->
-<tr class="hover:bg-surface-container-low transition-colors duration-150">
-<td class="py-3 px-unit-base font-label-md text-label-md text-on-surface">
+<tr class="hover:bg-slate-50 dark:bg-white/[0.02] transition-colors duration-150">
+<td class="py-3 px-5 font-semibold text-xs font-semibold text-[#0F172A] dark:text-white">
                 Kaya Chikitsa
               </td>
-<td class="py-3 px-unit-base text-body-sm font-body-sm text-on-surface-variant">
+<td class="py-3 px-5 text-xs font-normal text-[#64748B] dark:text-gray-400">
                 Dr. Anand S. Kulkarni
               </td>
-<td class="py-3 px-unit-base">
+<td class="py-3 px-5">
 <div class="flex items-center gap-2">
-<div class="w-20 bg-surface-container h-1.5 rounded-full overflow-hidden">
-<div class="bg-tertiary-container h-full rounded-full" style="width: 97.0%"></div>
+<div class="w-20 bg-slate-100 dark:bg-white/[0.04] h-1.5 rounded-full overflow-hidden">
+<div class="bg-emerald-500 h-full rounded-full" style="width: 97.0%"></div>
 </div>
-<span class="font-mono-data text-mono-data text-on-surface">97.0%</span>
+<span class="font-mono font-mono text-xs text-[#0F172A] dark:text-white">97.0%</span>
 </div>
 </td>
-<td class="py-3 px-unit-base">
-<span class="inline-flex items-center px-2 py-0.5 rounded font-mono-data text-mono-data bg-surface-container text-on-surface">
+<td class="py-3 px-5">
+<span class="inline-flex items-center px-2 py-0.5 rounded font-mono font-mono text-xs bg-slate-100 dark:bg-white/[0.04] text-[#0F172A] dark:text-white">
                   NABH Hospital Facility
                 </span>
 </td>
-<td class="py-3 px-unit-base">
-<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-tertiary-container font-medium">
+<td class="py-3 px-5">
+<span class="inline-flex items-center gap-1 font-semibold text-[11px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-medium">
 <span class="material-symbols-outlined text-[14px]">check_circle</span>
                   Ratified 2024-25
                 </span>
 </td>
-<td class="py-3 px-unit-base">
-<span class="font-mono-data text-mono-data text-on-surface-variant">3.4.5 • Clinical Trials</span>
+<td class="py-3 px-5">
+<span class="font-mono font-mono text-xs text-[#64748B] dark:text-gray-400">3.4.5 • Clinical Trials</span>
 </td>
 </tr>
 </tbody>
@@ -658,272 +504,269 @@
 </div>
 </section>
 <!-- SECTION 2 & 3: BENTO TWO-COLUMN LAYOUT -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-unit-lg">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
 <!-- MAIN SECTION 2: AUTOMATED CURRICULUM GAP AUDIT (7 Cols) -->
-<section id="curriculum-gap-section" class="lg:col-span-7 border border-outline-variant rounded bg-surface-container-lowest flex flex-col justify-between">
+<section id="curriculum-gap-section" class="lg:col-span-7 border border-[#E2E8F0] dark:border-white/10 rounded bg-white dark:bg-white/[0.03] shadow-sm flex flex-col justify-between">
 <div>
 <!-- Section Header -->
-<div class="px-unit-base py-3 border-b border-outline-variant flex items-center justify-between">
+<div class="px-5 py-3 border-b border-[#E2E8F0] dark:border-white/10 flex items-center justify-between">
 <div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-[20px] text-primary">psychology</span>
+<span class="material-symbols-outlined text-[20px] text-purple-600 dark:text-purple-400">psychology</span>
 <div>
-<h2 class="text-headline-sm font-headline-sm text-on-surface">Automated Curriculum Gap Audit</h2>
-<p class="text-label-sm font-label-sm text-secondary">AI audit parsing institutional syllabus against active pharma job requisitions</p>
+<h2 class="text-base sm:text-lg font-bold font-bold text-[#0F172A] dark:text-white">Automated Curriculum Gap Audit</h2>
+<p class="text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">AI audit parsing institutional syllabus against active pharma job requisitions</p>
 </div>
 </div>
-<span class="font-mono-data text-mono-data text-label-sm bg-surface-container px-2 py-0.5 rounded text-on-surface">
+<span class="font-mono font-mono text-xs text-[11px] font-semibold uppercase tracking-wider bg-slate-100 dark:bg-white/[0.04] px-2 py-0.5 rounded text-[#0F172A] dark:text-white">
               MoU Engine Active
             </span>
 </div>
 <!-- Gap Audit Cards -->
-<div class="p-unit-base flex flex-col gap-4">
+<div class="p-5 flex flex-col gap-4">
 <!-- Gap 1: Pharmacognosy / HPTLC -->
-<div class="border border-outline-variant rounded p-unit-base bg-surface-container-lowest">
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-outline-variant pb-2.5 mb-2.5">
+<div class="border border-[#E2E8F0] dark:border-white/10 rounded p-5 bg-white dark:bg-white/[0.03] shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-[#E2E8F0] dark:border-white/10 pb-2.5 mb-2.5">
 <div>
-<span class="font-mono-data text-mono-data text-secondary uppercase">Unit 3: Pharmacognosy &amp; Phytochemistry</span>
-<h3 class="text-headline-sm font-headline-sm text-on-surface">High-Performance Thin-Layer Chromatography (HPTLC)</h3>
+<span class="font-mono font-mono text-xs text-[#64748B] dark:text-gray-400 uppercase">Unit 3: Pharmacognosy &amp; Phytochemistry</span>
+<h3 class="text-base sm:text-lg font-bold font-bold text-[#0F172A] dark:text-white">High-Performance Thin-Layer Chromatography (HPTLC)</h3>
 </div>
 <div class="text-right">
-<span class="inline-block px-2 py-0.5 rounded bg-surface-container text-label-sm font-label-sm text-on-surface">
+<span class="inline-block px-2 py-0.5 rounded bg-slate-100 dark:bg-white/[0.04] text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#0F172A] dark:text-white">
                     Requisitions: Dabur • Himalaya
                   </span>
 </div>
 </div>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-<div class="bg-surface-container-low p-2.5 rounded">
-<div class="font-label-sm text-label-sm text-secondary">Target Corporate Roles</div>
-<div class="font-label-md text-label-md text-on-surface mt-0.5">Formulation Scientist / Analytical Chemist</div>
+<div class="bg-slate-50 dark:bg-white/[0.02] p-2.5 rounded">
+<div class="font-semibold text-[11px] font-semibold uppercase tracking-wider text-[#64748B] dark:text-gray-400">Target Corporate Roles</div>
+<div class="font-semibold text-xs font-semibold text-[#0F172A] dark:text-white mt-0.5">Formulation Scientist / Analytical Chemist</div>
 </div>
-<div class="bg-surface-container-low p-2.5 rounded">
-<div class="font-label-sm text-label-sm text-secondary">Measurable Hiring Impact</div>
-<div class="font-label-md text-label-md text-on-tertiary-container mt-0.5">Closes 68% candidate gap for R&amp;D positions</div>
+<div class="bg-slate-50 dark:bg-white/[0.02] p-2.5 rounded">
+<div class="font-semibold text-[11px] font-semibold uppercase tracking-wider text-[#64748B] dark:text-gray-400">Measurable Hiring Impact</div>
+<div class="font-semibold text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-0.5">Closes 68% candidate gap for R&amp;D positions</div>
 </div>
 </div>
 <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
-<div class="text-label-sm font-label-sm text-secondary">
-                  Recommended Add-on: <span class="font-mono-data text-on-surface">18 Hours Practical + 12 Hours Instrument Operation</span>
+<div class="text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">
+                  Recommended Add-on: <span class="font-mono text-[#0F172A] dark:text-white">18 Hours Practical + 12 Hours Instrument Operation</span>
 </div>
-<button onclick="handleAdoptSyllabus('HPTLC Fingerprinting')" class="w-full sm:w-auto px-3.5 py-1.5 bg-primary text-on-primary rounded font-label-md text-label-md hover:bg-primary-container transition-colors duration-150 flex items-center justify-center gap-1.5"><span class="material-symbols-outlined text-[16px]">add_circle</span>Adopt Syllabus Add-on for Academic Council</button>
+<button onclick="handleAdoptSyllabus('HPTLC Fingerprinting')" class="w-full sm:w-auto px-3.5 py-1.5 bg-[#0F172A] dark:bg-white/10 text-white dark:text-gray-100 rounded font-semibold text-xs font-semibold hover:bg-[#1E293B] dark:bg-white/20 transition-colors duration-150 flex items-center justify-center gap-1.5"><span class="material-symbols-outlined text-[16px]">add_circle</span>Adopt Syllabus Add-on for Academic Council</button>
 </div>
 </div>
 <!-- Gap 2: Computational Chemistry / AutoDock -->
-<div class="border border-outline-variant rounded p-unit-base bg-surface-container-lowest">
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-outline-variant pb-2.5 mb-2.5">
+<div class="border border-[#E2E8F0] dark:border-white/10 rounded p-5 bg-white dark:bg-white/[0.03] shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-[#E2E8F0] dark:border-white/10 pb-2.5 mb-2.5">
 <div>
-<span class="font-mono-data text-mono-data text-secondary uppercase">Unit 5: Computational Chemistry</span>
-<h3 class="text-headline-sm font-headline-sm text-on-surface">In-Silico Molecular Docking (AutoDock Vina)</h3>
+<span class="font-mono font-mono text-xs text-[#64748B] dark:text-gray-400 uppercase">Unit 5: Computational Chemistry</span>
+<h3 class="text-base sm:text-lg font-bold font-bold text-[#0F172A] dark:text-white">In-Silico Molecular Docking (AutoDock Vina)</h3>
 </div>
 <div class="text-right">
-<span class="inline-block px-2 py-0.5 rounded bg-surface-container text-label-sm font-label-sm text-on-surface">
+<span class="inline-block px-2 py-0.5 rounded bg-slate-100 dark:bg-white/[0.04] text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#0F172A] dark:text-white">
                     Requisitions: Bio-Ayush • Patanjali R&amp;D
                   </span>
 </div>
 </div>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-<div class="bg-surface-container-low p-2.5 rounded">
-<div class="font-label-sm text-label-sm text-secondary">Target Corporate Roles</div>
-<div class="font-label-md text-label-md text-on-surface mt-0.5">Computational Biologist / Phytomedicine Modeler</div>
+<div class="bg-slate-50 dark:bg-white/[0.02] p-2.5 rounded">
+<div class="font-semibold text-[11px] font-semibold uppercase tracking-wider text-[#64748B] dark:text-gray-400">Target Corporate Roles</div>
+<div class="font-semibold text-xs font-semibold text-[#0F172A] dark:text-white mt-0.5">Computational Biologist / Phytomedicine Modeler</div>
 </div>
-<div class="bg-surface-container-low p-2.5 rounded">
-<div class="font-label-sm text-label-sm text-secondary">Measurable Hiring Impact</div>
-<div class="font-label-md text-label-md text-on-tertiary-container mt-0.5">Unlocks 42 specialized bioinformatics roles</div>
+<div class="bg-slate-50 dark:bg-white/[0.02] p-2.5 rounded">
+<div class="font-semibold text-[11px] font-semibold uppercase tracking-wider text-[#64748B] dark:text-gray-400">Measurable Hiring Impact</div>
+<div class="font-semibold text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-0.5">Unlocks 42 specialized bioinformatics roles</div>
 </div>
 </div>
 <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
-<div class="text-label-sm font-label-sm text-secondary">
-                  Recommended Add-on: <span class="font-mono-data text-on-surface">15 Lab Sessions on Linux High-Performance Grid</span>
+<div class="text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">
+                  Recommended Add-on: <span class="font-mono text-[#0F172A] dark:text-white">15 Lab Sessions on Linux High-Performance Grid</span>
 </div>
-<button onclick="handleAdoptSyllabus('AutoDock Vina Computational Chemistry')" class="w-full sm:w-auto px-3.5 py-1.5 border border-outline-variant bg-surface-container-lowest hover:bg-surface-container-low text-on-surface rounded font-label-md text-label-md transition-colors duration-150 flex items-center justify-center gap-1.5"><span class="material-symbols-outlined text-[16px]">visibility</span>Review Unit Module</button>
+<button onclick="handleAdoptSyllabus('AutoDock Vina Computational Chemistry')" class="w-full sm:w-auto px-3.5 py-1.5 border border-[#E2E8F0] dark:border-white/10 bg-white dark:bg-white/[0.03] shadow-sm hover:bg-slate-50 dark:bg-white/[0.02] text-[#0F172A] dark:text-white rounded font-semibold text-xs font-semibold transition-colors duration-150 flex items-center justify-center gap-1.5"><span class="material-symbols-outlined text-[16px]">visibility</span>Review Unit Module</button>
 </div>
 </div>
 </div>
 </div>
 <!-- Audit Engine Indicator Footer -->
-<div class="px-unit-base py-2.5 border-t border-outline-variant bg-surface-container-low flex items-center justify-between">
-<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1.5">
-<span class="w-2 h-2 rounded-full bg-tertiary-container inline-block"></span>
+<div class="px-5 py-2.5 border-t border-[#E2E8F0] dark:border-white/10 bg-slate-50 dark:bg-white/[0.02] flex items-center justify-between">
+<span class="font-semibold text-[11px] font-semibold uppercase tracking-wider text-[#64748B] dark:text-gray-400 flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
             Continuous Parser: 114 Corporate JDs synced in last 24h
           </span>
-<span class="font-mono-data text-mono-data text-label-sm text-secondary">Engine v2.1-Ayush</span>
+<span class="font-mono font-mono text-xs text-[11px] font-semibold uppercase tracking-wider text-[#64748B] dark:text-gray-400">Engine v2.1-Ayush</span>
 </div>
 </section>
 <!-- MAIN SECTION 3: CROSS-COLLEGE PEER BENCHMARKING (5 Cols) -->
-<section id="peer-benchmarking-section" class="lg:col-span-5 border border-outline-variant rounded bg-surface-container-lowest flex flex-col justify-between">
+<section id="peer-benchmarking-section" class="lg:col-span-5 border border-[#E2E8F0] dark:border-white/10 rounded bg-white dark:bg-white/[0.03] shadow-sm flex flex-col justify-between">
 <div>
 <!-- Section Header -->
-<div class="px-unit-base py-3 border-b border-outline-variant flex items-center justify-between">
+<div class="px-5 py-3 border-b border-[#E2E8F0] dark:border-white/10 flex items-center justify-between">
 <div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-[20px] text-primary">leaderboard</span>
+<span class="material-symbols-outlined text-[20px] text-purple-600 dark:text-purple-400">leaderboard</span>
 <div>
-<h2 class="text-headline-sm font-headline-sm text-on-surface">Cross-College Peer Benchmarking</h2>
-<p class="text-label-sm font-label-sm text-secondary">Comparative institutional outcome analytics</p>
+<h2 class="text-base sm:text-lg font-bold font-bold text-[#0F172A] dark:text-white">Cross-College Peer Benchmarking</h2>
+<p class="text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">Comparative institutional outcome analytics</p>
 </div>
 </div>
-<span class="font-mono-data text-mono-data text-label-sm text-secondary">NIRF / Ayush</span>
+<span class="font-mono font-mono text-xs text-[11px] font-semibold uppercase tracking-wider text-[#64748B] dark:text-gray-400">NIRF / Ayush</span>
 </div>
 <!-- Peer List -->
-<div class="p-unit-base flex flex-col gap-3">
+<div class="p-5 flex flex-col gap-3">
 <!-- Rank 1: AIIA New Delhi -->
-<div class="p-3 border-2 border-primary rounded bg-surface-container-lowest relative">
+<div class="p-3 border-2 border-primary rounded bg-white dark:bg-white/[0.03] shadow-sm relative">
 <div class="flex items-start justify-between">
 <div class="flex items-center gap-2">
-<span class="w-6 h-6 rounded bg-primary text-on-primary font-mono-data text-mono-data flex items-center justify-center font-bold">
+<span class="w-6 h-6 rounded bg-[#0F172A] dark:bg-white/10 text-white dark:text-gray-100 font-mono font-mono text-xs flex items-center justify-center font-bold">
                     1
                   </span>
 <div>
-<div class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-1.5">
+<div class="font-bold text-base sm:text-lg font-bold text-[#0F172A] dark:text-white flex items-center gap-1.5">
                       AIIA New Delhi
                       <span class="material-symbols-outlined text-tertiary-container text-[16px]" style="font-variation-settings: 'FILL' 1;">verified</span>
 </div>
-<div class="text-label-sm font-label-sm text-secondary">All India Institute of Ayurveda (Host Institution)</div>
+<div class="text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">All India Institute of Ayurveda (Host Institution)</div>
 </div>
 </div>
 <div class="text-right">
-<div class="font-mono-data text-mono-data font-bold text-on-surface text-headline-sm">78.4%</div>
-<div class="text-label-sm font-label-sm text-secondary">Skill Score</div>
+<div class="font-mono font-mono text-xs font-bold text-[#0F172A] dark:text-white text-base sm:text-lg font-bold">78.4%</div>
+<div class="text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">Skill Score</div>
 </div>
 </div>
 <!-- Bar -->
-<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden mt-3">
-<div class="bg-primary h-full rounded-full" style="width: 78.4%"></div>
+<div class="w-full bg-slate-100 dark:bg-white/[0.04] h-2 rounded-full overflow-hidden mt-3">
+<div class="bg-[#0F172A] dark:bg-white/10 h-full rounded-full" style="width: 78.4%"></div>
 </div>
-<div class="mt-2 flex items-center justify-between text-label-sm font-label-sm text-secondary">
-<span>Placement Conversion: <strong class="text-on-surface">86.0%</strong></span>
-<span>MoU Grant Index: <strong class="text-on-surface">9.4/10</strong></span>
+<div class="mt-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">
+<span>Placement Conversion: <strong class="text-[#0F172A] dark:text-white">86.0%</strong></span>
+<span>MoU Grant Index: <strong class="text-[#0F172A] dark:text-white">9.4/10</strong></span>
 </div>
 </div>
 <!-- Rank 2: NIA Jaipur -->
-<div class="p-3 border border-outline-variant rounded bg-surface-container-lowest">
+<div class="p-3 border border-[#E2E8F0] dark:border-white/10 rounded bg-white dark:bg-white/[0.03] shadow-sm">
 <div class="flex items-start justify-between">
 <div class="flex items-center gap-2">
-<span class="w-6 h-6 rounded bg-surface-container text-on-surface font-mono-data text-mono-data flex items-center justify-center font-bold">
+<span class="w-6 h-6 rounded bg-slate-100 dark:bg-white/[0.04] text-[#0F172A] dark:text-white font-mono font-mono text-xs flex items-center justify-center font-bold">
                     2
                   </span>
 <div>
-<div class="font-label-md text-label-md text-on-surface">National Institute of Ayurveda (NIA)</div>
-<div class="text-label-sm font-label-sm text-secondary">Jaipur, Rajasthan</div>
+<div class="font-semibold text-xs font-semibold text-[#0F172A] dark:text-white">National Institute of Ayurveda (NIA)</div>
+<div class="text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">Jaipur, Rajasthan</div>
 </div>
 </div>
 <div class="text-right">
-<div class="font-mono-data text-mono-data font-semibold text-on-surface">74.2%</div>
-<div class="text-label-sm font-label-sm text-secondary">Skill Score</div>
+<div class="font-mono font-mono text-xs font-semibold text-[#0F172A] dark:text-white">74.2%</div>
+<div class="text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">Skill Score</div>
 </div>
 </div>
 <!-- Bar -->
-<div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden mt-2.5">
-<div class="bg-secondary h-full rounded-full" style="width: 74.2%"></div>
+<div class="w-full bg-slate-100 dark:bg-white/[0.04] h-1.5 rounded-full overflow-hidden mt-2.5">
+<div class="bg-slate-500 dark:bg-gray-600 h-full rounded-full" style="width: 74.2%"></div>
 </div>
-<div class="mt-2 flex items-center justify-between text-label-sm font-label-sm text-secondary">
-<span>Placement Conversion: <strong class="text-on-surface">79.2%</strong></span>
-<span>Delta: <strong class="text-secondary">-4.2%</strong></span>
+<div class="mt-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">
+<span>Placement Conversion: <strong class="text-[#0F172A] dark:text-white">79.2%</strong></span>
+<span>Delta: <strong class="text-[#64748B] dark:text-gray-400">-4.2%</strong></span>
 </div>
 </div>
 <!-- Rank 3: BHU Varanasi -->
-<div class="p-3 border border-outline-variant rounded bg-surface-container-lowest">
+<div class="p-3 border border-[#E2E8F0] dark:border-white/10 rounded bg-white dark:bg-white/[0.03] shadow-sm">
 <div class="flex items-start justify-between">
 <div class="flex items-center gap-2">
-<span class="w-6 h-6 rounded bg-surface-container text-on-surface font-mono-data text-mono-data flex items-center justify-center font-bold">
+<span class="w-6 h-6 rounded bg-slate-100 dark:bg-white/[0.04] text-[#0F172A] dark:text-white font-mono font-mono text-xs flex items-center justify-center font-bold">
                     3
                   </span>
 <div>
-<div class="font-label-md text-label-md text-on-surface">Faculty of Ayurveda, BHU</div>
-<div class="text-label-sm font-label-sm text-secondary">Varanasi, Uttar Pradesh</div>
+<div class="font-semibold text-xs font-semibold text-[#0F172A] dark:text-white">Faculty of Ayurveda, BHU</div>
+<div class="text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">Varanasi, Uttar Pradesh</div>
 </div>
 </div>
 <div class="text-right">
-<div class="font-mono-data text-mono-data font-semibold text-on-surface">72.8%</div>
-<div class="text-label-sm font-label-sm text-secondary">Skill Score</div>
+<div class="font-mono font-mono text-xs font-semibold text-[#0F172A] dark:text-white">72.8%</div>
+<div class="text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">Skill Score</div>
 </div>
 </div>
 <!-- Bar -->
-<div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden mt-2.5">
-<div class="bg-secondary h-full rounded-full" style="width: 72.8%"></div>
+<div class="w-full bg-slate-100 dark:bg-white/[0.04] h-1.5 rounded-full overflow-hidden mt-2.5">
+<div class="bg-slate-500 dark:bg-gray-600 h-full rounded-full" style="width: 72.8%"></div>
 </div>
-<div class="mt-2 flex items-center justify-between text-label-sm font-label-sm text-secondary">
-<span>Placement Conversion: <strong class="text-on-surface">76.4%</strong></span>
-<span>Delta: <strong class="text-secondary">-5.6%</strong></span>
+<div class="mt-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">
+<span>Placement Conversion: <strong class="text-[#0F172A] dark:text-white">76.4%</strong></span>
+<span>Delta: <strong class="text-[#64748B] dark:text-gray-400">-5.6%</strong></span>
 </div>
 </div>
 <!-- Rank 4: Gujarat Ayurved University -->
-<div class="p-3 border border-outline-variant rounded bg-surface-container-lowest">
+<div class="p-3 border border-[#E2E8F0] dark:border-white/10 rounded bg-white dark:bg-white/[0.03] shadow-sm">
 <div class="flex items-start justify-between">
 <div class="flex items-center gap-2">
-<span class="w-6 h-6 rounded bg-surface-container text-on-surface font-mono-data text-mono-data flex items-center justify-center font-bold">
+<span class="w-6 h-6 rounded bg-slate-100 dark:bg-white/[0.04] text-[#0F172A] dark:text-white font-mono font-mono text-xs flex items-center justify-center font-bold">
                     4
                   </span>
 <div>
-<div class="font-label-md text-label-md text-on-surface">Gujarat Ayurved University (ITRA)</div>
-<div class="text-label-sm font-label-sm text-secondary">Jamnagar, Gujarat</div>
+<div class="font-semibold text-xs font-semibold text-[#0F172A] dark:text-white">Gujarat Ayurved University (ITRA)</div>
+<div class="text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">Jamnagar, Gujarat</div>
 </div>
 </div>
 <div class="text-right">
-<div class="font-mono-data text-mono-data font-semibold text-on-surface">71.5%</div>
-<div class="text-label-sm font-label-sm text-secondary">Skill Score</div>
+<div class="font-mono font-mono text-xs font-semibold text-[#0F172A] dark:text-white">71.5%</div>
+<div class="text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">Skill Score</div>
 </div>
 </div>
 <!-- Bar -->
-<div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden mt-2.5">
-<div class="bg-secondary h-full rounded-full" style="width: 71.5%"></div>
+<div class="w-full bg-slate-100 dark:bg-white/[0.04] h-1.5 rounded-full overflow-hidden mt-2.5">
+<div class="bg-slate-500 dark:bg-gray-600 h-full rounded-full" style="width: 71.5%"></div>
 </div>
-<div class="mt-2 flex items-center justify-between text-label-sm font-label-sm text-secondary">
-<span>Placement Conversion: <strong class="text-on-surface">73.1%</strong></span>
-<span>Delta: <strong class="text-secondary">-6.9%</strong></span>
+<div class="mt-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">
+<span>Placement Conversion: <strong class="text-[#0F172A] dark:text-white">73.1%</strong></span>
+<span>Delta: <strong class="text-[#64748B] dark:text-gray-400">-6.9%</strong></span>
 </div>
 </div>
 </div>
 </div>
 <!-- Comparative Summary Footer -->
-<div class="px-unit-base py-3 border-t border-outline-variant bg-surface-container-low flex items-center justify-between">
-<span class="text-label-sm font-label-sm text-on-surface font-medium">
+<div class="px-5 py-3 border-t border-[#E2E8F0] dark:border-white/10 bg-slate-50 dark:bg-white/[0.02] flex items-center justify-between">
+<span class="text-[11px] font-semibold uppercase tracking-wider font-semibold text-[#0F172A] dark:text-white font-medium">
             National Percentile Standing: <strong>Top 1.2%</strong>
 </span>
-<a class="font-label-sm text-label-sm text-primary underline font-medium" href="javascript:void(0)" onclick="downloadPeerMatrix()">Download Peer Matrix</a>
+<a class="font-semibold text-[11px] font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400 underline font-medium" href="javascript:void(0)" onclick="downloadPeerMatrix()">Download Peer Matrix</a>
 </div>
 </section>
 </div>
 <!-- STATUTORY RECORD AUDIT TIMELINE / COMPLIANCE NOTE -->
-<div class="border border-outline-variant rounded p-unit-base bg-surface-container-low flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+<div class="border border-[#E2E8F0] dark:border-white/10 rounded p-5 bg-slate-50 dark:bg-white/[0.02] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
 <div class="flex items-center gap-3">
 <span class="material-symbols-outlined text-tertiary-container text-[24px]">verified</span>
 <div>
-<div class="font-headline-sm text-headline-sm text-on-surface">Statutory Audit Verification Complete</div>
-<div class="text-body-sm font-body-sm text-secondary">
+<div class="font-bold text-base sm:text-lg font-bold text-[#0F172A] dark:text-white">Statutory Audit Verification Complete</div>
+<div class="text-xs font-normal text-[#64748B] dark:text-gray-400">
             OBE Data Points automatically cryptographically hashed and prepared for National Board of Accreditation (NBA) and NAAC peer verification visit.
           </div>
 </div>
 </div>
 <div class="flex items-center gap-2 w-full sm:w-auto">
-<button onclick="viewAuditLog()" class="w-full sm:w-auto px-3.5 py-1.5 border border-outline-variant bg-surface-container-lowest hover:bg-surface-container text-on-surface rounded font-label-md text-label-md transition-colors duration-150">View Audit Log</button>
+<button onclick="viewAuditLog()" class="w-full sm:w-auto px-3.5 py-1.5 border border-[#E2E8F0] dark:border-white/10 bg-white dark:bg-white/[0.03] shadow-sm hover:bg-slate-100 dark:bg-white/[0.04] text-[#0F172A] dark:text-white rounded font-semibold text-xs font-semibold transition-colors duration-150">View Audit Log</button>
 </div>
 </div>
 </div>
 <!-- FOOTER -->
-<footer class="w-full bg-surface-container-lowest dark:bg-[#080814] border-t border-outline-variant dark:border-gray-800 mt-12 transition-colors duration-200">
-<div class="w-full max-w-max-width-canvas mx-auto px-gutter-desktop py-unit-lg flex flex-col md:flex-row items-center justify-between gap-unit-md">
-<!-- Copyright text from JSON -->
-<div class="text-body-sm font-body-sm text-secondary text-center md:text-left">
-        © 2025 JOBLEX. All India Institute of Ayurveda &amp; Ministry of Ayush, Government of India. All Statutory Rights Reserved.
-      </div>
-<!-- Links from JSON -->
-<div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-<a class="text-label-sm font-label-sm text-secondary hover:text-on-surface transition-colors duration-150" href="#">
-          NAAC &amp; Statutory Governance
-        </a>
-<a class="text-label-sm font-label-sm text-secondary hover:text-on-surface transition-colors duration-150" href="#">
-          AIIA Digital Verification Protocol
-        </a>
-<a class="text-label-sm font-label-sm text-secondary hover:text-on-surface transition-colors duration-150" href="#">
-          Terms of Institutional Access
-        </a>
-<a class="text-label-sm font-label-sm text-secondary hover:text-on-surface transition-colors duration-150" href="#">
-          National Ayush Registry Support
-        </a>
-</div>
-</div>
+
+
+    </div>
+
+<footer class="bg-white/90 dark:bg-[#07071A]/95 border-t border-[#E2E8F0] dark:border-white/5 mt-12 transition-colors duration-200">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#64748B] dark:text-gray-400">
+    <div class="text-center md:text-left space-y-1">
+      <div class="font-bold text-[#0F172A] dark:text-white uppercase tracking-wider">JOBLEX Platform</div>
+      <div>© 2025 JOBLEX. All India Institute of Ayurveda &amp; Ministry of Ayush, Government of India.</div>
+    </div>
+    <nav class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs">
+      <a href="#" class="hover:text-[#0F172A] dark:hover:text-white transition-colors">NAAC Statutory Governance</a>
+      <a href="#" class="hover:text-[#0F172A] dark:hover:text-white transition-colors">AIIA Verification Protocol</a>
+      <a href="#" class="hover:text-[#0F172A] dark:hover:text-white transition-colors">Terms of Institutional Access</a>
+      <a href="#" class="hover:text-[#0F172A] dark:hover:text-white transition-colors">National Ayush Registry</a>
+    </nav>
+  </div>
 </footer>
-</main>
+
+  </main>
 </div>
+
 <script>
   function toggleTheme() {
     const isDark = document.documentElement.classList.toggle('dark');
@@ -940,11 +783,26 @@
     icon.textContent = isDark ? 'light_mode' : 'dark_mode';
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    updateThemeIcon();
-  });
-</script>
-<script>
+  function toggleAcademyMobileMenu() {
+    const drawer = document.getElementById('academy-mobile-drawer');
+    if (drawer) drawer.classList.toggle('hidden');
+  }
+
+  function closeAcademyMobileMenu() {
+    const drawer = document.getElementById('academy-mobile-drawer');
+    if (drawer) drawer.classList.add('hidden');
+  }
+
+  function toggleAcademySidebarCollapse() {
+    const sidebar = document.getElementById('academy-sidebar');
+    if (!sidebar) return;
+    sidebar.classList.toggle('sidebar-collapsed');
+    const btn = document.getElementById('academy-sidebar-collapse-btn');
+    if (btn) {
+      btn.innerHTML = sidebar.classList.contains('sidebar-collapsed') ? '<span>▶</span>' : '<span>◀</span>';
+    }
+  }
+
   function handleExportAQAR() {
     alert("Generating Statutory NAAC AQAR Criterion 3.4 & OBE Data Dossier (PDF/CSV)...\nRegistry Reference: AIIA-AC-2025/Q1\nNAAC Cycle: Statutory Cycle IV");
   }
@@ -966,6 +824,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    updateThemeIcon();
     if (window.JoblexApiClient && typeof JoblexApiClient.requireAuth === 'function') {
       JoblexApiClient.requireAuth('academy');
     }
@@ -974,4 +833,5 @@
 <script src="js/frontend/api-client.js"></script>
 <script src="js/frontend/notifications.js"></script>
 <script src="js/frontend/academy-ui.js"></script>
-</body></html>
+</body>
+</html>

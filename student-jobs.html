@@ -1,333 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>JOBLEX | Student | Apply for Full-Time Corporate Placements</title>
-<!-- Material Symbols Outlined -->
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<!-- Google Fonts: Inter & JetBrains Mono -->
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
-<!-- Early Theme Detection Script to prevent FOUC -->
-<script>
-  (function() {
-    try {
-      const saved = localStorage.getItem('joblex_theme');
-      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (saved === 'dark' || (!saved && prefersDark)) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    } catch(e) {}
-  })();
-</script>
-<!-- Tailwind CSS with Forms and Container Queries -->
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JOBLEX | Apply for Full-Time Corporate Placements</title>
+  <!-- Material Symbols Outlined -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Early Theme Detection Script to prevent FOUC -->
+  <script>
+    (function() {
+      try {
+        const saved = localStorage.getItem('joblex_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      } catch(e) {}
+    })();
+  </script>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
     tailwind.config = {
       darkMode: "class",
       theme: {
         extend: {
-          "colors": {
-            "secondary-fixed": "var(--secondary-fixed)",
-            "surface-dim": "var(--surface-dim)",
-            "surface-container-low": "var(--surface-container-low)",
-            "background": "var(--background)",
-            "on-primary-container": "var(--on-primary-container)",
-            "outline-variant": "var(--outline-variant)",
-            "tertiary": "var(--tertiary)",
-            "secondary-fixed-dim": "var(--secondary-fixed-dim)",
-            "on-tertiary-container": "var(--on-tertiary-container)",
-            "on-primary-fixed": "var(--on-primary-fixed)",
-            "on-tertiary-fixed-variant": "var(--on-tertiary-fixed-variant)",
-            "tertiary-fixed-dim": "var(--tertiary-fixed-dim)",
-            "on-primary-fixed-variant": "var(--on-primary-fixed-variant)",
-            "primary-fixed-dim": "var(--primary-fixed-dim)",
-            "surface-container-lowest": "var(--surface-container-lowest)",
-            "primary-fixed": "var(--primary-fixed)",
-            "inverse-primary": "var(--inverse-primary)",
-            "secondary-container": "var(--secondary-container)",
-            "surface-tint": "var(--surface-tint)",
-            "on-error-container": "var(--on-error-container)",
-            "on-background": "var(--on-background)",
-            "primary-container": "var(--primary-container)",
-            "error-container": "var(--error-container)",
-            "on-secondary": "var(--on-secondary)",
-            "secondary": "var(--secondary)",
-            "on-primary": "var(--on-primary)",
-            "on-tertiary-fixed": "var(--on-tertiary-fixed)",
-            "tertiary-fixed": "var(--tertiary-fixed)",
-            "on-secondary-fixed": "var(--on-secondary-fixed)",
-            "on-error": "var(--on-error)",
-            "inverse-surface": "var(--inverse-surface)",
-            "on-surface": "var(--on-surface)",
-            "inverse-on-surface": "var(--inverse-on-surface)",
-            "outline": "var(--outline)",
-            "surface": "var(--surface)",
-            "on-secondary-fixed-variant": "var(--on-secondary-fixed-variant)",
-            "surface-container-high": "var(--surface-container-high)",
-            "error": "var(--error)",
-            "surface-container-highest": "var(--surface-container-highest)",
-            "primary": "var(--primary)",
-            "surface-container": "var(--surface-container)",
-            "on-secondary-container": "var(--on-secondary-container)",
-            "on-surface-variant": "var(--on-surface-variant)",
-            "tertiary-container": "var(--tertiary-container)",
-            "surface-variant": "var(--surface-variant)",
-            "on-tertiary": "var(--on-tertiary)",
-            "surface-bright": "var(--surface-bright)"
-          },
-          "borderRadius": {
-            "DEFAULT": "0.125rem",
-            "lg": "0.25rem",
-            "xl": "0.5rem",
-            "full": "0.75rem"
-          },
-          "spacing": {
-            "unit-md": "0.75rem",
-            "unit-xs": "0.25rem",
-            "unit-2xl": "3rem",
-            "unit-xl": "2rem",
-            "unit-sm": "0.5rem",
-            "max-width-canvas": "1600px",
-            "gutter-desktop": "1.5rem",
-            "unit-lg": "1.5rem",
-            "unit-base": "1rem",
-            "unit-2xs": "0.125rem",
-            "unit-3xl": "4rem",
-            "margin-shell": "2rem"
-          },
-          "fontFamily": {
-            "body-sm": ["Inter"],
-            "label-md": ["Inter"],
-            "label-sm": ["Inter"],
-            "mono-data": ["JetBrains Mono"],
-            "display-lg": ["Inter"],
-            "headline-sm": ["Inter"],
-            "headline-md": ["Inter"],
-            "headline-lg": ["Inter"],
-            "body-md": ["Inter"],
-            "body-lg": ["Inter"]
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
           }
-        },
-      },
+        }
+      }
     }
-</script>
-<style>
-  :root {
-    --secondary-fixed: #c6eed8;
-    --surface-dim: #e0e5ea;
-    --surface-container-low: #f5f8fd;
-    --background: #fafcfe;
-    --on-primary-container: #ffffff;
-    --outline-variant: #c2c6d6;
-    --tertiary: #924600;
-    --secondary-fixed-dim: #aadbbf;
-    --on-tertiary-container: #ffede4;
-    --on-primary-fixed: #001a42;
-    --on-tertiary-fixed-variant: #723600;
-    --tertiary-fixed-dim: #ffb786;
-    --on-primary-fixed-variant: #004395;
-    --primary-fixed-dim: #adc6ff;
-    --surface-container-lowest: #ffffff;
-    --primary-fixed: #d8e2ff;
-    --inverse-primary: #adc6ff;
-    --secondary-container: #d2fad3;
-    --surface-tint: #000000;
-    --on-error-container: #410002;
-    --on-background: #1e2024;
-    --primary-container: #0a0a0b;
-    --error-container: #ffdad6;
-    --on-secondary: #ffffff;
-    --secondary: #005135;
-    --on-primary: #ffffff;
-    --on-tertiary-fixed: #311400;
-    --tertiary-fixed: #ffdcc6;
-    --on-secondary-fixed: #002113;
-    --on-error: #ffffff;
-    --inverse-surface: #2e3135;
-    --on-surface: #191c20;
-    --inverse-on-surface: #f1f0f7;
-    --outline: #727683;
-    --surface: #fafcfe;
-    --on-secondary-fixed-variant: #005236;
-    --surface-container-high: #e5eeff;
-    --error: #ba1a1a;
-    --surface-container-highest: #d3e4fe;
-    --primary: #000000;
-    --surface-container: #e5eeff;
-    --on-secondary-container: #586377;
-    --on-surface-variant: #45464d;
-    --tertiary-container: #002115;
-    --surface-variant: #d3e4fe;
-    --on-tertiary: #ffffff;
-    --surface-bright: #f8f9ff;
-  }
-
-  html.dark {
-    --secondary-fixed: #6ffbbe;
-    --surface-dim: #111317;
-    --surface-container-low: #1a1c20;
-    --background: #111317;
-    --on-primary-container: #00285d;
-    --outline-variant: #424754;
-    --tertiary: #ffb786;
-    --secondary-fixed-dim: #4edea3;
-    --on-tertiary-container: #461f00;
-    --on-primary-fixed: #001a42;
-    --on-tertiary-fixed-variant: #723600;
-    --tertiary-fixed-dim: #ffb786;
-    --on-primary-fixed-variant: #004395;
-    --primary-fixed-dim: #adc6ff;
-    --surface-container-lowest: #0c0e12;
-    --primary-fixed: #d8e2ff;
-    --inverse-primary: #005ac2;
-    --secondary-container: #00a572;
-    --surface-tint: #adc6ff;
-    --on-error-container: #ffdad6;
-    --on-background: #e2e2e8;
-    --primary-container: #4d8eff;
-    --error-container: #93000a;
-    --on-secondary: #003824;
-    --secondary: #4edea3;
-    --on-primary: #002e6a;
-    --on-tertiary-fixed: #311400;
-    --tertiary-fixed: #ffdcc6;
-    --on-secondary-fixed: #002113;
-    --on-error: #690005;
-    --inverse-surface: #e2e2e8;
-    --on-surface: #e2e2e8;
-    --inverse-on-surface: #2f3035;
-    --outline: #8c909f;
-    --surface: #111317;
-    --on-secondary-fixed-variant: #005236;
-    --surface-container-high: #282a2e;
-    --error: #ffb4ab;
-    --surface-container-highest: #333539;
-    --primary: #adc6ff;
-    --surface-container: #1e2024;
-    --on-secondary-container: #00311f;
-    --on-surface-variant: #c2c6d6;
-    --tertiary-container: #df7412;
-    --surface-variant: #333539;
-    --on-tertiary: #502400;
-    --surface-bright: #37393e;
-  }
-
-  .material-symbols-outlined {
-    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
-    display: inline-block;
-    vertical-align: middle;
-    line-height: 1;
-  }
-</style>
-<!-- Custom Styles for Sidebar & Animations -->
-<link rel="stylesheet" href="css/styles.css">
+  </script>
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.3);
+      border-radius: 9999px;
+    }
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .sidebar-collapsed {
+      width: 5rem !important;
+    }
+    .sidebar-collapsed .sidebar-text-label,
+    .sidebar-collapsed .sidebar-badge-label {
+      display: none !important;
+    }
+    .sidebar-collapsed .sidebar-nav-btn {
+      justify-content: center !important;
+      padding-left: 0.5rem !important;
+      padding-right: 0.5rem !important;
+    }
+  </style>
 </head>
-<body class="bg-[#f8f9fa] dark:bg-[#07071A] text-[#0f172a] dark:text-white font-body-sm antialiased selection:bg-secondary-fixed selection:text-on-secondary-fixed min-h-screen flex flex-col transition-colors duration-200">
-<!-- TOP APP BAR (Institutional Standard - No Top Navbar) -->
-<header class="bg-surface-container-lowest dark:bg-[#080814]/95 border-b border-outline-variant dark:border-gray-800 w-full sticky top-0 z-50 transition-colors duration-200 backdrop-blur-md">
-<div class="w-full max-w-max-width-canvas mx-auto px-gutter-desktop h-16 flex items-center justify-between">
-<!-- Brand Logo & Institutional Anchor Lockup -->
-<div class="flex items-center gap-3 sm:gap-4">
-<button onclick="toggleMobileMenu()" class="lg:hidden p-1.5 rounded-lg bg-slate-100 dark:bg-gray-900 border border-slate-200 dark:border-gray-800 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white" title="Toggle Navigation Menu">☰</button>
-<a class="text-headline-md font-headline-md font-bold tracking-tight text-on-surface dark:text-white uppercase flex items-center gap-2" href="index.html">
-<span class="w-6 h-6 bg-[#0f172a] dark:bg-purple-600 text-white flex items-center justify-center rounded text-[12px] font-mono-data">J</span>
-          JOBLEX
-        </a>
-<div class="h-5 w-[1px] bg-outline-variant dark:bg-gray-800 hidden sm:block"></div>
-<div class="flex items-center gap-2">
-<span class="text-label-sm font-label-sm bg-[#f1f5f9] dark:bg-gray-800 text-[#334155] dark:text-gray-300 px-2 py-1 rounded border border-[#e2e8f0] dark:border-gray-700 hidden sm:inline">
-            All India Institute of Ayurveda
-          </span>
-<span class="text-label-sm font-label-sm text-[#64748b] dark:text-gray-400 hidden lg:inline">
-            Ministry of Ayush, Govt. of India
-          </span>
-</div>
-</div>
+<body class="bg-gradient-to-b from-[#FFFFFF] via-[#F8F9FA] to-[#F1F3F5] dark:from-[#07071A] dark:via-[#090924] dark:to-[#07071A] text-[#0F172A] dark:text-slate-100 font-sans min-h-screen flex flex-col antialiased transition-colors duration-200">
 
-<!-- Trailing Action & Profile Cluster (No top navbar) -->
-<div class="flex items-center gap-2 sm:gap-3">
-<!-- Streak / XP Metrics Pill -->
-<div class="hidden xl:flex items-center gap-2 bg-[#f8fafc] dark:bg-gray-900 border border-[#e2e8f0] dark:border-gray-800 px-2.5 py-1 rounded text-label-sm font-label-sm text-[#0f172a] dark:text-gray-200">
-<span class="material-symbols-outlined text-[#d97706] text-[16px]" style="font-variation-settings: 'FILL' 1;">bolt</span>
-<span id="header-xp-badge" class="font-mono-data text-mono-data font-semibold">1,450 XP</span>
-<span class="text-outline-variant">•</span>
-<span id="header-streak-badge" class="text-[#475569] dark:text-gray-400">7-Day Streak</span>
-</div>
-<!-- Verified Credentials Badge -->
-<a href="student-portfolio.html" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#ecfdf5] dark:bg-emerald-950/40 border border-[#a7f3d0] dark:border-emerald-800/60 rounded text-[#065f46] dark:text-emerald-300 text-label-sm font-label-sm hover:opacity-90 transition">
-<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">verified</span>
-          Verified Credentials
-        </a>
-<!-- Theme Toggle Button -->
-<button id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Light/Dark Theme" title="Toggle Light/Dark Theme" class="p-1.5 text-secondary hover:text-on-surface rounded hover:bg-surface-container-low transition-colors duration-150 flex items-center justify-center">
-  <span id="theme-toggle-icon" class="material-symbols-outlined text-[20px]">dark_mode</span>
-</button>
-<!-- Real Working Notification Bell with Indicator -->
-<div class="relative">
-  <button id="notification-bell-btn" onclick="toggleNotificationsDropdown(event)" aria-label="Notifications" title="View Institutional Notifications" class="relative p-2 text-secondary hover:text-on-surface dark:text-gray-300 dark:hover:text-white transition-colors duration-150 rounded hover:bg-surface-container-low dark:hover:bg-gray-800 flex items-center justify-center">
-    <span class="material-symbols-outlined text-[20px]">notifications</span>
-    <span class="notification-badge-indicator hidden absolute top-1 right-1 px-1 min-w-[16px] h-4 text-[9px] font-mono font-bold bg-rose-500 text-white rounded-full flex items-center justify-center ring-2 ring-surface-container-lowest dark:ring-[#080814]">3</span>
-  </button>
-</div>
-<!-- User Identity Meta -->
-<div class="flex items-center gap-2.5 pl-2 border-l border-[#e2e8f0] dark:border-gray-800">
-<div class="w-8 h-8 rounded bg-[#0f172a] text-white flex items-center justify-center text-label-sm font-label-sm font-bold tracking-wider">
-            AV
-          </div>
-<div class="hidden 2xl:block text-left">
-<div class="text-label-sm font-label-sm font-semibold text-[#0f172a] dark:text-white leading-none"><span class="user-name-display">Ashay Verma</span></div>
-<div class="text-[10px] font-mono-data text-[#64748b] dark:text-gray-400 leading-tight mt-0.5">BAMS 3rd Year • AIIA</div>
-</div>
-</div>
-</div>
-</div>
+
+<header class="sticky top-0 z-50 w-full bg-white/90 dark:bg-[#07071A]/95 backdrop-blur-md border-b border-[#E2E8F0] dark:border-white/5 transition-colors duration-200">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-3 flex items-center justify-between">
+    <!-- Mobile Hamburger + Brand Logo -->
+    <div class="flex items-center gap-3">
+      <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-xl text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 border border-slate-200 dark:border-gray-800 transition" aria-label="Toggle Navigation">
+        <span class="material-symbols-outlined text-[20px]">menu</span>
+      </button>
+      <a href="student.html" class="flex items-center gap-2.5 cursor-pointer select-none">
+        <div class="w-1.5 h-8 bg-gradient-to-b from-cyan-400 to-purple-600 rounded-full shadow-[0_0_12px_rgba(99,102,241,0.7)]"></div>
+        <div>
+          <span class="text-xl font-extrabold tracking-widest text-[#0F172A] dark:text-white uppercase block">JOBLEX</span>
+          <span class="hidden sm:block text-[9px] text-[#64748B] dark:text-gray-400 tracking-widest uppercase font-semibold">Ministry of Ayush · Student Portal</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Student Stats + Notifications + Theme Toggle + Avatar -->
+    <div class="flex items-center gap-2 sm:gap-3">
+      <!-- Live Metrics -->
+      <span id="header-xp-badge" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 font-mono text-xs font-bold border border-purple-200 dark:border-purple-800/60">
+        🔥 1,450 XP
+      </span>
+      <span id="header-streak-badge" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-bold border border-emerald-200 dark:border-emerald-800/60">
+        🎯 7-Day Streak
+      </span>
+
+      <!-- Notification Bell -->
+      <button id="notification-bell-btn" type="button" aria-label="Open Notifications" class="relative p-2 rounded-xl text-[#475569] dark:text-gray-300 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 border border-[#E2E8F0] dark:border-white/10 transition-colors">
+        <span class="material-symbols-outlined text-[20px]">notifications</span>
+        <span class="notification-badge-indicator absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-purple-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
+          3
+        </span>
+      </button>
+
+      <!-- Theme Switcher -->
+      <button id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Light/Dark Theme" title="Toggle Light/Dark Theme" class="p-2 rounded-xl border border-[#E2E8F0] dark:border-white/10 bg-white dark:bg-white/5 text-[#475569] dark:text-gray-300 hover:text-[#0F172A] dark:hover:text-white transition-colors duration-150 flex items-center justify-center">
+        <span id="theme-toggle-icon" class="material-symbols-outlined text-[18px]">dark_mode</span>
+      </button>
+
+      <!-- Student Profile Chip -->
+      <div class="flex items-center gap-2 pl-2 border-l border-[#E2E8F0] dark:border-white/10">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-sm">
+          AV
+        </div>
+        <div class="hidden xl:flex flex-col text-left">
+          <span class="user-name-display text-xs font-bold text-[#0F172A] dark:text-white truncate max-w-[120px]">Ashay Verma</span>
+          <span class="text-[10px] text-[#64748B] dark:text-gray-400 font-mono">BAMS 3rd Year</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </header>
+
 <!-- MOBILE SLIDE-OUT DRAWER -->
-<div id="mobile-drawer" class="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-sm z-50 lg:hidden hidden" onclick="closeMobileMenu()">
-  <div class="w-72 max-w-[85vw] h-full bg-white dark:bg-[#080814] border-r border-[#E2E8F0] dark:border-purple-500/30 p-4 flex flex-col justify-between overflow-y-auto" onclick="event.stopPropagation()">
-    <div class="space-y-2">
-      <div class="flex justify-between items-center px-2 pb-3 border-b border-slate-200 dark:border-gray-800">
-        <span class="text-xs uppercase tracking-wider text-purple-600 dark:text-purple-400 font-bold">Student Modules</span>
-        <button onclick="closeMobileMenu()" class="p-1 rounded-lg text-slate-400 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white">✕</button>
+<div id="mobile-drawer" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden lg:hidden">
+  <div class="fixed inset-y-0 left-0 w-72 bg-white dark:bg-[#0c0e14] p-5 flex flex-col justify-between shadow-2xl border-r border-[#E2E8F0] dark:border-white/10 overflow-y-auto">
+    <div class="space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-gray-800">
+        <span class="text-xs uppercase tracking-wider text-purple-600 dark:text-purple-400 font-bold">Student Navigation</span>
+        <button onclick="closeMobileMenu()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white">✕</button>
       </div>
       <div class="space-y-1 pt-1">
-        <a href="student.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>📊</span> <span>Student Overview</span>
+        <a href="student.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
+          <span class="flex items-center gap-3"><span>📊</span> <span>Student Overview</span></span>
+          
         </a>
-        <a href="student-roadmap.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>🗺️</span> <span>Career Roadmap</span>
+        <a href="student-roadmap.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
+          <span class="flex items-center gap-3"><span>🗺️</span> <span>Career Roadmap</span></span>
+          
         </a>
-        <a href="student-resume.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>📄</span> <span>AI Resume Analyzer</span>
+        <a href="student-resume.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
+          <span class="flex items-center gap-3"><span>📄</span> <span>AI Resume Analyzer</span></span>
+          
         </a>
-        <a href="student-quiz.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>⚡</span> <span>Quiz Arena</span>
+        <a href="student-quiz.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
+          <span class="flex items-center gap-3"><span>⚡</span> <span>Quiz Arena</span></span>
+          
         </a>
-        <a href="student-internships.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>💼</span> <span>Apply for Internships</span>
+        <a href="student-internships.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
+          <span class="flex items-center gap-3"><span>💼</span> <span>Apply for Internships</span></span>
+          
         </a>
-        <a href="student-jobs.html" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold bg-purple-50 dark:bg-purple-600/25 border border-purple-200 dark:border-purple-500/80 text-purple-700 dark:text-purple-100 transition">
+        <a href="student-jobs.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition bg-[#0F172A] text-white dark:bg-white/10 dark:text-white font-bold">
           <span class="flex items-center gap-3"><span>🏢</span> <span>Apply for Jobs</span></span>
           <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-500 text-white font-bold">Active</span>
         </a>
-        <a href="student-zulu.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>🤖</span> <span>Zulu AI Companion</span>
+        <a href="student-zulu.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
+          <span class="flex items-center gap-3"><span>🤖</span> <span>Zulu AI Companion</span></span>
+          
         </a>
-        <a href="student-skilltree.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>🌐</span> <span>Skill Constellation</span>
+        <a href="student-skilltree.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
+          <span class="flex items-center gap-3"><span>🌐</span> <span>Skill Constellation</span></span>
+          
         </a>
-        <a href="student-portfolio.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>🏆</span> <span>Verified Portfolio</span>
+        <a href="student-portfolio.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
+          <span class="flex items-center gap-3"><span>🏆</span> <span>Verified Portfolio</span></span>
+          
         </a>
       </div>
     </div>
     <div class="pt-4 border-t border-slate-200 dark:border-gray-800">
-      <button onclick="JoblexApiClient.logout()" class="w-full py-2 rounded-xl text-center text-xs font-semibold text-slate-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition flex items-center justify-center gap-2">
+      <button onclick="JoblexApiClient.logout()" class="w-full py-2.5 rounded-xl text-center text-xs font-semibold text-slate-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition flex items-center justify-center gap-2">
         <span>🚪</span> <span>Sign Out</span>
       </button>
     </div>
@@ -335,87 +188,113 @@
 </div>
 <div class="flex-1 flex overflow-hidden">
   <!-- COLLAPSIBLE SIDEBAR -->
-  <aside id="student-sidebar" class="hidden lg:flex w-64 bg-white/90 dark:bg-[#080812]/90 border-r border-[#E2E8F0] dark:border-gray-800/80 backdrop-blur-md p-3.5 flex-col justify-between shrink-0 transition-all duration-300">
+  <aside id="student-sidebar" class="hidden lg:flex w-64 bg-white/90 dark:bg-[#080812]/90 border-r border-[#E2E8F0] dark:border-white/5 backdrop-blur-md p-3.5 flex-col justify-between shrink-0 transition-all duration-300">
     <div class="space-y-1">
       <div class="flex items-center justify-between px-2 pb-2 mb-2 border-b border-slate-200 dark:border-gray-800/80">
-        <span class="sidebar-text-label text-[10px] uppercase tracking-wider text-purple-600 dark:text-purple-400 font-bold">Navigation</span>
-        <button id="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" title="Minimize / Expand Sidebar" class="p-1.5 rounded-lg bg-slate-100 dark:bg-gray-900 border border-slate-200 dark:border-gray-800 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white text-xs transition"><span>◀</span></button>
+        <span class="sidebar-text-label text-[10px] uppercase tracking-wider text-purple-600 dark:text-purple-400 font-bold">Student Modules</span>
+        <button id="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" title="Minimize / Expand Sidebar" class="p-1.5 rounded-lg bg-slate-100 dark:bg-gray-900 border border-slate-200 dark:border-gray-800 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white text-xs transition">
+          <span>◀</span>
+        </button>
       </div>
-      <a href="student.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+      <a href="student.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="text-base shrink-0">📊</span>
-        <span class="sidebar-text-label font-bold text-xs">Student Overview</span>
-      </a>
-      <a href="student-roadmap.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">🗺️</span>
-        <span class="sidebar-text-label font-bold text-xs">Career Roadmap</span>
-      </a>
-      <a href="student-resume.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">📄</span>
-        <span class="sidebar-text-label font-bold text-xs">AI Resume Analyzer</span>
-      </a>
-      <a href="student-quiz.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">⚡</span>
-        <span class="sidebar-text-label font-bold text-xs">Quiz Arena</span>
-      </a>
-      <a href="student-internships.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">💼</span>
-        <span class="sidebar-text-label font-bold text-xs">Apply for Internships</span>
-      </a>
-      <a href="student-jobs.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all bg-purple-50 dark:bg-purple-600/25 border border-purple-200 dark:border-purple-500/80 text-purple-700 dark:text-purple-100 shadow-sm dark:shadow-[0_0_15px_rgba(168,85,247,0.25)]">
-        <span class="text-base shrink-0">🏢</span>
         <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
-          <span class="font-bold text-xs text-purple-900 dark:text-white truncate">Apply for Jobs</span>
-          <span class="text-[10px] text-purple-600 dark:text-gray-400 truncate">Corporate Placements</span>
+          <span class="font-bold text-xs truncate">Student Overview</span>
+          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">Central Dashboard</span>
         </div>
       </a>
-      <a href="student-zulu.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+      <a href="student-roadmap.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+        <span class="text-base shrink-0">🗺️</span>
+        <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
+          <span class="font-bold text-xs truncate">Career Roadmap</span>
+          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">4-Phase Progression</span>
+        </div>
+      </a>
+      <a href="student-resume.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+        <span class="text-base shrink-0">📄</span>
+        <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
+          <span class="font-bold text-xs truncate">AI Resume Analyzer</span>
+          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">Skill Gap Discovery</span>
+        </div>
+      </a>
+      <a href="student-quiz.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+        <span class="text-base shrink-0">⚡</span>
+        <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
+          <span class="font-bold text-xs truncate">Quiz Arena</span>
+          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">Knowledge Validation</span>
+        </div>
+      </a>
+      <a href="student-internships.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+        <span class="text-base shrink-0">💼</span>
+        <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
+          <span class="font-bold text-xs truncate">Apply for Internships</span>
+          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">Fellowships & Bounties</span>
+        </div>
+      </a>
+      <a href="student-jobs.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all bg-[#0F172A] text-white dark:bg-white/10 dark:text-white shadow-sm">
+        <span class="text-base shrink-0">🏢</span>
+        <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
+          <span class="font-bold text-xs truncate">Apply for Jobs</span>
+          <span class="text-[10px] text-gray-300 dark:text-gray-400 truncate">Corporate Placements</span>
+        </div>
+      </a>
+      <a href="student-zulu.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="text-base shrink-0">🤖</span>
-        <span class="sidebar-text-label font-bold text-xs">Zulu AI Companion</span>
+        <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
+          <span class="font-bold text-xs truncate">Zulu AI Companion</span>
+          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">Career Counselor</span>
+        </div>
       </a>
-      <a href="student-skilltree.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+      <a href="student-skilltree.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="text-base shrink-0">🌐</span>
-        <span class="sidebar-text-label font-bold text-xs">Skill Constellation</span>
+        <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
+          <span class="font-bold text-xs truncate">Skill Constellation</span>
+          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">Interactive 2D Map</span>
+        </div>
       </a>
-      <a href="student-portfolio.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+      <a href="student-portfolio.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="text-base shrink-0">🏆</span>
-        <span class="sidebar-text-label font-bold text-xs">Verified Portfolio</span>
+        <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
+          <span class="font-bold text-xs truncate">Verified Portfolio</span>
+          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">Tamper-Proof Ledger</span>
+        </div>
       </a>
     </div>
     <div class="mt-4 pt-3 border-t border-slate-200 dark:border-gray-800/80">
-      <button onclick="JoblexApiClient.logout()" class="w-full py-2 rounded-xl text-center text-xs font-semibold text-slate-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition flex items-center justify-center gap-2">
+      <button onclick="JoblexApiClient.logout()" class="w-full py-2 rounded-xl text-center text-xs font-semibold text-slate-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition flex items-center justify-center gap-2">
         <span>🚪</span> <span class="sidebar-text-label">Sign Out</span>
       </button>
     </div>
   </aside>
   <!-- WORKSPACE -->
   <main class="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 custom-scrollbar">
-    <div class="w-full max-w-max-width-canvas mx-auto">
+    <div class="w-full max-w-6xl mx-auto">
 
       <!-- HERO BANNER -->
-      <div class="bg-surface-container-lowest border border-[#e2e8f0] dark:border-gray-800 rounded p-5 mb-6">
-        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-          <div class="space-y-1">
+      <div class="rounded-2xl border border-[#E2E8F0] dark:border-white/10 bg-white dark:bg-white/[0.03] p-6 sm:p-8 shadow-sm mb-6">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div class="space-y-2">
             <div class="flex items-center gap-2">
-              <span class="text-label-sm font-label-sm text-[#475569] dark:text-gray-400 uppercase tracking-wider font-semibold">Institutional Placement Gateway</span>
-              <span class="text-[#cbd5e1] dark:text-gray-600">•</span>
-              <span class="inline-flex items-center gap-1 text-[11px] font-mono-data text-[#065f46] dark:text-emerald-300 bg-[#ecfdf5] dark:bg-emerald-950/40 border border-[#a7f3d0] dark:border-emerald-800/60 px-2 py-0.5 rounded">
-                <span class="w-1.5 h-1.5 rounded-full bg-[#047857] dark:bg-emerald-400"></span>
-                Corporate Mandates Active — Verified AIIA MoU Partners
+              <span class="text-xs font-semibold uppercase tracking-wider text-[#64748B] dark:text-gray-400">Institutional Placement Gateway</span>
+              <span class="text-slate-300 dark:text-gray-700">•</span>
+              <span class="inline-flex items-center gap-1 text-[11px] font-mono text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 px-2.5 py-0.5 rounded-full">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Corporate Mandates Active — AIIA MoU Partners
               </span>
             </div>
-            <h1 class="text-headline-lg font-headline-lg text-[#0f172a] dark:text-white tracking-tight">
+            <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#0F172A] dark:text-white">
               Apply for Full-Time Corporate Placements
             </h1>
-            <p class="text-body-sm font-body-sm text-[#475569] dark:text-gray-300">
+            <p class="text-sm text-[#475569] dark:text-gray-300 max-w-3xl leading-relaxed">
               Submit verified credentials directly to corporate hiring portals for permanent R&amp;D roles. Fast-track technical interviews validated by the AIIA Dean's office.
             </p>
           </div>
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-4 shrink-0">
             <div class="text-right">
-              <div class="text-label-sm font-label-sm text-[#64748b] dark:text-gray-400">Verified Fit Level</div>
-              <div class="text-headline-sm font-headline-sm font-bold text-[#0f172a] dark:text-white font-mono-data">92% Average</div>
+              <div class="text-xs text-[#64748B] dark:text-gray-400">Verified Fit Level</div>
+              <div class="text-xl font-extrabold text-[#0F172A] dark:text-white font-mono">92% Average</div>
             </div>
-            <a href="student-portfolio.html" class="px-4 py-2.5 bg-[#0f172a] hover:bg-[#1e293b] dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-label-md font-label-md rounded flex items-center gap-2 transition-colors duration-150">
+            <a href="student-portfolio.html" class="px-5 py-2.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] dark:bg-white/10 dark:hover:bg-white/20 text-white font-semibold text-xs transition-colors shadow-sm flex items-center gap-2">
               <span class="material-symbols-outlined text-[18px]">verified</span>
               <span>View Dossier</span>
             </a>
@@ -427,28 +306,27 @@
       <div id="jobs-container" class="space-y-4">
         <!-- Rendered dynamically by student-ui.js -->
       </div>
-
+    
     </div>
-    <!-- INSTITUTIONAL FOOTER -->
-<footer class="bg-surface-container-lowest dark:bg-[#080814] border-t border-outline-variant dark:border-gray-800 mt-12 transition-colors duration-200">
-<div class="w-full max-w-max-width-canvas mx-auto px-gutter-desktop py-unit-lg flex flex-col md:flex-row items-center justify-between gap-unit-md text-label-sm font-label-sm">
-<div class="text-secondary text-center md:text-left space-y-0.5">
-<div class="text-label-md font-label-md font-bold text-on-surface">JOBLEX</div>
-<div class="text-body-sm font-body-sm text-secondary">
-  © 2025 JOBLEX. All India Institute of Ayurveda &amp; Ministry of Ayush, Government of India. All Statutory Rights Reserved.
-</div>
-</div>
-<nav class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-<a class="text-secondary hover:text-on-surface transition-colors duration-150" href="#">NAAC &amp; Statutory Governance</a>
-<a class="text-secondary hover:text-on-surface transition-colors duration-150" href="#">AIIA Digital Verification Protocol</a>
-<a class="text-secondary hover:text-on-surface transition-colors duration-150" href="#">Terms of Institutional Access</a>
-<a class="text-secondary hover:text-on-surface transition-colors duration-150" href="#">National Ayush Registry Support</a>
-</nav>
-</div>
+
+<footer class="bg-white/90 dark:bg-[#07071A]/95 border-t border-[#E2E8F0] dark:border-white/5 mt-12 transition-colors duration-200">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#64748B] dark:text-gray-400">
+    <div class="text-center md:text-left space-y-1">
+      <div class="font-bold text-[#0F172A] dark:text-white uppercase tracking-wider">JOBLEX Platform</div>
+      <div>© 2025 JOBLEX. All India Institute of Ayurveda &amp; Ministry of Ayush, Government of India.</div>
+    </div>
+    <nav class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs">
+      <a href="#" class="hover:text-[#0F172A] dark:hover:text-white transition-colors">NAAC Statutory Governance</a>
+      <a href="#" class="hover:text-[#0F172A] dark:hover:text-white transition-colors">AIIA Verification Protocol</a>
+      <a href="#" class="hover:text-[#0F172A] dark:hover:text-white transition-colors">Terms of Institutional Access</a>
+      <a href="#" class="hover:text-[#0F172A] dark:hover:text-white transition-colors">National Ayush Registry</a>
+    </nav>
+  </div>
 </footer>
 
   </main>
 </div>
+
 <script>
   function toggleTheme() {
     const isDark = document.documentElement.classList.toggle('dark');
@@ -467,12 +345,10 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     updateThemeIcon();
-    if (window.JoblexApiClient && typeof JoblexApiClient.requireAuth === 'function') {
-      JoblexApiClient.requireAuth('student');
-    }
   });
 </script>
 <script src="js/frontend/api-client.js"></script>
 <script src="js/frontend/notifications.js"></script>
 <script src="js/frontend/student-ui.js"></script>
-</body></html>
+</body>
+</html>

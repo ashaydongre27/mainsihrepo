@@ -1,850 +1,334 @@
 <!DOCTYPE html>
-
-<html lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>JOBLEX | Student Career Roadmap &amp; Anti-Decay Hub</title>
-<!-- Material Symbols Outlined -->
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<!-- Google Fonts: Inter & JetBrains Mono -->
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<!-- Tailwind CSS with Forms and Container Queries -->
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JOBLEX | Ayush Career Roadmap & Competency Progression</title>
+  <!-- Material Symbols Outlined -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Early Theme Detection Script to prevent FOUC -->
+  <script>
+    (function() {
+      try {
+        const saved = localStorage.getItem('joblex_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      } catch(e) {}
+    })();
+  </script>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
     tailwind.config = {
       darkMode: "class",
       theme: {
         extend: {
-          "colors": {
-            "secondary-fixed": "var(--secondary-fixed)",
-            "surface-dim": "var(--surface-dim)",
-            "surface-container-low": "var(--surface-container-low)",
-            "background": "var(--background)",
-            "on-primary-container": "var(--on-primary-container)",
-            "outline-variant": "var(--outline-variant)",
-            "tertiary": "var(--tertiary)",
-            "secondary-fixed-dim": "var(--secondary-fixed-dim)",
-            "on-tertiary-container": "var(--on-tertiary-container)",
-            "on-primary-fixed": "var(--on-primary-fixed)",
-            "on-tertiary-fixed-variant": "var(--on-tertiary-fixed-variant)",
-            "tertiary-fixed-dim": "var(--tertiary-fixed-dim)",
-            "on-primary-fixed-variant": "var(--on-primary-fixed-variant)",
-            "primary-fixed-dim": "var(--primary-fixed-dim)",
-            "surface-container-lowest": "var(--surface-container-lowest)",
-            "primary-fixed": "var(--primary-fixed)",
-            "inverse-primary": "var(--inverse-primary)",
-            "secondary-container": "var(--secondary-container)",
-            "surface-tint": "var(--surface-tint)",
-            "on-error-container": "var(--on-error-container)",
-            "on-background": "var(--on-background)",
-            "primary-container": "var(--primary-container)",
-            "error-container": "var(--error-container)",
-            "on-secondary": "var(--on-secondary)",
-            "secondary": "var(--secondary)",
-            "on-primary": "var(--on-primary)",
-            "on-tertiary-fixed": "var(--on-tertiary-fixed)",
-            "tertiary-fixed": "var(--tertiary-fixed)",
-            "on-secondary-fixed": "var(--on-secondary-fixed)",
-            "on-error": "var(--on-error)",
-            "inverse-surface": "var(--inverse-surface)",
-            "on-surface": "var(--on-surface)",
-            "inverse-on-surface": "var(--inverse-on-surface)",
-            "outline": "var(--outline)",
-            "surface": "var(--surface)",
-            "on-secondary-fixed-variant": "var(--on-secondary-fixed-variant)",
-            "surface-container-high": "var(--surface-container-high)",
-            "error": "var(--error)",
-            "surface-container-highest": "var(--surface-container-highest)",
-            "primary": "var(--primary)",
-            "surface-container": "var(--surface-container)",
-            "on-secondary-container": "var(--on-secondary-container)",
-            "on-surface-variant": "var(--on-surface-variant)",
-            "tertiary-container": "var(--tertiary-container)",
-            "surface-variant": "var(--surface-variant)",
-            "on-tertiary": "var(--on-tertiary)",
-            "surface-bright": "var(--surface-bright)"
-          },
-          "borderRadius": {
-            "DEFAULT": "0.125rem",
-            "lg": "0.25rem",
-            "xl": "0.5rem",
-            "full": "0.75rem"
-          },
-          "spacing": {
-            "unit-md": "0.75rem",
-            "unit-xs": "0.25rem",
-            "unit-2xl": "3rem",
-            "unit-xl": "2rem",
-            "unit-sm": "0.5rem",
-            "max-width-canvas": "1600px",
-            "gutter-desktop": "1.5rem",
-            "unit-lg": "1.5rem",
-            "unit-base": "1rem",
-            "unit-2xs": "0.125rem",
-            "unit-3xl": "4rem",
-            "margin-shell": "2rem"
-          },
-          "fontFamily": {
-            "body-sm": ["Inter"],
-            "label-md": ["Inter"],
-            "label-sm": ["Inter"],
-            "mono-data": ["JetBrains Mono"],
-            "display-lg": ["Inter"],
-            "headline-sm": ["Inter"],
-            "headline-md": ["Inter"],
-            "headline-lg": ["Inter"],
-            "body-md": ["Inter"],
-            "body-lg": ["Inter"]
-          },
-          "fontSize": {
-            "body-sm": ["13px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400" }],
-            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
-            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.03em", "fontWeight": "500" }],
-            "mono-data": ["12px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "500" }],
-            "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.025em", "fontWeight": "700" }],
-            "headline-sm": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
-            "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
-            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
-            "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }],
-            "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "400" }]
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
           }
         }
       }
     }
   </script>
-<script>
-  (function() {
-    try {
-      const saved = localStorage.getItem('joblex_theme');
-      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (saved === 'dark' || (!saved && prefersDark)) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    } catch(e) {}
-  })();
-</script>
-<style>
-  :root {
-    --secondary-fixed: #d8e3fb;
-    --surface-dim: #cbdbf5;
-    --surface-container-low: #eff4ff;
-    --background: #f8f9ff;
-    --on-primary-container: #7c839b;
-    --outline-variant: #c6c6cd;
-    --tertiary: #000000;
-    --secondary-fixed-dim: #bcc7de;
-    --on-tertiary-container: #339471;
-    --on-primary-fixed: #131b2e;
-    --on-tertiary-fixed-variant: #00513a;
-    --tertiary-fixed-dim: #7bd8b1;
-    --on-primary-fixed-variant: #3f465c;
-    --primary-fixed-dim: #bec6e0;
-    --surface-container-lowest: #ffffff;
-    --primary-fixed: #dae2fd;
-    --inverse-primary: #bec6e0;
-    --secondary-container: #d5e0f8;
-    --surface-tint: #565e74;
-    --on-error-container: #93000a;
-    --on-background: #0b1c30;
-    --primary-container: #131b2e;
-    --error-container: #ffdad6;
-    --on-secondary: #ffffff;
-    --secondary: #545f73;
-    --on-primary: #ffffff;
-    --on-tertiary-fixed: #002115;
-    --tertiary-fixed: #97f5cc;
-    --on-secondary-fixed: #111c2d;
-    --on-error: #ffffff;
-    --inverse-surface: #213145;
-    --on-surface: #0b1c30;
-    --inverse-on-surface: #eaf1ff;
-    --outline: #76777d;
-    --surface: #f8f9ff;
-    --on-secondary-fixed-variant: #3c475a;
-    --surface-container-high: #dce9ff;
-    --error: #ba1a1a;
-    --surface-container-highest: #d3e4fe;
-    --primary: #000000;
-    --surface-container: #e5eeff;
-    --on-secondary-container: #586377;
-    --on-surface-variant: #45464d;
-    --tertiary-container: #002115;
-    --surface-variant: #d3e4fe;
-    --on-tertiary: #ffffff;
-    --surface-bright: #f8f9ff;
-  }
-
-  html.dark {
-    --secondary-fixed: #6ffbbe;
-    --surface-dim: #111317;
-    --surface-container-low: #1a1c20;
-    --background: #111317;
-    --on-primary-container: #00285d;
-    --outline-variant: #424754;
-    --tertiary: #ffb786;
-    --secondary-fixed-dim: #4edea3;
-    --on-tertiary-container: #461f00;
-    --on-primary-fixed: #001a42;
-    --on-tertiary-fixed-variant: #723600;
-    --tertiary-fixed-dim: #ffb786;
-    --on-primary-fixed-variant: #004395;
-    --primary-fixed-dim: #adc6ff;
-    --surface-container-lowest: #0c0e12;
-    --primary-fixed: #d8e2ff;
-    --inverse-primary: #005ac2;
-    --secondary-container: #00a572;
-    --surface-tint: #adc6ff;
-    --on-error-container: #ffdad6;
-    --on-background: #e2e2e8;
-    --primary-container: #4d8eff;
-    --error-container: #93000a;
-    --on-secondary: #003824;
-    --secondary: #4edea3;
-    --on-primary: #002e6a;
-    --on-tertiary-fixed: #311400;
-    --tertiary-fixed: #ffdcc6;
-    --on-secondary-fixed: #002113;
-    --on-error: #690005;
-    --inverse-surface: #e2e2e8;
-    --on-surface: #e2e2e8;
-    --inverse-on-surface: #2f3035;
-    --outline: #8c909f;
-    --surface: #111317;
-    --on-secondary-fixed-variant: #005236;
-    --surface-container-high: #282a2e;
-    --error: #ffb4ab;
-    --surface-container-highest: #333539;
-    --primary: #adc6ff;
-    --surface-container: #1e2024;
-    --on-secondary-container: #00311f;
-    --on-surface-variant: #c2c6d6;
-    --tertiary-container: #df7412;
-    --surface-variant: #333539;
-    --on-tertiary: #502400;
-    --surface-bright: #37393e;
-  }
-
-  .material-symbols-outlined {
-    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
-    display: inline-block;
-    vertical-align: middle;
-    line-height: 1;
-  }
-</style>
-<!-- Custom Styles for Sidebar & Animations -->
-<link rel="stylesheet" href="css/styles.css">
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.3);
+      border-radius: 9999px;
+    }
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .sidebar-collapsed {
+      width: 5rem !important;
+    }
+    .sidebar-collapsed .sidebar-text-label,
+    .sidebar-collapsed .sidebar-badge-label {
+      display: none !important;
+    }
+    .sidebar-collapsed .sidebar-nav-btn {
+      justify-content: center !important;
+      padding-left: 0.5rem !important;
+      padding-right: 0.5rem !important;
+    }
+  </style>
 </head>
-<body class="bg-[#f8f9fa] dark:bg-[#07071A] text-[#0f172a] dark:text-white font-body-sm antialiased selection:bg-secondary-fixed selection:text-on-secondary-fixed min-h-screen flex flex-col transition-colors duration-200">
-<!-- TOP APP BAR (Shared Components JSON Anchor) -->
-<header class="bg-surface-container-lowest dark:bg-[#080814]/95 border-b border-outline-variant dark:border-gray-800 w-full sticky top-0 z-50 transition-colors duration-200 backdrop-blur-md">
-<div class="w-full max-w-max-width-canvas mx-auto px-gutter-desktop h-16 flex items-center justify-between">
-<!-- Brand Logo & Institutional Anchor Lockup -->
-<div class="flex items-center gap-3 sm:gap-4">
-<button onclick="toggleMobileMenu()" class="lg:hidden p-1.5 rounded-lg bg-slate-100 dark:bg-gray-900 border border-slate-200 dark:border-gray-800 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white" title="Toggle Navigation Menu">☰</button>
-<a class="text-headline-md font-headline-md font-bold tracking-tight text-on-surface uppercase flex items-center gap-2" href="index.html">
-<span class="w-6 h-6 bg-[#0f172a] text-white flex items-center justify-center rounded text-[12px] font-mono-data">J</span>
-          JOBLEX
-        </a>
-<div class="h-5 w-[1px] bg-outline-variant hidden sm:block"></div>
-<div class="flex items-center gap-2">
-<span class="text-label-sm font-label-sm bg-[#f1f5f9] text-[#334155] px-2 py-1 rounded border border-[#e2e8f0] hidden sm:inline">
-            All India Institute of Ayurveda
-          </span>
-<span class="text-label-sm font-label-sm text-[#64748b] hidden lg:inline">
-            Ministry of Ayush, Govt. of India
-          </span>
-</div>
-</div>
-<!-- Trailing Action & Profile Cluster -->
-<div class="flex items-center gap-2 sm:gap-3">
-<!-- Streak / XP Metrics Pill -->
-<div class="hidden xl:flex items-center gap-2 bg-[#f8fafc] dark:bg-gray-900 border border-[#e2e8f0] dark:border-gray-800 px-2.5 py-1 rounded text-label-sm font-label-sm text-[#0f172a] dark:text-gray-200">
-<span class="material-symbols-outlined text-[#d97706] text-[16px]" style="font-variation-settings: 'FILL' 1;">bolt</span>
-<span class="font-mono-data text-mono-data font-semibold">1,450 XP</span>
-<span class="text-outline-variant">•</span>
-<span class="text-[#475569] dark:text-gray-400">7-Day Streak</span>
-</div>
-<!-- Verified Credentials Badge -->
-<button class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#ecfdf5] dark:bg-emerald-950/40 border border-[#a7f3d0] dark:border-emerald-800/60 rounded text-[#065f46] dark:text-emerald-300 text-label-sm font-label-sm">
-<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">verified</span>
-          Verified Credentials
-        </button>
-<!-- Theme Toggle Button -->
-<button id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Light/Dark Theme" title="Toggle Light/Dark Theme" class="p-1.5 text-secondary hover:text-on-surface rounded hover:bg-surface-container-low transition-colors duration-150 flex items-center justify-center">
-  <span id="theme-toggle-icon" class="material-symbols-outlined text-[20px]">dark_mode</span>
-</button>
-<!-- Real Working Notification Bell with Indicator -->
-<div class="relative">
-  <button id="notification-bell-btn" onclick="toggleNotificationsDropdown(event)" aria-label="Notifications" title="View Institutional Notifications" class="relative p-2 text-secondary hover:text-on-surface dark:text-gray-300 dark:hover:text-white transition-colors duration-150 rounded hover:bg-surface-container-low dark:hover:bg-gray-800 flex items-center justify-center">
-    <span class="material-symbols-outlined text-[20px]">notifications</span>
-    <span class="notification-badge-indicator hidden absolute top-1 right-1 px-1 min-w-[16px] h-4 text-[9px] font-mono font-bold bg-rose-500 text-white rounded-full flex items-center justify-center ring-2 ring-surface-container-lowest dark:ring-[#080814]">3</span>
-  </button>
-</div>
-<button aria-label="help" class="p-2 text-secondary hover:text-on-surface transition-colors duration-150 rounded">
-<span class="material-symbols-outlined text-[20px]">help</span>
-</button>
-<!-- User Identity Meta -->
-<div class="flex items-center gap-2.5 pl-2 border-l border-[#e2e8f0] dark:border-gray-800">
-<div class="w-8 h-8 rounded bg-[#0f172a] text-white flex items-center justify-center text-label-sm font-label-sm font-bold tracking-wider">
-            AV
-          </div>
-<div class="hidden 2xl:block text-left">
-<div class="text-label-sm font-label-sm font-semibold text-[#0f172a] dark:text-white leading-none">Ashay Verma</div>
-<div class="text-[10px] font-mono-data text-[#64748b] dark:text-gray-400 leading-tight mt-0.5">BAMS 3rd Year • AIIA</div>
-</div>
-</div>
-</div>
-</div>
+<body class="bg-gradient-to-b from-[#FFFFFF] via-[#F8F9FA] to-[#F1F3F5] dark:from-[#07071A] dark:via-[#090924] dark:to-[#07071A] text-[#0F172A] dark:text-slate-100 font-sans min-h-screen flex flex-col antialiased transition-colors duration-200">
+
+
+<header class="sticky top-0 z-50 w-full bg-white/90 dark:bg-[#07071A]/95 backdrop-blur-md border-b border-[#E2E8F0] dark:border-white/5 transition-colors duration-200">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-3 flex items-center justify-between">
+    <!-- Mobile Hamburger + Brand Logo -->
+    <div class="flex items-center gap-3">
+      <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-xl text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 border border-slate-200 dark:border-gray-800 transition" aria-label="Toggle Navigation">
+        <span class="material-symbols-outlined text-[20px]">menu</span>
+      </button>
+      <a href="student.html" class="flex items-center gap-2.5 cursor-pointer select-none">
+        <div class="w-1.5 h-8 bg-gradient-to-b from-cyan-400 to-purple-600 rounded-full shadow-[0_0_12px_rgba(99,102,241,0.7)]"></div>
+        <div>
+          <span class="text-xl font-extrabold tracking-widest text-[#0F172A] dark:text-white uppercase block">JOBLEX</span>
+          <span class="hidden sm:block text-[9px] text-[#64748B] dark:text-gray-400 tracking-widest uppercase font-semibold">Ministry of Ayush · Student Portal</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Student Stats + Notifications + Theme Toggle + Avatar -->
+    <div class="flex items-center gap-2 sm:gap-3">
+      <!-- Live Metrics -->
+      <span id="header-xp-badge" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 font-mono text-xs font-bold border border-purple-200 dark:border-purple-800/60">
+        🔥 1,450 XP
+      </span>
+      <span id="header-streak-badge" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-bold border border-emerald-200 dark:border-emerald-800/60">
+        🎯 7-Day Streak
+      </span>
+
+      <!-- Notification Bell -->
+      <button id="notification-bell-btn" type="button" aria-label="Open Notifications" class="relative p-2 rounded-xl text-[#475569] dark:text-gray-300 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 border border-[#E2E8F0] dark:border-white/10 transition-colors">
+        <span class="material-symbols-outlined text-[20px]">notifications</span>
+        <span class="notification-badge-indicator absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-purple-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
+          3
+        </span>
+      </button>
+
+      <!-- Theme Switcher -->
+      <button id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Light/Dark Theme" title="Toggle Light/Dark Theme" class="p-2 rounded-xl border border-[#E2E8F0] dark:border-white/10 bg-white dark:bg-white/5 text-[#475569] dark:text-gray-300 hover:text-[#0F172A] dark:hover:text-white transition-colors duration-150 flex items-center justify-center">
+        <span id="theme-toggle-icon" class="material-symbols-outlined text-[18px]">dark_mode</span>
+      </button>
+
+      <!-- Student Profile Chip -->
+      <div class="flex items-center gap-2 pl-2 border-l border-[#E2E8F0] dark:border-white/10">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-sm">
+          AV
+        </div>
+        <div class="hidden xl:flex flex-col text-left">
+          <span class="user-name-display text-xs font-bold text-[#0F172A] dark:text-white truncate max-w-[120px]">Ashay Verma</span>
+          <span class="text-[10px] text-[#64748B] dark:text-gray-400 font-mono">BAMS 3rd Year</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </header>
 
 <!-- MOBILE SLIDE-OUT DRAWER -->
-<div id="mobile-drawer" class="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-sm z-50 lg:hidden hidden" onclick="closeMobileMenu()">
-  <div class="w-72 max-w-[85vw] h-full bg-white dark:bg-[#080814] border-r border-[#E2E8F0] dark:border-purple-500/30 p-4 flex flex-col justify-between overflow-y-auto" onclick="event.stopPropagation()">
-    <div class="space-y-2">
-      <div class="flex justify-between items-center px-2 pb-3 border-b border-slate-200 dark:border-gray-800">
-        <span class="text-xs uppercase tracking-wider text-purple-600 dark:text-purple-400 font-bold">Student Modules</span>
-        <button onclick="closeMobileMenu()" class="p-1 rounded-lg text-slate-400 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white">✕</button>
+<div id="mobile-drawer" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden lg:hidden">
+  <div class="fixed inset-y-0 left-0 w-72 bg-white dark:bg-[#0c0e14] p-5 flex flex-col justify-between shadow-2xl border-r border-[#E2E8F0] dark:border-white/10 overflow-y-auto">
+    <div class="space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-gray-800">
+        <span class="text-xs uppercase tracking-wider text-purple-600 dark:text-purple-400 font-bold">Student Navigation</span>
+        <button onclick="closeMobileMenu()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white">✕</button>
       </div>
       <div class="space-y-1 pt-1">
-        <a href="student.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>📊</span> <span>Student Overview</span>
+        <a href="student.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
+          <span class="flex items-center gap-3"><span>📊</span> <span>Student Overview</span></span>
+          
         </a>
-        <a href="student-roadmap.html" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold bg-purple-50 dark:bg-purple-600/25 border border-purple-200 dark:border-purple-500/80 text-purple-700 dark:text-purple-100 transition">
+        <a href="student-roadmap.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition bg-[#0F172A] text-white dark:bg-white/10 dark:text-white font-bold">
           <span class="flex items-center gap-3"><span>🗺️</span> <span>Career Roadmap</span></span>
-          <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-500 text-white font-bold">Anti-Decay</span>
+          <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-500 text-white font-bold">Active</span>
         </a>
-        <a href="student-resume.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>📄</span> <span>AI Resume Analyzer</span>
+        <a href="student-resume.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
+          <span class="flex items-center gap-3"><span>📄</span> <span>AI Resume Analyzer</span></span>
+          
         </a>
-        <a href="student-quiz.html" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+        <a href="student-quiz.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
           <span class="flex items-center gap-3"><span>⚡</span> <span>Quiz Arena</span></span>
-          <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-500 text-white font-bold">+XP</span>
+          
         </a>
-        <a href="student-internships.html" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+        <a href="student-internships.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
           <span class="flex items-center gap-3"><span>💼</span> <span>Apply for Internships</span></span>
-          <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold border border-amber-500/40">Gigs</span>
+          
         </a>
-        <a href="student-jobs.html" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+        <a href="student-jobs.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
           <span class="flex items-center gap-3"><span>🏢</span> <span>Apply for Jobs</span></span>
-          <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-blue-500/20 text-blue-700 dark:text-blue-300 font-bold border border-blue-500/40">Placement</span>
+          
         </a>
-        <a href="student-zulu.html" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span class="flex items-center gap-3"><span>🤖</span> <span>Ask Zulu AI</span></span>
-          <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-500/20 text-purple-700 dark:text-purple-300 font-bold border border-purple-500/40">AI</span>
+        <a href="student-zulu.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
+          <span class="flex items-center gap-3"><span>🤖</span> <span>Zulu AI Companion</span></span>
+          
         </a>
-        <a href="student-skilltree.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>🌐</span> <span>Skill Constellation</span>
+        <a href="student-skilltree.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
+          <span class="flex items-center gap-3"><span>🌐</span> <span>Skill Constellation</span></span>
+          
         </a>
-        <a href="student-portfolio.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>🏆</span> <span>Verified Portfolio</span>
+        <a href="student-portfolio.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
+          <span class="flex items-center gap-3"><span>🏆</span> <span>Verified Portfolio</span></span>
+          
         </a>
       </div>
     </div>
     <div class="pt-4 border-t border-slate-200 dark:border-gray-800">
-      <button onclick="JoblexApiClient.logout()" class="w-full py-2 rounded-xl text-center text-xs font-semibold text-slate-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition flex items-center justify-center gap-2">
+      <button onclick="JoblexApiClient.logout()" class="w-full py-2.5 rounded-xl text-center text-xs font-semibold text-slate-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition flex items-center justify-center gap-2">
         <span>🚪</span> <span>Sign Out</span>
       </button>
     </div>
   </div>
 </div>
-
 <div class="flex-1 flex overflow-hidden">
   <!-- COLLAPSIBLE SIDEBAR -->
-  <aside id="student-sidebar" class="hidden lg:flex w-64 bg-white/90 dark:bg-[#080812]/90 border-r border-[#E2E8F0] dark:border-gray-800/80 backdrop-blur-md p-3.5 flex-col justify-between shrink-0 transition-all duration-300">
+  <aside id="student-sidebar" class="hidden lg:flex w-64 bg-white/90 dark:bg-[#080812]/90 border-r border-[#E2E8F0] dark:border-white/5 backdrop-blur-md p-3.5 flex-col justify-between shrink-0 transition-all duration-300">
     <div class="space-y-1">
       <div class="flex items-center justify-between px-2 pb-2 mb-2 border-b border-slate-200 dark:border-gray-800/80">
-        <span class="sidebar-text-label text-[10px] uppercase tracking-wider text-purple-600 dark:text-purple-400 font-bold">Navigation</span>
-        <button id="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" title="Minimize / Expand Sidebar" class="p-1.5 rounded-lg bg-slate-100 dark:bg-gray-900 border border-slate-200 dark:border-gray-800 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white text-xs transition"><span>◀</span></button>
+        <span class="sidebar-text-label text-[10px] uppercase tracking-wider text-purple-600 dark:text-purple-400 font-bold">Student Modules</span>
+        <button id="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" title="Minimize / Expand Sidebar" class="p-1.5 rounded-lg bg-slate-100 dark:bg-gray-900 border border-slate-200 dark:border-gray-800 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white text-xs transition">
+          <span>◀</span>
+        </button>
       </div>
-      <a href="student.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+      <a href="student.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="text-base shrink-0">📊</span>
-        <span class="sidebar-text-label font-bold text-xs">Student Overview</span>
-      </a>
-      <a href="student-roadmap.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all bg-purple-50 dark:bg-purple-600/25 border border-purple-200 dark:border-purple-500/80 text-purple-700 dark:text-purple-100 shadow-sm dark:shadow-[0_0_15px_rgba(168,85,247,0.25)]">
-        <span class="text-base shrink-0">🗺️</span>
         <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
-          <span class="font-bold text-xs text-purple-900 dark:text-white truncate">Career Roadmap</span>
-          <span class="text-[10px] text-purple-600 dark:text-gray-400 truncate">Anti-Decay Preservation</span>
+          <span class="font-bold text-xs truncate">Student Overview</span>
+          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">Central Dashboard</span>
         </div>
       </a>
-      <a href="student-resume.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+      <a href="student-roadmap.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all bg-[#0F172A] text-white dark:bg-white/10 dark:text-white shadow-sm">
+        <span class="text-base shrink-0">🗺️</span>
+        <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
+          <span class="font-bold text-xs truncate">Career Roadmap</span>
+          <span class="text-[10px] text-gray-300 dark:text-gray-400 truncate">4-Phase Progression</span>
+        </div>
+      </a>
+      <a href="student-resume.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="text-base shrink-0">📄</span>
-        <span class="sidebar-text-label font-bold text-xs">AI Resume Analyzer</span>
+        <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
+          <span class="font-bold text-xs truncate">AI Resume Analyzer</span>
+          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">Skill Gap Discovery</span>
+        </div>
       </a>
-      <a href="student-quiz.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+      <a href="student-quiz.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="text-base shrink-0">⚡</span>
-        <span class="sidebar-text-label font-bold text-xs">Quiz Arena</span>
+        <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
+          <span class="font-bold text-xs truncate">Quiz Arena</span>
+          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">Knowledge Validation</span>
+        </div>
       </a>
-      <a href="student-internships.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+      <a href="student-internships.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="text-base shrink-0">💼</span>
-        <span class="sidebar-text-label font-bold text-xs">Apply for Internships</span>
+        <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
+          <span class="font-bold text-xs truncate">Apply for Internships</span>
+          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">Fellowships & Bounties</span>
+        </div>
       </a>
-      <a href="student-jobs.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+      <a href="student-jobs.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="text-base shrink-0">🏢</span>
-        <span class="sidebar-text-label font-bold text-xs">Apply for Jobs</span>
+        <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
+          <span class="font-bold text-xs truncate">Apply for Jobs</span>
+          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">Corporate Placements</span>
+        </div>
       </a>
-      <a href="student-zulu.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+      <a href="student-zulu.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="text-base shrink-0">🤖</span>
-        <span class="sidebar-text-label font-bold text-xs">Zulu AI Companion</span>
+        <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
+          <span class="font-bold text-xs truncate">Zulu AI Companion</span>
+          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">Career Counselor</span>
+        </div>
       </a>
-      <a href="student-skilltree.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+      <a href="student-skilltree.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="text-base shrink-0">🌐</span>
-        <span class="sidebar-text-label font-bold text-xs">Skill Constellation</span>
+        <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
+          <span class="font-bold text-xs truncate">Skill Constellation</span>
+          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">Interactive 2D Map</span>
+        </div>
       </a>
-      <a href="student-portfolio.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5 border border-transparent">
+      <a href="student-portfolio.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="text-base shrink-0">🏆</span>
-        <span class="sidebar-text-label font-bold text-xs">Verified Portfolio</span>
+        <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
+          <span class="font-bold text-xs truncate">Verified Portfolio</span>
+          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">Tamper-Proof Ledger</span>
+        </div>
       </a>
     </div>
     <div class="mt-4 pt-3 border-t border-slate-200 dark:border-gray-800/80">
-      <button onclick="JoblexApiClient.logout()" class="w-full py-2 rounded-xl text-center text-xs font-semibold text-slate-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition flex items-center justify-center gap-2">
+      <button onclick="JoblexApiClient.logout()" class="w-full py-2 rounded-xl text-center text-xs font-semibold text-slate-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition flex items-center justify-center gap-2">
         <span>🚪</span> <span class="sidebar-text-label">Sign Out</span>
       </button>
     </div>
   </aside>
-
   <!-- WORKSPACE -->
   <main class="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 custom-scrollbar">
-    <div class="w-full max-w-max-width-canvas mx-auto">
-<!-- HERO & ANTI-DECAY STATUS BANNER -->
-<div class="bg-surface-container-lowest border border-[#e2e8f0] dark:border-gray-800 rounded p-5 mb-6">
-<div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-<!-- Context & Title -->
-<div class="space-y-1">
-<div class="flex items-center gap-2">
-<span class="text-label-sm font-label-sm text-[#475569] dark:text-gray-400 uppercase tracking-wider font-semibold">Institutional Career Trajectory</span>
-<span class="text-[#cbd5e1] dark:text-gray-600">•</span>
-<span class="inline-flex items-center gap-1 text-[11px] font-mono-data text-[#065f46] dark:text-emerald-300 bg-[#ecfdf5] dark:bg-emerald-950/40 border border-[#a7f3d0] dark:border-emerald-800/60 px-2 py-0.5 rounded">
-<span class="w-1.5 h-1.5 rounded-full bg-[#047857] dark:bg-emerald-400"></span>
-              Anti-Decay Preservation Active — Next decay cycle in 72h
-            </span>
-</div>
-<h1 class="text-headline-lg font-headline-lg text-[#0f172a] dark:text-white tracking-tight">
-            Ayush Career Roadmap &amp; Competency Preservation
-          </h1>
-<p class="text-body-sm font-body-sm text-[#475569] dark:text-gray-300">
-            Continuous validation protocol for clinical pharmacology, botanical forensics, and Ayush-Good Laboratory Practice (GLP) accreditation.
-          </p>
-</div>
-<!-- Action / Primary KPI Pill -->
-<div class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
-<div class="text-right">
-<div class="text-label-sm font-label-sm text-[#64748b] dark:text-gray-400">Overall Progress</div>
-<div class="text-headline-sm font-headline-sm font-bold text-[#0f172a] dark:text-white font-mono-data">22% <span class="text-body-sm font-body-sm font-normal text-[#64748b] dark:text-gray-400">(4 of 18 Milestones)</span></div>
-</div>
-<button onclick="handleCheckInToday()" class="px-4 py-2.5 bg-[#0f172a] hover:bg-[#1e293b] dark:bg-purple-600 dark:hover:bg-purple-500 text-white text-label-md font-label-md rounded flex items-center gap-2 shadow-none transition-colors duration-150">
-<span class="material-symbols-outlined text-[18px]">verified_user</span>
-<span>Check-In Today (+50 XP)</span>
-</button>
-</div>
-</div>
-<!-- Macro Progress Line -->
-<div class="mt-5 pt-4 border-t border-[#f1f5f9] dark:border-gray-800 grid grid-cols-1 md:grid-cols-4 gap-3 text-label-sm font-label-sm">
-<div class="flex items-center justify-between p-2 rounded bg-[#f8fafc] dark:bg-gray-900/60 border border-[#e2e8f0] dark:border-gray-800">
-<span class="text-[#475569] dark:text-gray-300">Phase 01: Core GLP</span>
-<span class="text-[#065f46] dark:text-emerald-400 font-mono-data font-semibold">100% (3/3)</span>
-</div>
-<div class="flex items-center justify-between p-2 rounded bg-[#eff6ff] dark:bg-blue-950/40 border border-[#bfdbfe] dark:border-blue-800/60">
-<span class="text-[#1e3a8a] dark:text-blue-300 font-medium">Phase 02: HPTLC</span>
-<span class="text-[#1d4ed8] dark:text-blue-400 font-mono-data font-semibold">25% (1/4)</span>
-</div>
-<div class="flex items-center justify-between p-2 rounded bg-[#f8fafc] dark:bg-gray-900/40 border border-[#e2e8f0] dark:border-gray-800/60 opacity-70">
-<span class="text-[#64748b] dark:text-gray-400">Phase 03: Health-AI</span>
-<span class="text-[#64748b] dark:text-gray-400 font-mono-data">0% (0/5)</span>
-</div>
-<div class="flex items-center justify-between p-2 rounded bg-[#f8fafc] dark:bg-gray-900/40 border border-[#e2e8f0] dark:border-gray-800/60 opacity-70">
-<span class="text-[#64748b] dark:text-gray-400">Phase 04: Industrial Capstone</span>
-<span class="text-[#64748b] dark:text-gray-400 font-mono-data">0% (0/6)</span>
-</div>
-</div>
-</div>
-<!-- MAIN TWO-COLUMN SPLIT -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-<!-- LEFT COLUMN: MILESTONE ROADMAP (8 of 12 cols = 2/3 width) -->
-<section class="lg:col-span-8 space-y-6">
-<!-- PHASE 01: COMPLETED -->
-<div class="bg-surface-container-lowest border border-[#e2e8f0] dark:border-gray-800 rounded overflow-hidden">
-<div class="bg-[#f8fafc] dark:bg-gray-900/80 px-5 py-3.5 border-b border-[#e2e8f0] dark:border-gray-800 flex items-center justify-between">
-<div class="flex items-center gap-3">
-<span class="w-6 h-6 rounded-full bg-[#ecfdf5] dark:bg-emerald-950/60 border border-[#a7f3d0] dark:border-emerald-700/60 text-[#065f46] dark:text-emerald-300 flex items-center justify-center font-mono-data text-label-sm font-semibold">
-                01
+    <div class="w-full max-w-6xl mx-auto">
+
+      <!-- ROADMAP HERO BANNER -->
+      <div class="rounded-2xl border border-[#E2E8F0] dark:border-white/10 bg-white dark:bg-white/[0.03] p-6 sm:p-8 shadow-sm mb-6">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-semibold uppercase tracking-wider text-[#64748B] dark:text-gray-400">Milestone Progression Framework</span>
+              <span class="text-slate-300 dark:text-gray-700">•</span>
+              <span class="inline-flex items-center gap-1 text-[11px] font-mono text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 px-2.5 py-0.5 rounded-full">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Anti-Decay Engine Active
               </span>
-<div>
-<h2 class="text-headline-sm font-headline-sm text-[#0f172a] dark:text-white">
-                  Phase 01: Core Ayurvedic Pharmacognosy &amp; GLP
-                </h2>
-<span class="text-label-sm font-label-sm text-[#64748b] dark:text-gray-400">Standard Operating Practice verification under AIIA Botanical Quality Unit</span>
-</div>
-</div>
-<div class="flex items-center gap-2">
-<span class="font-mono-data text-mono-data bg-[#f1f5f9] dark:bg-gray-800 text-[#334155] dark:text-gray-300 px-2 py-0.5 rounded border border-[#e2e8f0] dark:border-gray-700">350 XP</span>
-<span class="inline-flex items-center gap-1 text-[11px] font-mono-data text-[#065f46] dark:text-emerald-300 bg-[#ecfdf5] dark:bg-emerald-950/60 border border-[#a7f3d0] dark:border-emerald-800 px-2 py-0.5 rounded">
-<span class="material-symbols-outlined text-[14px]">check</span>
-                Certified
-              </span>
-</div>
-</div>
-<div class="divide-y divide-slate-100 dark:divide-gray-800 border-[#f1f5f9] dark:border-gray-800">
-<!-- Task 1 -->
-<div class="p-4 flex items-center justify-between hover:bg-[#f8fafc] dark:hover:bg-gray-900/40 transition-colors">
-<div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-[#047857] dark:text-emerald-400 text-[20px] mt-0.5" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-<div>
-<h3 class="text-body-md font-body-md font-semibold text-[#0f172a] dark:text-white">National GLP Certification for Plant Extract Standardization</h3>
-<p class="text-body-sm font-body-sm text-[#64748b] dark:text-gray-400">Validation of sterile sample preparation as codified in Ayurvedic Pharmacopoeia of India (API).</p>
-</div>
-</div>
-<div class="text-right shrink-0 ml-4">
-<span class="text-label-sm font-label-sm text-[#065f46] dark:text-emerald-400 font-mono-data block">+100 XP</span>
-<span class="text-[10px] font-mono-data text-[#64748b] dark:text-gray-400">Decay Preserved (14d)</span>
-</div>
-</div>
-<!-- Task 2 -->
-<div class="p-4 flex items-center justify-between hover:bg-[#f8fafc] dark:hover:bg-gray-900/40 transition-colors">
-<div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-[#047857] dark:text-emerald-400 text-[20px] mt-0.5" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-<div>
-<h3 class="text-body-md font-body-md font-semibold text-[#0f172a] dark:text-white">Botanical Authentication &amp; Microscopic Tissue Profiling</h3>
-<p class="text-body-sm font-body-sm text-[#64748b] dark:text-gray-400">Microtome sectioning, cellular wall histology, and standard pharmacognostic slide archives.</p>
-</div>
-</div>
-<div class="text-right shrink-0 ml-4">
-<span class="text-label-sm font-label-sm text-[#065f46] dark:text-emerald-400 font-mono-data block">+125 XP</span>
-<span class="text-[10px] font-mono-data text-[#64748b] dark:text-gray-400">Decay Preserved (18d)</span>
-</div>
-</div>
-<!-- Task 3 -->
-<div class="p-4 flex items-center justify-between hover:bg-[#f8fafc] dark:hover:bg-gray-900/40 transition-colors">
-<div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-[#047857] dark:text-emerald-400 text-[20px] mt-0.5" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-<div>
-<h3 class="text-body-md font-body-md font-semibold text-[#0f172a] dark:text-white">Ashwagandha (Withania somnifera) Decoction Brix &amp; PH Assay</h3>
-<p class="text-body-sm font-body-sm text-[#64748b] dark:text-gray-400">Spectrophotometric density mapping against Ministry of Ayush baseline standards.</p>
-</div>
-</div>
-<div class="text-right shrink-0 ml-4">
-<span class="text-label-sm font-label-sm text-[#065f46] dark:text-emerald-400 font-mono-data block">+125 XP</span>
-<!-- PHASE 02: IN PROGRESS (ACTIVE FOCUS) -->
-<div class="bg-surface-container-lowest border-2 border-purple-600 dark:border-purple-500 rounded overflow-hidden">
-<div class="bg-purple-100 dark:bg-purple-950/80 text-purple-950 dark:text-white px-5 py-3.5 border-b border-purple-200 dark:border-purple-500/30 flex items-center justify-between">
-<div class="flex items-center gap-3">
-<span class="w-6 h-6 rounded-full bg-purple-600 dark:bg-purple-500 text-white flex items-center justify-center font-mono-data text-label-sm font-bold">
-                02
-              </span>
-<div>
-<div class="flex items-center gap-2">
-<h2 class="text-headline-sm font-headline-sm text-purple-950 dark:text-white font-bold">
-                    Phase 02: Chromatography &amp; HPTLC Profiling
-                  </h2>
-<span class="bg-[#ecfdf5] dark:bg-emerald-950/60 text-[#065f46] dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 text-[10px] font-mono-data font-semibold px-2 py-0.5 rounded">CURRENT COHORT MILESTONE</span>
-</div>
-<span class="text-label-sm font-label-sm text-purple-800 dark:text-purple-300">Industrial analytical standards co-supervised with Dabur Research Foundation MoU</span>
-</div>
-</div>
-<div class="text-right">
-<span class="font-mono-data text-mono-data text-purple-900 dark:text-purple-200 font-semibold">450 XP Target</span>
-</div>
-</div>
-<div class="divide-y divide-slate-100 dark:divide-gray-800 border-[#f1f5f9] dark:border-gray-800">
-<!-- Completed Task in Phase 2 -->
-<div class="p-4 flex items-center justify-between bg-white dark:bg-[#0c0e12]">
-<div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-[#047857] dark:text-emerald-400 text-[20px] mt-0.5" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-<div>
-<h3 class="text-body-md font-body-md font-semibold text-[#0f172a] dark:text-white">Thin-Layer Chromatography (TLC) Retention Factor Calculation</h3>
-<p class="text-body-sm font-body-sm text-[#64748b] dark:text-gray-400">Rf calculation protocols for Curcuminoid standard isolation using silica gel plates.</p>
-</div>
-</div>
-<div class="text-right shrink-0 ml-4">
-<span class="text-label-sm font-label-sm text-[#065f46] dark:text-emerald-400 font-mono-data block">+100 XP</span>
-<span class="text-[10px] font-mono-data text-[#065f46] dark:text-emerald-400">Validated by AIIA Faculty</span>
-</div>
-</div>
-<!-- In Progress Task 1 -->
-<div class="p-4 flex items-center justify-between bg-[#eff6ff] dark:bg-blue-950/40 border-l-4 border-purple-600 dark:border-purple-500">
-<div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-purple-600 dark:text-purple-400 text-[20px] mt-0.5 animate-pulse">radio_button_checked</span>
-<div>
-<div class="flex items-center gap-2">
-<h3 class="text-body-md font-body-md font-semibold text-[#0f172a] dark:text-white">Dabur MoU Industrial Standard HPTLC Fingerprint Marker Analysis</h3>
-<span class="bg-[#fef3c7] dark:bg-amber-950/60 text-[#92400e] dark:text-amber-300 text-[10px] font-mono-data px-1.5 py-0.5 rounded border border-[#fde68a] dark:border-amber-800/60">In Progress</span>
-</div>
-<p class="text-body-sm font-body-sm text-[#475569] dark:text-gray-300">Validation of Withanolide A and B peak area percentage under UV 254nm / 366nm absorption spectra.</p>
-<!-- Decay Alert Micro-bar -->
-<div class="mt-2 flex items-center gap-3">
-<div class="w-48 bg-[#cbd5e1] dark:bg-gray-800 h-1.5 rounded-full overflow-hidden">
-<div class="bg-purple-600 dark:bg-purple-400 h-full w-2/3"></div>
-</div>
-<span class="text-[11px] font-mono-data text-[#475569] dark:text-gray-300">68% completed • Lab bench audit pending</span>
-</div>
-</div>
-</div>
-<div class="text-right shrink-0 ml-4">
-<button onclick="handleResumeLabRun()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-label-sm font-label-sm rounded transition-colors shadow-sm">
-                  Resume Lab Run
-                </button>
-</div>
-</div>
-<!-- Pending Task 2 -->
-<div class="p-4 flex items-center justify-between hover:bg-[#f8fafc] dark:hover:bg-gray-900/40 transition-colors">
-<div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-[#94a3b8] text-[20px] mt-0.5">radio_button_unchecked</span>
-<div>
-<h3 class="text-body-md font-body-md font-medium text-[#475569] dark:text-gray-300">HPLC Mobile Phase Optimization &amp; Resolution Peak Indexing</h3>
-<p class="text-body-sm font-body-sm text-[#64748b] dark:text-gray-400">Standardization of Acetonitrile/Water elution gradient for multi-herb compounds.</p>
-</div>
-</div>
-<div class="text-right shrink-0 ml-4">
-<span class="text-label-sm font-label-sm text-[#64748b] dark:text-gray-400 font-mono-data block">+150 XP</span>
-<span class="text-[10px] font-mono-data text-[#94a3b8]">Prerequisite: Dabur MoU Run</span>
-</div>
-</div>
-<!-- Pending Task 3 -->
-<div class="p-4 flex items-center justify-between hover:bg-[#f8fafc] dark:hover:bg-gray-900/40 transition-colors">
-<div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-[#94a3b8] text-[20px] mt-0.5">radio_button_unchecked</span>
-<div>
-<h3 class="text-body-md font-body-md font-medium text-[#475569] dark:text-gray-300">Heavy Metal Spectrometry (AAS) Compliance Dossier</h3>
-<p class="text-body-sm font-body-sm text-[#64748b] dark:text-gray-400">Atomic Absorption compliance testing for Lead, Cadmium, Arsenic, and Mercury below WHO limits.</p>
-</div>
-</div>
-<div class="text-right shrink-0 ml-4">
-<span class="text-label-sm font-label-sm text-[#64748b] dark:text-gray-400 font-mono-data block">+100 XP</span>
-<span class="text-[10px] font-mono-data text-[#94a3b8]">Locked</span>
-</div>
-</div>
-</div>
-</div>
-<!-- PHASE 03: UPCOMING -->
-<div class="bg-surface-container-lowest border border-[#e2e8f0] dark:border-gray-800 rounded overflow-hidden">
-<div class="bg-[#f8fafc] dark:bg-gray-900/80 px-5 py-3.5 border-b border-[#e2e8f0] dark:border-gray-800 flex items-center justify-between">
-<div class="flex items-center gap-3">
-<span class="w-6 h-6 rounded-full bg-[#f1f5f9] dark:bg-gray-800 text-[#64748b] dark:text-gray-300 flex items-center justify-center font-mono-data text-label-sm font-semibold border border-[#cbd5e1] dark:border-gray-700">
-                03
-              </span>
-<div>
-<h2 class="text-headline-sm font-headline-sm text-[#0f172a] dark:text-white">
-                  Phase 03: Computational Drug Discovery &amp; Health-AI
-                </h2>
-<span class="text-label-sm font-label-sm text-[#64748b] dark:text-gray-400">In-silico molecular docking and Ayurvedic reverse pharmacology computational pipelines</span>
-</div>
-</div>
-<span class="font-mono-data text-mono-data text-[#64748b] dark:text-gray-400">500 XP</span>
-</div>
-<div class="divide-y divide-slate-100 dark:divide-gray-800 border-[#f1f5f9] dark:border-gray-800">
-<div class="p-4 flex items-center justify-between hover:bg-[#f8fafc] dark:hover:bg-gray-900/40">
-<div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-[#94a3b8] text-[20px] mt-0.5">lock</span>
-<div>
-<h3 class="text-body-md font-body-md text-[#475569] dark:text-gray-200">In-Silico AutoDock Vina Docking of Phytochemicals to ACE2 Receptors</h3>
-<p class="text-body-sm font-body-sm text-[#94a3b8]">Computational modeling of Withaferin-A binding affinity against viral protein targets.</p>
-</div>
-</div>
-<span class="text-label-sm font-label-sm text-[#94a3b8] font-mono-data">+200 XP</span>
-</div>
-<div class="p-4 flex items-center justify-between hover:bg-[#f8fafc] dark:hover:bg-gray-900/40">
-<div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-[#94a3b8] text-[20px] mt-0.5">lock</span>
-<div>
-<h3 class="text-body-md font-body-md text-[#475569] dark:text-gray-200">Python RDKit &amp; Pharmacological Data Processing</h3>
-<p class="text-body-sm font-body-sm text-[#94a3b8]">SMILES string structuring and Lipinski's Rule of Five screening on traditional herb databases.</p>
-</div>
-</div>
-<span class="text-label-sm font-label-sm text-[#94a3b8] font-mono-data">+300 XP</span>
-</div>
-</div>
-</div>
-<!-- PHASE 04: UPCOMING -->
-<div class="bg-surface-container-lowest border border-[#e2e8f0] dark:border-gray-800 rounded overflow-hidden">
-<div class="bg-[#f8fafc] dark:bg-gray-900/80 px-5 py-3.5 border-b border-[#e2e8f0] dark:border-gray-800 flex items-center justify-between">
-<div class="flex items-center gap-3">
-<span class="w-6 h-6 rounded-full bg-[#f1f5f9] dark:bg-gray-800 text-[#64748b] dark:text-gray-300 flex items-center justify-center font-mono-data text-label-sm font-semibold border border-[#cbd5e1] dark:border-gray-700">
-                04
-              </span>
-<div>
-<h2 class="text-headline-sm font-headline-sm text-[#0f172a] dark:text-white">
-                  Phase 04: Corporate Placement &amp; Capstone Formulation
-                </h2>
-<span class="text-label-sm font-label-sm text-[#64748b] dark:text-gray-400">Clinical trial dossier compilation and recruitment dispatch for Ayush Pharma R&amp;D</span>
-</div>
-</div>
-<span class="font-mono-data text-mono-data text-[#64748b] dark:text-gray-400">600 XP</span>
-</div>
-<div class="divide-y divide-slate-100 dark:divide-gray-800 border-[#f1f5f9] dark:border-gray-800">
-<div class="p-4 flex items-center justify-between hover:bg-[#f8fafc] dark:hover:bg-gray-900/40">
-<div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-[#94a3b8] text-[20px] mt-0.5">lock</span>
-<div>
-<h3 class="text-body-md font-body-md text-[#475569] dark:text-gray-200">Clinical Protocol Verification &amp; Industrial Interview Dispatch</h3>
-<p class="text-body-sm font-body-sm text-[#94a3b8]">Final regulatory clearances with Dean of Placements; priority indexing to Himalaya, Dabur, and Patanjali R&amp;D divisions.</p>
-</div>
-</div>
-<span class="text-label-sm font-label-sm text-[#94a3b8] font-mono-data">+600 XP</span>
-</div>
-</div>
-</div>
-</section>
-<!-- RIGHT COLUMN: INSTITUTIONAL LEDGER & BENCHMARKING (4 of 12 cols = 1/3 width) -->
-<aside class="lg:col-span-4 space-y-6">
-<!-- 1. ANONYMIZED PEER BENCHMARK CARD -->
-<div class="bg-surface-container-lowest border border-[#e2e8f0] dark:border-gray-800 rounded p-5 space-y-4">
-<div class="flex items-center justify-between pb-3 border-b border-[#f1f5f9] dark:border-gray-800">
-<div>
-<span class="text-label-sm font-label-sm text-[#64748b] dark:text-gray-400 uppercase font-semibold">Comparative Analysis</span>
-<h3 class="text-headline-sm font-headline-sm text-[#0f172a] dark:text-white">Peer Cohort Benchmark</h3>
-</div>
-<span class="material-symbols-outlined text-[#64748b] dark:text-gray-400 text-[20px]">analytics</span>
-</div>
-<div class="p-3 bg-[#f8fafc] dark:bg-gray-900/60 rounded border border-[#e2e8f0] dark:border-gray-800 space-y-1">
-<div class="flex justify-between items-baseline">
-<span class="text-label-sm font-label-sm text-[#475569] dark:text-gray-300">Cohort Standing</span>
-<span class="text-headline-sm font-headline-sm font-bold text-[#0f172a] dark:text-white font-mono-data">78th Percentile</span>
-</div>
-<p class="text-body-sm font-body-sm text-[#64748b] dark:text-gray-400">Ranked among 142 BAMS 3rd Year scholars at All India Institute of Ayurveda.</p>
-</div>
-<!-- Delta Breakdown against Placed Peers -->
-<div class="space-y-3 pt-2">
-<div class="text-label-sm font-label-sm font-semibold text-[#0f172a] dark:text-white flex items-center justify-between">
-<span>Benchmark: Dabur &amp; Himalaya R&amp;D Inbound Offers</span>
-<span class="text-[10px] font-mono-data text-[#64748b] dark:text-gray-400">2025 Placement Cycle</span>
-</div>
-<div class="space-y-2">
-<div class="flex justify-between text-body-sm font-body-sm">
-<span class="text-[#64748b] dark:text-gray-400">Placed Peer Average:</span>
-<span class="font-mono-data font-semibold text-[#0f172a] dark:text-white">86% Readiness</span>
-</div>
-<div class="w-full bg-[#e2e8f0] dark:bg-gray-800 h-2 rounded-full overflow-hidden">
-<div class="bg-[#64748b] dark:bg-gray-500 h-full" style="width: 86%;"></div>
-</div>
-<div class="flex justify-between text-body-sm font-body-sm pt-1">
-<span class="text-[#0f172a] dark:text-gray-200 font-medium">Ashay Verma (Current):</span>
-<span class="font-mono-data font-semibold text-[#0f172a] dark:text-white">74% Readiness</span>
-</div>
-<div class="w-full bg-[#e2e8f0] dark:bg-gray-800 h-2 rounded-full overflow-hidden">
-<div class="bg-purple-600 dark:bg-purple-500 h-full" style="width: 74%;"></div>
-</div>
-<div class="flex justify-between items-center text-label-sm font-label-sm pt-2 text-[#991b1b] dark:text-rose-300 bg-[#fef2f2] dark:bg-rose-950/40 p-2 rounded border border-[#fecaca] dark:border-rose-900/60">
-<span class="flex items-center gap-1">
-<span class="material-symbols-outlined text-[16px]">trending_down</span>
-                  Competency Gap to Top 10%
-                </span>
-<span class="font-mono-data font-bold">-12% (Phase 02 Focus)</span>
-</div>
-</div>
-</div>
-</div>
-<!-- 2. REVERSE RECRUITMENT INBOUND STATUS -->
-<div class="bg-surface-container-lowest border border-[#e2e8f0] dark:border-gray-800 rounded p-5 space-y-4">
-<div class="flex items-start justify-between">
-<div>
-<span class="text-label-sm font-label-sm text-[#065f46] dark:text-emerald-400 uppercase font-semibold">Active Institutional Gate</span>
-<h3 class="text-headline-sm font-headline-sm text-[#0f172a] dark:text-white mt-0.5">Reverse Recruitment</h3>
-</div>
-<!-- Functional Visual Toggle -->
-<label class="relative inline-flex items-center cursor-pointer">
-<input id="reverse-recruitment-toggle" checked="" onchange="handleToggleReverseRecruitment(this)" class="sr-only peer" type="checkbox"/>
-<div class="w-9 h-5 bg-[#cbd5e1] dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600 dark:peer-checked:bg-purple-500"></div>
-</label>
-</div>
-<div class="p-3 bg-[#ecfdf5] dark:bg-emerald-950/40 border border-[#a7f3d0] dark:border-emerald-800/60 rounded text-body-sm font-body-sm text-[#065f46] dark:text-emerald-300 flex items-start gap-2.5">
-<span class="material-symbols-outlined text-[18px] shrink-0 mt-0.5" style="font-variation-settings: 'FILL' 1;">lock_open</span>
-<div>
-<strong class="font-semibold block">Open to Inbound Headhunting</strong>
-              Partner corporate recruiters from CCRAS, Dabur, and Hamdard can query your verified skills without application requirements.
             </div>
-</div>
-<div class="border-t border-[#f1f5f9] dark:border-gray-800 pt-3 text-label-sm font-label-sm space-y-2">
-<div class="flex justify-between text-[#475569] dark:text-gray-400">
-<span>Search Impressions (Past 7d):</span>
-<span class="font-mono-data font-semibold text-[#0f172a] dark:text-white">48 Queries</span>
-</div>
-<div class="flex justify-between text-[#475569] dark:text-gray-400">
-<span>Direct Dossier Downloads:</span>
-<span class="font-mono-data font-semibold text-[#0f172a] dark:text-white">3 Recruiter Unlocks</span>
-</div>
-</div>
-</div>
-<!-- 3. AIIA TAMPER-PROOF CREDENTIAL LEDGER -->
-<div class="bg-surface-container-lowest border border-[#e2e8f0] dark:border-gray-800 rounded p-5 space-y-4">
-<div class="flex items-center justify-between pb-3 border-b border-[#f1f5f9] dark:border-gray-800">
-<div>
-<span class="text-label-sm font-label-sm text-[#64748b] dark:text-gray-400 uppercase font-semibold">Statutory Registry</span>
-<h3 class="text-headline-sm font-headline-sm text-[#0f172a] dark:text-white">Institutional Credential</h3>
-</div>
-<span class="material-symbols-outlined text-[#047857] dark:text-emerald-400 text-[20px]" style="font-variation-settings: 'FILL' 1;">security</span>
-</div>
-<div class="flex items-center gap-4">
-<!-- Simulated QR Grid Pattern with CSS -->
-<div class="w-20 h-20 bg-slate-900 dark:bg-gray-800 p-1.5 rounded flex items-center justify-center shrink-0">
-<div class="w-full h-full bg-white p-1 flex flex-col justify-between">
-<div class="flex justify-between">
-<div class="w-4 h-4 bg-[#0f172a]"></div>
-<div class="w-2 h-2 bg-[#0f172a]"></div>
-<div class="w-4 h-4 bg-[#0f172a]"></div>
-</div>
-<div class="flex justify-center gap-1">
-<div class="w-1.5 h-1.5 bg-[#0f172a]"></div>
-<div class="w-1.5 h-1.5 bg-[#0f172a]"></div>
-</div>
-<div class="flex justify-between">
-<div class="w-4 h-4 bg-[#0f172a]"></div>
-<div class="w-3 h-1.5 bg-[#0f172a]"></div>
-<div class="w-4 h-4 bg-[#0f172a]"></div>
-</div>
-</div>
-</div>
-<div class="space-y-1">
-<span class="text-[10px] font-mono-data text-[#64748b] dark:text-gray-400 block">CRYPTO-HASH VERIFICATION</span>
-<span class="font-mono-data text-mono-data font-bold text-[#0f172a] dark:text-white block">AIIA-CERT-2026-9842</span>
-<span class="inline-flex items-center gap-1 text-[11px] text-[#065f46] dark:text-emerald-300 font-medium">
-<span class="material-symbols-outlined text-[14px]">verified</span>
-                Signed by Dean Academic Affairs
-              </span>
-</div>
-</div>
-<div class="pt-2 text-[11px] font-mono-data text-[#64748b] dark:text-gray-400 border-t border-[#f1f5f9] dark:border-gray-800 leading-relaxed">
-            Registered on National Ayush Academic Registry (NAAR). Validated for direct clearance into Ayush Ministry Postgraduate Fellowships and NMPB research mandates.
+            <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#0F172A] dark:text-white">
+              Ayush Career Roadmap &amp; Competency Progress
+            </h1>
+            <p class="text-sm text-[#475569] dark:text-gray-300 max-w-3xl leading-relaxed">
+              Curriculum-to-industry pathway aligned with the National Commission for Indian System of Medicine (NCISM) syllabus and AIIA Industry Partners. Check in regularly to protect competencies against decay.
+            </p>
           </div>
-</div>
-</aside>
-</div>
-</div>
-<!-- INSTITUTIONAL FOOTER (Shared Components JSON Anchor) -->
-<footer class="bg-surface-container-lowest dark:bg-[#080814] border-t border-outline-variant dark:border-gray-800 mt-12 transition-colors duration-200">
-<div class="w-full max-w-max-width-canvas mx-auto px-gutter-desktop py-unit-lg flex flex-col md:flex-row items-center justify-between gap-unit-md text-label-sm font-label-sm">
-<!-- Institutional Copyright & Attribution -->
-<div class="text-secondary text-center md:text-left space-y-0.5">
-<div class="text-label-md font-label-md font-bold text-on-surface">
-          JOBLEX
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+            <div class="text-left sm:text-right px-4 py-2 rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-[#E2E8F0] dark:border-white/5">
+              <span class="text-[10px] text-[#64748B] dark:text-gray-400 uppercase tracking-wider block font-semibold">Anti-Decay Cycle</span>
+              <span id="streak-freeze-status" class="text-xs font-bold text-emerald-600 dark:text-emerald-400 font-mono">Freeze Active: 48h remaining</span>
+            </div>
+            <button id="streak-checkin-btn" onclick="handleStreakCheckin()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-md transition-all hover:scale-105 flex items-center justify-center gap-2">
+              <span>❄️ Check-in (+50 XP)</span>
+            </button>
+          </div>
         </div>
-<div class="text-body-sm font-body-sm text-secondary">
-          © 2025 JOBLEX. All India Institute of Ayurveda &amp; Ministry of Ayush, Government of India. All Statutory Rights Reserved.
-        </div>
-</div>
-<!-- Statutory Compliance Hyperlinks -->
-<nav class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-<a class="text-secondary hover:text-on-surface transition-colors duration-150" href="#">
-          NAAC &amp; Statutory Governance
-        </a>
-<a class="text-secondary hover:text-on-surface transition-colors duration-150" href="#">
-          AIIA Digital Verification Protocol
-        </a>
-<a class="text-secondary hover:text-on-surface transition-colors duration-150" href="#">
-          Terms of Institutional Access
-        </a>
-<a class="text-secondary hover:text-on-surface transition-colors duration-150" href="#">
-          National Ayush Registry Support
-        </a>
-</nav>
-</div>
+      </div>
+
+      <!-- ROADMAP PHASES CONTAINER (RENDERED VIA API) -->
+      <div id="roadmap-phases-container" class="space-y-5 mb-8">
+        <!-- Dynamically rendered by student-ui.js -->
+      </div>
+
+      <!-- PEER BENCHMARKING COMPONENT -->
+      <div id="peer-benchmarking-card"></div>
+    
+    </div>
+
+<footer class="bg-white/90 dark:bg-[#07071A]/95 border-t border-[#E2E8F0] dark:border-white/5 mt-12 transition-colors duration-200">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#64748B] dark:text-gray-400">
+    <div class="text-center md:text-left space-y-1">
+      <div class="font-bold text-[#0F172A] dark:text-white uppercase tracking-wider">JOBLEX Platform</div>
+      <div>© 2025 JOBLEX. All India Institute of Ayurveda &amp; Ministry of Ayush, Government of India.</div>
+    </div>
+    <nav class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs">
+      <a href="#" class="hover:text-[#0F172A] dark:hover:text-white transition-colors">NAAC Statutory Governance</a>
+      <a href="#" class="hover:text-[#0F172A] dark:hover:text-white transition-colors">AIIA Verification Protocol</a>
+      <a href="#" class="hover:text-[#0F172A] dark:hover:text-white transition-colors">Terms of Institutional Access</a>
+      <a href="#" class="hover:text-[#0F172A] dark:hover:text-white transition-colors">National Ayush Registry</a>
+    </nav>
+  </div>
 </footer>
-</main>
+
+  </main>
 </div>
+
 <script>
   function toggleTheme() {
     const isDark = document.documentElement.classList.toggle('dark');
@@ -865,27 +349,8 @@
     updateThemeIcon();
   });
 </script>
-<script>
-  function handleCheckInToday() {
-    alert("Daily Competency Check-In Recorded!\n+50 XP credited to Ashay Verma.\nAnti-Decay preservation cycle renewed for 72 hours.");
-  }
-
-  function handleResumeLabRun() {
-    alert("Resuming Lab Bench Protocol:\nDabur MoU Standard HPTLC Fingerprint Marker Analysis\nStation: AIIA Central Phytochemical Laboratory #3.");
-  }
-
-  function handleToggleReverseRecruitment(el) {
-    const active = el.checked;
-    alert(`Reverse Recruitment Gate is now ${active ? 'ACTIVE' : 'PAUSED'}.\n${active ? 'Partner corporate recruiters from CCRAS, Dabur, and Hamdard can query your verified competencies.' : 'Profile hidden from corporate inbound recruitment queries.'}`);
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    if (window.JoblexApiClient && typeof JoblexApiClient.requireAuth === 'function') {
-      JoblexApiClient.requireAuth('student');
-    }
-  });
-</script>
 <script src="js/frontend/api-client.js"></script>
 <script src="js/frontend/notifications.js"></script>
 <script src="js/frontend/student-ui.js"></script>
-</body></html>
+</body>
+</html>
