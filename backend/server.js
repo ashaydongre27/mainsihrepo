@@ -90,13 +90,15 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`========================================================`);
-  console.log(`🚀 JOBLEX Node.js Backend Server running on port ${PORT}`);
-  console.log(`Frontend: http://localhost:${PORT}`);
-  console.log(`API Base: http://localhost:${PORT}/api`);
-  console.log(`========================================================`);
-});
+// Start Server if run directly (standalone Node process)
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`========================================================`);
+    console.log(`🚀 JOBLEX Node.js Backend Server running on port ${PORT}`);
+    console.log(`Frontend: http://localhost:${PORT}`);
+    console.log(`API Base: http://localhost:${PORT}/api`);
+    console.log(`========================================================`);
+  });
+}
 
 module.exports = app;

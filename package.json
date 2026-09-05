@@ -2,13 +2,12 @@
   "name": "mainsihrepo",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
     "start": "node backend/server.js",
     "server": "node backend/server.js",
     "server:flask": "python backend/app.py",
     "dev": "node backend/server.js",
-    "build": "echo 'Build completed for static deployment'",
+    "build": "node build.js",
     "preview": "node backend/server.js"
   },
   "dependencies": {
