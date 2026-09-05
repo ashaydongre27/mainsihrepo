@@ -282,7 +282,13 @@
       try {
         if (currentMode === 'login') {
           const res = await JoblexApiClient.login(email, password, selectedRole);
-          const redirect = new URLSearchParams(window.location.search).get('redirect') || `${res.user.role}.html`;
+          let redirect = new URLSearchParams(window.location.search).get('redirect');
+          if (!redirect) {
+            redirect = `${res.user.role}.html`;
+          } else if (!redirect.startsWith('/') && !redirect.startsWith('http') && !redirect.startsWith('src/')) {
+            // Normalize path relative to root
+            redirect = '/' + redirect;
+          }
           window.location.href = redirect;
         } else {
           const name = document.getElementById('input-name').value.trim();
