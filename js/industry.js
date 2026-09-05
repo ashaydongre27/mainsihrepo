@@ -65,7 +65,7 @@ function renderCandidates() {
       </div>
 
       <div class="flex gap-2 pt-3 border-t border-gray-800">
-        <button onclick="alert('Viewing full verified AIIA institutional dossier for ${c.name}')" class="flex-1 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-semibold text-xs transition">
+        <button onclick="showToast('Viewing full verified AIIA institutional dossier for ${c.name}', 'Dossier Loaded', 'info')" class="flex-1 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-semibold text-xs transition">
           View Dossier
         </button>
         <button onclick="shortlistCandidate(${i}, this)" class="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition">
@@ -97,7 +97,7 @@ function renderTalentForecast() {
       </div>
       <div class="flex items-center gap-3 self-end sm:self-auto">
         <span class="text-xs text-gray-400 font-mono">Available: <strong>${inst.readyScholars} Scholars</strong></span>
-        <button onclick="alert('Booking priority campus interview slot with ${inst.institution}')" class="px-3 py-1.5 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/40 text-blue-200 font-bold text-xs transition">
+        <button onclick="showToast('Booking priority campus interview slot with ${inst.institution}', 'Interview Reserved', 'success')" class="px-3 py-1.5 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/40 text-blue-200 font-bold text-xs transition">
           Engage Early
         </button>
       </div>
@@ -108,13 +108,13 @@ function renderTalentForecast() {
 function handlePostOpportunity(e) {
   e.preventDefault();
   const title = document.getElementById('opp-post-title').value;
-  alert(`Opportunity / Micro-Gig "${title}" has been published to the student portal and verified by AIIA liaison!`);
+  showToast(`Opportunity / Micro-Gig "${title}" has been published to the student portal and verified by AIIA liaison!`, 'Opportunity Published', 'success');
   e.target.reset();
   switchIndustryTab('Candidates');
 }
 
 function handleSubmitSkillDemand(e) {
   e.preventDefault();
-  alert('Corporate Skill Demand successfully submitted to Academic Deans for curriculum modernization under NEP-2020!');
+  showToast('Corporate Skill Demand successfully submitted to Academic Deans for curriculum modernization under NEP-2020!', 'Skill Demand Submitted', 'success');
   e.target.reset();
 }

@@ -3,8 +3,9 @@
  * Enhanced with SIH 26044 features:
  * 3. Reverse Application & Inbound Talent Outreach
  * 6. Talent Pipeline Forecasting
- * 7. Skill ROI Dashboard & AI Calibration
+ * 7. Skill Match ROI & Recruiter Rating Loop
  * 8. Sponsored Skill Bootcamps
+ * - Connected Candidate Dossiers & Enterprise Requisitions Database Sync
  */
 const express = require('express');
 const router = express.Router();
@@ -14,11 +15,12 @@ const DB = require('../data/database');
 // GET /api/industry/all-data
 router.get('/all-data', async (req, res) => {
   try {
-    const [oppRes, mouRes, candRes, bootRes] = await Promise.allSettled([
+    const [oppRes, mouRes, candRes, bootRes, appRes] = await Promise.allSettled([
       supabase.from('opportunities').select('*').order('created_at', { ascending: false }),
       supabase.from('mou_partnerships').select('*'),
       supabase.from('candidates').select('*'),
-      supabase.from('sponsored_bootcamps').select('*')
+      supabase.from('sponsored_bootcamps').select('*'),
+      supabase.from('applications').select('*').order('created_at', { ascending: false })
     ]);
 
     const opportunities = oppRes.status === 'fulfilled' && !oppRes.value.error && oppRes.value.data?.length
@@ -37,11 +39,16 @@ router.get('/all-data', async (req, res) => {
       ? bootRes.value.data
       : (DB.sponsoredBootcamps || []);
 
+    const applications = appRes.status === 'fulfilled' && !appRes.value.error && appRes.value.data?.length
+      ? appRes.value.data
+      : (DB.applications || []);
+
     return res.json({
       success: true,
       opportunities,
       mouPartnerships,
       candidates,
+      applications,
       forecast: DB.talentForecast || {},
       bootcamps,
       skillRoi: DB.skillRoiMetrics || {}
@@ -53,6 +60,7 @@ router.get('/all-data', async (req, res) => {
       opportunities: DB.opportunities || [],
       mouPartnerships: DB.mou_partnerships || [],
       candidates: DB.candidates || [],
+      applications: DB.applications || [],
       forecast: DB.talentForecast || {},
       bootcamps: DB.sponsoredBootcamps || [],
       skillRoi: DB.skillRoiMetrics || {}
@@ -61,7 +69,7 @@ router.get('/all-data', async (req, res) => {
 });
 
 // POST /api/industry/post-opportunity
-router.post('/post-opportunity', (req, res) => {
+router.post('/post-opportunity', async (req, res) => {
   const data = req.body || {};
   const newOpp = {
     id: `opp-${Date.now().toString(36)}`,
@@ -76,6 +84,21 @@ router.post('/post-opportunity', (req, res) => {
     description: data.description || 'Opportunity posted via JOBLEX Industry Portal.'
   };
 
+  try {
+    const { data: dbData, error } = await supabase.from('opportunities').insert([newOpp]).select().single();
+    if (!error && dbData) {
+      if (!DB.opportunities) DB.opportunities = [];
+      DB.opportunities.unshift(dbData);
+      return res.status(201).json({
+        success: true,
+        message: 'Opportunity published successfully!',
+        opportunity: dbData
+      });
+    }
+  } catch (err) {
+    console.warn('[Post opportunity] Supabase insert warning:', err.message);
+  }
+
   if (!DB.opportunities) DB.opportunities = [];
   DB.opportunities.unshift(newOpp);
   res.status(201).json({
@@ -85,21 +108,70 @@ router.post('/post-opportunity', (req, res) => {
   });
 });
 
+// GET /api/industry/requisitions (Corporate Postings & Openings with applicant metrics)
+router.get('/requisitions', async (req, res) => {
+  const { type } = req.query;
+  try {
+    const [oppRes, appRes] = await Promise.allSettled([
+      supabase.from('opportunities').select('*').order('created_at', { ascending: false }),
+      supabase.from('applications').select('*')
+    ]);
+
+    const opps = oppRes.status === 'fulfilled' && !oppRes.value.error && oppRes.value.data
+      ? oppRes.value.data
+      : (DB.opportunities || []);
+
+    const apps = appRes.status === 'fulfilled' && !appRes.value.error && appRes.value.data
+      ? appRes.value.data
+      : (DB.applications || []);
+
+    const filteredOpps = (type && type !== 'All')
+      ? opps.filter(o => o.type.toLowerCase() === type.toLowerCase())
+      : opps;
+
+    const requisitions = filteredOpps.map(opp => {
+      const oppId = opp.id;
+      const count = apps.filter(a => a.opportunity_id === oppId || a.opportunityId === oppId).length;
+      return {
+        ...opp,
+        applicantCount: maxCount(count, opp.applicantCount || 1),
+        active: opp.active !== false
+      };
+    });
+
+    return res.json({ requisitions });
+  } catch (err) {
+    console.warn('[Industry requisitions] Supabase query warning:', err.message);
+    const list = (type && type !== 'All')
+      ? (DB.opportunities || []).filter(o => o.type.toLowerCase() === type.toLowerCase())
+      : (DB.opportunities || []);
+    return res.json({ requisitions: list });
+  }
+});
+
+function maxCount(a, b) { return a > b ? a : b; }
+
 // GET /api/industry/candidates
-router.get('/candidates', (req, res) => {
-  res.json({ candidates: DB.candidates });
+router.get('/candidates', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('candidates').select('*');
+    if (!error && data && data.length) {
+      return res.json({ candidates: data });
+    }
+  } catch (e) {}
+  res.json({ candidates: DB.candidates || [] });
 });
 
 // GET /api/industry/forecast (Idea #6)
 router.get('/forecast', (req, res) => {
-  res.json(DB.talentForecast);
+  res.json(DB.talentForecast || {});
 });
 
 // GET /api/industry/reverse-search (Idea #3: Reverse Application)
 router.get('/reverse-search', (req, res) => {
   const { skill = '' } = req.query;
-  const filtered = DB.candidates.filter(c => 
-    !skill || c.skills.some(s => s.toLowerCase().includes(skill.toLowerCase()))
+  const filtered = (DB.candidates || []).filter(c => 
+    !skill || (c.skills || []).some(s => s.toLowerCase().includes(skill.toLowerCase()))
   );
   res.json({
     totalMatched: filtered.length,
@@ -123,7 +195,7 @@ router.post('/inbound-invite', (req, res) => {
 
 // GET /api/industry/bootcamps (Idea #8: Sponsored Bootcamps)
 router.get('/bootcamps', (req, res) => {
-  res.json({ bootcamps: DB.sponsoredBootcamps });
+  res.json({ bootcamps: DB.sponsoredBootcamps || [] });
 });
 
 // POST /api/industry/create-bootcamp (Idea #8)
@@ -142,18 +214,20 @@ router.post('/create-bootcamp', (req, res) => {
     status: 'Cohort Active'
   };
 
+  if (!DB.sponsoredBootcamps) DB.sponsoredBootcamps = [];
   DB.sponsoredBootcamps.unshift(newBootcamp);
   res.json({ success: true, message: 'Sponsored Bootcamp cohort initiated!', bootcamp: newBootcamp });
 });
 
 // GET /api/industry/skill-roi (Idea #7: Skill ROI Dashboard)
 router.get('/skill-roi', (req, res) => {
-  res.json(DB.skillRoiMetrics);
+  res.json(DB.skillRoiMetrics || {});
 });
 
 // POST /api/industry/rate-candidate (Idea #7)
 router.post('/rate-candidate', (req, res) => {
   const { candidateName, actualRating, comments } = req.body || {};
+  if (!DB.skillRoiMetrics) DB.skillRoiMetrics = { totalHiresEvaluated: 48, feedbackLogs: [] };
   DB.skillRoiMetrics.totalHiresEvaluated += 1;
   DB.skillRoiMetrics.feedbackLogs.unshift({
     candidate: candidateName || 'Scholar',
@@ -182,6 +256,7 @@ router.post('/submit-skill-demand', (req, res) => {
     adopted: false
   };
 
+  if (!DB.syllabus_suggestions) DB.syllabus_suggestions = [];
   DB.syllabus_suggestions.unshift(newSuggestion);
   res.json({
     success: true,
@@ -241,6 +316,10 @@ router.post('/applications/:id/status', async (req, res) => {
       .single();
 
     if (!error && data) {
+      // Sync local DB copy
+      const localApp = (DB.applications || []).find(a => a.id === id);
+      if (localApp) localApp.status = updatedStatus;
+
       return res.json({
         success: true,
         message: `Application status updated to "${data.status}" for ${data.student_name || data.studentName}!`,

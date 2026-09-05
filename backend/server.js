@@ -34,21 +34,45 @@ app.use('/api/zulu', zuluRoutes);
 app.use('/api/academy', academyRoutes);
 app.use('/api/industry', industryRoutes);
 
-// Serve static frontend files from project root (with automatic .html extension resolution)
+// Serve static frontend files from project root and src subfolders
 const ROOT_DIR = path.resolve(__dirname, '..');
 app.use(express.static(ROOT_DIR, { extensions: ['html'] }));
+app.use('/src/students', express.static(path.join(ROOT_DIR, 'src', 'students'), { extensions: ['html'] }));
+app.use('/src/industry', express.static(path.join(ROOT_DIR, 'src', 'industry'), { extensions: ['html'] }));
+app.use('/src/academy', express.static(path.join(ROOT_DIR, 'src', 'academy'), { extensions: ['html'] }));
+
+const fs = require('fs');
 
 // Portal Clean URL Routes (shifts navigation directly to HTML/CSS/JS architecture)
 const portalRoutes = [
   'student', 'academy', 'industry', 'auth',
   'student-roadmap', 'student-internships', 'student-jobs',
   'student-quiz', 'student-resume', 'student-skilltree',
-  'student-portfolio', 'student-zulu', 'clean-white-ui'
+  'student-portfolio', 'student-zulu', 'clean-white-ui',
+  'industry-candidates', 'industry-calibrator', 'industry-requisitions',
+  'industry-mous', 'industry-bootcamps', 'industry-grants', 'industry-post-opportunity',
+  'academy-readiness', 'academy-curriculum', 'academy-benchmarking',
+  'academy-mous', 'academy-grants', 'academy-fdp'
 ];
 
 portalRoutes.forEach(route => {
   app.get(`/${route}`, (req, res) => {
-    res.sendFile(path.join(ROOT_DIR, `${route}.html`));
+    const studentPath = path.join(ROOT_DIR, 'src', 'students', `${route}.html`);
+    const industryPath = path.join(ROOT_DIR, 'src', 'industry', `${route}.html`);
+    const academyPath = path.join(ROOT_DIR, 'src', 'academy', `${route}.html`);
+    const rootPath = path.join(ROOT_DIR, `${route}.html`);
+
+    if (fs.existsSync(studentPath)) {
+      return res.sendFile(studentPath);
+    } else if (fs.existsSync(industryPath)) {
+      return res.sendFile(industryPath);
+    } else if (fs.existsSync(academyPath)) {
+      return res.sendFile(academyPath);
+    } else if (fs.existsSync(rootPath)) {
+      return res.sendFile(rootPath);
+    } else {
+      return res.sendFile(path.join(ROOT_DIR, 'index.html'));
+    }
   });
 });
 

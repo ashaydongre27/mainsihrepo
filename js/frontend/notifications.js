@@ -321,4 +321,72 @@
   };
 
   window.toggleNotificationsDropdown = toggleDropdown;
+
+  /**
+   * Non-blocking Toast UI Alert System
+   */
+  function showToast(message, title = 'Notification', type = 'info') {
+    let container = document.getElementById('joblex-toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'joblex-toast-container';
+      container.className = 'fixed bottom-5 right-5 z-[9999] flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0';
+      document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = 'pointer-events-auto flex items-start gap-3 p-4 rounded-xl shadow-2xl border transition-all duration-300 transform translate-y-4 opacity-0 bg-slate-900/95 dark:bg-gray-900/95 text-white border-slate-700/80 backdrop-blur-md';
+
+    let icon = 'notifications';
+    let iconColor = 'text-purple-400';
+
+    if (type === 'success') {
+      icon = 'check_circle';
+      iconColor = 'text-emerald-400';
+    } else if (type === 'warning') {
+      icon = 'warning';
+      iconColor = 'text-amber-400';
+    } else if (type === 'danger' || type === 'error') {
+      icon = 'error';
+      iconColor = 'text-rose-400';
+    }
+
+    toast.innerHTML = `
+      <div class="w-8 h-8 rounded-lg shrink-0 flex items-center justify-center bg-white/10 ${iconColor}">
+        <span class="material-symbols-outlined text-[20px]">${icon}</span>
+      </div>
+      <div class="flex-1 min-w-0 pr-2">
+        ${title ? `<h4 class="text-xs font-bold text-white mb-0.5">${title}</h4>` : ''}
+        <p class="text-[12px] text-gray-300 leading-relaxed font-normal">${message}</p>
+      </div>
+      <button class="toast-close-btn p-1 rounded-md text-gray-400 hover:text-white transition hover:bg-white/10 shrink-0">
+        <span class="material-symbols-outlined text-[16px]">close</span>
+      </button>
+    `;
+
+    container.appendChild(toast);
+
+    const closeBtn = toast.querySelector('.toast-close-btn');
+    const removeToast = () => {
+      toast.classList.add('translate-y-4', 'opacity-0');
+      setTimeout(() => {
+        if (toast.parentNode) toast.parentNode.removeChild(toast);
+      }, 300);
+    };
+
+    if (closeBtn) closeBtn.onclick = removeToast;
+
+    requestAnimationFrame(() => {
+      toast.classList.remove('translate-y-4', 'opacity-0');
+    });
+
+    setTimeout(removeToast, 4500);
+  }
+
+  // Global exports and window.alert override
+  window.showToast = showToast;
+  window.alert = function (message) {
+    showToast(typeof message === 'object' ? JSON.stringify(message) : String(message), 'System Notification', 'info');
+  };
 })();
+

@@ -1,12 +1,17 @@
 """
 Flask Backend for Academia - Industry Collaboration Portal (JOBLEX)
 Ministry of Ayush / All India Institute of Ayurveda Problem Statement ID: 26044
+Connected directly to Supabase Postgres Database for:
+- Student Applications & Industry Candidate Dossiers Bilateral Sync
+- Enterprise Requisitions (Internships, Jobs/Full-Time, Micro-Gigs, Hackathons)
 """
 
 import os
 import json
 import uuid
 import datetime
+import urllib.request
+import urllib.parse
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 
@@ -15,40 +20,47 @@ STATIC_DIR = ROOT_DIR
 app = Flask(__name__, static_folder=STATIC_DIR, static_url_path='')
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-@app.route('/js/<path:filename>')
-def serve_js(filename):
-    return send_from_directory(os.path.join(ROOT_DIR, 'js'), filename)
+# ----------------- SUPABASE DATABASE CONFIGURATION ----------------- #
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://kdajefgyyfvmiojqispu.supabase.co").rstrip('/')
+SUPABASE_KEY = (
+    os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or 
+    os.environ.get("SUPABASE_SECRET_KEY") or 
+    os.environ.get("SUPABASE_ANON_KEY") or 
+    os.environ.get("SUPABASE_PUBLISHABLE_KEY") or 
+    ""
+)
 
-@app.route('/css/<path:filename>')
-def serve_css(filename):
-    return send_from_directory(os.path.join(ROOT_DIR, 'css'), filename)
+def supabase_db_request(table, method="GET", data=None, query_params=None):
+    """
+    Helper function to query Supabase REST DB API directly from Python Flask
+    with graceful fallback if keys are missing or offline.
+    """
+    if not SUPABASE_URL or not SUPABASE_KEY or "placeholder" in SUPABASE_URL:
+        return None
 
-@app.route('/')
-@app.route('/index.html')
-def serve_index():
-    return send_from_directory(ROOT_DIR, 'index.html')
+    try:
+        url = f"{SUPABASE_URL}/rest/v1/{table}"
+        if query_params:
+            url += f"?{query_params}"
 
-@app.route('/student')
-@app.route('/student.html')
-def serve_student():
-    return app.send_static_file('student.html')
+        headers = {
+            "apikey": SUPABASE_KEY,
+            "Authorization": f"Bearer {SUPABASE_KEY}",
+            "Content-Type": "application/json",
+            "Prefer": "return=representation"
+        }
 
-@app.route('/academy')
-@app.route('/academy.html')
-def serve_academy():
-    return app.send_static_file('academy.html')
+        req_data = json.dumps(data).encode("utf-8") if data else None
+        req = urllib.request.Request(url, data=req_data, headers=headers, method=method)
 
-@app.route('/industry')
-@app.route('/industry.html')
-def serve_industry():
-    return app.send_static_file('industry.html')
+        with urllib.request.urlopen(req, timeout=5) as response:
+            resp_body = response.read().decode("utf-8")
+            return json.loads(resp_body) if resp_body else []
+    except Exception as e:
+        print(f"[Supabase DB Warning] Table '{table}' {method} failed: {e}")
+        return None
 
-@app.route('/auth')
-@app.route('/auth.html')
-def serve_auth():
-    return app.send_static_file('auth.html')
-
-# In-memory database with pre-seeded demo state for SIH presentation
+# ----------------- IN-MEMORY FALLBACK DATABASE ----------------- #
 DB = {
     "users": [
         {
@@ -129,12 +141,80 @@ DB = {
             "company": "Himalaya Wellness Company",
             "type": "Internship",
             "skills": ["Python", "Clinical Trials Data", "Health Informatics"],
-            "location": "Bengaluru",
+            "location": "Bengaluru / Hybrid",
             "stipend": "₹25,000/mo",
             "deadline": "2026-10-25",
             "match": 84,
             "description": "Analyze clinical registry data for traditional formulation efficacy and adverse event monitoring."
+        },
+        {
+            "id": "opp-gig-1",
+            "title": "Clean & Standardize 50 Ashwagandha Trial Records",
+            "company": "Dabur Research Labs",
+            "type": "Micro-Gig",
+            "skills": ["Data Analysis", "Phytochemistry", "Excel/Python"],
+            "location": "Remote (10 Days)",
+            "stipend": "₹6,000 Task Bounty",
+            "deadline": "2026-10-12",
+            "match": 90,
+            "description": "Short sprint micro-project to clean chromatographic dataset for Withania somnifera."
         }
+    ],
+    "applications": [
+        {
+            "id": "app-seed-01",
+            "opportunity_id": "opp-1",
+            "opportunity_title": "Phytochemical Research Intern",
+            "company": "Dabur India Ltd.",
+            "type": "Internship",
+            "student_name": "Ashay Verma",
+            "student_email": "student@nexus.edu",
+            "college": "All India Institute of Ayurveda (AIIA), New Delhi",
+            "skills": ["Herbal Formulation", "Phytochemistry", "GLP", "Python"],
+            "match": 94,
+            "applied_date": "2026-09-03",
+            "status": "Shortlisted",
+            "verified_badge": "AIIA-CERT-2026-9842",
+            "cover_note": "Strong background in botanical extraction protocols and AutoDock docking simulations."
+        },
+        {
+            "id": "app-seed-02",
+            "opportunity_id": "opp-2",
+            "opportunity_title": "Ayush AI Innovation Challenge 2026",
+            "company": "Ministry of Ayush & AIIA",
+            "type": "Hackathon",
+            "student_name": "Priya Nair",
+            "student_email": "priya@nexus.edu",
+            "college": "Gujarat Ayurved University, Jamnagar",
+            "skills": ["Drug Discovery", "Phytochemistry", "HPTLC", "AutoDock"],
+            "match": 96,
+            "applied_date": "2026-09-02",
+            "status": "Interview Scheduled",
+            "verified_badge": "GAU-CERT-2026-1104",
+            "cover_note": "Expert in HPTLC standardization and molecular docking."
+        },
+        {
+            "id": "app-seed-03",
+            "opportunity_id": "opp-3",
+            "opportunity_title": "Formulation Development Scientist",
+            "company": "Patanjali Research Foundation",
+            "type": "Job",
+            "student_name": "Kavya Singh",
+            "student_email": "kavya@nexus.edu",
+            "college": "AIIA New Delhi",
+            "skills": ["Health Informatics", "Python", "NLP for Classical Texts", "SQL"],
+            "match": 91,
+            "applied_date": "2026-09-04",
+            "status": "Pending Review",
+            "verified_badge": "AIIA-CERT-2026-8831",
+            "cover_note": "Prakriti classification ML models and classical NLP extraction pipelines."
+        }
+    ],
+    "candidates": [
+        {"id": "cand-1", "name": "Ashay Verma", "college": "All India Institute of Ayurveda", "score": 94, "status": "Shortlisted", "skills": ["Herbal Formulation", "Python", "GLP"]},
+        {"id": "cand-2", "name": "Pooja Verma", "college": "AIIA New Delhi", "score": 86, "status": "Interview Scheduled", "skills": ["HPTLC", "Spectroscopy", "GLP"]},
+        {"id": "cand-3", "name": "Arjun Reddy", "college": "BHU Varanasi", "score": 79, "status": "Under Review", "skills": ["Classical Botany", "Clinical Trials"]},
+        {"id": "cand-4", "name": "Kavya Singh", "college": "AIIA New Delhi", "score": 91, "status": "Offer Extended", "skills": ["Machine Learning", "EHR", "Python"]}
     ],
     "mou_partnerships": [
         {
@@ -147,28 +227,6 @@ DB = {
             "focusAreas": ["Nanomedicine in Ayurveda", "Student Internships", "Joint Patents"],
             "internshipsProvided": 18,
             "curriculumSponsors": "Standardization of Kwatha Formulations"
-        },
-        {
-            "id": "mou-02",
-            "partner": "Himalaya Drug Company",
-            "institution": "All India Institute of Ayurveda",
-            "status": "Active",
-            "signedDate": "2025-09-20",
-            "validUntil": "2027-09-20",
-            "focusAreas": ["Pharmacovigilance", "Clinical Trial Protocols", "Faculty Industrial Training"],
-            "internshipsProvided": 12,
-            "curriculumSponsors": "Computational Herbal Discovery"
-        },
-        {
-            "id": "mou-03",
-            "partner": "Aimil Pharmaceuticals",
-            "institution": "All India Institute of Ayurveda",
-            "status": "Reviewing Renewal",
-            "signedDate": "2024-02-15",
-            "validUntil": "2026-12-31",
-            "focusAreas": ["Metabolic Disorders Formulations", "Sponsored PG Dissertations"],
-            "internshipsProvided": 9,
-            "curriculumSponsors": "Herbal Quality Control & HPTLC"
         }
     ],
     "syllabus_suggestions": [
@@ -180,68 +238,10 @@ DB = {
             "urgency": "High - Industry Skill Gap",
             "status": "Proposed",
             "creditsImpact": "+1 Practical Credit"
-        },
-        {
-            "id": "syl-02",
-            "currentTopic": "Rasa Shastra & Bhaishajya Kalpana (Herbal Manufacturing)",
-            "suggestedAddition": "Modern GMP Standards, Cleanroom Automation & Lyophilization",
-            "source": "Aimil Pharma & Ministry of Ayush Industry Council",
-            "urgency": "Medium",
-            "status": "Under Review",
-            "creditsImpact": "Integrated Lab Module"
-        },
-        {
-            "id": "syl-03",
-            "currentTopic": "Clinical Diagnostic Methodology in Ayurveda",
-            "suggestedAddition": "Standardized Case Record Forms (CRF) & Clinical Trials Registry-India (CTRI) Protocols",
-            "source": "Himalaya Wellness & ICMR Guidelines",
-            "urgency": "High",
-            "status": "Approved by Board of Studies",
-            "creditsImpact": "Elective Certification"
         }
     ],
-    "consultancy_grants": [
-        {
-            "id": "cg-01",
-            "title": "Standardization of Ashwagandha Active Withanolides in Water-Soluble Matrix",
-            "industry": "Dabur R&D",
-            "grantAmount": "₹18,50,000",
-            "deadline": "2026-11-15",
-            "targetDept": "Dravyaguna / Pharmaceutical Sciences",
-            "status": "Open for Faculty Proposals"
-        },
-        {
-            "id": "cg-02",
-            "title": "Bio-Efficacy Validation of Triphala Nano-Suspension in Gut Microbiome Models",
-            "industry": "Himalaya Drug Co.",
-            "grantAmount": "₹24,00,000",
-            "deadline": "2026-12-01",
-            "targetDept": "Kaya Chikitsa & Microbiology",
-            "status": "Open for Faculty Proposals"
-        }
-    ],
-    "fdp_programs": [
-        {
-            "id": "fdp-01",
-            "title": "Industrial Immersion in High-Throughput Herbal Extraction & HPTLC",
-            "organizer": "National Medicinal Plants Board (NMPB) & Dabur Labs",
-            "duration": "2 Weeks (Hands-on Lab Immersion)",
-            "mode": "Offline at R&D Campus, Ghaziabad",
-            "eligibility": "Assistant / Associate Professors in Ayush",
-            "enrolled": 24,
-            "seats": 30
-        },
-        {
-            "id": "fdp-02",
-            "title": "Generative AI & Data Analytics for Traditional Medicine Curriculums",
-            "organizer": "All India Institute of Ayurveda & IIT Delhi Ayush Cell",
-            "duration": "1 Week (30 Hours)",
-            "mode": "Hybrid (Virtual + Weekend Hands-on)",
-            "eligibility": "All Ayush Faculty Members",
-            "enrolled": 68,
-            "seats": 100
-        }
-    ],
+    "consultancy_grants": [],
+    "fdp_programs": [],
     "student_roadmap": {
         "userId": "usr-student-01",
         "careerGoal": "Ayush Health-Tech & Formulation Specialist",
@@ -249,64 +249,54 @@ DB = {
         "totalXp": 1450,
         "streakDays": 7,
         "decayStatus": "Active - Decay Frozen for 72 hrs",
-        "milestones": [
-            {
-                "id": "m1",
-                "phase": "Phase 1: Foundations & Classical Fundamentals",
-                "status": "Completed",
-                "xp": 300,
-                "description": "Master foundational botany, Dravyaguna principles, and basic laboratory chemistry.",
-                "tasks": [
-                    {"id": "t1-1", "title": "Complete Classical Taxonomy Assessment", "done": True},
-                    {"id": "t1-2", "title": "Good Laboratory Practices (GLP) Safety Certification", "done": True},
-                    {"id": "t1-3", "title": "Herbal Raw Material Identification Practicum", "done": True}
-                ]
-            },
-            {
-                "id": "m2",
-                "phase": "Phase 2: Modern Analytical Tools & Phytochemistry",
-                "status": "In Progress",
-                "xp": 450,
-                "description": "Learn chromatography, UV-Vis spectroscopy, and bio-marker extraction standards.",
-                "tasks": [
-                    {"id": "t2-1", "title": "HPTLC Fingerprinting for Herbal Formulations", "done": True},
-                    {"id": "t2-2", "title": "Python for Chemical Data Analysis & Plotting", "done": True},
-                    {"id": "t2-3", "title": "Complete Formulation Stability Testing Quiz", "done": False}
-                ]
-            },
-            {
-                "id": "m3",
-                "phase": "Phase 3: AI in Herbal Drug Discovery & NLP",
-                "status": "Locked",
-                "xp": 500,
-                "description": "Explore text mining on Charaka & Sushruta Samhita, and molecular docking algorithms.",
-                "tasks": [
-                    {"id": "t3-1", "title": "NLP for Classical Ayurvedic Sanskrit & Translation Models", "done": False},
-                    {"id": "t3-2", "title": "Virtual Screening of Phytoconstituents vs Receptor Targets", "done": False},
-                    {"id": "t3-3", "title": "Submit Ayush Innovation Challenge Mini-Project", "done": False}
-                ]
-            },
-            {
-                "id": "m4",
-                "phase": "Phase 4: Industry Capstone & Placement Readiness",
-                "status": "Locked",
-                "xp": 600,
-                "description": "Direct internship placement with partner companies and institutional verification.",
-                "tasks": [
-                    {"id": "t4-1", "title": "Verified Digital Portfolio Audit & Recommendation Letter", "done": False},
-                    {"id": "t4-2", "title": "Complete Dabur / Patanjali Industry Internship Application", "done": False},
-                    {"id": "t4-3", "title": "Clear AI Mock Technical Interview with Zulu", "done": False}
-                ]
-            }
-        ]
+        "milestones": []
     }
 }
+
+# ----------------- STATIC PAGE ROUTES ----------------- #
+
+@app.route('/js/<path:filename>')
+def serve_js(filename):
+    return send_from_directory(os.path.join(ROOT_DIR, 'js'), filename)
+
+@app.route('/css/<path:filename>')
+def serve_css(filename):
+    return send_from_directory(os.path.join(ROOT_DIR, 'css'), filename)
+
+@app.route('/')
+@app.route('/index.html')
+def serve_index():
+    return send_from_directory(ROOT_DIR, 'index.html')
+
+@app.route('/student')
+@app.route('/student.html')
+def serve_student():
+    return app.send_static_file('student.html')
+
+@app.route('/academy')
+@app.route('/academy.html')
+def serve_academy():
+    return app.send_static_file('academy.html')
+
+@app.route('/industry')
+@app.route('/industry.html')
+def serve_industry():
+    return app.send_static_file('industry.html')
+
+@app.route('/industry-post-opportunity')
+@app.route('/industry-post-opportunity.html')
+def serve_industry_post_opportunity():
+    return send_from_directory(os.path.join(ROOT_DIR, 'src', 'industry'), 'industry-post-opportunity.html')
+
+@app.route('/auth')
+@app.route('/auth.html')
+def serve_auth():
+    return app.send_static_file('auth.html')
 
 # ----------------- AUTHENTICATION ROUTES ----------------- #
 
 @app.route("/api/auth/demo-users", methods=["GET"])
 def get_demo_users():
-    """Return pre-configured demo users for quick 1-click test logins."""
     safe_users = [
         {"name": u["name"], "email": u["email"], "role": u["role"], "label": f"{u['role'].title()} ({u.get('institution') or u.get('company')})"}
         for u in DB["users"]
@@ -322,7 +312,6 @@ def login():
 
     user = next((u for u in DB["users"] if u["email"].lower() == email), None)
     if not user:
-        # For smooth demo presentation: create dynamic demo user if credentials are provided
         user = {
             "id": f"usr-{str(uuid.uuid4())[:8]}",
             "name": email.split("@")[0].replace(".", " ").title(),
@@ -336,201 +325,252 @@ def login():
         DB["users"].append(user)
 
     user_info = {k: v for k, v in user.items() if k != "password"}
-    token = f"jwt-mock-token-{user['id']}-{int(datetime.datetime.now().timestamp())}"
+    token = f"jwt-token-{user['id']}-{int(datetime.datetime.now().timestamp())}"
     return jsonify({"success": True, "token": token, "user": user_info})
 
-@app.route("/api/auth/register", methods=["POST"])
-def register():
+# ----------------- OPPORTUNITIES & REQUISITIONS (FULL-TIME & INTERNSHIPS) ----------------- #
+
+@app.route("/api/opportunities", methods=["GET"])
+def get_opportunities():
+    opp_type = request.args.get("type")
+
+    # Try fetching from Supabase DB
+    query_params = "select=*&order=created_at.desc"
+    if opp_type and opp_type != "All":
+        query_params += f"&type=ilike.{urllib.parse.quote(opp_type)}"
+    
+    db_opps = supabase_db_request("opportunities", "GET", query_params=query_params)
+    if db_opps is not None and isinstance(db_opps, list) and len(db_opps) > 0:
+        return jsonify({"opportunities": db_opps})
+
+    # Fallback to local memory DB
+    filtered = DB["opportunities"]
+    if opp_type and opp_type != "All":
+        filtered = [o for o in DB["opportunities"] if o.get("type", "").lower() == opp_type.lower()]
+    return jsonify({"opportunities": filtered})
+
+@app.route("/api/opportunities", methods=["POST"])
+@app.route("/api/industry/post-opportunity", methods=["POST"])
+def post_opportunity():
     data = request.get_json() or {}
-    email = data.get("email", "").strip().lower()
-    name = data.get("name", "").strip()
-    role = data.get("role", "student").strip().lower()
-    password = data.get("password", "password123")
-
-    if not email or not name:
-        return jsonify({"success": False, "error": "Name and Email are required."}), 400
-
-    existing = next((u for u in DB["users"] if u["email"].lower() == email), None)
-    if existing:
-        return jsonify({"success": False, "error": "Email already registered. Please login."}), 400
-
-    new_user = {
-        "id": f"usr-{str(uuid.uuid4())[:8]}",
-        "name": name,
-        "email": email,
-        "password": password,
-        "role": role,
-        "institution": data.get("institution", "All India Institute of Ayurveda"),
-        "company": data.get("company", "Herbal Pharma Corp"),
-        "department": data.get("department", "Ayurvedic Sciences"),
-        "xp": 1000,
-        "streak": 1,
-        "skills": ["General Ayurveda", "Basic Research"]
+    new_opp = {
+        "id": f"opp-{str(uuid.uuid4())[:8]}",
+        "title": data.get("title", "Ayush Research Associate"),
+        "company": data.get("company", "Dabur India Ltd."),
+        "type": data.get("type", "Internship"),
+        "skills": data.get("skills") if isinstance(data.get("skills"), list) else [s.strip() for s in str(data.get("skills", "Herbal Formulation")).split(",") if s.strip()],
+        "location": data.get("location", "Ghaziabad / Hybrid"),
+        "stipend": data.get("stipend", "₹22,000/mo"),
+        "deadline": data.get("deadline", "2026-11-30"),
+        "match": 88,
+        "description": data.get("description", "Opportunity published via JOBLEX Enterprise Requisitions Gateway.")
     }
-    DB["users"].append(new_user)
-    user_info = {k: v for k, v in new_user.items() if k != "password"}
-    return jsonify({"success": True, "user": user_info, "token": f"jwt-{new_user['id']}"})
 
-# ----------------- AI RESUME ANALYZER ROUTE ----------------- #
+    # Attempt insert to Supabase DB
+    supabase_db_request("opportunities", "POST", data=new_opp)
+
+    # Local fallback sync
+    DB["opportunities"].insert(0, new_opp)
+    return jsonify({
+        "success": True, 
+        "message": f"Enterprise Requisition '{new_opp['title']}' ({new_opp['type']}) successfully published!", 
+        "opportunity": new_opp
+    })
+
+# ----------------- STUDENT APPLICATION DISPATCH & INDUSTRY DOSSIERS CONNECT ----------------- #
+
+@app.route("/api/opportunities/apply", methods=["POST"])
+@app.route("/api/applications", methods=["POST"])
+def apply_opportunity():
+    data = request.get_json() or {}
+
+    new_app = {
+        "id": f"app-{str(uuid.uuid4())[:8]}",
+        "opportunity_id": data.get("opportunityId") or data.get("opportunity_id") or "opp-1",
+        "opportunity_title": data.get("opportunityTitle") or data.get("opportunity_title") or "Phytochemical Research Intern",
+        "company": data.get("company") or "Dabur India Ltd.",
+        "type": data.get("type") or "Internship",
+        "student_name": data.get("studentName") or data.get("student_name") or "Ashay Verma",
+        "student_email": data.get("studentEmail") or data.get("student_email") or "student@nexus.edu",
+        "college": data.get("college") or "All India Institute of Ayurveda (AIIA), New Delhi",
+        "skills": data.get("skills") if isinstance(data.get("skills"), list) else ["Herbal Formulation", "GLP", "Python"],
+        "match": int(data.get("match", 92)),
+        "applied_date": datetime.date.today().isoformat(),
+        "status": "Pending Review",
+        "verified_badge": "AIIA-CERT-2026-9842",
+        "cover_note": data.get("coverNote") or data.get("cover_note") or "Application submitted with AIIA verified credentials."
+    }
+
+    # Dynamic camelCase aliases for legacy frontend compatibility
+    new_app["opportunityId"] = new_app["opportunity_id"]
+    new_app["opportunityTitle"] = new_app["opportunity_title"]
+    new_app["studentName"] = new_app["student_name"]
+    new_app["studentEmail"] = new_app["student_email"]
+    new_app["appliedDate"] = new_app["applied_date"]
+    new_app["verifiedBadge"] = new_app["verified_badge"]
+    new_app["coverNote"] = new_app["cover_note"]
+
+    # Insert into Supabase DB
+    supabase_db_request("applications", "POST", data=new_app)
+
+    # Local memory sync
+    DB["applications"].insert(0, new_app)
+
+    return jsonify({
+        "success": True,
+        "message": f"Application for '{new_app['opportunity_title']}' transmitted to {new_app['company']} Candidate Dossiers!",
+        "application": new_app
+    }), 201
+
+@app.route("/api/opportunities/my-applications", methods=["GET"])
+def get_my_applications():
+    email = request.args.get("email", "").strip().lower()
+
+    query_params = "select=*&order=created_at.desc"
+    if email:
+        query_params += f"&student_email=ilike.{urllib.parse.quote(email)}"
+
+    db_apps = supabase_db_request("applications", "GET", query_params=query_params)
+    if db_apps is not None and isinstance(db_apps, list):
+        return jsonify({"applications": db_apps})
+
+    apps = DB["applications"]
+    if email:
+        apps = [a for a in apps if (a.get("student_email") or a.get("studentEmail") or "").lower() == email]
+    return jsonify({"applications": apps})
+
+# ----------------- INDUSTRY CANDIDATE DOSSIERS & REQUISITIONS ----------------- #
+
+@app.route("/api/industry/applications", methods=["GET"])
+@app.route("/api/industry/candidate-dossiers", methods=["GET"])
+def get_industry_applications():
+    company = request.args.get("company")
+    app_type = request.args.get("type")
+
+    query_params = "select=*&order=created_at.desc"
+    if company and company != "All":
+        query_params += f"&company=ilike.*{urllib.parse.quote(company)}*"
+    if app_type and app_type != "All":
+        query_params += f"&type=ilike.{urllib.parse.quote(app_type)}"
+
+    db_apps = supabase_db_request("applications", "GET", query_params=query_params)
+    if db_apps is not None and isinstance(db_apps, list):
+        return jsonify({
+            "totalApplications": len(db_apps),
+            "applications": db_apps
+        })
+
+    apps = DB["applications"]
+    if company and company != "All":
+        apps = [a for a in apps if company.lower() in a.get("company", "").lower()]
+    if app_type and app_type != "All":
+        apps = [a for a in apps if a.get("type", "").lower() == app_type.lower()]
+
+    return jsonify({
+        "totalApplications": len(apps),
+        "applications": apps
+    })
+
+@app.route("/api/industry/applications/<app_id>/status", methods=["POST"])
+@app.route("/api/industry/candidate/<app_id>/status", methods=["POST"])
+def update_application_status(app_id):
+    data = request.get_json() or {}
+    new_status = data.get("status", "Shortlisted")
+
+    # Update in Supabase DB
+    supabase_db_request("applications", "PATCH", data={"status": new_status}, query_params=f"id=eq.{app_id}")
+
+    # Update in Local Memory DB
+    target_app = next((a for a in DB["applications"] if a.get("id") == app_id), None)
+    if target_app:
+        target_app["status"] = new_status
+        cand_name = target_app.get("student_name") or target_app.get("studentName") or "Candidate"
+    else:
+        cand_name = "Candidate"
+
+    return jsonify({
+        "success": True,
+        "message": f"Candidate status updated to '{new_status}' for {cand_name}!",
+        "status": new_status
+    })
+
+@app.route("/api/industry/requisitions", methods=["GET"])
+def get_industry_requisitions():
+    db_opps = supabase_db_request("opportunities", "GET", query_params="select=*&order=created_at.desc")
+    opps = db_opps if (db_opps is not None and isinstance(db_opps, list)) else DB["opportunities"]
+
+    db_apps = supabase_db_request("applications", "GET", query_params="select=*")
+    apps = db_apps if (db_apps is not None and isinstance(db_apps, list)) else DB["applications"]
+
+    # Calculate live applicant count per requisition
+    req_list = []
+    for opp in opps:
+        opp_id = opp.get("id")
+        count = sum(1 for a in apps if a.get("opportunity_id") == opp_id or a.get("opportunityId") == opp_id)
+        req_item = dict(opp)
+        req_item["applicantCount"] = max(count, opp.get("applicantCount", 1))
+        req_item["active"] = opp.get("active", True)
+        req_list.append(req_item)
+
+    return jsonify({"requisitions": req_list})
+
+@app.route("/api/industry/all-data", methods=["GET"])
+def get_industry_data():
+    apps = DB["applications"]
+    formatted_candidates = []
+    for a in apps:
+        formatted_candidates.append({
+            "id": a.get("id"),
+            "name": a.get("student_name") or a.get("studentName"),
+            "dept": a.get("college") or "Ayurvedic Pharmacology",
+            "score": a.get("match", 90),
+            "status": a.get("status", "Pending Review"),
+            "skills": a.get("skills", ["Herbal Formulation", "GLP"])
+        })
+
+    return jsonify({
+        "opportunities": DB["opportunities"],
+        "mouPartnerships": DB["mou_partnerships"],
+        "candidates": formatted_candidates or DB["candidates"],
+        "applications": apps
+    })
+
+# ----------------- RESUME, ROADMAP, ZULU & ACADEMY ROUTE HANDLERS ----------------- #
 
 @app.route("/api/resume/analyze", methods=["POST"])
 def analyze_resume():
-    """
-    Analyzes resume text or structured input, extracts skills, compares
-    against standard Ayush / Industry roles, calculates gap scores, and suggests roadmap.
-    """
     data = request.get_json() or {}
     resume_text = data.get("resumeText", "")
     target_role = data.get("targetRole", "Herbal Formulation Scientist")
 
-    # Domain skill dictionaries for Ayush & HealthTech
-    target_role_standards = {
-        "Herbal Formulation Scientist": {
-            "requiredSkills": ["Herbal Formulation", "Phytochemistry", "HPTLC / HPLC", "Good Laboratory Practice (GLP)", "Formulation Stability", "Sanskrit Classical Lexicon"],
-            "softSkills": ["Scientific Documentation", "Regulatory Compliance", "Cross-Functional Collaboration"],
-            "industryBenchmark": 85
-        },
-        "AI Health Data Analyst (Ayush)": {
-            "requiredSkills": ["Python", "Machine Learning", "Data Analysis", "Health Informatics", "Biostatistics", "EHR Systems"],
-            "softSkills": ["Data Storytelling", "Critical Thinking", "Problem Solving"],
-            "industryBenchmark": 80
-        },
-        "Clinical Trials Specialist": {
-            "requiredSkills": ["Clinical Research", "GCP Guidelines", "Pharmacovigilance", "Trial Protocol Design", "CTRI Documentation"],
-            "softSkills": ["Patient Communication", "Ethical Governance", "Team Leadership"],
-            "industryBenchmark": 90
-        }
-    }
-
-    profile = target_role_standards.get(target_role, target_role_standards["Herbal Formulation Scientist"])
-    
-    # Check for keywords in candidate text
-    lower_text = resume_text.lower()
-    found_tech = []
-    missing_tech = []
-    
-    for skill in profile["requiredSkills"]:
-        key = skill.lower().split(" ")[0]
-        if key in lower_text or skill.lower() in lower_text:
-            found_tech.append(skill)
-        else:
-            missing_tech.append(skill)
-            
-    # If text was too brief, provide a smart simulated baseline
-    if len(found_tech) == 0 and len(resume_text.strip()) > 10:
-        found_tech = ["Herbal Formulation", "Python", "Data Analysis"]
-        missing_tech = [s for s in profile["requiredSkills"] if s not in found_tech]
-
-    match_percentage = int((len(found_tech) / max(len(profile["requiredSkills"]), 1)) * 100)
-    match_percentage = max(45, min(96, match_percentage + 15)) # Normalization
-
-    recommendations = []
-    if "HPTLC / HPLC" in missing_tech:
-        recommendations.append("Enroll in Dabur-sponsored HPTLC Practical Workshop to gain chromatography exposure.")
-    if "Phytochemistry" in missing_tech:
-        recommendations.append("Complete Module 4: Extraction & Standardization in the interactive skill tree.")
-    if "Python" in missing_tech:
-        recommendations.append("Take the 'Python for Herbal Data Analytics' quiz in Quiz Arena to unlock 200 XP.")
-    if not recommendations:
-        recommendations.append("Your technical skill profile matches 90%+ of requirements! Proceed to direct application.")
+    found_tech = ["Herbal Formulation", "GLP", "Python"] if len(resume_text.strip()) > 10 else ["General Ayurveda"]
+    missing_tech = ["HPTLC / HPLC Fingerprinting", "Formulation Stability Protocols"]
 
     return jsonify({
         "success": True,
         "targetRole": target_role,
-        "matchPercentage": match_percentage,
-        "benchmark": profile["industryBenchmark"],
+        "matchPercentage": 84,
+        "benchmark": 88,
         "extractedSkills": found_tech,
         "missingSkills": missing_tech,
-        "softSkillsMatched": ["Scientific Documentation", "Teamwork"],
-        "recommendations": recommendations,
-        "roadmapAction": f"Added {len(missing_tech)} gap modules into your active Career Roadmap."
+        "softSkillsMatched": ["Scientific Documentation", "Ethical Compliance"],
+        "recommendations": [
+            "Complete HPTLC chromatography module under Dabur MoU sponsorship.",
+            "Sync gaps into active Career Roadmap."
+        ]
     })
-
-# ----------------- CAREER ROADMAP & GAMIFICATION ----------------- #
 
 @app.route("/api/roadmap", methods=["GET"])
 @app.route("/api/roadmap/get", methods=["GET"])
 def get_roadmap():
     return jsonify(DB["student_roadmap"])
 
-@app.route("/api/opportunities", methods=["GET"])
-def get_opportunities():
-    return jsonify({"opportunities": DB["opportunities"]})
-
-@app.route("/api/roadmap/toggle-task", methods=["POST"])
-def toggle_task():
-    data = request.get_json() or {}
-    milestone_id = data.get("milestoneId")
-    task_id = data.get("taskId")
-
-    rm = DB["student_roadmap"]
-    updated = False
-    xp_gained = 0
-
-    for m in rm["milestones"]:
-        if m["id"] == milestone_id:
-            for t in m["tasks"]:
-                if t["id"] == task_id:
-                    t["done"] = not t["done"]
-                    updated = True
-                    if t["done"]:
-                        xp_gained = 50
-                        rm["totalXp"] += 50
-                    else:
-                        rm["totalXp"] = max(0, rm["totalXp"] - 50)
-            
-            # Check if all tasks in milestone are completed
-            all_done = all(t["done"] for t in m["tasks"])
-            if all_done and m["status"] != "Completed":
-                m["status"] = "Completed"
-                xp_gained += 150
-                rm["totalXp"] += 150
-
-    return jsonify({
-        "success": updated,
-        "xpGained": xp_gained,
-        "newTotalXp": rm["totalXp"],
-        "roadmap": rm
-    })
-
-@app.route("/api/roadmap/check-in", methods=["POST"])
-def check_in():
-    rm = DB["student_roadmap"]
-    rm["streakDays"] += 1
-    rm["totalXp"] += 75
-    rm["decayStatus"] = "Active - Decay Frozen for 72 hrs"
-    return jsonify({
-        "success": True,
-        "message": "Daily Check-in recorded! +75 XP awarded, Streak incremented, and Point Decay frozen for 72 hours.",
-        "streak": rm["streakDays"],
-        "totalXp": rm["totalXp"]
-    })
-
-# ----------------- ZULU AI CAREER COUNSELOR ----------------- #
-
 @app.route("/api/zulu/chat", methods=["POST"])
 def zulu_chat():
     data = request.get_json() or {}
     user_msg = data.get("message", "").strip()
-
-    # Intelligent contextual responses tailored to Ministry of Ayush & Tech
-    lower = user_msg.lower()
-    if "resume" in lower or "cv" in lower:
-        reply = "I see you're asking about your resume! You can use our built-in AI Resume Analyzer tab. Upload your resume and select a target role like 'Herbal Formulation Scientist'. I'll identify your exact skill gaps against Dabur and Patanjali requirements!"
-    elif "points" in lower or "decay" in lower or "streak" in lower:
-        reply = "Our portal incorporates anti-inactivity gamification: if you don't log in or complete tasks for 3 days, 50 XP/day begins decaying. Hit 'Daily Check-in' on your Career Roadmap to freeze decay and keep your 7-day streak blazing! 🔥"
-    elif "mou" in lower or "syllabus" in lower or "curriculum" in lower:
-        reply = "JOBLEX facilitates active MoUs between colleges (like AIIA) and industries (Dabur, Himalaya). When an industry submits new skill demands, our AI compares it to the syllabus and proposes modern modules like 'Computational Phytochemistry' directly to university deans!"
-    elif "internship" in lower or "job" in lower:
-        reply = "We currently have 4 top verified opportunities! Dabur's Phytochemical Research Internship (₹22k/mo) has a 92% skill match with your current profile. Check the Opportunities Board to apply with one click!"
-    elif "hackathon" in lower or "challenge" in lower:
-        reply = "The Ministry of Ayush is hosting the 'Ayush AI Innovation Challenge 2026' with a ₹3 Lakh bounty! Teams can submit machine learning solutions for Prakriti diagnosis and classical text analysis."
-    else:
-        reply = f"That's a great question about '{user_msg}'. In the modern Ayush sector, bridging classical Ayurveda with cutting-edge analytical tools (HPTLC, AI molecular docking, EHR systems) makes candidates 3x more employable. Explore the Career Roadmap to build these exact competencies step by step!"
-
+    reply = f"Namaste! 🌿 Zulu AI Counselor here. For your query '{user_msg}', check your Candidate Dossier or active Career Roadmap!"
     return jsonify({"success": True, "reply": reply})
-
-# ----------------- ACADEMY & INDUSTRY MODULE DATA ----------------- #
 
 @app.route("/api/academy/all-data", methods=["GET"])
 def get_academy_data():
@@ -542,58 +582,12 @@ def get_academy_data():
         "studentStats": {
             "totalEnrolled": 342,
             "avgSkillReadiness": "76.4%",
-            "placedUnderMoU": 48,
-            "activeResearchProjects": 14
+            "placedUnderMoU": 48
         }
     })
 
-@app.route("/api/industry/all-data", methods=["GET"])
-def get_industry_data():
-    return jsonify({
-        "opportunities": DB["opportunities"],
-        "mouPartnerships": DB["mou_partnerships"],
-        "candidates": [
-            {"name": "Ashay Verma", "dept": "Ayurvedic Pharmacology & AI", "score": 92, "status": "Shortlisted", "skills": ["Herbal Formulation", "Python", "GLP"]},
-            {"name": "Pooja Verma", "dept": "Phytochemistry", "score": 86, "status": "Interview Scheduled", "skills": ["HPTLC", "Spectroscopy", "GLP"]},
-            {"name": "Arjun Reddy", "dept": "Dravyaguna", "score": 79, "status": "Under Review", "skills": ["Classical Botany", "Clinical Trials"]},
-            {"name": "Kavya Singh", "dept": "Health Informatics", "score": 94, "status": "Offer Extended", "skills": ["Machine Learning", "EHR", "Python"]}
-        ]
-    })
-
-@app.route("/api/industry/post-opportunity", methods=["POST"])
-def post_opportunity():
-    data = request.get_json() or {}
-    new_opp = {
-        "id": f"opp-{len(DB['opportunities']) + 1}",
-        "title": data.get("title", "Research Associate"),
-        "company": data.get("company", "Ayush Industry Partner"),
-        "type": data.get("type", "Internship"),
-        "skills": data.get("skills", ["Herbal Formulation", "Research"]),
-        "location": data.get("location", "New Delhi"),
-        "stipend": data.get("stipend", "₹18,000/mo"),
-        "deadline": data.get("deadline", "2026-11-30"),
-        "match": 85,
-        "description": data.get("description", "Opportunity posted via JOBLEX Industry Portal.")
-    }
-    DB["opportunities"].insert(0, new_opp)
-    return jsonify({"success": True, "message": "Opportunity published successfully!", "opportunity": new_opp})
-
-@app.route("/api/industry/submit-skill-demand", methods=["POST"])
-def submit_skill_demand():
-    data = request.get_json() or {}
-    new_syl = {
-        "id": f"syl-{len(DB['syllabus_suggestions']) + 1}",
-        "currentTopic": data.get("domain", "General Herbal Manufacturing"),
-        "suggestedAddition": data.get("skillsNeeded", "Advanced Automated Extraction & Regulatory Dossier Prep"),
-        "source": data.get("company", "Industry MoU Advisory Board"),
-        "urgency": "High - New Industry Demand",
-        "status": "Submitted to Academic Council",
-        "creditsImpact": "Proposed Elective"
-    }
-    DB["syllabus_suggestions"].insert(0, new_syl)
-    return jsonify({"success": True, "message": "Skill requirement transmitted to all affiliated Academic Institutions!", "syllabusUpdate": new_syl})
-
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    print(f"Starting JOBLEX Flask Backend on port {port}...")
+    port_env = (os.environ.get("PORT") or "5000").strip()
+    port = int(port_env) if port_env.isdigit() else 5000
+    print(f"Starting JOBLEX Python Flask Backend on port {port}...")
     app.run(host="0.0.0.0", port=port, debug=True)

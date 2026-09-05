@@ -1,12 +1,14 @@
 /**
  * JOBLEX Zulu AI Career Counselor Routes (Node.js / Express)
  * Powered by Google Gemini API (@google/generative-ai & REST)
+ * Integrated with Supabase Zulu Chat History System
  * Ministry of Ayush / All India Institute of Ayurveda | Problem Statement ID: 26044
  */
 
 const express = require('express');
 const router = express.Router();
 const { generateWithFailover, isGoogleApiConfigured, getMainApiKey, getBackupApiKey } = require('../services/ai.service');
+const zuluChatService = require('../services/zuluChat.service');
 
 const ZULU_SYSTEM_INSTRUCTION = `You are Zulu, the premier AI Career & Research Counselor for JOBLEX — the flagship Academia-Industry Collaboration Platform developed for the Ministry of Ayush and All India Institute of Ayurveda (AIIA) (Problem Statement ID: 26044).
 
@@ -31,11 +33,10 @@ async function generateWithGemini(userMessage, conversationHistory = [], student
     return null;
   }
 
-  // Format context prefix
   let contextPrompt = '';
   if (studentContext && typeof studentContext === 'object') {
     const { name, institution, department, xp, streak, verifiedSkills, targetRole } = studentContext;
-    contextPrompt = `[Student Profile Context: Name: ${name || 'Scholar'}, Institution: ${institution || 'AIIA'}, Department: ${department || 'Ayush'}, Current XP: ${xp || 1450}, Streak: ${streak || 7} days, Target Role: ${targetRole || 'Research Scientist'}, Verified Skills: ${(verifiedSkills || []).join(', ') || 'Ayurvedic Pharmacognosy'}]\n\n`;
+    contextPrompt = `[Student Profile Context: Name: ${name || 'Scholar'}, Institution: ${institution || 'AIIA'}, Department: ${department || 'Ayush'}, Current XP: ${xp || 0}, Streak: ${streak || 0} days, Target Role: ${targetRole || 'Research Scientist'}, Verified Skills: ${(verifiedSkills || []).join(', ') || 'Ayurvedic Pharmacognosy'}]\n\n`;
   }
 
   const promptToSend = contextPrompt ? `${contextPrompt}${userMessage}` : userMessage;
@@ -78,13 +79,79 @@ GEMINI_API_KEY=your_actual_google_api_key_here
 Once your API key is configured in \`.env\`, every query will be analyzed dynamically by Google Gemini!`;
 }
 
+// ─────────────────────────────────────────────────────────────
+// CHAT SESSIONS & HISTORY API ENDPOINTS
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * GET /api/zulu/sessions
+ * Fetch all chat sessions for the current student user
+ */
+router.get('/sessions', async (req, res) => {
+  try {
+    const userId = req.query.userId || req.headers['x-user-id'] || 'usr-student-01';
+    const sessions = await zuluChatService.getUserSessions(userId);
+    res.json({ success: true, sessions });
+  } catch (err) {
+    console.error('[Zulu Sessions GET Error]:', err);
+    res.status(500).json({ success: false, message: 'Failed to retrieve chat sessions' });
+  }
+});
+
+/**
+ * POST /api/zulu/sessions
+ * Create a new chat session thread
+ */
+router.post('/sessions', async (req, res) => {
+  try {
+    const { userId = 'usr-student-01', title = 'New Conversation' } = req.body || {};
+    const session = await zuluChatService.createSession(userId, title);
+    res.json({ success: true, session });
+  } catch (err) {
+    console.error('[Zulu Sessions POST Error]:', err);
+    res.status(500).json({ success: false, message: 'Failed to create chat session' });
+  }
+});
+
+/**
+ * GET /api/zulu/sessions/:id
+ * Get all messages for a specific session thread
+ */
+router.get('/sessions/:id', async (req, res) => {
+  try {
+    const sessionId = req.params.id;
+    const userId = req.query.userId || req.headers['x-user-id'] || 'usr-student-01';
+    const messages = await zuluChatService.getSessionMessages(sessionId, userId);
+    res.json({ success: true, sessionId, messages });
+  } catch (err) {
+    console.error('[Zulu Session Messages GET Error]:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch session messages' });
+  }
+});
+
+/**
+ * DELETE /api/zulu/sessions/:id
+ * Delete a specific chat session thread
+ */
+router.delete('/sessions/:id', async (req, res) => {
+  try {
+    const sessionId = req.params.id;
+    const userId = req.query.userId || req.headers['x-user-id'] || 'usr-student-01';
+    await zuluChatService.deleteSession(sessionId, userId);
+    res.json({ success: true, message: 'Session deleted successfully' });
+  } catch (err) {
+    console.error('[Zulu Session DELETE Error]:', err);
+    res.status(500).json({ success: false, message: 'Failed to delete chat session' });
+  }
+});
+
 /**
  * POST /api/zulu/chat
- * Primary chat endpoint for Zulu AI
+ * Primary chat execution endpoint with history persistence
  */
 router.post('/chat', async (req, res) => {
   try {
-    const { message = '', history = [], context = {} } = req.body || {};
+    const { message = '', history = [], context = {}, sessionId = null, userId = 'usr-student-01' } = req.body || {};
 
     const cleanMessage = (typeof message === 'string' ? message : '').trim();
     if (!cleanMessage) {
@@ -94,26 +161,39 @@ router.post('/chat', async (req, res) => {
       });
     }
 
-    // 1. Attempt Live Google Gemini Generation
-    const geminiResult = await generateWithGemini(cleanMessage, history, context);
-    if (geminiResult && geminiResult.text) {
-      return res.json({
-        success: true,
-        provider: geminiResult.model,
-        reply: geminiResult.text
-      });
+    // 1. Ensure active session ID
+    let targetSessionId = sessionId;
+    if (!targetSessionId) {
+      const newSession = await zuluChatService.createSession(userId, cleanMessage.substring(0, 35) + '...');
+      targetSessionId = newSession.id;
     }
 
-    // 2. If API Key is not set or temporarily unavailable, provide professional system guidance
-    const guidanceReply = getSystemGuidance(cleanMessage, context);
+    // 2. Persist incoming user message to session history
+    await zuluChatService.addMessageToSession(targetSessionId, userId, 'user', cleanMessage, null);
+
+    // 3. Attempt Live Google Gemini Generation
+    let replyText = '';
+    let providerName = 'zulu-guided-engine';
+
+    const geminiResult = await generateWithGemini(cleanMessage, history, context);
+    if (geminiResult && geminiResult.text) {
+      replyText = geminiResult.text;
+      providerName = geminiResult.model || 'gemini-3.6-flash';
+    } else {
+      replyText = getSystemGuidance(cleanMessage, context);
+    }
+
+    // 4. Persist Zulu AI response message to session history
+    await zuluChatService.addMessageToSession(targetSessionId, userId, 'zulu', replyText, providerName);
+
     return res.json({
       success: true,
-      provider: 'zulu-guided-engine',
-      reply: guidanceReply
+      sessionId: targetSessionId,
+      provider: providerName,
+      reply: replyText
     });
   } catch (err) {
     console.error('[Zulu Chat Handler Error]:', err);
-    // Return friendly, safe response without raw backend stack trace
     return res.status(500).json({
       success: false,
       message: 'Zulu AI is currently taking a brief moment to synchronize. Please try asking your question again.'
@@ -138,7 +218,7 @@ router.get('/status', (req, res) => {
       mainConfigured: hasMain,
       backupConfigured: hasBackup
     },
-    activeModel: isConfigured ? 'LangGraph (gemini-3.1-flash-lite-preview / gemini-3.6-flash failover pool)' : 'guided-engine'
+    activeModel: isConfigured ? 'LangGraph (gemini-3.6-flash failover pool)' : 'guided-engine'
   });
 });
 

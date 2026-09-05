@@ -10,20 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <!-- Material Symbols Outlined -->
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-  <!-- Early Theme Detection Script to prevent FOUC -->
-  <script>
-    (function() {
-      try {
-        const saved = localStorage.getItem('joblex_theme');
-        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (saved === 'dark' || (!saved && prefersDark)) {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
-      } catch(e) {}
-    })();
-  </script>
+  <script src="/js/frontend/theme.js"></script>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -39,14 +26,7 @@
       }
     }
   </script>
-  <style>
-    .material-symbols-outlined {
-      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
-      display: inline-block;
-      vertical-align: middle;
-      line-height: 1;
-    }
-  </style>
+  
 </head>
 <body class="bg-gradient-to-b from-[#FFFFFF] via-[#F8F9FA] to-[#F1F3F5] dark:from-[#0B0D11] dark:via-[#111317] dark:to-[#1A1C20] text-[#111827] dark:text-[#E2E2E8] min-h-screen flex flex-col justify-between font-sans antialiased selection:bg-[#E2E8F0] dark:selection:bg-[#333539] selection:text-[#0F172A] dark:selection:text-[#ADC6FF] transition-colors duration-200">
 
@@ -62,7 +42,7 @@
       <button id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Light/Dark Theme" title="Toggle Light/Dark Theme" class="p-1.5 rounded-lg border border-[#E2E8F0] dark:border-[#333539] bg-white dark:bg-[#1A1C20] text-[#475569] dark:text-[#C2C6D6] hover:text-[#0F172A] dark:hover:text-white transition-colors duration-150 flex items-center justify-center">
         <span id="theme-toggle-icon" class="material-symbols-outlined text-[18px]">dark_mode</span>
       </button>
-      <a href="student-roadmap.html" class="text-xs text-[#475569] dark:text-[#8C909F] hover:text-[#0F172A] dark:hover:text-white font-medium transition-colors">
+      <a href="src\students\student-roadmap.html" class="text-xs text-[#475569] dark:text-[#8C909F] hover:text-[#0F172A] dark:hover:text-white font-medium transition-colors">
         Direct Roadmap Access ➔
       </a>
     </div>
@@ -198,233 +178,158 @@
             Register Here
           </button>
         </div>
-      </form>
-
     </div>
   </main>
 
-  <!-- Static Institutional Footer -->
-  <footer class="w-full max-w-5xl mx-auto px-6 py-5 text-center text-xs text-[#64748B] dark:text-[#8C909F] border-t border-[#E2E8F0] dark:border-[#282A2E]">
-    © 2025 JOBLEX. All India Institute of Ayurveda & Ministry of Ayush, Government of India.
-  </footer>
-
   <!-- Script Implementation -->
   <script src="js/frontend/api-client.js"></script>
+  <script src="js/frontend/notifications.js"></script>
   <script>
-    let currentRole = 'student';
-    let isLoginMode = true;
+    let currentMode = 'login';
+    let selectedRole = 'student';
 
-    // Theme Toggle Functionality
-    function toggleTheme() {
-      const isDark = document.documentElement.classList.toggle('dark');
-      try {
-        localStorage.setItem('joblex_theme', isDark ? 'dark' : 'light');
-      } catch(e) {}
-      updateThemeIcon();
-      selectRole(currentRole);
-      setAuthMode(isLoginMode ? 'login' : 'register');
-    }
+    function setAuthMode(mode) {
+      currentMode = mode;
+      const btnLogin = document.getElementById('btn-mode-login');
+      const btnRegister = document.getElementById('btn-mode-register');
+      const registerFields = document.getElementById('register-fields');
+      const registerTerms = document.getElementById('register-terms');
+      const submitBtn = document.getElementById('submit-btn');
+      const switchPrompt = document.getElementById('switch-mode-prompt');
+      const switchAction = document.getElementById('switch-mode-action');
 
-    function updateThemeIcon() {
-      const icon = document.getElementById('theme-toggle-icon');
-      if (!icon) return;
-      const isDark = document.documentElement.classList.contains('dark');
-      icon.textContent = isDark ? 'light_mode' : 'dark_mode';
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      updateThemeIcon();
-
-      const urlParams = new URLSearchParams(window.location.search);
-      const roleParam = urlParams.get('role');
-      if (roleParam && ['student', 'academy', 'industry'].includes(roleParam)) {
-        selectRole(roleParam);
+      if (mode === 'login') {
+        btnLogin.className = "py-2 text-xs font-semibold rounded-lg transition-all bg-[#0F172A] dark:bg-[#ADC6FF] text-white dark:text-[#002E6A] shadow-sm";
+        btnRegister.className = "py-2 text-xs font-semibold rounded-lg transition-all text-[#64748B] dark:text-[#8C909F] hover:text-[#0F172A] dark:hover:text-[#E2E2E8]";
+        registerFields.classList.add('hidden');
+        registerTerms.classList.add('hidden');
+        submitBtn.querySelector('span').textContent = `Authenticate to ${capitalize(selectedRole)} Portal ➔`;
+        switchPrompt.textContent = "Need an institutional account?";
+        switchAction.textContent = "Register Here";
       } else {
-        selectRole('student');
+        btnRegister.className = "py-2 text-xs font-semibold rounded-lg transition-all bg-[#0F172A] dark:bg-[#ADC6FF] text-white dark:text-[#002E6A] shadow-sm";
+        btnLogin.className = "py-2 text-xs font-semibold rounded-lg transition-all text-[#64748B] dark:text-[#8C909F] hover:text-[#0F172A] dark:hover:text-[#E2E2E8]";
+        registerFields.classList.remove('hidden');
+        registerTerms.classList.remove('hidden');
+        submitBtn.querySelector('span').textContent = `Create & Register ${capitalize(selectedRole)} Account ➔`;
+        switchPrompt.textContent = "Already have an institutional account?";
+        switchAction.textContent = "Sign In Here";
       }
+    }
 
-      const modeParam = urlParams.get('mode');
-      if (modeParam === 'register') {
-        setAuthMode('register');
-      }
-    });
+    function toggleAuthMode() {
+      setAuthMode(currentMode === 'login' ? 'register' : 'login');
+    }
 
     function selectRole(role) {
-      currentRole = role;
+      selectedRole = role;
       const roles = ['student', 'academy', 'industry'];
       roles.forEach(r => {
-        const btn = document.getElementById(`tab-${r}`);
-        if (btn) {
+        const tab = document.getElementById(`tab-${r}`);
+        if (tab) {
           if (r === role) {
-            btn.className = 'py-2 text-xs font-semibold rounded-lg transition border border-[#0F172A] dark:border-[#ADC6FF] bg-[#FFFFFF] dark:bg-[#1E2024] text-[#0F172A] dark:text-[#ADC6FF] shadow-sm';
+            tab.className = "py-2 text-xs font-semibold rounded-lg transition border border-[#0F172A] dark:border-[#ADC6FF] bg-[#FFFFFF] dark:bg-[#1E2024] text-[#0F172A] dark:text-[#ADC6FF] shadow-sm";
           } else {
-            btn.className = 'py-2 text-xs font-semibold rounded-lg transition border border-transparent text-[#64748B] dark:text-[#8C909F] hover:text-[#0F172A] dark:hover:text-[#E2E2E8]';
+            tab.className = "py-2 text-xs font-semibold rounded-lg transition border border-transparent text-[#64748B] dark:text-[#8C909F] hover:text-[#0F172A] dark:hover:text-[#E2E2E8]";
           }
         }
       });
 
-      const roleHintBadge = document.getElementById('role-hint-badge');
-      const orgLabel = document.getElementById('label-org');
-      const inputOrg = document.getElementById('input-org');
-
-      if (role === 'student') {
-        if (roleHintBadge) {
-          roleHintBadge.innerText = 'Ayush Student';
-          roleHintBadge.className = 'text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-[#ECFDF5] dark:bg-[#003824]/40 text-[#065F46] dark:text-[#4EDEA3] border border-[#A7F3D0] dark:border-[#00A572]/40';
-        }
-        if (orgLabel) orgLabel.innerHTML = 'College / University <span class="text-rose-500">*</span>';
-        if (inputOrg) inputOrg.placeholder = 'e.g. AIIA New Delhi';
-      } else if (role === 'academy') {
-        if (roleHintBadge) {
-          roleHintBadge.innerText = 'Faculty / Dean';
-          roleHintBadge.className = 'text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-[#EFF6FF] dark:bg-[#00285D]/40 text-[#1E40AF] dark:text-[#ADC6FF] border border-[#BFDBFE] dark:border-[#4D8EFF]/40';
-        }
-        if (orgLabel) orgLabel.innerHTML = 'Academic Institution <span class="text-rose-500">*</span>';
-        if (inputOrg) inputOrg.placeholder = 'e.g. All India Institute of Ayurveda';
-      } else if (role === 'industry') {
-        if (roleHintBadge) {
-          roleHintBadge.innerText = 'Corporate Partner';
-          roleHintBadge.className = 'text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-[#F5F3FF] dark:bg-[#311400]/40 text-[#5B21B6] dark:text-[#FFB786] border border-[#DDD6FE] dark:border-[#DF7412]/40';
-        }
-        if (orgLabel) orgLabel.innerHTML = 'Company / Enterprise <span class="text-rose-500">*</span>';
-        if (inputOrg) inputOrg.placeholder = 'e.g. Dabur Research Foundation';
+      const badge = document.getElementById('role-hint-badge');
+      if (badge) {
+        if (role === 'student') badge.textContent = 'Ayush Student';
+        else if (role === 'academy') badge.textContent = 'Collegiate Academy / Dean';
+        else badge.textContent = 'Pharma R&D Industry';
       }
-
-      updateSubmitButtonText();
-    }
-
-    function toggleAuthMode() {
-      setAuthMode(isLoginMode ? 'register' : 'login');
-    }
-
-    function setAuthMode(mode) {
-      isLoginMode = mode === 'login';
-      const btnLogin = document.getElementById('btn-mode-login');
-      const btnReg = document.getElementById('btn-mode-register');
-      const regFields = document.getElementById('register-fields');
-      const regTerms = document.getElementById('register-terms');
-      const forgotPass = document.getElementById('login-forgot-pass');
-      const promptText = document.getElementById('switch-mode-prompt');
-      const promptAction = document.getElementById('switch-mode-action');
-      const subtitle = document.getElementById('gateway-subtitle');
-
-      if (isLoginMode) {
-        if (btnLogin) btnLogin.className = 'py-2 text-xs font-semibold rounded-lg transition-all bg-[#0F172A] dark:bg-[#ADC6FF] text-white dark:text-[#002E6A] shadow-sm';
-        if (btnReg) btnReg.className = 'py-2 text-xs font-semibold rounded-lg transition-all text-[#64748B] dark:text-[#8C909F] hover:text-[#0F172A] dark:hover:text-[#E2E2E8]';
-        if (regFields) regFields.classList.add('hidden');
-        if (regTerms) regTerms.classList.add('hidden');
-        if (forgotPass) forgotPass.classList.remove('hidden');
-        if (subtitle) subtitle.innerText = 'Ministry of Ayush & Accredited Collegiate Verification Framework';
-        if (promptText) promptText.innerText = 'Need an institutional account?';
-        if (promptAction) promptAction.innerText = 'Register Here';
-      } else {
-        if (btnReg) btnReg.className = 'py-2 text-xs font-semibold rounded-lg transition-all bg-[#0F172A] dark:bg-[#ADC6FF] text-white dark:text-[#002E6A] shadow-sm';
-        if (btnLogin) btnLogin.className = 'py-2 text-xs font-semibold rounded-lg transition-all text-[#64748B] dark:text-[#8C909F] hover:text-[#0F172A] dark:hover:text-[#E2E2E8]';
-        if (regFields) regFields.classList.remove('hidden');
-        if (regTerms) regTerms.classList.remove('hidden');
-        if (forgotPass) forgotPass.classList.add('hidden');
-        if (subtitle) subtitle.innerText = 'New Scholar & Corporate Partner Registration';
-        if (promptText) promptText.innerText = 'Already have credentials?';
-        if (promptAction) promptAction.innerText = 'Sign In';
-      }
-      updateSubmitButtonText();
-    }
-
-    function updateSubmitButtonText() {
-      const btn = document.getElementById('submit-btn');
-      if (!btn) return;
-      const roleName = currentRole.charAt(0).toUpperCase() + currentRole.slice(1);
-      btn.innerHTML = isLoginMode 
-        ? `<span>Authenticate to ${roleName} Portal ➔</span>`
-        : `<span>Complete Registration & Enter ${roleName} Portal ➔</span>`;
-    }
-
-    async function handleAuthSubmit(e) {
-      e.preventDefault();
-      const email = document.getElementById('input-email').value;
-      const password = document.getElementById('input-password').value;
-      const name = document.getElementById('input-name')?.value || 'Ashay Verma';
-      const organization = document.getElementById('input-org')?.value || 'All India Institute of Ayurveda';
-      const department = document.getElementById('input-dept')?.value || '';
-      const roleSpec = document.getElementById('input-role-spec')?.value || '';
 
       const submitBtn = document.getElementById('submit-btn');
-      const originalHtml = submitBtn ? submitBtn.innerHTML : '';
       if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span>Authenticating...</span>';
+        submitBtn.querySelector('span').textContent = currentMode === 'login' 
+          ? `Authenticate to ${capitalize(role)} Portal ➔`
+          : `Create & Register ${capitalize(role)} Account ➔`;
       }
 
-      try {
-        let authUser = null;
-
-        if (window.JoblexApiClient) {
-          if (isLoginMode) {
-            try {
-              const res = await JoblexApiClient.login(email, password, currentRole);
-              if (res && res.user) authUser = res.user;
-            } catch (apiErr) {
-              console.warn('[Auth] Backend login error or offline, fallback to local session:', apiErr.message);
-              authUser = {
-                name: name || email.split('@')[0],
-                email: email,
-                role: currentRole,
-                institution: organization,
-                xp: 1450,
-                streak: 7
-              };
-              JoblexApiClient.setCurrentUser(authUser);
-            }
-          } else {
-            try {
-              const res = await JoblexApiClient.register({
-                name,
-                email,
-                password,
-                role: currentRole,
-                institution: currentRole !== 'industry' ? organization : undefined,
-                company: currentRole === 'industry' ? organization : undefined,
-                department,
-                designation: currentRole !== 'student' ? roleSpec : undefined,
-                year: currentRole === 'student' ? roleSpec : undefined
-              });
-              if (res && res.user) authUser = res.user;
-            } catch (apiErr) {
-              console.warn('[Auth] Backend register error or offline, fallback to local session:', apiErr.message);
-              authUser = {
-                name,
-                email,
-                role: currentRole,
-                institution: organization,
-                department,
-                xp: 1000,
-                streak: 1
-              };
-              JoblexApiClient.setCurrentUser(authUser);
-            }
-          }
-        }
-
-        // Determine destination redirect
-        const urlParams = new URLSearchParams(window.location.search);
-        const redirect = urlParams.get('redirect');
-        if (redirect && !redirect.includes('auth.html')) {
-          window.location.href = redirect;
-          return;
-        }
-
-        if (currentRole === 'student') window.location.href = 'student-roadmap.html';
-        else if (currentRole === 'academy') window.location.href = 'academy.html';
-        else if (currentRole === 'industry') window.location.href = 'industry.html';
-      } catch (err) {
-        alert(err.message || 'Authentication error');
-      } finally {
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = originalHtml;
+      // Auto pre-fill demo email/password if on login mode and fields are empty or match defaults
+      if (currentMode === 'login') {
+        const emailInput = document.getElementById('input-email');
+        const passInput = document.getElementById('input-password');
+        if (emailInput && (!emailInput.value || emailInput.value.includes('@nexus.edu') || emailInput.value.includes('aiia.gov.in'))) {
+          emailInput.value = `${role}@nexus.edu`;
+          passInput.value = "password123";
         }
       }
     }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    async function handleAuthSubmit(event) {
+      event.preventDefault();
+      const email = document.getElementById('input-email').value.trim();
+      const password = document.getElementById('input-password').value;
+      const submitBtn = document.getElementById('submit-btn');
+
+      if (!email || !password) {
+        alert('Please provide both email address and password.');
+        return;
+      }
+
+      const originalText = submitBtn.querySelector('span').textContent;
+      submitBtn.disabled = true;
+      submitBtn.querySelector('span').textContent = 'Authenticating...';
+
+      try {
+        if (currentMode === 'login') {
+          const res = await JoblexApiClient.login(email, password, selectedRole);
+          const redirect = new URLSearchParams(window.location.search).get('redirect') || `${res.user.role}.html`;
+          window.location.href = redirect;
+        } else {
+          const name = document.getElementById('input-name').value.trim();
+          const org = document.getElementById('input-org').value.trim();
+          const dept = document.getElementById('input-dept').value.trim();
+          const roleSpec = document.getElementById('input-role-spec').value.trim();
+
+          if (!name || !org) {
+            alert('Full Legal Name and College / Institution are required for registration.');
+            submitBtn.disabled = false;
+            submitBtn.querySelector('span').textContent = originalText;
+            return;
+          }
+
+          const userData = {
+            name,
+            email,
+            password,
+            role: selectedRole,
+            institution: selectedRole === 'industry' ? null : org,
+            company: selectedRole === 'industry' ? org : null,
+            department: dept,
+            year: selectedRole === 'student' ? roleSpec : null,
+            designation: selectedRole !== 'student' ? roleSpec : null
+          };
+
+          const res = await JoblexApiClient.register(userData);
+          const redirect = new URLSearchParams(window.location.search).get('redirect') || `${res.user.role}.html`;
+          window.location.href = redirect;
+        }
+      } catch (err) {
+        alert(err.message || 'Authentication error. Please check your credentials.');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.querySelector('span').textContent = originalText;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const roleParam = urlParams.get('role');
+      if (roleParam && ['student', 'academy', 'industry'].includes(roleParam.toLowerCase())) {
+        selectRole(roleParam.toLowerCase());
+      } else {
+        selectRole('student');
+      }
+    });
   </script>
 </body>
 </html>

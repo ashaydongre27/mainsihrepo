@@ -298,7 +298,7 @@ function syncPeerSkillsToRoadmap() {
       completed: false
     });
     renderRoadmap();
-    alert('Peer competency gaps synced directly into your Career Roadmap Phase 1!');
+    showToast('Peer competency gaps synced directly into your Career Roadmap Phase 1!', 'Roadmap Synced', 'success');
   }
 }
 
@@ -539,7 +539,7 @@ function renderOpportunities(filter) {
             <div class="col-span-2"><span class="mr-1 opacity-60">⏳</span> Deadline: ${opp.deadline}</div>
           </div>
           <button 
-            onclick="alert('Application submitted for ${opp.title}! Profile verified via AIIA institutional credentials.')" 
+            onclick="showToast('Application submitted for ${opp.title}! Profile verified via AIIA institutional credentials.', 'Application Transmitted', 'success')" 
             class="w-full py-2 bg-gray-800 hover:bg-cyan-900/40 border border-gray-700 hover:border-cyan-500 text-white rounded-xl transition text-xs font-semibold"
           >
             Apply Now

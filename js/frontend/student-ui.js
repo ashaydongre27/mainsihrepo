@@ -70,6 +70,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     initSkillTree();
   }
 
+  if (document.getElementById('zulu-sessions-list')) {
+    initZuluChat();
+  }
+
   const resumeTextarea = document.getElementById('resume-textarea');
   if (resumeTextarea) resumeTextarea.value = SAMPLE_RESUMES.herbal;
 });
@@ -275,7 +279,7 @@ async function handleApplyOpportunity(oppId, oppTitle, company, type, match) {
     btn.className = 'px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs cursor-default';
   }
 
-  alert(`Application Transmitted! 🚀\n\nYour verified institutional dossier has been submitted to ${company} for the "${oppTitle}" position. The recruiter will review it in their Industry Portal dashboard.`);
+  showToast(`Application Transmitted! 🚀\n\nYour verified institutional dossier has been submitted to ${company} for the "${oppTitle}" position.`, 'Application Transmitted', 'success');
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -358,7 +362,7 @@ async function handleCheckIn() {
   const statusEl = document.getElementById('streak-freeze-status');
   if (statusEl) statusEl.innerText = `✓ Decay frozen until ${new Date(res.decayFrozenUntil).toLocaleDateString()}!`;
   if (btn) btn.innerText = '✓ Checked In (+50 XP)';
-  alert('Streak Protected! ❄️ Your competencies are frozen against decay for the next 72 hours.');
+  showToast('Streak Protected! ❄️ Your competencies are frozen against decay for the next 72 hours.', 'Streak Protected', 'success');
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -487,7 +491,7 @@ function selectQuizAnswer(idx) {
 
 function nextQuizQuestion() {
   if (quizState.selectedAnswer === null) {
-    alert('Please select an option before continuing.');
+    showToast('Please select an option before continuing.', 'Quiz Arena', 'warning');
     return;
   }
 
@@ -508,8 +512,11 @@ function nextQuizQuestion() {
 }
 
 // ─────────────────────────────────────────────────────────────
-// ZULU AI GEMINI-STYLE CHAT CONTROLLER
+// ZULU AI GEMINI-STYLE CHAT CONTROLLER WITH SESSION HISTORY
 // ─────────────────────────────────────────────────────────────
+let currentZuluSessionId = null;
+let zuluSessionsList = [];
+
 function formatZuluMarkdown(text) {
   if (!text) return '';
   return text
@@ -522,6 +529,167 @@ function formatZuluMarkdown(text) {
     .replace(/^- (.*$)/gim, '<li class="ml-4 list-disc text-slate-700 dark:text-gray-200 text-sm my-1">$1</li>')
     .replace(/\n\n/g, '<br/><br/>')
     .replace(/\n/g, '<br/>');
+}
+
+function toggleZuluHistoryDrawer() {
+  const drawer = document.getElementById('zulu-history-drawer');
+  if (!drawer) return;
+  drawer.classList.toggle('hidden');
+}
+
+async function initZuluChat() {
+  const container = document.getElementById('zulu-sessions-list');
+  if (!container) return;
+
+  const currentUser = JoblexApiClient.getCurrentUser();
+  const userId = currentUser ? currentUser.email || currentUser.id || 'usr-student-01' : 'usr-student-01';
+
+  try {
+    const res = await JoblexApiClient.getZuluSessions(userId);
+    let sessions = res.sessions || [];
+
+    if (sessions.length === 0) {
+      const newRes = await JoblexApiClient.createZuluSession(userId, 'Zulu AI');
+      if (newRes && newRes.session) {
+        sessions = [newRes.session];
+      }
+    }
+
+    zuluSessionsList = sessions;
+    renderZuluSessionsList();
+
+    if (zuluSessionsList.length > 0) {
+      const defaultId = zuluSessionsList[0].id;
+      await switchZuluSession(defaultId);
+    }
+  } catch (e) {
+    console.warn('[Zulu Chat Init Warning]:', e);
+  }
+}
+
+function renderZuluSessionsList() {
+  const container = document.getElementById('zulu-sessions-list');
+  if (!container) return;
+
+  if (zuluSessionsList.length === 0) {
+    container.innerHTML = `<div class="text-center py-6 text-xs text-slate-400">No chat sessions. Click + New above.</div>`;
+    return;
+  }
+
+  container.innerHTML = zuluSessionsList.map(s => {
+    const isActive = s.id === currentZuluSessionId;
+    const title = s.title || 'Zulu AI';
+    const dateStr = s.updated_at ? new Date(s.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent';
+    
+    return `
+      <div onclick="switchZuluSession('${s.id}'); toggleZuluHistoryDrawer();" class="p-2.5 rounded-2xl border transition cursor-pointer flex items-center justify-between group ${
+        isActive 
+          ? 'bg-purple-50 dark:bg-purple-950/40 border-purple-300 dark:border-purple-500/40 text-purple-900 dark:text-purple-200 shadow-sm'
+          : 'bg-transparent border-transparent hover:bg-slate-100 dark:hover:bg-white/5 text-slate-700 dark:text-gray-300'
+      }">
+        <div class="flex items-center gap-2 overflow-hidden">
+          <span class="text-xs shrink-0">${isActive ? '💬' : '📜'}</span>
+          <div class="flex flex-col text-left overflow-hidden">
+            <span class="text-xs font-bold truncate max-w-[150px]">${title}</span>
+            <span class="text-[9px] opacity-70 font-mono">${dateStr}</span>
+          </div>
+        </div>
+        <button onclick="deleteZuluSession(event, '${s.id}')" title="Delete thread" class="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-500 transition rounded-lg">
+          <span class="material-symbols-outlined text-[14px]">delete</span>
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+async function switchZuluSession(sessionId) {
+  currentZuluSessionId = sessionId;
+  renderZuluSessionsList();
+
+  const session = zuluSessionsList.find(s => s.id === sessionId);
+  const titleEl = document.getElementById('zulu-active-session-title');
+  if (titleEl && session) {
+    titleEl.innerText = session.title || 'Zulu AI';
+  }
+
+  const messagesBox = document.getElementById('zulu-messages-box');
+  if (!messagesBox) return;
+
+  const currentUser = JoblexApiClient.getCurrentUser();
+  const userId = currentUser ? currentUser.email || currentUser.id || 'usr-student-01' : 'usr-student-01';
+
+  try {
+    const res = await JoblexApiClient.getZuluMessages(sessionId, userId);
+    const msgs = res.messages || [];
+
+    if (msgs.length === 0) {
+      messagesBox.innerHTML = `
+        <div id="zulu-welcome-hero" class="text-center py-6 sm:py-8 space-y-4">
+          <div class="w-14 h-14 rounded-3xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-500 flex items-center justify-center text-2xl text-white mx-auto shadow-lg">✨</div>
+          <h1 class="text-xl sm:text-2xl font-extrabold text-[#0F172A] dark:text-white">Namaste, <span class="user-name-display">Scholar</span> 🌿</h1>
+          <p class="text-xs sm:text-sm text-[#64748B] dark:text-gray-400 max-w-md mx-auto leading-relaxed">I am Zulu, your AI Career &amp; Research Counselor. Ask any question to start this conversation!</p>
+        </div>
+      `;
+      return;
+    }
+
+    let html = '';
+    msgs.forEach(m => {
+      if (m.sender === 'user') {
+        html += `
+          <div class="flex justify-end my-3">
+            <div class="max-w-[85%] sm:max-w-[75%] p-3.5 sm:p-4 rounded-3xl rounded-br-md bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs sm:text-sm leading-relaxed shadow-md">
+              ${m.message}
+            </div>
+          </div>
+        `;
+      } else {
+        const formatted = formatZuluMarkdown(m.message);
+        html += `
+          <div class="flex justify-start items-start gap-3 my-3">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-500 flex items-center justify-center text-xs text-white shrink-0 shadow-[0_0_10px_rgba(168,85,247,0.4)]">✨</div>
+            <div class="max-w-[85%] sm:max-w-[78%] p-4 sm:p-5 rounded-3xl rounded-tl-md bg-white dark:bg-gray-900/90 border border-[#E2E8F0] dark:border-gray-800 text-[#0F172A] dark:text-gray-100 text-xs sm:text-sm leading-relaxed shadow-sm space-y-2">
+              ${formatted}
+            </div>
+          </div>
+        `;
+      }
+    });
+
+    messagesBox.innerHTML = html;
+    messagesBox.scrollTop = messagesBox.scrollHeight;
+  } catch (e) {
+    console.warn('[Zulu Messages Fetch Error]:', e);
+  }
+}
+
+async function createNewZuluSession() {
+  const currentUser = JoblexApiClient.getCurrentUser();
+  const userId = currentUser ? currentUser.email || currentUser.id || 'usr-student-01' : 'usr-student-01';
+
+  const res = await JoblexApiClient.createZuluSession(userId, 'New Conversation');
+  if (res && res.session) {
+    zuluSessionsList.unshift(res.session);
+    await switchZuluSession(res.session.id);
+  }
+}
+
+async function deleteZuluSession(e, sessionId) {
+  if (e) e.stopPropagation();
+
+  const currentUser = JoblexApiClient.getCurrentUser();
+  const userId = currentUser ? currentUser.email || currentUser.id || 'usr-student-01' : 'usr-student-01';
+
+  await JoblexApiClient.deleteZuluSession(sessionId, userId);
+  showToast('Chat thread deleted successfully.', 'Zulu AI', 'info');
+
+  zuluSessionsList = zuluSessionsList.filter(s => s.id !== sessionId);
+
+  if (zuluSessionsList.length === 0) {
+    await createNewZuluSession();
+  } else {
+    await switchZuluSession(zuluSessionsList[0].id);
+  }
 }
 
 async function handleZuluSend(e) {
@@ -538,11 +706,16 @@ async function handleZuluSend(e) {
   const messagesBox = document.getElementById('zulu-messages-box');
   if (!messagesBox) return;
 
-  // Render User Message (clean, spacious right-aligned bubble)
+  // Ensure active session
+  if (!currentZuluSessionId) {
+    await createNewZuluSession();
+  }
+
+  // Render User Message
   const userDiv = document.createElement('div');
-  userDiv.className = 'flex justify-end';
+  userDiv.className = 'flex justify-end my-3';
   userDiv.innerHTML = `
-    <div class="max-w-[85%] sm:max-w-[75%] p-4 rounded-3xl rounded-br-md bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm leading-relaxed shadow-lg">
+    <div class="max-w-[85%] sm:max-w-[75%] p-3.5 sm:p-4 rounded-3xl rounded-br-md bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs sm:text-sm leading-relaxed shadow-md">
       ${text}
     </div>
   `;
@@ -552,7 +725,7 @@ async function handleZuluSend(e) {
   // Typing Indicator
   const typingDiv = document.createElement('div');
   typingDiv.id = 'zulu-typing-indicator';
-  typingDiv.className = 'flex justify-start items-center gap-3';
+  typingDiv.className = 'flex justify-start items-center gap-3 my-3';
   typingDiv.innerHTML = `
     <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-cyan-500 flex items-center justify-center text-xs text-white shrink-0 shadow-sm">✨</div>
     <div class="bg-white dark:bg-gray-900/90 border border-[#E2E8F0] dark:border-purple-500/30 px-4 py-2.5 rounded-2xl flex items-center gap-2 shadow-sm">
@@ -565,29 +738,45 @@ async function handleZuluSend(e) {
   messagesBox.appendChild(typingDiv);
   messagesBox.scrollTop = messagesBox.scrollHeight;
 
+  const currentUser = JoblexApiClient.getCurrentUser();
+  const userId = currentUser ? currentUser.email || currentUser.id || 'usr-student-01' : 'usr-student-01';
+
   const studentContext = {
-    studentName: 'Ashay Verma',
-    institution: 'All India Institute of Ayurveda (AIIA)',
+    studentName: currentUser ? currentUser.name : 'Ashay Verma',
+    institution: currentUser ? currentUser.institution : 'All India Institute of Ayurveda (AIIA)',
     department: 'Ayurvedic Pharmacology & Health-AI',
     xp: currentXp,
     streak: currentStreak,
     targetRole: 'Herbal Formulation Scientist'
   };
 
-  const res = await JoblexApiClient.askZulu(text, studentContext);
+  const res = await JoblexApiClient.askZulu(text, studentContext, currentZuluSessionId, userId);
 
   const ind = document.getElementById('zulu-typing-indicator');
   if (ind) ind.remove();
 
-  // Render Zulu Response (Gemini-style open text with avatar)
+  if (res && res.sessionId && res.sessionId !== currentZuluSessionId) {
+    currentZuluSessionId = res.sessionId;
+  }
+
+  // Update session title in list if default
+  const activeSess = zuluSessionsList.find(s => s.id === currentZuluSessionId);
+  if (activeSess && (activeSess.title === 'New Conversation' || activeSess.title === 'Ayurvedic Pharmacognosy Guidance')) {
+    activeSess.title = text.length > 30 ? text.substring(0, 30) + '...' : text;
+    renderZuluSessionsList();
+    const titleEl = document.getElementById('zulu-active-session-title');
+    if (titleEl) titleEl.innerText = activeSess.title;
+  }
+
+  // Render Zulu Response
   const formattedReply = formatZuluMarkdown(res.reply);
   const zuluDiv = document.createElement('div');
-  zuluDiv.className = 'flex justify-start items-start gap-3';
+  zuluDiv.className = 'flex justify-start items-start gap-3 my-3';
   zuluDiv.innerHTML = `
     <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-500 flex items-center justify-center text-xs text-white shrink-0 shadow-[0_0_10px_rgba(168,85,247,0.4)]">
       ✨
     </div>
-    <div class="max-w-[85%] sm:max-w-[78%] p-4 sm:p-5 rounded-3xl rounded-tl-md bg-white dark:bg-gray-900/90 border border-[#E2E8F0] dark:border-gray-800 text-[#0F172A] dark:text-gray-100 text-sm leading-relaxed shadow-sm space-y-2">
+    <div class="max-w-[85%] sm:max-w-[78%] p-4 sm:p-5 rounded-3xl rounded-tl-md bg-white dark:bg-gray-900/90 border border-[#E2E8F0] dark:border-gray-800 text-[#0F172A] dark:text-gray-100 text-xs sm:text-sm leading-relaxed shadow-sm space-y-2">
       ${formattedReply}
     </div>
   `;

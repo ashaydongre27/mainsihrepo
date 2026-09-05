@@ -38,6 +38,11 @@ const JoblexApiClient = {
       window.location.href = `auth.html?role=${encodeURIComponent(roleParam)}&redirect=${encodeURIComponent(currentPath)}`;
       return false;
     }
+    if (expectedRole && user.role !== expectedRole) {
+      alert(`Access Restricted: This area is reserved for ${expectedRole.toUpperCase()} accounts. You are currently logged in as a ${user.role.toUpperCase()}. Please switch accounts or navigate to your matching portal.`);
+      window.location.href = `${user.role}.html`;
+      return false;
+    }
     return true;
   },
 
@@ -47,6 +52,9 @@ const JoblexApiClient = {
     const portalPage = `${role}.html`;
     if (!user) {
       window.location.href = `auth.html?role=${encodeURIComponent(role)}&redirect=${encodeURIComponent(portalPage)}`;
+    } else if (user.role !== role) {
+      alert(`Role Mismatch: Your account type is ${user.role.toUpperCase()}. Navigating to your registered ${user.role.toUpperCase()} portal.`);
+      window.location.href = `${user.role}.html`;
     } else {
       window.location.href = portalPage;
     }
@@ -88,7 +96,18 @@ const JoblexApiClient = {
       roleName = 'Industry';
     }
 
-    const org = user.institution || user.company || 'All India Institute of Ayurveda';
+    let org = '';
+    if (user.role === 'student') {
+      const course = user.department || user.year || 'BAMS 3rd Year';
+      const uni = user.institution || 'All India Institute of Ayurveda';
+      org = `${course} · ${uni}`;
+    } else if (user.role === 'academy') {
+      org = user.institution || 'All India Institute of Ayurveda';
+    } else if (user.role === 'industry') {
+      org = user.company || user.institution || 'Corporate Partner Enterprise';
+    } else {
+      org = user.institution || user.company || 'All India Institute of Ayurveda';
+    }
 
     const html = `
       <div class="relative">
@@ -104,7 +123,7 @@ const JoblexApiClient = {
               <span class="font-bold text-xs sm:text-sm text-white truncate max-w-[85px] sm:max-w-[130px]">${user.name}</span>
               <span class="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider border ${roleBadgeClass}">${user.role || 'User'}</span>
             </div>
-            <span class="text-[9px] sm:text-[10px] text-gray-400 truncate max-w-[100px] sm:max-w-[150px]">${org}</span>
+            <span class="text-[9px] sm:text-[10px] text-gray-400 truncate max-w-[100px] sm:max-w-[150px]" title="${org}">${org}</span>
           </div>
           <span class="text-gray-400 text-[10px] ml-0.5">▾</span>
         </button>
@@ -116,23 +135,7 @@ const JoblexApiClient = {
             <div class="text-[11px] text-gray-400 truncate">${user.email}</div>
             <div class="text-[10px] font-semibold text-purple-300 mt-1">${org}</div>
           </div>
-          <div class="text-[10px] uppercase font-bold text-gray-400 px-2 pt-1">Quick Portals</div>
-          <a href="javascript:void(0)" onclick="JoblexApiClient.navigateToPortal('student')" class="flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs text-gray-300 hover:text-white hover:bg-white/5 transition">
-            <span class="flex items-center gap-2"><span>🎓</span> Student Portal</span>
-            ${user.role === 'student' ? '<span class="text-[9px] text-purple-400 font-bold">Active</span>' : ''}
-          </a>
-          <a href="javascript:void(0)" onclick="JoblexApiClient.navigateToPortal('academy')" class="flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs text-gray-300 hover:text-white hover:bg-white/5 transition">
-            <span class="flex items-center gap-2"><span>🏛️</span> Academy Portal</span>
-            ${user.role === 'academy' ? '<span class="text-[9px] text-emerald-400 font-bold">Active</span>' : ''}
-          </a>
-          <a href="javascript:void(0)" onclick="JoblexApiClient.navigateToPortal('industry')" class="flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs text-gray-300 hover:text-white hover:bg-white/5 transition">
-            <span class="flex items-center gap-2"><span>🏢</span> Industry Portal</span>
-            ${user.role === 'industry' ? '<span class="text-[9px] text-blue-400 font-bold">Active</span>' : ''}
-          </a>
           <div class="pt-1.5 border-t border-gray-800/80 space-y-1">
-            <a href="auth.html" class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs text-gray-400 hover:text-purple-300 hover:bg-purple-950/30 transition">
-              <span>🔄</span> Switch Account / Persona
-            </a>
             <button type="button" onclick="JoblexApiClient.logout()" class="w-full text-left flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs text-rose-400 hover:bg-rose-950/30 transition">
               <span>🚪</span> Sign Out
             </button>
@@ -183,6 +186,46 @@ const JoblexApiClient = {
       return data;
     }
     throw new Error(data.error || 'Registration failed. Please verify your details.');
+  },
+
+  async getProfile() {
+    const currentUser = this.getCurrentUser();
+    if (!currentUser) return null;
+    try {
+      const res = await fetch(`${API_BASE}/auth/profile?email=${encodeURIComponent(currentUser.email || '')}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.profile) {
+          const merged = { ...currentUser, ...data.profile };
+          this.setCurrentUser(merged);
+          return merged;
+        }
+      }
+    } catch(e) {}
+    return currentUser;
+  },
+
+  async updateProfile(profileData) {
+    const currentUser = this.getCurrentUser();
+    const payload = { id: currentUser?.id, email: currentUser?.email, ...profileData };
+    try {
+      const res = await fetch(`${API_BASE}/auth/profile`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.profile) {
+          const merged = { ...currentUser, ...data.profile };
+          this.setCurrentUser(merged);
+          return merged;
+        }
+      }
+    } catch(e) {}
+    const merged = { ...currentUser, ...profileData };
+    this.setCurrentUser(merged);
+    return merged;
   },
 
   // Roadmap Endpoints
@@ -385,18 +428,59 @@ const JoblexApiClient = {
     return { success: true, message: `Status updated to "${status}"!` };
   },
 
-  // Zulu AI Chat
-  async askZulu(message, context = {}) {
+  // Zulu AI Chat & History System
+  async getZuluSessions(userId = 'usr-student-01') {
+    try {
+      const res = await fetch(`${API_BASE}/zulu/sessions?userId=${encodeURIComponent(userId)}`);
+      if (res.ok) return await res.json();
+    } catch(e) {}
+    return { success: false, sessions: [] };
+  },
+
+  async createZuluSession(userId = 'usr-student-01', title = 'New Conversation') {
+    try {
+      const res = await fetch(`${API_BASE}/zulu/sessions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, title })
+      });
+      if (res.ok) return await res.json();
+    } catch(e) {}
+    return { success: false, session: { id: `sess-${Date.now()}`, title, user_id: userId } };
+  },
+
+  async getZuluMessages(sessionId, userId = 'usr-student-01') {
+    try {
+      const res = await fetch(`${API_BASE}/zulu/sessions/${encodeURIComponent(sessionId)}?userId=${encodeURIComponent(userId)}`);
+      if (res.ok) return await res.json();
+    } catch(e) {}
+    return { success: false, messages: [] };
+  },
+
+  async deleteZuluSession(sessionId, userId = 'usr-student-01') {
+    try {
+      const res = await fetch(`${API_BASE}/zulu/sessions/${encodeURIComponent(sessionId)}?userId=${encodeURIComponent(userId)}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) return await res.json();
+    } catch(e) {}
+    return { success: true };
+  },
+
+  async askZulu(message, context = {}, sessionId = null, userId = 'usr-student-01') {
     try {
       const res = await fetch(`${API_BASE}/zulu/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, context })
+        body: JSON.stringify({ message, context, sessionId, userId })
       });
       if (res.ok) return await res.json();
     } catch(e) {}
     return {
-      reply: `In the modern Ayush sector, mastering Phytochemistry along with Python data analytics positions you in the top 5% of applicants. Check your Career Roadmap to start the next module!`
+      success: true,
+      sessionId: sessionId || `sess-${Date.now()}`,
+      provider: 'zulu-guided-engine',
+      reply: `Namaste 🌿 In the modern Ayush sector, mastering Phytochemistry along with Python data analytics positions you in the top 5% of applicants. Check your Career Roadmap to start the next module!`
     };
   },
 
@@ -645,6 +729,15 @@ const JoblexApiClient = {
       if (res.ok) return await res.json();
     } catch(e) {}
     return { success: true, message: `Application status updated to ${status}` };
+  },
+
+  async getRequisitions(type = 'All') {
+    try {
+      const query = type && type !== 'All' ? `?type=${encodeURIComponent(type)}` : '';
+      const res = await fetch(`${API_BASE}/industry/requisitions${query}`);
+      if (res.ok) return await res.json();
+    } catch(e) {}
+    return { requisitions: [] };
   }
 };
 

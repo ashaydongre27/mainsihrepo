@@ -1,16 +1,39 @@
 -- ============================================================================
--- JOBLEX Complete Supabase PostgreSQL Schema & Security Policies
+-- JOBLEX Complete Supabase Database Reset & Clean Re-Creation Script
 -- Ministry of Ayush / All India Institute of Ayurveda (AIIA) | Problem ID: 26044
--- 
--- Instructions:
--- 1. Open your Supabase Project Dashboard: https://supabase.com/dashboard
--- 2. Go to the "SQL Editor" tab on the left navigation sidebar
--- 3. Click "New Query", paste this entire script, and click "RUN" (Ctrl + Enter)
+--
+-- Features:
+-- 1. Safely DROPS all existing tables and triggers (CASCADE) to wipe old schema
+-- 2. Creates 100% scalable relational schema with foreign key constraints
+-- 3. Contains ZERO initial rows or inserted data values
 -- ============================================================================
 
 -- Enable required extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+-- ============================================================================
+-- 0. DROP EXISTING TABLES, TRIGGERS & FUNCTIONS (CLEAN RESET)
+-- ============================================================================
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+DROP FUNCTION IF EXISTS public.handle_new_user() CASCADE;
+DROP FUNCTION IF EXISTS public.set_current_timestamp_updated_at() CASCADE;
+
+DROP TABLE IF EXISTS public.peer_benchmarking CASCADE;
+DROP TABLE IF EXISTS public.candidates CASCADE;
+DROP TABLE IF EXISTS public.cross_college_benchmarks CASCADE;
+DROP TABLE IF EXISTS public.skill_roi_logs CASCADE;
+DROP TABLE IF EXISTS public.sponsored_bootcamps CASCADE;
+DROP TABLE IF EXISTS public.fdp_programs CASCADE;
+DROP TABLE IF EXISTS public.consultancy_grants CASCADE;
+DROP TABLE IF EXISTS public.syllabus_suggestions CASCADE;
+DROP TABLE IF EXISTS public.mou_partnerships CASCADE;
+DROP TABLE IF EXISTS public.zulu_chat_messages CASCADE;
+DROP TABLE IF EXISTS public.zulu_chat_sessions CASCADE;
+DROP TABLE IF EXISTS public.student_roadmaps CASCADE;
+DROP TABLE IF EXISTS public.applications CASCADE;
+DROP TABLE IF EXISTS public.opportunities CASCADE;
+DROP TABLE IF EXISTS public.profiles CASCADE;
 
 -- ============================================================================
 -- 1. ENUMS & CUSTOM TYPES
@@ -40,7 +63,7 @@ EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
--- Helper function: auto-update updated_at timestamp
+-- Helper function: Auto-update updated_at timestamp
 CREATE OR REPLACE FUNCTION public.set_current_timestamp_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -50,13 +73,11 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- ============================================================================
--- 2. CORE PLATFORM TABLES
+-- 2. CORE PLATFORM TABLES & RELATIONAL SCHEMA (EMPTY WITH ZERO INITIAL DATA)
 -- ============================================================================
 
--- ----------------------------------------------------------------------------
 -- Table 1: Profiles (Linked to Supabase auth.users)
--- ----------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS public.profiles (
+CREATE TABLE public.profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
@@ -75,15 +96,12 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
-DROP TRIGGER IF EXISTS trg_profiles_updated_at ON public.profiles;
 CREATE TRIGGER trg_profiles_updated_at
     BEFORE UPDATE ON public.profiles
     FOR EACH ROW EXECUTE FUNCTION public.set_current_timestamp_updated_at();
 
--- ----------------------------------------------------------------------------
 -- Table 2: Opportunities & Micro-Gigs
--- ----------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS public.opportunities (
+CREATE TABLE public.opportunities (
     id TEXT PRIMARY KEY DEFAULT ('opp-' || substr(md5(random()::text), 1, 8)),
     title TEXT NOT NULL,
     company TEXT NOT NULL,
@@ -98,10 +116,8 @@ CREATE TABLE IF NOT EXISTS public.opportunities (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- ----------------------------------------------------------------------------
 -- Table 3: Applications Pipeline (Connecting Students & Industry)
--- ----------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS public.applications (
+CREATE TABLE public.applications (
     id TEXT PRIMARY KEY DEFAULT ('app-' || substr(md5(random()::text), 1, 8)),
     opportunity_id TEXT REFERENCES public.opportunities(id) ON DELETE CASCADE,
     opportunity_title TEXT NOT NULL,
@@ -128,10 +144,8 @@ CREATE TABLE IF NOT EXISTS public.applications (
     "coverNote" TEXT GENERATED ALWAYS AS (cover_note) STORED
 );
 
--- ----------------------------------------------------------------------------
 -- Table 4: Student Career Roadmaps & Anti-Decay Status
--- ----------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS public.student_roadmaps (
+CREATE TABLE public.student_roadmaps (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     student_id UUID REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
     career_goal TEXT NOT NULL,
@@ -142,7 +156,6 @@ CREATE TABLE IF NOT EXISTS public.student_roadmaps (
     current_phase INTEGER DEFAULT 1,
     phases JSONB NOT NULL DEFAULT '[]'::JSONB,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    -- Generated columns for JavaScript camelCase compatibility
     "careerGoal" TEXT GENERATED ALWAYS AS (career_goal) STORED,
     "currentLevel" TEXT GENERATED ALWAYS AS (current_level) STORED,
     "totalXp" INTEGER GENERATED ALWAYS AS (total_xp) STORED,
@@ -151,10 +164,32 @@ CREATE TABLE IF NOT EXISTS public.student_roadmaps (
     "currentPhase" INTEGER GENERATED ALWAYS AS (current_phase) STORED
 );
 
--- ----------------------------------------------------------------------------
--- Table 5: Academic-Industry MoUs
--- ----------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS public.mou_partnerships (
+-- Table 5: Zulu AI Student Chat Sessions
+CREATE TABLE public.zulu_chat_sessions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id TEXT NOT NULL,
+    title TEXT DEFAULT 'New Conversation' NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TRIGGER trg_zulu_sessions_updated_at
+    BEFORE UPDATE ON public.zulu_chat_sessions
+    FOR EACH ROW EXECUTE FUNCTION public.set_current_timestamp_updated_at();
+
+-- Table 6: Zulu AI Chat Messages Log
+CREATE TABLE public.zulu_chat_messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    session_id UUID NOT NULL REFERENCES public.zulu_chat_sessions(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL,
+    sender TEXT NOT NULL CHECK (sender IN ('user', 'zulu', 'system')),
+    message TEXT NOT NULL,
+    provider TEXT DEFAULT 'gemini-3.6-flash',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Table 7: Academic-Industry MoUs
+CREATE TABLE public.mou_partnerships (
     id TEXT PRIMARY KEY DEFAULT ('mou-' || substr(md5(random()::text), 1, 8)),
     partner TEXT NOT NULL,
     institution TEXT NOT NULL,
@@ -165,7 +200,6 @@ CREATE TABLE IF NOT EXISTS public.mou_partnerships (
     internships_provided INTEGER DEFAULT 0,
     curriculum_sponsors TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    -- Generated columns for camelCase compatibility
     "signedDate" DATE GENERATED ALWAYS AS (signed_date) STORED,
     "validUntil" DATE GENERATED ALWAYS AS (valid_until) STORED,
     "focusAreas" TEXT[] GENERATED ALWAYS AS (focus_areas) STORED,
@@ -173,10 +207,8 @@ CREATE TABLE IF NOT EXISTS public.mou_partnerships (
     "curriculumSponsors" TEXT GENERATED ALWAYS AS (curriculum_sponsors) STORED
 );
 
--- ----------------------------------------------------------------------------
--- Table 6: NEP-2020 Curriculum Modernization & Syllabus Suggestions
--- ----------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS public.syllabus_suggestions (
+-- Table 8: NEP-2020 Curriculum Modernization & Syllabus Suggestions
+CREATE TABLE public.syllabus_suggestions (
     id TEXT PRIMARY KEY DEFAULT ('syl-' || substr(md5(random()::text), 1, 8)),
     current_topic TEXT NOT NULL,
     suggested_addition TEXT NOT NULL,
@@ -187,16 +219,13 @@ CREATE TABLE IF NOT EXISTS public.syllabus_suggestions (
     credits_impact TEXT DEFAULT '+1 Practical Credit',
     adopted BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    -- Generated columns for camelCase compatibility
     "currentTopic" TEXT GENERATED ALWAYS AS (current_topic) STORED,
     "suggestedAddition" TEXT GENERATED ALWAYS AS (suggested_addition) STORED,
     "creditsImpact" TEXT GENERATED ALWAYS AS (credits_impact) STORED
 );
 
--- ----------------------------------------------------------------------------
--- Table 7: Faculty Consultancy Grants
--- ----------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS public.consultancy_grants (
+-- Table 9: Faculty Consultancy Grants
+CREATE TABLE public.consultancy_grants (
     id TEXT PRIMARY KEY DEFAULT ('cg-' || substr(md5(random()::text), 1, 8)),
     title TEXT NOT NULL,
     industry TEXT NOT NULL,
@@ -205,15 +234,12 @@ CREATE TABLE IF NOT EXISTS public.consultancy_grants (
     target_dept TEXT NOT NULL,
     status TEXT DEFAULT 'Open for Faculty Proposals' NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    -- Generated columns for camelCase compatibility
     "grantAmount" TEXT GENERATED ALWAYS AS (grant_amount) STORED,
     "targetDept" TEXT GENERATED ALWAYS AS (target_dept) STORED
 );
 
--- ----------------------------------------------------------------------------
--- Table 8: Faculty Development Programs (FDP)
--- ----------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS public.fdp_programs (
+-- Table 10: Faculty Development Programs (FDP)
+CREATE TABLE public.fdp_programs (
     id TEXT PRIMARY KEY DEFAULT ('fdp-' || substr(md5(random()::text), 1, 8)),
     title TEXT NOT NULL,
     organizer TEXT NOT NULL,
@@ -225,10 +251,8 @@ CREATE TABLE IF NOT EXISTS public.fdp_programs (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- ----------------------------------------------------------------------------
--- Table 9: Sponsored Skill Bootcamps
--- ----------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS public.sponsored_bootcamps (
+-- Table 11: Sponsored Skill Bootcamps
+CREATE TABLE public.sponsored_bootcamps (
     id TEXT PRIMARY KEY DEFAULT ('bc-' || substr(md5(random()::text), 1, 8)),
     title TEXT NOT NULL,
     sponsor TEXT NOT NULL,
@@ -240,7 +264,6 @@ CREATE TABLE IF NOT EXISTS public.sponsored_bootcamps (
     guaranteed_outcome TEXT NOT NULL,
     status TEXT DEFAULT 'Cohort Enrolling' NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    -- Generated columns for camelCase compatibility
     "partnerCollege" TEXT GENERATED ALWAYS AS (partner_college) STORED,
     "targetHires" INTEGER GENERATED ALWAYS AS (target_hires) STORED,
     "matchedScholars" INTEGER GENERATED ALWAYS AS (matched_scholars) STORED,
@@ -248,10 +271,8 @@ CREATE TABLE IF NOT EXISTS public.sponsored_bootcamps (
     "guaranteedOutcome" TEXT GENERATED ALWAYS AS (guaranteed_outcome) STORED
 );
 
--- ----------------------------------------------------------------------------
--- Table 10: Skill ROI & AI Evaluation Calibration Logs
--- ----------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS public.skill_roi_logs (
+-- Table 12: Skill ROI & AI Evaluation Calibration Logs
+CREATE TABLE public.skill_roi_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     candidate_name TEXT NOT NULL,
     predicted_match INTEGER NOT NULL,
@@ -259,16 +280,13 @@ CREATE TABLE IF NOT EXISTS public.skill_roi_logs (
     company TEXT NOT NULL,
     note TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    -- Generated columns for camelCase compatibility
     candidate TEXT GENERATED ALWAYS AS (candidate_name) STORED,
     "predictedMatch" INTEGER GENERATED ALWAYS AS (predicted_match) STORED,
     "actualLabRating" NUMERIC(3, 2) GENERATED ALWAYS AS (actual_lab_rating) STORED
 );
 
--- ----------------------------------------------------------------------------
--- Table 11: Cross-College Benchmarking & NAAC Rankings
--- ----------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS public.cross_college_benchmarks (
+-- Table 13: Cross-College Benchmarking & NAAC Rankings
+CREATE TABLE public.cross_college_benchmarks (
     id SERIAL PRIMARY KEY,
     rank INTEGER NOT NULL,
     institution TEXT NOT NULL,
@@ -277,17 +295,14 @@ CREATE TABLE IF NOT EXISTS public.cross_college_benchmarks (
     mou_count INTEGER DEFAULT 0,
     naac_grade TEXT NOT NULL,
     status TEXT NOT NULL,
-    -- Generated columns for camelCase compatibility
     "avgSkillScore" NUMERIC(4, 1) GENERATED ALWAYS AS (avg_skill_score) STORED,
     "placementRate" TEXT GENERATED ALWAYS AS (placement_rate) STORED,
     "mouCount" INTEGER GENERATED ALWAYS AS (mou_count) STORED,
     "naacGrade" TEXT GENERATED ALWAYS AS (naac_grade) STORED
 );
 
--- ----------------------------------------------------------------------------
--- Table 12: Candidates Pool (Reverse Discovery & Recruiter Inbound)
--- ----------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS public.candidates (
+-- Table 14: Candidates Pool (Reverse Discovery & Recruiter Inbound)
+CREATE TABLE public.candidates (
     id TEXT PRIMARY KEY DEFAULT ('cand-' || substr(md5(random()::text), 1, 8)),
     name TEXT NOT NULL,
     college TEXT NOT NULL,
@@ -299,17 +314,14 @@ CREATE TABLE IF NOT EXISTS public.candidates (
     "outreachStatus" TEXT GENERATED ALWAYS AS (outreach_status) STORED
 );
 
--- ----------------------------------------------------------------------------
--- Table 13: Peer Benchmarking (Student Cohort Percentiles)
--- ----------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS public.peer_benchmarking (
+-- Table 15: Peer Benchmarking (Student Cohort Percentiles)
+CREATE TABLE public.peer_benchmarking (
     id SERIAL PRIMARY KEY,
     user_percentile INTEGER DEFAULT 78 NOT NULL,
     branch_average_score INTEGER DEFAULT 72 NOT NULL,
     placed_peer_average_score INTEGER DEFAULT 86 NOT NULL,
     target_companies TEXT[] DEFAULT ARRAY['Dabur India', 'Himalaya Wellness', 'Patanjali Research'] NOT NULL,
     top_missing_skills JSONB DEFAULT '[]'::JSONB NOT NULL,
-    -- Generated columns for camelCase compatibility
     "userPercentile" INTEGER GENERATED ALWAYS AS (user_percentile) STORED,
     "branchAverageScore" INTEGER GENERATED ALWAYS AS (branch_average_score) STORED,
     "placedPeerAverageScore" INTEGER GENERATED ALWAYS AS (placed_peer_average_score) STORED,
@@ -318,7 +330,7 @@ CREATE TABLE IF NOT EXISTS public.peer_benchmarking (
 );
 
 -- ============================================================================
--- 3. INDEXES FOR HIGH-PERFORMANCE SEARCH & FOREIGN KEYS
+-- 3. INDEXES FOR HIGH-PERFORMANCE SEARCH & SCALABILITY
 -- ============================================================================
 CREATE INDEX IF NOT EXISTS idx_profiles_role ON public.profiles(role);
 CREATE INDEX IF NOT EXISTS idx_profiles_email ON public.profiles(email);
@@ -326,17 +338,20 @@ CREATE INDEX IF NOT EXISTS idx_opportunities_type ON public.opportunities(type);
 CREATE INDEX IF NOT EXISTS idx_applications_student_id ON public.applications(student_id);
 CREATE INDEX IF NOT EXISTS idx_applications_opportunity_id ON public.applications(opportunity_id);
 CREATE INDEX IF NOT EXISTS idx_applications_status ON public.applications(status);
+CREATE INDEX IF NOT EXISTS idx_zulu_sessions_user_id ON public.zulu_chat_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_zulu_messages_session_id ON public.zulu_chat_messages(session_id);
 CREATE INDEX IF NOT EXISTS idx_mou_status ON public.mou_partnerships(status);
 CREATE INDEX IF NOT EXISTS idx_syllabus_status ON public.syllabus_suggestions(status);
 
 -- ============================================================================
 -- 4. ROW LEVEL SECURITY (RLS) POLICIES
 -- ============================================================================
-
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.opportunities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.student_roadmaps ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.zulu_chat_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.zulu_chat_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.mou_partnerships ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.syllabus_suggestions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.consultancy_grants ENABLE ROW LEVEL SECURITY;
@@ -378,7 +393,14 @@ DROP POLICY IF EXISTS "Recruiters and admins can update application statuses" ON
 CREATE POLICY "Recruiters and admins can update application statuses" 
 ON public.applications FOR UPDATE TO authenticated USING (true);
 
--- Academic & Industry Records (Readable by all authenticated and anonymous viewers)
+-- Zulu AI Chat Policies
+DROP POLICY IF EXISTS "Users can manage their own Zulu sessions" ON public.zulu_chat_sessions;
+CREATE POLICY "Users can manage their own Zulu sessions" ON public.zulu_chat_sessions FOR ALL TO authenticated, anon USING (true);
+
+DROP POLICY IF EXISTS "Users can manage their own Zulu messages" ON public.zulu_chat_messages;
+CREATE POLICY "Users can manage their own Zulu messages" ON public.zulu_chat_messages FOR ALL TO authenticated, anon USING (true);
+
+-- Public Read Policies for Portals
 DROP POLICY IF EXISTS "MoUs readable by all" ON public.mou_partnerships;
 CREATE POLICY "MoUs readable by all" ON public.mou_partnerships FOR SELECT TO authenticated, anon USING (true);
 
@@ -443,10 +465,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
 -- ============================================================================
 -- 6. ROLES & PRIVILEGES (AUTHENTICATED, ANON, SERVICE_ROLE)
 -- ============================================================================
@@ -458,3 +480,4 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO authentic
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO authenticated;
 
 GRANT SELECT ON public.opportunities, public.mou_partnerships, public.syllabus_suggestions, public.consultancy_grants, public.fdp_programs, public.sponsored_bootcamps, public.cross_college_benchmarks, public.candidates, public.peer_benchmarking TO anon;
+

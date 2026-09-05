@@ -296,7 +296,7 @@ function renderCandidates() {
       </div>
 
       <div class="flex gap-2 pt-3 border-t border-slate-200 dark:border-gray-800">
-        <button onclick="alert('Viewing full verified AIIA institutional dossier for ${c.name}')" class="flex-1 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-slate-800 dark:text-white font-semibold text-xs transition border border-slate-200 dark:border-gray-700">
+        <button onclick="showToast('Viewing full verified AIIA institutional dossier for ${c.name}', 'Dossier Loaded', 'info')" class="flex-1 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-slate-800 dark:text-white font-semibold text-xs transition border border-slate-200 dark:border-gray-700">
           View Dossier
         </button>
         <button onclick="shortlistCandidate(${i}, this)" class="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition">
@@ -359,7 +359,7 @@ async function sendDirectInboundInvite(name, role, btn) {
   const res = await JoblexApiClient.sendInboundInvite(name, role);
   btn.innerText = '✓ Inbound Invite Sent!';
   btn.className = 'px-3 py-1.5 rounded-xl bg-emerald-600 text-white font-bold text-xs cursor-default';
-  alert(res.message || `Direct inbound interview invitation transmitted to ${name}!`);
+  showToast(res.message || `Direct inbound interview invitation transmitted to ${name}!`, 'Inbound Invite Sent', 'success');
 }
 
 function handleFilterReverseCandidates() {
@@ -451,14 +451,17 @@ const ENTERPRISE_REQUISITIONS = [
   }
 ];
 
-function renderRequisitions(typeFilter = 'All') {
+async function renderRequisitions(typeFilter = 'All') {
   currentReqFilter = typeFilter;
   const container = document.getElementById('industry-requisitions-grid');
   if (!container) return;
 
+  const res = await JoblexApiClient.getRequisitions(typeFilter);
+  const requisitions = res.requisitions && res.requisitions.length ? res.requisitions : ENTERPRISE_REQUISITIONS;
+
   const filtered = typeFilter === 'All'
-    ? ENTERPRISE_REQUISITIONS
-    : ENTERPRISE_REQUISITIONS.filter(r => r.type.toLowerCase() === typeFilter.toLowerCase());
+    ? requisitions
+    : requisitions.filter(r => (r.type || '').toLowerCase() === typeFilter.toLowerCase());
 
   container.innerHTML = filtered.map(req => {
     let typeBadge = 'bg-blue-500/20 text-blue-300 border-blue-500/40';
@@ -563,7 +566,7 @@ async function handleRateCandidate(e) {
   const comments = document.getElementById('roi-comments').value;
 
   await JoblexApiClient.rateCandidate({ candidateName, actualRating, comments });
-  alert(`Performance feedback recorded for ${candidateName}! The AI skill weighting engine has adjusted to improve prediction precision.`);
+  showToast(`Performance feedback recorded for ${candidateName}! The AI skill weighting engine has adjusted to improve prediction precision.`, 'Feedback Recorded', 'success');
   e.target.reset();
   renderSkillRoi();
 }
@@ -591,7 +594,7 @@ async function renderTalentForecast() {
       </div>
       <div class="flex items-center gap-3 self-end sm:self-auto">
         <span class="text-xs text-slate-500 dark:text-gray-400 font-mono">Available: <strong class="text-slate-900 dark:text-white">${inst.readyScholars} Scholars</strong></span>
-        <button onclick="alert('Booking priority campus interview slot with ${inst.institution}')" class="px-3 py-1.5 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/40 text-blue-200 font-bold text-xs transition">
+        <button onclick="showToast('Booking priority campus interview slot with ${inst.institution}', 'Interview Slot Reserved', 'success')" class="px-3 py-1.5 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/40 text-blue-200 font-bold text-xs transition">
           Engage Early
         </button>
       </div>
@@ -603,7 +606,7 @@ async function handlePostOpportunity(e) {
   e.preventDefault();
   const title = document.getElementById('opp-post-title').value;
   await JoblexApiClient.postOpportunity({ title });
-  alert(`Opportunity / Micro-Gig "${title}" has been published to the student portal and verified by AIIA liaison!`);
+  showToast(`Opportunity / Micro-Gig "${title}" has been published to the student portal and verified by AIIA liaison!`, 'Opportunity Published', 'success');
   e.target.reset();
   switchIndustryTab('Candidates');
 }
@@ -611,7 +614,7 @@ async function handlePostOpportunity(e) {
 async function handleSubmitSkillDemand(e) {
   e.preventDefault();
   await JoblexApiClient.submitSkillDemand({});
-  alert('Corporate Skill Demand successfully submitted to Academic Deans for curriculum modernization under NEP-2020!');
+  showToast('Corporate Skill Demand successfully submitted to Academic Deans for curriculum modernization under NEP-2020!', 'Skill Demand Transmitted', 'success');
   e.target.reset();
 }
 

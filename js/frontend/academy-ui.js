@@ -353,7 +353,7 @@ async function renderConsultancyGrants() {
         <button onclick="prefillGrantBid('${g.id}', '${g.industry} — ${g.title}')" class="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-gray-950 font-black text-xs transition">
           Draft Departmental Bid
         </button>
-        <button onclick="alert('Downloading Grant R&D Specifications & RFP Document for: ${g.title}')" class="px-3.5 py-1.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium text-xs transition border border-gray-700">
+        <button onclick="showToast('Downloading Grant R&D Specifications & RFP Document for: ${g.title}', 'RFP Specs Downloaded', 'info')" class="px-3.5 py-1.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium text-xs transition border border-gray-700">
           Download RFP Specs 📄
         </button>
       </div>
@@ -374,7 +374,7 @@ function handleGrantProposalSubmit(e) {
   e.preventDefault();
   const pi = document.getElementById('grant-pi-name').value;
   const budget = document.getElementById('grant-budget').value;
-  alert(`Research proposal submitted by ${pi} for ${budget}! The Corporate Research Committee will review within 5 business days.`);
+  showToast(`Research proposal submitted by ${pi} for ${budget}! The Corporate Research Committee will review within 5 business days.`, 'Proposal Transmitted', 'success');
   e.target.reset();
 }
 

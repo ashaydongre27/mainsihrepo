@@ -4,7 +4,47 @@
  */
 
 const DB = {
-  users: [],
+  users: [
+    {
+      id: "usr-student-01",
+      email: "student@nexus.edu",
+      password: "password123",
+      name: "Ashay Verma",
+      role: "student",
+      institution: "All India Institute of Ayurveda",
+      department: "BAMS 3rd Year",
+      year: "3rd Year",
+      xp: 1450,
+      streak: 7,
+      verified_skills: ["Herbal Formulation", "Pharmacognosy", "HPTLC", "Python"]
+    },
+    {
+      id: "usr-academy-01",
+      email: "academy@nexus.edu",
+      password: "password123",
+      name: "Dr. Rajesh Sharma",
+      role: "academy",
+      institution: "All India Institute of Ayurveda",
+      department: "Dravyaguna & Ayurvedic Pharmacology",
+      designation: "Dean & HOD Dravyaguna",
+      xp: 2100,
+      streak: 15,
+      verified_skills: ["Pharmacognosy Research", "Curriculum Design", "GLP Standards"]
+    },
+    {
+      id: "usr-industry-01",
+      email: "industry@nexus.edu",
+      password: "password123",
+      name: "Dr. Vikram Malhotra",
+      role: "industry",
+      company: "Dabur India Ltd. / R&D Division",
+      department: "Herbal Formulation & Phytochemistry Labs",
+      designation: "Chief Scientist & VP R&D",
+      xp: 3400,
+      streak: 22,
+      verified_skills: ["Formulation R&D", "Industrial Extraction", "Quality Assurance"]
+    }
+  ],
 
   opportunities: [
     {

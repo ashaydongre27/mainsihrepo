@@ -82,29 +82,40 @@ router.post('/register', async (req, res) => {
             name,
             email: normalizedEmail,
             role: userRole,
-            institution: institution || null,
-            company: company || null,
-            department: department || null,
+            institution: institution || (userRole === 'industry' ? null : 'All India Institute of Ayurveda'),
+            company: company || (userRole === 'industry' ? 'Dabur R&D Division' : null),
+            department: department || 'Ayurvedic Sciences',
             designation: designation || null,
-            year: year || null
+            year: year || (userRole === 'student' ? '3rd Year' : null),
+            xp: 1000,
+            streak: 1,
+            verified_skills: ['Herbal Formulation', 'Pharmacognosy', 'HPTLC']
           });
         } catch (dbErr) {
           console.warn('[Register] Profile table upsert notice:', dbErr.message);
         }
       }
 
+      const fullUserObj = {
+        id: data.user.id,
+        name,
+        email: normalizedEmail,
+        role: userRole,
+        institution: institution || (userRole === 'industry' ? null : 'All India Institute of Ayurveda'),
+        company: company || (userRole === 'industry' ? 'Dabur R&D Division' : null),
+        department: department || 'Ayurvedic Sciences',
+        designation: designation || null,
+        year: year || (userRole === 'student' ? '3rd Year' : null),
+        xp: 1000,
+        streak: 1,
+        verified_skills: ['Herbal Formulation', 'Pharmacognosy', 'HPTLC'],
+        avatar_url: null
+      };
+
       return res.status(201).json({
         success: true,
         message: 'User successfully registered via Supabase Auth!',
-        user: {
-          id: data.user.id,
-          name,
-          email: normalizedEmail,
-          role: userRole,
-          institution,
-          company,
-          department
-        },
+        user: fullUserObj,
         token: data.session?.access_token || `jwt-supabase-${data.user.id}`
       });
     } catch (err) {
@@ -125,11 +136,14 @@ router.post('/register', async (req, res) => {
     password: password || 'password123',
     role: userRole,
     institution: institution || (userRole === 'industry' ? null : 'All India Institute of Ayurveda'),
-    company: company || (userRole === 'industry' ? 'Ayush Partner' : null),
+    company: company || (userRole === 'industry' ? 'Dabur R&D Division' : null),
     department: department || 'Ayurvedic Sciences',
     designation: designation || null,
+    year: year || (userRole === 'student' ? '3rd Year' : null),
     xp: 1000,
-    streak: 1
+    streak: 1,
+    verified_skills: ['Herbal Formulation', 'Pharmacognosy', 'HPTLC'],
+    avatar_url: null
   };
   DB.users.push(newUser);
 
@@ -163,7 +177,6 @@ router.post('/login', async (req, res) => {
       });
 
       if (!error && data?.user) {
-        // Fetch extended profile
         let userProfile = data.user.user_metadata || {};
         try {
           const { data: profile } = await supabase
@@ -174,19 +187,28 @@ router.post('/login', async (req, res) => {
           if (profile) userProfile = { ...userProfile, ...profile };
         } catch(e) {}
 
+        const userObj = {
+          id: data.user.id,
+          email: data.user.email,
+          role: userProfile.role || role || 'student',
+          name: userProfile.name || normalizedEmail.split('@')[0],
+          institution: userProfile.institution || (userProfile.role === 'industry' ? null : 'All India Institute of Ayurveda'),
+          company: userProfile.company || (userProfile.role === 'industry' ? 'Dabur R&D Division' : null),
+          department: userProfile.department || 'Ayurvedic Sciences',
+          designation: userProfile.designation || null,
+          year: userProfile.year || '3rd Year',
+          xp: userProfile.xp !== undefined ? userProfile.xp : 1000,
+          streak: userProfile.streak !== undefined ? userProfile.streak : 1,
+          decay_frozen_until: userProfile.decay_frozen_until || null,
+          verified_skills: userProfile.verified_skills || ['Herbal Formulation', 'Pharmacognosy', 'HPTLC'],
+          avatar_url: userProfile.avatar_url || null
+        };
+
         return res.json({
           success: true,
           message: 'Authenticated via Supabase Auth',
           token: data.session?.access_token || `jwt-supabase-${data.user.id}`,
-          user: {
-            id: data.user.id,
-            email: data.user.email,
-            role: userProfile.role || role || 'student',
-            name: userProfile.name || normalizedEmail.split('@')[0],
-            institution: userProfile.institution,
-            company: userProfile.company,
-            department: userProfile.department
-          }
+          user: userObj
         });
       }
 
@@ -212,19 +234,28 @@ router.post('/login', async (req, res) => {
                 if (profile) userProfile = { ...userProfile, ...profile };
               } catch(e) {}
 
+              const userObj = {
+                id: retryData.user.id,
+                email: retryData.user.email,
+                role: userProfile.role || role || 'student',
+                name: userProfile.name || normalizedEmail.split('@')[0],
+                institution: userProfile.institution || (userProfile.role === 'industry' ? null : 'All India Institute of Ayurveda'),
+                company: userProfile.company || (userProfile.role === 'industry' ? 'Dabur R&D Division' : null),
+                department: userProfile.department || 'Ayurvedic Sciences',
+                designation: userProfile.designation || null,
+                year: userProfile.year || '3rd Year',
+                xp: userProfile.xp !== undefined ? userProfile.xp : 1000,
+                streak: userProfile.streak !== undefined ? userProfile.streak : 1,
+                decay_frozen_until: userProfile.decay_frozen_until || null,
+                verified_skills: userProfile.verified_skills || ['Herbal Formulation', 'Pharmacognosy', 'HPTLC'],
+                avatar_url: userProfile.avatar_url || null
+              };
+
               return res.json({
                 success: true,
                 message: 'Authenticated via Supabase Auth',
                 token: retryData.session?.access_token || `jwt-supabase-${retryData.user.id}`,
-                user: {
-                  id: retryData.user.id,
-                  email: retryData.user.email,
-                  role: userProfile.role || role || 'student',
-                  name: userProfile.name || normalizedEmail.split('@')[0],
-                  institution: userProfile.institution,
-                  company: userProfile.company,
-                  department: userProfile.department
-                }
+                user: userObj
               });
             }
           }
@@ -249,6 +280,10 @@ router.post('/login', async (req, res) => {
     return res.status(401).json({ success: false, error: 'Invalid email or password. Please check your credentials.' });
   }
 
+  if (role && user.role !== role.toLowerCase()) {
+    return res.status(400).json({ success: false, error: `Account Role Mismatch: This account is registered as a ${user.role.toUpperCase()} account, not a ${role.toUpperCase()} account.` });
+  }
+
   const { password: _, ...safeUser } = user;
   return res.json({
     success: true,
@@ -256,6 +291,75 @@ router.post('/login', async (req, res) => {
     token: `jwt-${user.id}-${Date.now()}`,
     user: safeUser
   });
+});
+
+/**
+ * GET /api/auth/profile
+ * Returns profile details for logged in email/id
+ */
+router.get('/profile', async (req, res) => {
+  const email = (req.query.email || '').trim().toLowerCase();
+  const id = req.query.id;
+
+  if (isConfigured && supabase) {
+    try {
+      let query = supabase.from('profiles').select('*');
+      if (id) query = query.eq('id', id);
+      else if (email) query = query.eq('email', email);
+
+      const { data: profile } = await query.single();
+      if (profile) {
+        return res.json({ success: true, profile });
+      }
+    } catch (e) {}
+  }
+
+  const user = DB.users.find(u => (id && u.id === id) || (email && u.email.toLowerCase() === email));
+  return res.json({ success: true, profile: user || null });
+});
+
+/**
+ * PUT /api/auth/profile
+ * Updates user profile details in public.profiles
+ */
+router.put('/profile', async (req, res) => {
+  const { id, email, name, institution, company, department, designation, year, verified_skills, avatar_url } = req.body || {};
+
+  if (!id && !email) {
+    return res.status(400).json({ success: false, error: 'User ID or Email required to update profile.' });
+  }
+
+  const updates = {};
+  if (name !== undefined) updates.name = name;
+  if (institution !== undefined) updates.institution = institution;
+  if (company !== undefined) updates.company = company;
+  if (department !== undefined) updates.department = department;
+  if (designation !== undefined) updates.designation = designation;
+  if (year !== undefined) updates.year = year;
+  if (verified_skills !== undefined) updates.verified_skills = verified_skills;
+  if (avatar_url !== undefined) updates.avatar_url = avatar_url;
+  updates.updated_at = new Date().toISOString();
+
+  if (isConfigured && supabase) {
+    try {
+      let query = supabase.from('profiles').update(updates);
+      if (id) query = query.eq('id', id);
+      else if (email) query = query.eq('email', email.trim().toLowerCase());
+
+      const { data, error } = await query.select().single();
+      if (!error && data) {
+        return res.json({ success: true, message: 'Profile updated successfully!', profile: data });
+      }
+    } catch (e) {}
+  }
+
+  const user = DB.users.find(u => (id && u.id === id) || (email && u.email.toLowerCase() === email.trim().toLowerCase()));
+  if (user) {
+    Object.assign(user, updates);
+    return res.json({ success: true, message: 'Profile updated in local storage!', profile: user });
+  }
+
+  return res.status(404).json({ success: false, error: 'Profile not found.' });
 });
 
 /**
