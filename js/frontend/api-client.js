@@ -234,7 +234,14 @@ const JoblexApiClient = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: normalizedEmail, password, role })
       });
-      const data = await res.json();
+      let data = null;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        // If server returns HTML (like 404/500), throw to trigger local credentials fallback
+        throw new Error('Server returned non-JSON response');
+      }
+
       if (res.ok && data.success && data.user) {
         this.setCurrentUser(data.user);
         return data;
@@ -243,7 +250,7 @@ const JoblexApiClient = {
         throw new Error(data.error);
       }
     } catch (netErr) {
-      console.warn('[JoblexApiClient] Remote auth failed or offline, checking local credentials:', netErr.message);
+      console.warn('[JoblexApiClient] Remote auth failed or returned non-JSON, checking local credentials:', netErr.message);
       const fallbackUser = this.verifyLocalCredentials(normalizedEmail, password, role);
       if (fallbackUser) {
         this.setCurrentUser(fallbackUser);
@@ -254,13 +261,20 @@ const JoblexApiClient = {
   },
 
   async register(userData) {
+    const normalizedEmail = (userData.email || '').trim().toLowerCase();
     try {
       const res = await fetch(`${API_BASE}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData)
       });
-      const data = await res.json();
+      let data = null;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        throw new Error('Server returned non-JSON response');
+      }
+
       if (res.ok && data.success && data.user) {
         this.setCurrentUser(data.user);
         return data;
@@ -274,7 +288,6 @@ const JoblexApiClient = {
         if (stored) localUsers = JSON.parse(stored);
       } catch(e) {}
 
-      const normalizedEmail = (userData.email || '').trim().toLowerCase();
       const existing = localUsers.find(u => u.email === normalizedEmail);
       if (existing) {
         throw new Error('Email already registered.');
