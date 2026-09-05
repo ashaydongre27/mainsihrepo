@@ -504,29 +504,29 @@ else:
           <span class="text-[10px] text-gray-300 dark:text-gray-400 truncate">Corporate Recruitment</span>
         </div>
       </a>
-      <a href="#candidate-dossiers-section" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+      <a href="industry-candidates.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="text-base shrink-0">👥</span>
         <span class="sidebar-text-label font-bold text-xs">Candidate Dossiers</span>
       </a>
-      <a href="#skill-calibrator-section" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+      <a href="industry-calibrator.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="text-base shrink-0">🎯</span>
         <span class="sidebar-text-label font-bold text-xs">AI Talent Calibrator</span>
       </a>
-      <a href="#corporate-requisitions-section" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+      <a href="industry-requisitions.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="text-base shrink-0">💼</span>
         <span class="sidebar-text-label font-bold text-xs">Corporate Requisitions</span>
       </a>
-      <a href="student-resume.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">📄</span>
-        <span class="sidebar-text-label font-bold text-xs">Resume Benchmark</span>
+      <a href="industry-mous.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+        <span class="text-base shrink-0">🤝</span>
+        <span class="sidebar-text-label font-bold text-xs">Bilateral MoUs</span>
       </a>
-      <a href="student-skilltree.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">🌐</span>
-        <span class="sidebar-text-label font-bold text-xs">Skill Constellations</span>
+      <a href="industry-bootcamps.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+        <span class="text-base shrink-0">🚀</span>
+        <span class="sidebar-text-label font-bold text-xs">Sponsored Bootcamps</span>
       </a>
-      <a href="student-portfolio.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">🏆</span>
-        <span class="sidebar-text-label font-bold text-xs">Verified Dossier Ledger</span>
+      <a href="industry-grants.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+        <span class="text-base shrink-0">🔬</span>
+        <span class="sidebar-text-label font-bold text-xs">Consultancy Grants</span>
       </a>
     </div>
     <div class="mt-4 pt-3 border-t border-slate-200 dark:border-gray-800/80">
