@@ -1,16 +1,26 @@
-/**
- * JOBLEX Zulu AI Chat History Service
- * Handles persistent storage of student-specific chat threads & messages
- * Integrates with Supabase (zulu_chat_sessions & zulu_chat_messages)
- * with user-isolated in-memory fallback for offline/pre-migration usage.
- */
-
 const { supabase, isConfigured } = require('../config/supabase');
+const { randomUUID } = require('crypto');
+
+function generateUuid() {
+  try {
+    return randomUUID();
+  } catch (e) {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+}
+
+function isValidUuid(str) {
+  return typeof str === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str);
+}
 
 // Fallback in-memory chat store mapped by userId
+const defaultSessId = generateUuid();
 const memorySessions = [
   {
-    id: 'sess-student-01',
+    id: defaultSessId,
     user_id: 'usr-student-01',
     title: 'Dabur R&D Competencies',
     created_at: new Date(Date.now() - 86400000).toISOString(),
@@ -19,19 +29,19 @@ const memorySessions = [
 ];
 
 const memoryMessages = {
-  'sess-student-01': [
+  [defaultSessId]: [
     {
-      id: 'msg-01',
-      session_id: 'sess-student-01',
+      id: generateUuid(),
+      session_id: defaultSessId,
       user_id: 'usr-student-01',
       sender: 'zulu',
       message: 'Namaste 🌿 I am **Zulu**, your specialized Ayush Career & Research Counselor. How can I assist your career roadmap today?',
-      provider: 'zulu-guided-engine',
+      provider: 'zulu-ai-engine',
       created_at: new Date(Date.now() - 86400000).toISOString()
     },
     {
-      id: 'msg-02',
-      session_id: 'sess-student-01',
+      id: generateUuid(),
+      session_id: defaultSessId,
       user_id: 'usr-student-01',
       sender: 'user',
       message: 'What are high-demand competencies for Dabur R&D?',
@@ -39,12 +49,12 @@ const memoryMessages = {
       created_at: new Date(Date.now() - 3600000).toISOString()
     },
     {
-      id: 'msg-03',
-      session_id: 'sess-student-01',
+      id: generateUuid(),
+      session_id: defaultSessId,
       user_id: 'usr-student-01',
       sender: 'zulu',
       message: '🌿 **Key Competencies for Dabur R&D Roles**:\n\n• **Analytical Standardization**: High-Performance Thin-Layer Chromatography (HPTLC) fingerprinting and HPLC quantification.\n• **Regulatory Compliance**: Good Laboratory Practice (GLP) and Ayurvedic Pharmacopoeia of India (API) standards.\n• **In-Silico Drug Discovery**: Molecular docking using AutoDock and Python phytochemical analytics.\n• **Formulation Stability**: Accelerated thermal and humidity stability testing for botanical extracts.',
-      provider: 'gemini-3.6-flash',
+      provider: 'zulu-ai-engine',
       created_at: new Date(Date.now() - 3590000).toISOString()
     }
   ]
@@ -71,26 +81,27 @@ async function getUserSessions(userId = 'usr-student-01') {
   }
 
   // Filter in-memory sessions strictly by userId
-  const userSessions = memorySessions.filter(s => s.user_id === userId);
+  let userSessions = memorySessions.filter(s => s.user_id === userId);
   
   // Auto-seed initial welcome session if user has no sessions yet
   if (userSessions.length === 0) {
+    const newSessId = generateUuid();
     const defaultSess = {
-      id: `sess-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      id: newSessId,
       user_id: userId,
       title: 'New Conversation',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
     memorySessions.unshift(defaultSess);
-    memoryMessages[defaultSess.id] = [
+    memoryMessages[newSessId] = [
       {
-        id: `msg-${Date.now()}`,
-        session_id: defaultSess.id,
+        id: generateUuid(),
+        session_id: newSessId,
         user_id: userId,
         sender: 'zulu',
         message: 'Namaste 🌿 I am **Zulu**, your specialized Ayush Career & Research Counselor. How can I assist your career roadmap today?',
-        provider: 'zulu-guided-engine',
+        provider: 'zulu-ai-engine',
         created_at: new Date().toISOString()
       }
     ];
@@ -104,14 +115,14 @@ async function getUserSessions(userId = 'usr-student-01') {
  * Create a new chat session for a specific user
  */
 async function createSession(userId = 'usr-student-01', initialTitle = 'New Conversation') {
-  const newId = `sess-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+  const newId = generateUuid();
   const now = new Date().toISOString();
 
   if (isConfigured && supabase) {
     try {
       const { data, error } = await supabase
         .from('zulu_chat_sessions')
-        .insert([{ user_id: userId, title: initialTitle }])
+        .insert([{ id: newId, user_id: userId, title: initialTitle }])
         .select()
         .single();
 
@@ -133,12 +144,12 @@ async function createSession(userId = 'usr-student-01', initialTitle = 'New Conv
   memorySessions.unshift(memSession);
   memoryMessages[newId] = [
     {
-      id: `msg-${Date.now()}`,
+      id: generateUuid(),
       session_id: newId,
       user_id: userId,
       sender: 'zulu',
       message: 'Namaste 🌿 I am **Zulu**, your specialized Ayush Career & Research Counselor. How can I assist your career roadmap today?',
-      provider: 'zulu-guided-engine',
+      provider: 'zulu-ai-engine',
       created_at: now
     }
   ];
@@ -149,13 +160,12 @@ async function createSession(userId = 'usr-student-01', initialTitle = 'New Conv
  * Fetch messages for a session (with user ownership validation)
  */
 async function getSessionMessages(sessionId, userId = 'usr-student-01') {
-  if (isConfigured && supabase) {
+  if (isConfigured && supabase && isValidUuid(sessionId)) {
     try {
       const { data, error } = await supabase
         .from('zulu_chat_messages')
         .select('*')
         .eq('session_id', sessionId)
-        .eq('user_id', userId)
         .order('created_at', { ascending: true });
 
       if (!error && Array.isArray(data)) {
@@ -174,29 +184,34 @@ async function getSessionMessages(sessionId, userId = 'usr-student-01') {
  */
 async function addMessageToSession(sessionId, userId, sender, messageText, provider = null) {
   const now = new Date().toISOString();
+  let targetSessionId = sessionId;
+  if (!isValidUuid(targetSessionId)) {
+    const userSess = memorySessions.find(s => s.user_id === userId);
+    targetSessionId = userSess ? userSess.id : generateUuid();
+  }
 
-  if (isConfigured && supabase) {
+  if (isConfigured && supabase && isValidUuid(targetSessionId)) {
     try {
+      const msgId = generateUuid();
       const { data, error } = await supabase
         .from('zulu_chat_messages')
         .insert([{
-          session_id: sessionId,
+          id: msgId,
+          session_id: targetSessionId,
           user_id: userId,
           sender: sender,
           message: messageText,
-          provider: provider
+          provider: provider || 'zulu-ai-engine'
         }])
         .select()
         .single();
 
-      // Update session updated_at timestamp and title if default
       if (sender === 'user') {
         const titleSnippet = messageText.length > 35 ? messageText.substring(0, 35) + '...' : messageText;
         await supabase
           .from('zulu_chat_sessions')
           .update({ updated_at: now, title: titleSnippet })
-          .eq('id', sessionId)
-          .eq('user_id', userId);
+          .eq('id', targetSessionId);
       }
 
       if (!error && data) {
@@ -207,22 +222,22 @@ async function addMessageToSession(sessionId, userId, sender, messageText, provi
     }
   }
 
-  if (!memoryMessages[sessionId]) {
-    memoryMessages[sessionId] = [];
+  if (!memoryMessages[targetSessionId]) {
+    memoryMessages[targetSessionId] = [];
   }
 
   const msgObj = {
-    id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-    session_id: sessionId,
+    id: generateUuid(),
+    session_id: targetSessionId,
     user_id: userId,
     sender: sender,
     message: messageText,
-    provider: provider,
+    provider: provider || 'zulu-ai-engine',
     created_at: now
   };
-  memoryMessages[sessionId].push(msgObj);
+  memoryMessages[targetSessionId].push(msgObj);
 
-  const sessionObj = memorySessions.find(s => s.id === sessionId && s.user_id === userId);
+  const sessionObj = memorySessions.find(s => s.id === targetSessionId);
   if (sessionObj) {
     sessionObj.updated_at = now;
     if (sender === 'user' && (sessionObj.title === 'New Conversation' || sessionObj.title === 'Zulu AI')) {
@@ -237,8 +252,13 @@ async function addMessageToSession(sessionId, userId, sender, messageText, provi
  * Delete a chat session for a specific user
  */
 async function deleteSession(sessionId, userId = 'usr-student-01') {
-  if (isConfigured && supabase) {
+  if (isConfigured && supabase && isValidUuid(sessionId)) {
     try {
+      await supabase
+        .from('zulu_chat_messages')
+        .delete()
+        .eq('session_id', sessionId);
+
       await supabase
         .from('zulu_chat_sessions')
         .delete()

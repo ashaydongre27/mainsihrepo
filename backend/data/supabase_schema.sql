@@ -184,7 +184,7 @@ CREATE TABLE public.zulu_chat_messages (
     user_id TEXT NOT NULL,
     sender TEXT NOT NULL CHECK (sender IN ('user', 'zulu', 'system')),
     message TEXT NOT NULL,
-    provider TEXT DEFAULT 'gemini-3.6-flash',
+    provider TEXT DEFAULT 'gemini-2.5-flash',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 

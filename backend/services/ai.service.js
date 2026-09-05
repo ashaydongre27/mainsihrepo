@@ -48,10 +48,11 @@ async function callGoogleModelWithKey(apiKey, { prompt, systemInstruction, histo
   if (!apiKey) return null;
 
   const candidateModels = [
-    'gemini-3.1-flash-lite-preview',
-    'gemini-3.6-flash',
-    'gemini-3.5-flash',
-    'gemini-flash-latest'
+    'gemini-2.5-flash',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
+    'gemini-2.0-flash-lite',
+    'gemini-1.5-pro'
   ];
 
   // 1. Direct High-Speed Google Generative AI SDK (sub-3s latency)
@@ -60,7 +61,6 @@ async function callGoogleModelWithKey(apiKey, { prompt, systemInstruction, histo
       const genAI = new GoogleGenerativeAI(apiKey);
       const model = genAI.getGenerativeModel({
         model: modelName,
-        systemInstruction: systemInstruction || undefined,
         generationConfig: {
           temperature: temperature,
           responseMimeType: jsonMode ? 'application/json' : undefined
@@ -109,7 +109,6 @@ async function callGoogleModelWithKey(apiKey, { prompt, systemInstruction, histo
       });
 
       const messages = [];
-      if (systemInstruction) messages.push(new SystemMessage(systemInstruction));
       if (Array.isArray(history) && history.length > 0) {
         history.forEach(h => {
           if (h.role === 'user' && h.text) messages.push(new HumanMessage(h.text));
@@ -143,7 +142,7 @@ async function callGoogleModelWithKey(apiKey, { prompt, systemInstruction, histo
         signal: ctrl.signal,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: `${systemInstruction ? systemInstruction + '\n\n' : ''}${prompt}` }] }],
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
           generationConfig: {
             temperature: temperature,
             responseMimeType: jsonMode ? 'application/json' : undefined

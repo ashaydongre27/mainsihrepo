@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS public.zulu_chat_messages (
   user_id text NOT NULL,
   sender text NOT NULL CHECK (sender = ANY (ARRAY['user'::text, 'zulu'::text, 'system'::text])),
   message text NOT NULL,
-  provider text DEFAULT 'gemini-3.6-flash'::text,
+  provider text DEFAULT 'gemini-2.5-flash'::text,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   CONSTRAINT zulu_chat_messages_pkey PRIMARY KEY (id),
   CONSTRAINT zulu_chat_messages_session_id_fkey FOREIGN KEY (session_id) 

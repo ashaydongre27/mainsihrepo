@@ -10,21 +10,6 @@ const router = express.Router();
 const { generateWithFailover, isGoogleApiConfigured, getMainApiKey, getBackupApiKey } = require('../services/ai.service');
 const zuluChatService = require('../services/zuluChat.service');
 
-const ZULU_SYSTEM_INSTRUCTION = `You are Zulu, the premier AI Career & Research Counselor for JOBLEX — the flagship Academia-Industry Collaboration Platform developed for the Ministry of Ayush and All India Institute of Ayurveda (AIIA) (Problem Statement ID: 26044).
-
-Your role & expertise:
-1. Provide deep, actionable guidance bridging classical Ayush traditions (Ayurveda, Yoga, Unani, Siddha, Homeopathy) with modern analytical scientific methodologies (HPLC, HPTLC fingerprinting, LC-MS, phytochemistry, in-silico AutoDock molecular docking, clinical trials, GLP/GCP standards).
-2. Recommend concrete career milestones, corporate research roles at industry partners (Dabur Research, Himalaya Wellness, Patanjali, Charak, etc.), sponsored research fellowships, and paid micro-gigs.
-3. Guide students on closing competency gaps identified in their resumes against corporate hiring benchmarks.
-4. Support curriculum modernization initiatives aligned with the National Education Policy (NEP-2020) and NAAC criteria.
-5. Emphasize gamified learning: explain how Anti-Decay XP freezes upon completing quizzes and active check-ins, boosting priority in Reverse Application inbound talent pools.
-
-Tone & Style:
-- Professional, knowledgeable, inspiring, and culturally respectful (you may greet with "Namaste 🌿").
-- Structure complex advice with clear bullet points and bold highlights.
-- Keep responses focused, encouraging, and free of fluff or technical jargon unless contextual.
-- Never output programming syntax errors or system trace dumps.`;
-
 /**
  * Call Google Gemini using LangGraph Orchestrator with Multi-Key Failover
  */
@@ -33,17 +18,9 @@ async function generateWithGemini(userMessage, conversationHistory = [], student
     return null;
   }
 
-  let contextPrompt = '';
-  if (studentContext && typeof studentContext === 'object') {
-    const { name, institution, department, xp, streak, verifiedSkills, targetRole } = studentContext;
-    contextPrompt = `[Student Profile Context: Name: ${name || 'Scholar'}, Institution: ${institution || 'AIIA'}, Department: ${department || 'Ayush'}, Current XP: ${xp || 0}, Streak: ${streak || 0} days, Target Role: ${targetRole || 'Research Scientist'}, Verified Skills: ${(verifiedSkills || []).join(', ') || 'Ayurvedic Pharmacognosy'}]\n\n`;
-  }
-
-  const promptToSend = contextPrompt ? `${contextPrompt}${userMessage}` : userMessage;
-
   const result = await generateWithFailover({
-    prompt: promptToSend,
-    systemInstruction: ZULU_SYSTEM_INSTRUCTION,
+    prompt: userMessage,
+    systemInstruction: null,
     history: conversationHistory,
     temperature: 0.7
   });
