@@ -25,14 +25,27 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// API Routes
+// API Routes (Support both /api/* and direct prefix for Vercel Serverless Function rewrites)
 app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
+
 app.use('/api/roadmap', roadmapRoutes);
+app.use('/roadmap', roadmapRoutes);
+
 app.use('/api/resume', resumeRoutes);
+app.use('/resume', resumeRoutes);
+
 app.use('/api/opportunities', opportunitiesRoutes);
+app.use('/opportunities', opportunitiesRoutes);
+
 app.use('/api/zulu', zuluRoutes);
+app.use('/zulu', zuluRoutes);
+
 app.use('/api/academy', academyRoutes);
+app.use('/academy-api', academyRoutes);
+
 app.use('/api/industry', industryRoutes);
+app.use('/industry-api', industryRoutes);
 
 // Serve static frontend files from project root and src subfolders
 const ROOT_DIR = path.resolve(__dirname, '..');

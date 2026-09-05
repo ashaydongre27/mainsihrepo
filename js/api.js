@@ -271,10 +271,22 @@ const JoblexAPI = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: prompt })
       });
-      if (res.ok) return await res.json();
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.reply) return data;
+      }
     } catch(e) {}
+    const query = (prompt || '').toLowerCase();
+    let text = `### 💡 Zulu AI Guidance\n\nNamaste! Regarding **"${prompt.trim()}"**:\n\n- **Strategic Overview**: Combining classical wisdom with modern analytical methodologies (HPTLC, Phytochemistry, In-silico AutoDock) positions you in the top tier of applicants.\n- **Action Item**: Check your **Career Roadmap** to complete active skill modules and protect your Anti-Decay XP streak! 🌿`;
+
+    if (query.includes('dabur') || query.includes('patanjali') || query.includes('himalaya') || query.includes('internship') || query.includes('job')) {
+      text = `### 🌿 Industry R&D & Competency Pathway\n\nNamaste! Based on recruitment benchmarks from Dabur, Himalaya, and Patanjali R&D labs:\n\n1. **High-Demand Competencies**: HPTLC fingerprinting, GLP/GCP compliance, and Python computational biology.\n2. **Next Steps**: Apply via your *Internships Board* or complete Phase 2 of your *Career Roadmap* for direct referral. 🚀`;
+    } else if (query.includes('decay') || query.includes('freeze') || query.includes('xp') || query.includes('quiz')) {
+      text = `### ❄️ Anti-Decay XP & Competency Freeze Engine\n\nGreetings! Completing any Quiz Arena module or daily check-in freezes your competency score for **72 hours** and awards a 1.5x XP streak multiplier in recruiter talent pools! ⚡`;
+    }
+
     return {
-      reply: `Based on current industry demand from Dabur and Himalaya, mastering Phytochemistry alongside Python data analytics will position you in the top 5% of applicants. Check your Career Roadmap to start the next module!`
+      reply: text
     };
   }
 };

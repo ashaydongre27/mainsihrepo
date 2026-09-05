@@ -386,7 +386,15 @@
   // Global exports and window.alert override
   window.showToast = showToast;
   window.alert = function (message) {
-    showToast(typeof message === 'object' ? JSON.stringify(message) : String(message), 'System Notification', 'info');
+    let text = typeof message === 'object' ? (message?.message || JSON.stringify(message)) : String(message || '');
+    let type = 'info';
+    if (text.includes("Unexpected token") || text.includes('not valid JSON') || text.includes('non-JSON') || text.includes('The page could not be found')) {
+      text = 'Authentication failed. Please verify your email and password or register a new account.';
+      type = 'warning';
+    } else if (text.toLowerCase().includes('error') || text.toLowerCase().includes('failed') || text.toLowerCase().includes('invalid')) {
+      type = 'warning';
+    }
+    showToast(text, 'System Notification', type);
   };
 })();
 

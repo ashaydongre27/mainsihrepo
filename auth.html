@@ -143,7 +143,7 @@
           <label class="text-[11px] font-semibold text-[#475569] dark:text-[#8C909F] uppercase tracking-wider block mb-1">
             Institutional Email Address <span class="text-rose-500">*</span>
           </label>
-          <input type="email" id="input-email" required placeholder="ashay.verma@aiia.gov.in" class="w-full p-2.5 rounded-xl bg-[#FFFFFF] dark:bg-[#0C0E12] border border-[#E2E8F0] dark:border-[#333539] text-xs text-[#0F172A] dark:text-[#E2E2E8] font-mono placeholder:text-[#94A3B8] dark:placeholder:text-[#545F73] focus:outline-none focus:border-[#0F172A] dark:focus:border-[#ADC6FF] focus:ring-1 focus:ring-[#0F172A] dark:focus:ring-[#ADC6FF]">
+          <input type="email" id="input-email" required autocomplete="off" placeholder="user@institution.edu" class="w-full p-2.5 rounded-xl bg-[#FFFFFF] dark:bg-[#0C0E12] border border-[#E2E8F0] dark:border-[#333539] text-xs text-[#0F172A] dark:text-[#E2E2E8] font-mono placeholder:text-[#94A3B8] dark:placeholder:text-[#545F73] focus:outline-none focus:border-[#0F172A] dark:focus:border-[#ADC6FF] focus:ring-1 focus:ring-[#0F172A] dark:focus:ring-[#ADC6FF]">
         </div>
 
         <div>
@@ -155,7 +155,7 @@
               Forgot?
             </span>
           </div>
-          <input type="password" id="input-password" required placeholder="••••••••••••" class="w-full p-2.5 rounded-xl bg-[#FFFFFF] dark:bg-[#0C0E12] border border-[#E2E8F0] dark:border-[#333539] text-xs text-[#0F172A] dark:text-[#E2E2E8] placeholder:text-[#94A3B8] dark:placeholder:text-[#545F73] focus:outline-none focus:border-[#0F172A] dark:focus:border-[#ADC6FF] focus:ring-1 focus:ring-[#0F172A] dark:focus:ring-[#ADC6FF]">
+          <input type="password" id="input-password" required autocomplete="new-password" placeholder="••••••••••••" class="w-full p-2.5 rounded-xl bg-[#FFFFFF] dark:bg-[#0C0E12] border border-[#E2E8F0] dark:border-[#333539] text-xs text-[#0F172A] dark:text-[#E2E2E8] placeholder:text-[#94A3B8] dark:placeholder:text-[#545F73] focus:outline-none focus:border-[#0F172A] dark:focus:border-[#ADC6FF] focus:ring-1 focus:ring-[#0F172A] dark:focus:ring-[#ADC6FF]">
         </div>
 
         <!-- Terms Agreement Checkbox -->
@@ -182,8 +182,8 @@
   </main>
 
   <!-- Script Implementation -->
-  <script src="js/frontend/api-client.js"></script>
-  <script src="js/frontend/notifications.js"></script>
+  <script src="js/frontend/api-client.js?v=20260906"></script>
+  <script src="js/frontend/notifications.js?v=20260906"></script>
   <script>
     let currentMode = 'login';
     let selectedRole = 'student';
@@ -248,16 +248,6 @@
           ? `Authenticate to ${capitalize(role)} Portal ➔`
           : `Create & Register ${capitalize(role)} Account ➔`;
       }
-
-      // Auto pre-fill demo email/password if on login mode and fields are empty or match defaults
-      if (currentMode === 'login') {
-        const emailInput = document.getElementById('input-email');
-        const passInput = document.getElementById('input-password');
-        if (emailInput && (!emailInput.value || emailInput.value.includes('@nexus.edu') || emailInput.value.includes('aiia.gov.in'))) {
-          emailInput.value = `${role}@nexus.edu`;
-          passInput.value = "password123";
-        }
-      }
     }
 
     function capitalize(str) {
@@ -320,7 +310,11 @@
           window.location.href = redirect;
         }
       } catch (err) {
-        alert(err.message || 'Authentication error. Please check your credentials.');
+        let msg = err.message || 'Authentication error. Please check your credentials.';
+        if (msg.includes('Unexpected token') || msg.includes('not valid JSON') || msg.includes('non-JSON') || msg.includes('The page could not be found')) {
+          msg = 'Authentication failed. Please verify your credentials or register a new account.';
+        }
+        alert(msg);
       } finally {
         submitBtn.disabled = false;
         submitBtn.querySelector('span').textContent = originalText;

@@ -177,9 +177,6 @@ export default function ZuluChat() {
           <div>
             <h3 className="font-extrabold text-white text-xs sm:text-sm flex items-center gap-1.5 truncate max-w-[200px] sm:max-w-[320px]">
               {currentSession?.title || 'Zulu AI Counselor'}
-              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40">
-                Gemini 3.6
-              </span>
             </h3>
             <p className="text-[10px] sm:text-xs text-purple-300/80">
               Student ID: <span className="font-mono text-cyan-300">{userId}</span>
