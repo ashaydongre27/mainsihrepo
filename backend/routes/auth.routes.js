@@ -22,8 +22,17 @@ router.post('/register', async (req, res) => {
     return res.status(400).json({ success: false, error: 'Name, Email, and Password are required.' });
   }
 
+  if (password.length < 6) {
+    return res.status(400).json({ success: false, error: 'Password must be at least 6 characters long.' });
+  }
+
   const normalizedEmail = email.trim().toLowerCase();
   const userRole = (role || 'student').toLowerCase();
+  const allowedRoles = ['student', 'academy', 'academician', 'faculty', 'industry', 'admin'];
+
+  if (!allowedRoles.includes(userRole)) {
+    return res.status(400).json({ success: false, error: `Invalid role: ${userRole}. Must be one of [student, academy, academician, faculty, industry].` });
+  }
 
   // 1. Live Supabase Auth Registration
   if (isConfigured && supabase) {
@@ -82,14 +91,14 @@ router.post('/register', async (req, res) => {
             name,
             email: normalizedEmail,
             role: userRole,
-            institution: institution || (userRole === 'industry' ? null : 'All India Institute of Ayurveda'),
-            company: company || (userRole === 'industry' ? 'Dabur R&D Division' : null),
-            department: department || 'Ayurvedic Sciences',
+            institution: institution || (userRole === 'industry' ? null : 'Accredited Higher Education Institution'),
+            company: company || (userRole === 'industry' ? 'Corporate Partner' : null),
+            department: department || (userRole === 'student' ? 'General Academic Studies' : 'Academic Faculty'),
             designation: designation || null,
-            year: year || (userRole === 'student' ? '3rd Year' : null),
-            xp: 1000,
-            streak: 1,
-            verified_skills: ['Herbal Formulation', 'Pharmacognosy', 'HPTLC']
+            year: year || (userRole === 'student' ? '1st Year' : null),
+            xp: 0,
+            streak: 0,
+            verified_skills: []
           });
         } catch (dbErr) {
           console.warn('[Register] Profile table upsert notice:', dbErr.message);
@@ -101,14 +110,14 @@ router.post('/register', async (req, res) => {
         name,
         email: normalizedEmail,
         role: userRole,
-        institution: institution || (userRole === 'industry' ? null : 'All India Institute of Ayurveda'),
-        company: company || (userRole === 'industry' ? 'Dabur R&D Division' : null),
-        department: department || 'Ayurvedic Sciences',
+        institution: institution || (userRole === 'industry' ? null : 'Accredited Higher Education Institution'),
+        company: company || (userRole === 'industry' ? 'Corporate Partner' : null),
+        department: department || (userRole === 'student' ? 'General Academic Studies' : 'Academic Faculty'),
         designation: designation || null,
-        year: year || (userRole === 'student' ? '3rd Year' : null),
-        xp: 1000,
-        streak: 1,
-        verified_skills: ['Herbal Formulation', 'Pharmacognosy', 'HPTLC'],
+        year: year || (userRole === 'student' ? '1st Year' : null),
+        xp: 0,
+        streak: 0,
+        verified_skills: [],
         avatar_url: null
       };
 
@@ -135,14 +144,14 @@ router.post('/register', async (req, res) => {
     email: normalizedEmail,
     password: password || 'password123',
     role: userRole,
-    institution: institution || (userRole === 'industry' ? null : 'All India Institute of Ayurveda'),
-    company: company || (userRole === 'industry' ? 'Dabur R&D Division' : null),
-    department: department || 'Ayurvedic Sciences',
+    institution: institution || (userRole === 'industry' ? null : 'Accredited Higher Education Institution'),
+    company: company || (userRole === 'industry' ? 'Corporate Partner' : null),
+    department: department || (userRole === 'student' ? 'General Academic Studies' : 'Academic Faculty'),
     designation: designation || null,
-    year: year || (userRole === 'student' ? '3rd Year' : null),
-    xp: 1000,
-    streak: 1,
-    verified_skills: ['Herbal Formulation', 'Pharmacognosy', 'HPTLC'],
+    year: year || (userRole === 'student' ? '1st Year' : null),
+    xp: 0,
+    streak: 0,
+    verified_skills: [],
     avatar_url: null
   };
   DB.users.push(newUser);
@@ -192,15 +201,15 @@ router.post('/login', async (req, res) => {
           email: data.user.email,
           role: userProfile.role || role || 'student',
           name: userProfile.name || normalizedEmail.split('@')[0],
-          institution: userProfile.institution || (userProfile.role === 'industry' ? null : 'All India Institute of Ayurveda'),
-          company: userProfile.company || (userProfile.role === 'industry' ? 'Dabur R&D Division' : null),
+          institution: userProfile.institution || (userProfile.role === 'industry' ? null : 'Ayush Collegiate Institute'),
+          company: userProfile.company || (userProfile.role === 'industry' ? 'Corporate Partner' : null),
           department: userProfile.department || 'Ayurvedic Sciences',
           designation: userProfile.designation || null,
-          year: userProfile.year || '3rd Year',
-          xp: userProfile.xp !== undefined ? userProfile.xp : 1000,
-          streak: userProfile.streak !== undefined ? userProfile.streak : 1,
+          year: userProfile.year || '1st Year',
+          xp: userProfile.xp !== undefined ? userProfile.xp : 0,
+          streak: userProfile.streak !== undefined ? userProfile.streak : 0,
           decay_frozen_until: userProfile.decay_frozen_until || null,
-          verified_skills: userProfile.verified_skills || ['Herbal Formulation', 'Pharmacognosy', 'HPTLC'],
+          verified_skills: userProfile.verified_skills || [],
           avatar_url: userProfile.avatar_url || null
         };
 
@@ -239,15 +248,15 @@ router.post('/login', async (req, res) => {
                 email: retryData.user.email,
                 role: userProfile.role || role || 'student',
                 name: userProfile.name || normalizedEmail.split('@')[0],
-                institution: userProfile.institution || (userProfile.role === 'industry' ? null : 'All India Institute of Ayurveda'),
-                company: userProfile.company || (userProfile.role === 'industry' ? 'Dabur R&D Division' : null),
+                institution: userProfile.institution || (userProfile.role === 'industry' ? null : 'Ayush Collegiate Institute'),
+                company: userProfile.company || (userProfile.role === 'industry' ? 'Corporate Partner' : null),
                 department: userProfile.department || 'Ayurvedic Sciences',
                 designation: userProfile.designation || null,
-                year: userProfile.year || '3rd Year',
-                xp: userProfile.xp !== undefined ? userProfile.xp : 1000,
-                streak: userProfile.streak !== undefined ? userProfile.streak : 1,
+                year: userProfile.year || '1st Year',
+                xp: userProfile.xp !== undefined ? userProfile.xp : 0,
+                streak: userProfile.streak !== undefined ? userProfile.streak : 0,
                 decay_frozen_until: userProfile.decay_frozen_until || null,
-                verified_skills: userProfile.verified_skills || ['Herbal Formulation', 'Pharmacognosy', 'HPTLC'],
+                verified_skills: userProfile.verified_skills || [],
                 avatar_url: userProfile.avatar_url || null
               };
 
@@ -315,7 +324,11 @@ router.get('/profile', async (req, res) => {
   }
 
   const user = DB.users.find(u => (id && u.id === id) || (email && u.email.toLowerCase() === email));
-  return res.json({ success: true, profile: user || null });
+  if (user) {
+    const { password: _, ...safeProfile } = user;
+    return res.json({ success: true, profile: safeProfile });
+  }
+  return res.json({ success: true, profile: null });
 });
 
 /**
@@ -356,7 +369,8 @@ router.put('/profile', async (req, res) => {
   const user = DB.users.find(u => (id && u.id === id) || (email && u.email.toLowerCase() === email.trim().toLowerCase()));
   if (user) {
     Object.assign(user, updates);
-    return res.json({ success: true, message: 'Profile updated in local storage!', profile: user });
+    const { password: _, ...safeProfile } = user;
+    return res.json({ success: true, message: 'Profile updated successfully!', profile: safeProfile });
   }
 
   return res.status(404).json({ success: false, error: 'Profile not found.' });

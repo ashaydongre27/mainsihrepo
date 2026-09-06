@@ -4,12 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JOBLEX | Industry & Corporate Talent Gateway</title>
-  <!-- Material Symbols Outlined -->
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <!-- Google Fonts Preconnect -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- High-Tech Editorial Typography: Space Grotesk, Outfit, JetBrains Mono -->
+    <!-- High-Tech Editorial Typography: Plus Jakarta Sans, Newsreader, JetBrains Mono -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Google Material Symbols Outlined -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   <script src="/js/frontend/theme.js"></script>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -19,20 +21,29 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            sans: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            serif: ['Newsreader', 'Georgia', 'serif'],
             mono: ['JetBrains Mono', 'monospace']
+          },
+          colors: {
+            bone: { 50: '#FAF9F6', 100: '#F4F2EC', 200: '#E8E5DC', 300: '#D7D2C5' },
+            obsidian: { 950: '#070709', 900: '#0C0D10', 800: '#111215', 700: '#16181D', 600: '#22252C' },
+            sage: { 50: '#F2F6F3', 100: '#E3EDE6', 500: '#3D7055', 600: '#2D5542', 700: '#1E3C2E', glow: '#4EBA87' },
+            terracotta: { 50: '#FAF4F0', 100: '#F4E7DF', 500: '#B85E2E', 600: '#944C23', glow: '#E07A48' },
+            ochre: { 50: '#FAF6EF', 100: '#F4EBDA', 500: '#A67332', 600: '#855828', glow: '#D4973B' }
           }
         }
       }
-    }
+    };
   </script>
   <!-- Custom Styles (Relative Path) -->
   <link rel="stylesheet" href="css/styles.css">
   
 </head>
-<body class="bg-gradient-to-b from-[#FFFFFF] via-[#F8F9FA] to-[#F1F3F5] dark:from-[#07071A] dark:via-[#090924] dark:to-[#07071A] text-[#0F172A] dark:text-slate-100 font-sans h-screen overflow-hidden flex flex-col antialiased transition-colors duration-200">
+<body class="bg-[#FAF8F5] dark:bg-[#070709] text-[#1C1917] dark:text-[#F4F4F6] font-sans min-h-screen flex flex-col antialiased transition-colors duration-200">
 
-<header class="sticky top-0 z-50 w-full bg-white/90 dark:bg-[#07071A]/95 backdrop-blur-md border-b border-[#E2E8F0] dark:border-white/5 transition-colors duration-200">
+<header class="sticky top-0 z-50 w-full bg-white/85 dark:bg-[#070709]/90 backdrop-blur-md border-b border-[#E7E4DC] dark:border-white/5 transition-colors duration-200">
   <div class="w-full px-3 sm:px-6 py-2 flex items-center justify-between">
     <!-- Mobile Hamburger + Brand Logo -->
     <div class="flex items-center gap-3">
@@ -40,8 +51,8 @@
         <span class="material-symbols-outlined text-[20px]">menu</span>
       </button>
       <a href="industry.html" class="flex items-center gap-2.5 cursor-pointer select-none">
-        <div class="w-1.5 h-8 bg-gradient-to-b from-blue-400 to-cyan-600 rounded-full shadow-[0_0_12px_rgba(59,130,246,0.7)]"></div>
-        <span class="text-xl font-extrabold tracking-widest text-[#0F172A] dark:text-white uppercase block">JOBLEX</span>
+        <div class="w-1.5 h-7 bg-[#944C23] dark:bg-[#E07A48] rounded-full"></div>
+        <span class="text-xl font-extrabold tracking-widest text-[#1C1917] dark:text-white uppercase block">JOBLEX</span>
       </a>
     </div>
 
@@ -49,19 +60,17 @@
     <div class="flex items-center gap-2 sm:gap-3">
       <!-- Corporate Node Badge -->
       <span class="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-mono text-xs font-bold border border-blue-200 dark:border-blue-800/60">
-        🏢 AIIA-NCR-04 Node
+        <span class="material-symbols-outlined text-xs align-middle mr-1">apartment</span> AIIA-NCR-04 Node
       </span>
 
       <!-- Notification Bell -->
-      <button id="notification-bell-btn" type="button" aria-label="Open Notifications" class="relative p-2 rounded-xl text-[#475569] dark:text-gray-300 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 border border-[#E2E8F0] dark:border-white/10 transition-colors">
+      <button id="notification-bell-btn" type="button" aria-label="Open Notifications" class="relative p-2 rounded-xl text-[#6E6962] dark:text-gray-300 hover:text-[#1C1917] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 border border-[#E7E4DC] dark:border-white/10 transition-colors">
         <span class="material-symbols-outlined text-[20px]">notifications</span>
-        <span class="notification-badge-indicator absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-blue-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
-          3
-        </span>
+        <span class="notification-badge-indicator hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[#944C23] dark:bg-[#E07A48] text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">0</span>
       </button>
 
       <!-- Theme Switcher -->
-      <button id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Light/Dark Theme" title="Toggle Light/Dark Theme" class="p-2 rounded-xl border border-[#E2E8F0] dark:border-white/10 bg-white dark:bg-white/5 text-[#475569] dark:text-gray-300 hover:text-[#0F172A] dark:hover:text-white transition-colors duration-150 flex items-center justify-center">
+      <button id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Light/Dark Theme" title="Toggle Light/Dark Theme" class="p-2 rounded-xl border border-[#E7E4DC] dark:border-white/10 bg-white dark:bg-white/5 text-[#6E6962] dark:text-gray-300 hover:text-[#1C1917] dark:hover:text-white transition-colors duration-150 flex items-center justify-center">
         <span id="theme-toggle-icon" class="material-symbols-outlined text-[18px]">dark_mode</span>
       </button>
 
@@ -72,40 +81,40 @@
 
 <!-- MOBILE SLIDE-OUT DRAWER -->
 <div id="industry-mobile-drawer" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden lg:hidden">
-  <div class="fixed inset-y-0 left-0 w-72 bg-white dark:bg-[#0c0e14] p-5 flex flex-col justify-between shadow-2xl border-r border-[#E2E8F0] dark:border-white/10 overflow-y-auto">
+  <div class="fixed inset-y-0 left-0 w-72 bg-white dark:bg-[#101115] p-5 flex flex-col justify-between shadow-2xl border-r border-[#E7E4DC] dark:border-white/10 overflow-y-auto">
     <div class="space-y-4">
       <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-gray-800">
         <span class="text-xs uppercase tracking-wider text-blue-600 dark:text-blue-400 font-bold">Enterprise Navigation</span>
-        <button onclick="closeIndustryMobileMenu()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white">✕</button>
+        <button onclick="closeIndustryMobileMenu()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"><span class="material-symbols-outlined text-lg">close</span></button>
       </div>
       <div class="space-y-1 pt-1">
         <a href="industry.html" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-bold transition bg-[#0F172A] text-white dark:bg-white/10 dark:text-white shadow-sm">
-          <span class="flex items-center gap-3"><span>🏢</span> <span>Talent Gateway</span></span>
+          <span class="flex items-center gap-3"><span class="material-symbols-outlined text-base">apartment</span> <span>Talent Gateway</span></span>
           <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-blue-500 text-white font-bold">Active</span>
         </a>
         <a href="#candidate-dossiers-section" onclick="closeIndustryMobileMenu()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>👥</span> <span>Candidate Dossiers</span>
+          <span class="material-symbols-outlined text-base">group</span> <span>Candidate Dossiers</span>
         </a>
         <a href="#skill-calibrator-section" onclick="closeIndustryMobileMenu()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>🎯</span> <span>AI Talent Calibrator</span>
+          <span class="material-symbols-outlined text-base shrink-0">track_changes</span> <span>AI Talent Calibrator</span>
         </a>
         <a href="#corporate-requisitions-section" onclick="closeIndustryMobileMenu()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>💼</span> <span>Corporate Requisitions</span>
+          <span class="material-symbols-outlined text-base">work</span> <span>Corporate Requisitions</span>
         </a>
         <a href="src/students/student-resume.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>📄</span> <span>Resume Benchmark</span>
+          <span class="material-symbols-outlined text-base">description</span> <span>Resume Benchmark</span>
         </a>
         <a href="src/students/student-skilltree.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>🌐</span> <span>Skill Constellations</span>
+          <span class="material-symbols-outlined text-base">hub</span> <span>Skill Constellations</span>
         </a>
         <a href="src/students/student-portfolio.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
-          <span>🏆</span> <span>Verified Dossier Ledger</span>
+          <span class="material-symbols-outlined text-base">emoji_events</span> <span>Verified Dossier Ledger</span>
         </a>
       </div>
     </div>
     <div class="pt-4 border-t border-slate-200 dark:border-gray-800">
       <button onclick="JoblexApiClient.logout()" class="w-full py-2.5 rounded-xl text-center text-xs font-semibold text-slate-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition flex items-center justify-center gap-2">
-        <span>🚪</span> <span>Sign Out</span>
+        <span class="material-symbols-outlined text-rose-400 text-base">logout</span> <span>Sign Out</span>
       </button>
     </div>
   </div>
@@ -113,49 +122,49 @@
 
 <div class="flex-1 flex overflow-hidden">
   <!-- COLLAPSIBLE SIDEBAR -->
-  <aside id="industry-sidebar" class="hidden lg:flex w-64 bg-white/90 dark:bg-[#080812]/90 border-r border-[#E2E8F0] dark:border-white/5 backdrop-blur-md p-3.5 flex-col justify-between shrink-0 transition-all duration-300">
+  <aside id="industry-sidebar" class="hidden lg:flex w-64 bg-white/80 dark:bg-[#101115]/90 border-r border-[#E7E4DC] dark:border-white/5 backdrop-blur-md p-3.5 flex-col justify-between shrink-0 transition-all duration-300">
     <div class="space-y-1">
       <div class="flex items-center justify-between px-2 pb-2 mb-2 border-b border-slate-200 dark:border-gray-800/80">
         <span class="sidebar-text-label text-[10px] uppercase tracking-wider text-blue-600 dark:text-blue-400 font-bold">Enterprise Modules</span>
         <button id="industry-sidebar-collapse-btn" onclick="toggleIndustrySidebarCollapse()" title="Minimize / Expand Sidebar" class="p-1.5 rounded-lg bg-slate-100 dark:bg-gray-900 border border-slate-200 dark:border-gray-800 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white text-xs transition">
-          <span>◀</span>
+          <span class="material-symbols-outlined text-xs">chevron_left</span>
         </button>
       </div>
       <a href="industry.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all bg-[#0F172A] text-white dark:bg-white/10 dark:text-white shadow-sm">
-        <span class="text-base shrink-0">🏢</span>
+        <span class="material-symbols-outlined text-base shrink-0 text-indigo-400">apartment</span>
         <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
           <span class="font-bold text-xs truncate">Talent Gateway</span>
           <span class="text-[10px] text-gray-300 dark:text-gray-400 truncate">Corporate Recruitment</span>
         </div>
       </a>
-      <a href="src/industry/industry-candidates.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">👥</span>
+      <a href="src/industry/industry-candidates.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#6E6962] dark:text-gray-400 hover:text-[#1C1917] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+        <span class="material-symbols-outlined text-base shrink-0 text-purple-400">group</span>
         <span class="sidebar-text-label font-bold text-xs">Candidate Dossiers</span>
       </a>
-      <a href="src/industry/industry-calibrator.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">🎯</span>
+      <a href="src/industry/industry-calibrator.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#6E6962] dark:text-gray-400 hover:text-[#1C1917] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+        <span class="material-symbols-outlined text-base shrink-0 text-cyan-400">tune</span>
         <span class="sidebar-text-label font-bold text-xs">AI Talent Calibrator</span>
       </a>
-      <a href="src/industry/industry-requisitions.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">💼</span>
+      <a href="src/industry/industry-requisitions.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#6E6962] dark:text-gray-400 hover:text-[#1C1917] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+        <span class="material-symbols-outlined text-base shrink-0 text-emerald-400">work_outline</span>
         <span class="sidebar-text-label font-bold text-xs">Corporate Requisitions</span>
       </a>
-      <a href="src/industry/industry-mous.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">🤝</span>
+      <a href="src/industry/industry-mous.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#6E6962] dark:text-gray-400 hover:text-[#1C1917] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+        <span class="material-symbols-outlined text-base shrink-0">handshake</span>
         <span class="sidebar-text-label font-bold text-xs">Bilateral MoUs</span>
       </a>
-      <a href="src/industry/industry-bootcamps.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">🚀</span>
+      <a href="src/industry/industry-bootcamps.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#6E6962] dark:text-gray-400 hover:text-[#1C1917] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+        <span class="material-symbols-outlined text-base shrink-0 text-amber-400">biotech</span>
         <span class="sidebar-text-label font-bold text-xs">Sponsored Bootcamps</span>
       </a>
-      <a href="src/industry/industry-grants.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">🔬</span>
+      <a href="src/industry/industry-grants.html" class="industry-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#6E6962] dark:text-gray-400 hover:text-[#1C1917] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+        <span class="material-symbols-outlined text-base shrink-0">biotech</span>
         <span class="sidebar-text-label font-bold text-xs">Consultancy Grants</span>
       </a>
     </div>
     <div class="mt-4 pt-3 border-t border-slate-200 dark:border-gray-800/80">
       <button onclick="JoblexApiClient.logout()" class="w-full py-2 rounded-xl text-center text-xs font-semibold text-slate-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition flex items-center justify-center gap-2">
-        <span>🚪</span> <span class="sidebar-text-label">Sign Out</span>
+        <span class="material-symbols-outlined text-base shrink-0">logout</span> <span class="sidebar-text-label">Sign Out</span>
       </button>
     </div>
   </aside>
@@ -165,21 +174,21 @@
     <div class="w-full max-w-6xl mx-auto flex flex-col gap-6">
 
       <!-- Sub-Nav Breadcrumb & Requisition Controls Bar -->
-      <div class="bg-white dark:bg-white/[0.03] shadow-sm border border-[#E2E8F0] dark:border-white/10 rounded-xl p-3 sm:p-4">
+      <div class="bg-white dark:bg-white/[0.03] shadow-sm border border-[#E7E4DC] dark:border-white/10 rounded-xl p-3 sm:p-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div class="flex items-center space-x-1 text-[11px] uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">
+          <div class="flex items-center space-x-1 text-[11px] uppercase tracking-wider font-semibold text-[#6E6962] dark:text-gray-400">
             <span>Corporate Gateway</span>
             <span class="material-symbols-outlined text-[14px]">chevron_right</span>
             <span>Pharma R&amp;D Division</span>
             <span class="material-symbols-outlined text-[14px]">chevron_right</span>
-            <span class="text-[#0F172A] dark:text-white">Active Recruitment Cohorts (Q1-2025)</span>
+            <span class="text-[#1C1917] dark:text-white">Active Recruitment Cohorts (Q1-2025)</span>
           </div>
           <div class="flex items-center space-x-2">
-            <span class="inline-flex items-center px-2 py-0.5 rounded border border-[#E2E8F0] dark:border-white/10 bg-slate-50 dark:bg-white/[0.02] font-mono text-xs text-[#0F172A] dark:text-white">
+            <span class="inline-flex items-center px-2 py-0.5 rounded border border-[#E7E4DC] dark:border-white/10 bg-slate-50 dark:bg-white/[0.02] font-mono text-xs text-[#1C1917] dark:text-white">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
               LEDGER NODE: CONNECTED (AIIA-NCR-04)
             </span>
-            <button onclick="handleAuditExport()" class="border border-[#E2E8F0] dark:border-white/10 px-3 py-1 rounded text-[11px] uppercase tracking-wider font-semibold text-[#0F172A] dark:text-white hover:bg-slate-50 dark:bg-white/[0.02] transition-colors duration-150 flex items-center space-x-1">
+            <button onclick="handleAuditExport()" class="border border-[#E7E4DC] dark:border-white/10 px-3 py-1 rounded text-[11px] uppercase tracking-wider font-semibold text-[#1C1917] dark:text-white hover:bg-slate-50 dark:bg-white/[0.02] transition-colors duration-150 flex items-center space-x-1">
               <span class="material-symbols-outlined text-[16px]">download</span>
               <span>Audit Export (CSV)</span>
             </button>
@@ -194,11 +203,11 @@
           <div class="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
             <div>
               <div class="flex items-center space-x-2 mb-1">
-                <span class="font-mono text-[11px] uppercase tracking-wider text-[#64748B] dark:text-gray-400">Statutory Recruitment Ledger</span>
+                <span class="font-mono text-[11px] uppercase tracking-wider text-[#6E6962] dark:text-gray-400">Statutory Recruitment Ledger</span>
                 <span class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/[0.06] text-purple-600 dark:text-purple-400 font-mono text-[10px]">AYUSH-ICMR-R&amp;D</span>
               </div>
-              <h1 class="text-2xl sm:text-3xl font-bold text-[#0F172A] dark:text-white tracking-tight">Enterprise Talent Gateway &amp; Candidate Dossiers</h1>
-              <p class="font-normal text-xs text-[#64748B] dark:text-gray-400 mt-1">Direct cryptographic validation of post-graduate researchers, Ayush formulation scientists, and bio-informatics candidates.</p>
+              <h1 class="text-2xl sm:text-3xl font-bold text-[#1C1917] dark:text-white tracking-tight">Enterprise Talent Gateway &amp; Candidate Dossiers</h1>
+              <p class="font-normal text-xs text-[#6E6962] dark:text-gray-400 mt-1">Direct cryptographic validation of post-graduate researchers, Ayush formulation scientists, and bio-informatics candidates.</p>
             </div>
             <!-- Right Action Button -->
             <div class="flex items-center space-x-2">
@@ -212,14 +221,14 @@
           <!-- Live Summary Cards Grid -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- Metric 1: Total Dossiers Received -->
-            <div class="bg-white dark:bg-white/[0.03] border border-[#E2E8F0] dark:border-white/10 p-6 rounded-lg shadow-none">
+            <div class="bg-white dark:bg-white/[0.03] border border-[#E7E4DC] dark:border-white/10 p-6 rounded-lg shadow-none">
               <div class="flex items-center justify-between mb-1">
-                <span class="text-[11px] uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">Total Dossiers Received</span>
-                <span class="material-symbols-outlined text-[#64748B] dark:text-gray-400 text-[20px]">folder_shared</span>
+                <span class="text-[11px] uppercase tracking-wider font-semibold text-[#6E6962] dark:text-gray-400">Total Dossiers Received</span>
+                <span class="material-symbols-outlined text-[#6E6962] dark:text-gray-400 text-[20px]">folder_shared</span>
               </div>
               <div class="flex items-baseline space-x-2">
-                <span class="text-3xl sm:text-4xl font-extrabold font-mono text-[#0F172A] dark:text-white">38</span>
-                <span class="text-[11px] uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400 font-mono">candidates</span>
+                <span class="text-3xl sm:text-4xl font-extrabold font-mono text-[#1C1917] dark:text-white">38</span>
+                <span class="text-[11px] uppercase tracking-wider font-semibold text-[#6E6962] dark:text-gray-400 font-mono">candidates</span>
               </div>
               <div class="mt-2 flex items-center text-[11px] uppercase tracking-wider font-semibold text-emerald-600 dark:text-emerald-400">
                 <span class="material-symbols-outlined text-[16px] mr-0.5">trending_up</span>
@@ -228,47 +237,47 @@
             </div>
 
             <!-- Metric 2: Pre-Screened Fit -->
-            <div class="bg-white dark:bg-white/[0.03] border border-[#E2E8F0] dark:border-white/10 p-6 rounded-lg shadow-none">
+            <div class="bg-white dark:bg-white/[0.03] border border-[#E7E4DC] dark:border-white/10 p-6 rounded-lg shadow-none">
               <div class="flex items-center justify-between mb-1">
-                <span class="text-[11px] uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">Pre-Screened Fit</span>
-                <span class="material-symbols-outlined text-[#64748B] dark:text-gray-400 text-[20px]">analytics</span>
+                <span class="text-[11px] uppercase tracking-wider font-semibold text-[#6E6962] dark:text-gray-400">Pre-Screened Fit</span>
+                <span class="material-symbols-outlined text-[#6E6962] dark:text-gray-400 text-[20px]">analytics</span>
               </div>
               <div class="flex items-baseline space-x-2">
-                <span class="text-3xl sm:text-4xl font-extrabold font-mono text-[#0F172A] dark:text-white">92%</span>
-                <span class="text-[11px] uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">Average Match</span>
+                <span class="text-3xl sm:text-4xl font-extrabold font-mono text-[#1C1917] dark:text-white">92%</span>
+                <span class="text-[11px] uppercase tracking-wider font-semibold text-[#6E6962] dark:text-gray-400">Average Match</span>
               </div>
-              <div class="mt-2 text-[11px] uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400 font-mono">
+              <div class="mt-2 text-[11px] uppercase tracking-wider font-semibold text-[#6E6962] dark:text-gray-400 font-mono">
                 Weighted on ICMR &amp; NMPB Standards
               </div>
             </div>
 
             <!-- Metric 3: Interviews Scheduled -->
-            <div class="bg-white dark:bg-white/[0.03] border border-[#E2E8F0] dark:border-white/10 p-6 rounded-lg shadow-none">
+            <div class="bg-white dark:bg-white/[0.03] border border-[#E7E4DC] dark:border-white/10 p-6 rounded-lg shadow-none">
               <div class="flex items-center justify-between mb-1">
-                <span class="text-[11px] uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">Interviews Scheduled</span>
-                <span class="material-symbols-outlined text-[#64748B] dark:text-gray-400 text-[20px]">calendar_month</span>
+                <span class="text-[11px] uppercase tracking-wider font-semibold text-[#6E6962] dark:text-gray-400">Interviews Scheduled</span>
+                <span class="material-symbols-outlined text-[#6E6962] dark:text-gray-400 text-[20px]">calendar_month</span>
               </div>
               <div class="flex items-baseline space-x-2">
-                <span class="text-3xl sm:text-4xl font-extrabold font-mono text-[#0F172A] dark:text-white">6</span>
-                <span class="text-[11px] uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400 font-mono">Scholars</span>
+                <span class="text-3xl sm:text-4xl font-extrabold font-mono text-[#1C1917] dark:text-white">6</span>
+                <span class="text-[11px] uppercase tracking-wider font-semibold text-[#6E6962] dark:text-gray-400 font-mono">Scholars</span>
               </div>
-              <div class="mt-2 flex items-center text-[11px] uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">
+              <div class="mt-2 flex items-center text-[11px] uppercase tracking-wider font-semibold text-[#6E6962] dark:text-gray-400">
                 <span class="w-2 h-2 rounded-full bg-blue-500 mr-1.5"></span>
                 <span>Next session: Today, 15:30 IST</span>
               </div>
             </div>
 
             <!-- Metric 4: Talent Forecast -->
-            <div class="bg-white dark:bg-white/[0.03] border border-[#E2E8F0] dark:border-white/10 p-6 rounded-lg shadow-none">
+            <div class="bg-white dark:bg-white/[0.03] border border-[#E7E4DC] dark:border-white/10 p-6 rounded-lg shadow-none">
               <div class="flex items-center justify-between mb-1">
-                <span class="text-[11px] uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">Talent Forecast</span>
-                <span class="material-symbols-outlined text-[#64748B] dark:text-gray-400 text-[20px]">school</span>
+                <span class="text-[11px] uppercase tracking-wider font-semibold text-[#6E6962] dark:text-gray-400">Talent Forecast</span>
+                <span class="material-symbols-outlined text-[#6E6962] dark:text-gray-400 text-[20px]">school</span>
               </div>
               <div class="flex items-baseline space-x-2">
-                <span class="text-3xl sm:text-4xl font-extrabold font-mono text-[#0F172A] dark:text-white">24</span>
-                <span class="text-[11px] uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400 font-mono">AIIA Scholars</span>
+                <span class="text-3xl sm:text-4xl font-extrabold font-mono text-[#1C1917] dark:text-white">24</span>
+                <span class="text-[11px] uppercase tracking-wider font-semibold text-[#6E6962] dark:text-gray-400 font-mono">AIIA Scholars</span>
               </div>
-              <div class="mt-2 text-[11px] uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400 font-mono">
+              <div class="mt-2 text-[11px] uppercase tracking-wider font-semibold text-[#6E6962] dark:text-gray-400 font-mono">
                 Graduating next quarter (M.D. / Ph.D.)
               </div>
             </div>
@@ -276,70 +285,70 @@
         </div>
 
         <!-- Requisition Type Tab Bar Filter -->
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#E2E8F0] dark:border-white/10 mb-6 gap-2">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#E7E4DC] dark:border-white/10 mb-6 gap-2">
           <div class="flex items-center space-x-3 overflow-x-auto w-full sm:w-auto">
-            <button class="border-b-2 border-blue-600 text-[#0F172A] dark:text-white text-xs font-semibold py-2 px-1 whitespace-nowrap">
+            <button class="border-b-2 border-blue-600 text-[#1C1917] dark:text-white text-xs font-semibold py-2 px-1 whitespace-nowrap">
               All Requisitions <span class="ml-1 font-mono text-[11px] px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-white/[0.06] text-purple-600 dark:text-purple-400">38</span>
             </button>
-            <button class="border-b-2 border-transparent text-[#64748B] dark:text-gray-400 hover:text-[#0F172A] dark:text-white text-xs font-semibold py-2 px-1 whitespace-nowrap">
-              Full-Time Placements (Job) <span class="ml-1 font-mono text-[11px] px-1.5 py-0.5 rounded-full bg-slate-50 dark:bg-white/[0.02] text-[#64748B] dark:text-gray-400">19</span>
+            <button class="border-b-2 border-transparent text-[#6E6962] dark:text-gray-400 hover:text-[#1C1917] dark:text-white text-xs font-semibold py-2 px-1 whitespace-nowrap">
+              Full-Time Placements (Job) <span class="ml-1 font-mono text-[11px] px-1.5 py-0.5 rounded-full bg-slate-50 dark:bg-white/[0.02] text-[#6E6962] dark:text-gray-400">19</span>
             </button>
-            <button class="border-b-2 border-transparent text-[#64748B] dark:text-gray-400 hover:text-[#0F172A] dark:text-white text-xs font-semibold py-2 px-1 whitespace-nowrap">
-              Research Internships <span class="ml-1 font-mono text-[11px] px-1.5 py-0.5 rounded-full bg-slate-50 dark:bg-white/[0.02] text-[#64748B] dark:text-gray-400">14</span>
+            <button class="border-b-2 border-transparent text-[#6E6962] dark:text-gray-400 hover:text-[#1C1917] dark:text-white text-xs font-semibold py-2 px-1 whitespace-nowrap">
+              Research Internships <span class="ml-1 font-mono text-[11px] px-1.5 py-0.5 rounded-full bg-slate-50 dark:bg-white/[0.02] text-[#6E6962] dark:text-gray-400">14</span>
             </button>
-            <button class="border-b-2 border-transparent text-[#64748B] dark:text-gray-400 hover:text-[#0F172A] dark:text-white text-xs font-semibold py-2 px-1 whitespace-nowrap">
-              Micro-Gigs (Sprint Tasks) <span class="ml-1 font-mono text-[11px] px-1.5 py-0.5 rounded-full bg-slate-50 dark:bg-white/[0.02] text-[#64748B] dark:text-gray-400">5</span>
+            <button class="border-b-2 border-transparent text-[#6E6962] dark:text-gray-400 hover:text-[#1C1917] dark:text-white text-xs font-semibold py-2 px-1 whitespace-nowrap">
+              Micro-Gigs (Sprint Tasks) <span class="ml-1 font-mono text-[11px] px-1.5 py-0.5 rounded-full bg-slate-50 dark:bg-white/[0.02] text-[#6E6962] dark:text-gray-400">5</span>
             </button>
           </div>
 
           <!-- Quick Filter Bar Controls -->
           <div class="flex items-center space-x-2 pb-2 sm:pb-0">
             <div class="relative">
-              <input id="dossier-search-input" oninput="filterCandidateDossiers(this.value)" class="w-64 h-[34px] pl-8 pr-3 text-xs font-normal border border-[#E2E8F0] dark:border-white/10 rounded bg-white dark:bg-white/[0.03] shadow-sm focus:outline-none focus:border-blue-500" placeholder="Filter by scholar or verified skill..." type="text"/>
-              <span class="material-symbols-outlined absolute left-2 top-2 text-[#64748B] dark:text-gray-400 text-[16px]">search</span>
+              <input id="dossier-search-input" oninput="filterCandidateDossiers(this.value)" class="w-64 h-[34px] pl-8 pr-3 text-xs font-normal border border-[#E7E4DC] dark:border-white/10 rounded bg-white dark:bg-white/[0.03] shadow-sm focus:outline-none focus:border-blue-500" placeholder="Filter by scholar or verified skill..." type="text"/>
+              <span class="material-symbols-outlined absolute left-2 top-2 text-[#6E6962] dark:text-gray-400 text-[16px]">search</span>
             </div>
-            <button class="h-[34px] px-3 border border-[#E2E8F0] dark:border-white/10 rounded bg-white dark:bg-white/[0.03] shadow-sm text-[11px] uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400 hover:text-[#0F172A] dark:text-white flex items-center space-x-1">
+            <button class="h-[34px] px-3 border border-[#E7E4DC] dark:border-white/10 rounded bg-white dark:bg-white/[0.03] shadow-sm text-[11px] uppercase tracking-wider font-semibold text-[#6E6962] dark:text-gray-400 hover:text-[#1C1917] dark:text-white flex items-center space-x-1">
               <span class="material-symbols-outlined text-[16px]">tune</span>
               <span>Attributes</span>
             </button>
           </div>
         </div>
 
-        <!-- Main Content Layout (2-Column Grid) -->
-        <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        <!-- Main Content Layout (2-Column Grid with min-w-0 to prevent blowout) -->
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
           <!-- Left Column: Application Dossiers (8 Cols) -->
-          <div id="candidate-dossiers-section" class="xl:col-span-8 space-y-4">
+          <div id="candidate-dossiers-section" class="xl:col-span-8 space-y-4 min-w-0">
             <div class="flex items-center justify-between pb-1">
-              <span class="text-xs font-semibold text-[#64748B] dark:text-gray-400 uppercase">Priority Candidate Dossiers (Validated by Ayush National Council)</span>
-              <span class="font-mono text-xs text-[#64748B] dark:text-gray-400">Displaying 3 of 38 Records</span>
+              <span class="text-xs font-semibold text-[#6E6962] dark:text-gray-400 uppercase">Priority Candidate Dossiers (Validated by Ayush National Council)</span>
+              <span class="font-mono text-xs text-[#6E6962] dark:text-gray-400">Displaying 3 of 38 Records</span>
             </div>
 
-            <!-- Candidate Dossier Card 1: Ashay Verma -->
-            <div class="bg-white dark:bg-white/[0.03] border border-[#E2E8F0] dark:border-white/10 rounded-lg p-6 shadow-none hover:border-[#CBD5E1] dark:hover:border-white/20 transition-colors">
-              <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 pb-4 border-b border-[#E2E8F0] dark:border-white/10">
+            <!-- Candidate Dossier Card 1: Aarav Sharma -->
+            <div class="bg-white dark:bg-white/[0.03] border border-[#E7E4DC] dark:border-white/10 rounded-xl p-5 sm:p-6 shadow-none hover:border-[#CBD5E1] dark:hover:border-white/20 transition-colors overflow-hidden">
+              <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 pb-4 border-b border-[#E7E4DC] dark:border-white/10">
                 <div class="flex items-start space-x-3">
-                  <div class="w-12 h-12 rounded border border-[#E2E8F0] dark:border-white/10 bg-slate-100 dark:bg-white/[0.06] flex items-center justify-center font-bold text-purple-600 dark:text-purple-400">AV</div>
-                  <div>
-                    <div class="flex items-center space-x-2">
-                      <h3 class="text-base sm:text-lg font-bold text-[#0F172A] dark:text-white">Ashay Verma</h3>
+                  <div class="w-12 h-12 rounded-lg border border-[#E7E4DC] dark:border-white/10 bg-slate-100 dark:bg-white/[0.06] flex items-center justify-center font-bold text-purple-600 dark:text-purple-400 shrink-0">AS</div>
+                  <div class="min-w-0">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <h3 class="text-base sm:text-lg font-bold text-[#1C1917] dark:text-white truncate">Aarav Sharma</h3>
                       <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono bg-[#ecfdf5] border border-[#a7f3d0] text-[#065f46]">
                         <span class="material-symbols-outlined text-[14px] mr-1" style="font-variation-settings: 'FILL' 1;">verified</span>
                         AIIA Ledger Verified
                       </span>
                     </div>
-                    <p class="font-normal text-xs text-[#64748B] dark:text-gray-400 mt-0.5">All India Institute of Ayurveda • <span class="font-mono">M.D. (Ayurveda - Dravyaguna)</span></p>
-                    <div class="flex items-center space-x-1 mt-1 text-[11px] uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">
-                      <span class="text-[#0F172A] dark:text-white">Requisition:</span>
+                    <p class="font-normal text-xs text-[#6E6962] dark:text-gray-400 mt-0.5">All India Institute of Ayurveda • <span class="font-mono">M.D. (Ayurveda - Dravyaguna)</span></p>
+                    <div class="flex flex-wrap items-center gap-1 mt-1 text-[11px] uppercase tracking-wider font-semibold text-[#6E6962] dark:text-gray-400">
+                      <span class="text-[#1C1917] dark:text-white">Requisition:</span>
                       <span>Phytochemical Research Intern</span>
                       <span>•</span>
                       <span>Dabur R&amp;D Centre (Sahibabad)</span>
                     </div>
                   </div>
                 </div>
-                <div class="flex md:flex-col items-end justify-between md:justify-center">
+                <div class="flex md:flex-col items-end justify-between md:justify-center shrink-0">
                   <div class="flex items-center space-x-1.5 bg-slate-100 dark:bg-white/[0.04] px-3 py-1 rounded">
                     <span class="font-mono text-base sm:text-lg font-bold text-purple-600 dark:text-purple-400">94%</span>
-                    <span class="text-[10px] text-[#64748B] dark:text-gray-400 uppercase font-semibold leading-tight">Match<br/>Score</span>
+                    <span class="text-[10px] text-[#6E6962] dark:text-gray-400 uppercase font-semibold leading-tight">Match<br/>Score</span>
                   </div>
                   <span class="mt-1.5 inline-flex items-center px-2 py-0.5 rounded text-[11px] uppercase tracking-wider font-mono bg-[#eff6ff] text-[#1e40af] border border-[#bfdbfe]">
                     Shortlisted
@@ -347,73 +356,73 @@
                 </div>
               </div>
               <div class="py-3 space-y-2">
-                <div class="text-[11px] uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">Verified Competency Tokens (Block-Validated):</div>
-                <div class="flex flex-wrap gap-1">
-                  <span class="inline-flex items-center px-2.5 py-1 rounded text-[11px] uppercase tracking-wider font-mono bg-slate-50 dark:bg-white/[0.02] border border-[#E2E8F0] dark:border-white/10 text-[#0F172A] dark:text-white">
+                <div class="text-[11px] uppercase tracking-wider font-semibold text-[#6E6962] dark:text-gray-400">Verified Competency Tokens (Block-Validated):</div>
+                <div class="flex flex-wrap gap-1.5">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded text-[11px] uppercase tracking-wider font-mono bg-slate-50 dark:bg-white/[0.02] border border-[#E7E4DC] dark:border-white/10 text-[#1C1917] dark:text-white">
                     <span class="material-symbols-outlined text-[14px] mr-1 text-emerald-600 dark:text-emerald-400">check_circle</span>
                     Herbal Formulation
                   </span>
-                  <span class="inline-flex items-center px-2.5 py-1 rounded text-[11px] uppercase tracking-wider font-mono bg-slate-50 dark:bg-white/[0.02] border border-[#E2E8F0] dark:border-white/10 text-[#0F172A] dark:text-white">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded text-[11px] uppercase tracking-wider font-mono bg-slate-50 dark:bg-white/[0.02] border border-[#E7E4DC] dark:border-white/10 text-[#1C1917] dark:text-white">
                     <span class="material-symbols-outlined text-[14px] mr-1 text-emerald-600 dark:text-emerald-400">check_circle</span>
                     GLP (Good Laboratory Practice)
                   </span>
-                  <span class="inline-flex items-center px-2.5 py-1 rounded text-[11px] uppercase tracking-wider font-mono bg-slate-50 dark:bg-white/[0.02] border border-[#E2E8F0] dark:border-white/10 text-[#0F172A] dark:text-white">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded text-[11px] uppercase tracking-wider font-mono bg-slate-50 dark:bg-white/[0.02] border border-[#E7E4DC] dark:border-white/10 text-[#1C1917] dark:text-white">
                     <span class="material-symbols-outlined text-[14px] mr-1 text-emerald-600 dark:text-emerald-400">check_circle</span>
                     Phytochemistry
                   </span>
-                  <span class="inline-flex items-center px-2.5 py-1 rounded text-[11px] uppercase tracking-wider font-mono bg-slate-50 dark:bg-white/[0.02] border border-[#E2E8F0] dark:border-white/10 text-[#0F172A] dark:text-white">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded text-[11px] uppercase tracking-wider font-mono bg-slate-50 dark:bg-white/[0.02] border border-[#E7E4DC] dark:border-white/10 text-[#1C1917] dark:text-white">
                     <span class="material-symbols-outlined text-[14px] mr-1 text-emerald-600 dark:text-emerald-400">check_circle</span>
                     Python (Cheminformatics)
                   </span>
                 </div>
-                <p class="font-normal text-xs text-[#64748B] dark:text-gray-400 pt-1">
+                <p class="font-normal text-xs text-[#6E6962] dark:text-gray-400 pt-1 leading-relaxed">
                   Authored 2 peer-reviewed studies on standardized polyherbal extracts. Possesses verified GLP certification issued by AIIA Central Testing Laboratory.
                 </p>
               </div>
-              <div class="pt-4 border-t border-[#E2E8F0] dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2">
-                <div class="text-[11px] uppercase tracking-wider font-mono text-[#64748B] dark:text-gray-400 flex items-center space-x-1">
+              <div class="pt-4 border-t border-[#E7E4DC] dark:border-white/10 flex flex-wrap items-center justify-between gap-3">
+                <div class="text-[11px] uppercase tracking-wider font-mono text-[#6E6962] dark:text-gray-400 flex items-center space-x-1">
                   <span class="material-symbols-outlined text-[14px]">lock</span>
                   <span>Ledger Signature: 0x8F3a...c92D • Validated: 12 Jan 2025</span>
                 </div>
-                <div class="flex items-center space-x-2 w-full sm:w-auto">
-                  <button onclick="handleViewLedger('Ashay Verma')" class="flex-1 sm:flex-none border border-[#E2E8F0] dark:border-white/10 px-3 py-1.5 rounded text-[11px] uppercase tracking-wider font-semibold text-[#0F172A] dark:text-white hover:bg-slate-50 dark:bg-white/[0.02] transition-colors duration-150 flex items-center justify-center space-x-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <button onclick="handleViewLedger('Aarav Sharma')" class="border border-[#E7E4DC] dark:border-white/10 px-3 py-1.5 rounded-lg text-[11px] uppercase tracking-wider font-semibold text-[#1C1917] dark:text-white hover:bg-slate-50 dark:bg-white/[0.02] transition-colors duration-150 flex items-center space-x-1">
                     <span class="material-symbols-outlined text-[16px]">account_balance_wallet</span>
-                    <span>View Verified AIIA Ledger</span>
+                    <span>View AIIA Ledger</span>
                   </button>
-                  <button onclick="handleScheduleInterview('Ashay Verma')" class="flex-1 sm:flex-none bg-[#0F172A] dark:bg-white/10 text-white dark:text-gray-100 px-5 py-1.5 rounded text-[11px] uppercase tracking-wider font-semibold hover:bg-[#1E293B] dark:hover:bg-white/20 transition-colors duration-150 flex items-center justify-center space-x-1">
+                  <button onclick="handleScheduleInterview('Aarav Sharma')" class="bg-[#944C23] hover:bg-[#7C3D1B] dark:bg-[#E07A48] dark:hover:bg-[#E07A48]/90 text-white px-3.5 py-1.5 rounded-lg text-[11px] uppercase tracking-wider font-semibold transition-colors duration-150 flex items-center space-x-1 shadow-xs">
                     <span class="material-symbols-outlined text-[16px]">event</span>
-                    <span>Schedule Technical Interview</span>
+                    <span>Schedule Interview</span>
                   </button>
                 </div>
               </div>
             </div>
 
             <!-- Candidate Dossier Card 2: Priya Nair -->
-            <div class="bg-white dark:bg-white/[0.03] border border-[#E2E8F0] dark:border-white/10 rounded-lg p-6 shadow-none hover:border-[#CBD5E1] dark:hover:border-white/20 transition-colors">
-              <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 pb-4 border-b border-[#E2E8F0] dark:border-white/10">
+            <div class="bg-white dark:bg-white/[0.03] border border-[#E7E4DC] dark:border-white/10 rounded-xl p-5 sm:p-6 shadow-none hover:border-[#CBD5E1] dark:hover:border-white/20 transition-colors overflow-hidden">
+              <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 pb-4 border-b border-[#E7E4DC] dark:border-white/10">
                 <div class="flex items-start space-x-3">
-                  <div class="w-12 h-12 rounded border border-[#E2E8F0] dark:border-white/10 bg-slate-100 dark:bg-white/[0.06] flex items-center justify-center font-bold text-[#64748B] dark:text-gray-400">PN</div>
-                  <div>
-                    <div class="flex items-center space-x-2">
-                      <h3 class="text-base sm:text-lg font-bold text-[#0F172A] dark:text-white">Priya Nair</h3>
+                  <div class="w-12 h-12 rounded-lg border border-[#E7E4DC] dark:border-white/10 bg-slate-100 dark:bg-white/[0.06] flex items-center justify-center font-bold text-[#6E6962] dark:text-gray-400 shrink-0">PN</div>
+                  <div class="min-w-0">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <h3 class="text-base sm:text-lg font-bold text-[#1C1917] dark:text-white truncate">Priya Nair</h3>
                       <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono bg-[#ecfdf5] border border-[#a7f3d0] text-[#065f46]">
                         <span class="material-symbols-outlined text-[14px] mr-1" style="font-variation-settings: 'FILL' 1;">verified</span>
                         GAU Registry Validated
                       </span>
                     </div>
-                    <p class="font-normal text-xs text-[#64748B] dark:text-gray-400 mt-0.5">Gujarat Ayurved University • <span class="font-mono">M.Pharm (Ayurveda Formulation)</span></p>
-                    <div class="flex items-center space-x-1 mt-1 text-[11px] uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">
-                      <span class="text-[#0F172A] dark:text-white">Role:</span>
+                    <p class="font-normal text-xs text-[#6E6962] dark:text-gray-400 mt-0.5">Gujarat Ayurved University • <span class="font-mono">M.Pharm (Ayurveda Formulation)</span></p>
+                    <div class="flex flex-wrap items-center gap-1 mt-1 text-[11px] uppercase tracking-wider font-semibold text-[#6E6962] dark:text-gray-400">
+                      <span class="text-[#1C1917] dark:text-white">Role:</span>
                       <span>Formulation Scientist</span>
                       <span>•</span>
                       <span>Industrial Drug Standardization</span>
                     </div>
                   </div>
                 </div>
-                <div class="flex md:flex-col items-end justify-between md:justify-center">
+                <div class="flex md:flex-col items-end justify-between md:justify-center shrink-0">
                   <div class="flex items-center space-x-1.5 bg-slate-100 dark:bg-white/[0.04] px-3 py-1 rounded">
                     <span class="font-mono text-base sm:text-lg font-bold text-purple-600 dark:text-purple-400">96%</span>
-                    <span class="text-[10px] text-[#64748B] dark:text-gray-400 uppercase font-semibold leading-tight">Match<br/>Score</span>
+                    <span class="text-[10px] text-[#6E6962] dark:text-gray-400 uppercase font-semibold leading-tight">Match<br/>Score</span>
                   </div>
                   <span class="mt-1.5 inline-flex items-center px-2 py-0.5 rounded text-[11px] uppercase tracking-wider font-mono bg-[#ecfdf5] text-[#065f46] border border-[#a7f3d0]">
                     Ready for Interview
@@ -421,106 +430,106 @@
                 </div>
               </div>
               <div class="py-3 space-y-2">
-                <div class="text-[11px] uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">Verified Competency Tokens:</div>
-                <div class="flex flex-wrap gap-1">
-                  <span class="inline-flex items-center px-2.5 py-1 rounded text-[11px] uppercase tracking-wider font-mono bg-slate-50 dark:bg-white/[0.02] border border-[#E2E8F0] dark:border-white/10 text-[#0F172A] dark:text-white">
+                <div class="text-[11px] uppercase tracking-wider font-semibold text-[#6E6962] dark:text-gray-400">Verified Competency Tokens:</div>
+                <div class="flex flex-wrap gap-1.5">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded text-[11px] uppercase tracking-wider font-mono bg-slate-50 dark:bg-white/[0.02] border border-[#E7E4DC] dark:border-white/10 text-[#1C1917] dark:text-white">
                     <span class="material-symbols-outlined text-[14px] mr-1 text-emerald-600 dark:text-emerald-400">check_circle</span>
                     HPTLC
                   </span>
-                  <span class="inline-flex items-center px-2.5 py-1 rounded text-[11px] uppercase tracking-wider font-mono bg-slate-50 dark:bg-white/[0.02] border border-[#E2E8F0] dark:border-white/10 text-[#0F172A] dark:text-white">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded text-[11px] uppercase tracking-wider font-mono bg-slate-50 dark:bg-white/[0.02] border border-[#E7E4DC] dark:border-white/10 text-[#1C1917] dark:text-white">
                     <span class="material-symbols-outlined text-[14px] mr-1 text-emerald-600 dark:text-emerald-400">check_circle</span>
                     AutoDock (Molecular Modeling)
                   </span>
-                  <span class="inline-flex items-center px-2.5 py-1 rounded text-[11px] uppercase tracking-wider font-mono bg-slate-50 dark:bg-white/[0.02] border border-[#E2E8F0] dark:border-white/10 text-[#0F172A] dark:text-white">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded text-[11px] uppercase tracking-wider font-mono bg-slate-50 dark:bg-white/[0.02] border border-[#E7E4DC] dark:border-white/10 text-[#1C1917] dark:text-white">
                     <span class="material-symbols-outlined text-[14px] mr-1 text-emerald-600 dark:text-emerald-400">check_circle</span>
                     Drug Discovery
                   </span>
                 </div>
-                <p class="font-normal text-xs text-[#64748B] dark:text-gray-400 pt-1">
+                <p class="font-normal text-xs text-[#6E6962] dark:text-gray-400 pt-1 leading-relaxed">
                   Top percentile in in-silico screening of herbal active phytochemicals against inflammatory targets. 3 published monographs.
                 </p>
               </div>
-              <div class="pt-4 border-t border-[#E2E8F0] dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2">
-                <div class="text-[11px] uppercase tracking-wider font-mono text-[#64748B] dark:text-gray-400 flex items-center space-x-1">
+              <div class="pt-4 border-t border-[#E7E4DC] dark:border-white/10 flex flex-wrap items-center justify-between gap-3">
+                <div class="text-[11px] uppercase tracking-wider font-mono text-[#6E6962] dark:text-gray-400 flex items-center space-x-1">
                   <span class="material-symbols-outlined text-[14px]">lock</span>
                   <span>Ledger Signature: 0x4B19...eE71 • Validated: 14 Jan 2025</span>
                 </div>
-                <div class="flex items-center space-x-2 w-full sm:w-auto">
-                  <button onclick="handleExamineDossier('Priya Nair')" class="flex-1 sm:flex-none border border-[#E2E8F0] dark:border-white/10 px-3 py-1.5 rounded text-[11px] uppercase tracking-wider font-semibold text-[#0F172A] dark:text-white hover:bg-slate-50 dark:bg-white/[0.02] transition-colors duration-150 flex items-center justify-center space-x-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <button onclick="handleExamineDossier('Priya Nair')" class="border border-[#E7E4DC] dark:border-white/10 px-3 py-1.5 rounded-lg text-[11px] uppercase tracking-wider font-semibold text-[#1C1917] dark:text-white hover:bg-slate-50 dark:bg-white/[0.02] transition-colors duration-150 flex items-center space-x-1">
                     <span class="material-symbols-outlined text-[16px]">description</span>
-                    <span>Examine Full Dossier</span>
+                    <span>Examine Dossier</span>
                   </button>
-                  <button onclick="handleConfirmSlot('Priya Nair')" class="flex-1 sm:flex-none bg-[#0F172A] dark:bg-white/10 text-white dark:text-gray-100 px-5 py-1.5 rounded text-[11px] uppercase tracking-wider font-semibold hover:bg-[#1E293B] dark:hover:bg-white/20 transition-colors duration-150 flex items-center justify-center space-x-1">
+                  <button onclick="handleConfirmSlot('Priya Nair')" class="bg-[#944C23] hover:bg-[#7C3D1B] dark:bg-[#E07A48] dark:hover:bg-[#E07A48]/90 text-white px-3.5 py-1.5 rounded-lg text-[11px] uppercase tracking-wider font-semibold transition-colors duration-150 flex items-center space-x-1 shadow-xs">
                     <span class="material-symbols-outlined text-[16px]">video_call</span>
-                    <span>Confirm Interview Slot</span>
+                    <span>Confirm Slot</span>
                   </button>
                 </div>
               </div>
             </div>
 
             <!-- Candidate Dossier Card 3: Kavya Singh -->
-            <div class="bg-white dark:bg-white/[0.03] border border-[#E2E8F0] dark:border-white/10 rounded-lg p-6 shadow-none hover:border-[#CBD5E1] dark:hover:border-white/20 transition-colors">
-              <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 pb-4 border-b border-[#E2E8F0] dark:border-white/10">
+            <div class="bg-white dark:bg-white/[0.03] border border-[#E7E4DC] dark:border-white/10 rounded-xl p-5 sm:p-6 shadow-none hover:border-[#CBD5E1] dark:hover:border-white/20 transition-colors overflow-hidden">
+              <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 pb-4 border-b border-[#E7E4DC] dark:border-white/10">
                 <div class="flex items-start space-x-3">
-                  <div class="w-12 h-12 rounded border border-[#E2E8F0] dark:border-white/10 bg-slate-100 dark:bg-white/[0.06] flex items-center justify-center font-bold text-slate-700 dark:text-slate-300">KS</div>
-                  <div>
-                    <div class="flex items-center space-x-2">
-                      <h3 class="text-base sm:text-lg font-bold text-[#0F172A] dark:text-white">Kavya Singh</h3>
+                  <div class="w-12 h-12 rounded-lg border border-[#E7E4DC] dark:border-white/10 bg-slate-100 dark:bg-white/[0.06] flex items-center justify-center font-bold text-slate-700 dark:text-slate-300 shrink-0">KS</div>
+                  <div class="min-w-0">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <h3 class="text-base sm:text-lg font-bold text-[#1C1917] dark:text-white truncate">Kavya Singh</h3>
                       <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono bg-[#ecfdf5] border border-[#a7f3d0] text-[#065f46]">
                         <span class="material-symbols-outlined text-[14px] mr-1" style="font-variation-settings: 'FILL' 1;">verified</span>
                         AIIA New Delhi Validated
                       </span>
                     </div>
-                    <p class="font-normal text-xs text-[#64748B] dark:text-gray-400 mt-0.5">AIIA New Delhi • <span class="font-mono">M.Tech / M.S. (Ayush Health Informatics)</span></p>
-                    <div class="flex items-center space-x-1 mt-1 text-[11px] uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">
-                      <span class="text-[#0F172A] dark:text-white">Requisition:</span>
+                    <p class="font-normal text-xs text-[#6E6962] dark:text-gray-400 mt-0.5">AIIA New Delhi • <span class="font-mono">M.Tech / M.S. (Ayush Health Informatics)</span></p>
+                    <div class="flex flex-wrap items-center gap-1 mt-1 text-[11px] uppercase tracking-wider font-semibold text-[#6E6962] dark:text-gray-400">
+                      <span class="text-[#1C1917] dark:text-white">Requisition:</span>
                       <span>Ayush Health Informatics Specialist</span>
                       <span>•</span>
                       <span>Himalaya Wellness Corp Partnership</span>
                     </div>
                   </div>
                 </div>
-                <div class="flex md:flex-col items-end justify-between md:justify-center">
+                <div class="flex md:flex-col items-end justify-between md:justify-center shrink-0">
                   <div class="flex items-center space-x-1.5 bg-slate-100 dark:bg-white/[0.04] px-3 py-1 rounded">
                     <span class="font-mono text-base sm:text-lg font-bold text-purple-600 dark:text-purple-400">91%</span>
-                    <span class="text-[10px] text-[#64748B] dark:text-gray-400 uppercase font-semibold leading-tight">Match<br/>Score</span>
+                    <span class="text-[10px] text-[#6E6962] dark:text-gray-400 uppercase font-semibold leading-tight">Match<br/>Score</span>
                   </div>
-                  <span class="mt-1.5 inline-flex items-center px-2 py-0.5 rounded text-[11px] uppercase tracking-wider font-mono bg-slate-100 dark:bg-white/[0.06] text-purple-600 dark:text-purple-400 border border-[#E2E8F0] dark:border-white/10">
+                  <span class="mt-1.5 inline-flex items-center px-2 py-0.5 rounded text-[11px] uppercase tracking-wider font-mono bg-slate-100 dark:bg-white/[0.06] text-purple-600 dark:text-purple-400 border border-[#E7E4DC] dark:border-white/10">
                     Under Review
                   </span>
                 </div>
               </div>
               <div class="py-3 space-y-2">
-                <div class="text-[11px] uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">Verified Competency Tokens:</div>
-                <div class="flex flex-wrap gap-1">
-                  <span class="inline-flex items-center px-2.5 py-1 rounded text-[11px] uppercase tracking-wider font-mono bg-slate-50 dark:bg-white/[0.02] border border-[#E2E8F0] dark:border-white/10 text-[#0F172A] dark:text-white">
+                <div class="text-[11px] uppercase tracking-wider font-semibold text-[#6E6962] dark:text-gray-400">Verified Competency Tokens:</div>
+                <div class="flex flex-wrap gap-1.5">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded text-[11px] uppercase tracking-wider font-mono bg-slate-50 dark:bg-white/[0.02] border border-[#E7E4DC] dark:border-white/10 text-[#1C1917] dark:text-white">
                     <span class="material-symbols-outlined text-[14px] mr-1 text-emerald-600 dark:text-emerald-400">check_circle</span>
                     NLP (Natural Language Processing)
                   </span>
-                  <span class="inline-flex items-center px-2.5 py-1 rounded text-[11px] uppercase tracking-wider font-mono bg-slate-50 dark:bg-white/[0.02] border border-[#E2E8F0] dark:border-white/10 text-[#0F172A] dark:text-white">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded text-[11px] uppercase tracking-wider font-mono bg-slate-50 dark:bg-white/[0.02] border border-[#E7E4DC] dark:border-white/10 text-[#1C1917] dark:text-white">
                     <span class="material-symbols-outlined text-[14px] mr-1 text-emerald-600 dark:text-emerald-400">check_circle</span>
                     Sanskrit Lexicon Processing
                   </span>
-                  <span class="inline-flex items-center px-2.5 py-1 rounded text-[11px] uppercase tracking-wider font-mono bg-slate-50 dark:bg-white/[0.02] border border-[#E2E8F0] dark:border-white/10 text-[#0F172A] dark:text-white">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded text-[11px] uppercase tracking-wider font-mono bg-slate-50 dark:bg-white/[0.02] border border-[#E7E4DC] dark:border-white/10 text-[#1C1917] dark:text-white">
                     <span class="material-symbols-outlined text-[14px] mr-1 text-emerald-600 dark:text-emerald-400">check_circle</span>
                     Health Data Analytics
                   </span>
                 </div>
-                <p class="font-normal text-xs text-[#64748B] dark:text-gray-400 pt-1">
+                <p class="font-normal text-xs text-[#6E6962] dark:text-gray-400 pt-1 leading-relaxed">
                   Developed specialized ontology models bridging Charaka Samhita terminology with modern ICD-11 classifications.
                 </p>
               </div>
-              <div class="pt-4 border-t border-[#E2E8F0] dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2">
-                <div class="text-[11px] uppercase tracking-wider font-mono text-[#64748B] dark:text-gray-400 flex items-center space-x-1">
+              <div class="pt-4 border-t border-[#E7E4DC] dark:border-white/10 flex flex-wrap items-center justify-between gap-3">
+                <div class="text-[11px] uppercase tracking-wider font-mono text-[#6E6962] dark:text-gray-400 flex items-center space-x-1">
                   <span class="material-symbols-outlined text-[14px]">lock</span>
                   <span>Ledger Signature: 0x992B...21F4 • Validated: 15 Jan 2025</span>
                 </div>
-                <div class="flex items-center space-x-2 w-full sm:w-auto">
-                  <button onclick="handleViewLedger('Kavya Singh')" class="flex-1 sm:flex-none border border-[#E2E8F0] dark:border-white/10 px-3 py-1.5 rounded text-[11px] uppercase tracking-wider font-semibold text-[#0F172A] dark:text-white hover:bg-slate-50 dark:bg-white/[0.02] transition-colors duration-150 flex items-center justify-center space-x-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <button onclick="handleViewLedger('Kavya Singh')" class="border border-[#E7E4DC] dark:border-white/10 px-3 py-1.5 rounded-lg text-[11px] uppercase tracking-wider font-semibold text-[#1C1917] dark:text-white hover:bg-slate-50 dark:bg-white/[0.02] transition-colors duration-150 flex items-center space-x-1">
                     <span class="material-symbols-outlined text-[16px]">account_balance_wallet</span>
-                    <span>View Verified AIIA Ledger</span>
+                    <span>View AIIA Ledger</span>
                   </button>
-                  <button onclick="handleRequestAssessment('Kavya Singh')" class="flex-1 sm:flex-none bg-[#0F172A] dark:bg-white/10 text-white dark:text-gray-100 px-5 py-1.5 rounded text-[11px] uppercase tracking-wider font-semibold hover:bg-[#1E293B] dark:hover:bg-white/20 transition-colors duration-150 flex items-center justify-center space-x-1">
+                  <button onclick="handleRequestAssessment('Kavya Singh')" class="bg-[#944C23] hover:bg-[#7C3D1B] dark:bg-[#E07A48] dark:hover:bg-[#E07A48]/90 text-white px-3.5 py-1.5 rounded-lg text-[11px] uppercase tracking-wider font-semibold transition-colors duration-150 flex items-center space-x-1 shadow-xs">
                     <span class="material-symbols-outlined text-[16px]">schedule</span>
                     <span>Request Assessment</span>
                   </button>
@@ -530,31 +539,31 @@
           </div>
 
           <!-- Right Column / Sidebar: Corporate Operational Modules (4 Cols) -->
-          <div class="xl:col-span-4 space-y-5">
+          <div class="xl:col-span-4 space-y-5 min-w-0">
             <!-- Module 1: Reverse Headhunting Engine -->
-            <div class="bg-white dark:bg-white/[0.03] border border-[#E2E8F0] dark:border-white/10 rounded-lg p-6 shadow-none">
-              <div class="flex items-center justify-between pb-2 border-b border-[#E2E8F0] dark:border-white/10">
+            <div class="bg-white dark:bg-white/[0.03] border border-[#E7E4DC] dark:border-white/10 rounded-lg p-6 shadow-none">
+              <div class="flex items-center justify-between pb-2 border-b border-[#E7E4DC] dark:border-white/10">
                 <div class="flex items-center space-x-1">
                   <span class="material-symbols-outlined text-purple-600 dark:text-purple-400 text-[20px]">radar</span>
-                  <h2 class="text-base sm:text-lg font-bold text-[#0F172A] dark:text-white">Reverse Headhunting Engine</h2>
+                  <h2 class="text-base sm:text-lg font-bold text-[#1C1917] dark:text-white">Reverse Headhunting Engine</h2>
                 </div>
                 <span class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/[0.06] text-purple-600 dark:text-purple-400 font-mono text-[10px]">PRE-APPLICATION</span>
               </div>
-              <p class="font-normal text-xs text-[#64748B] dark:text-gray-400 mt-2">
+              <p class="font-normal text-xs text-[#6E6962] dark:text-gray-400 mt-2">
                 Search unlisted national research scholars by micro-specialization skills. Dispatch direct statutory inbound recruitment inquiries before open public job posts.
               </p>
               <div class="mt-4 space-y-2">
-                <label class="text-[11px] uppercase tracking-wider text-[#0F172A] dark:text-white font-semibold block">Query Hidden Scholar Pool by Skill Tag</label>
+                <label class="text-[11px] uppercase tracking-wider text-[#1C1917] dark:text-white font-semibold block">Query Hidden Scholar Pool by Skill Tag</label>
                 <div class="relative">
-                  <input class="w-full h-10 pl-3 pr-8 text-xs font-normal border border-[#E2E8F0] dark:border-white/10 rounded bg-white dark:bg-white/[0.03] shadow-sm focus:outline-none focus:border-blue-500" type="text" value="HPTLC Standardization, Molecular Docking"/>
-                  <span class="material-symbols-outlined absolute right-2.5 top-2.5 text-[#64748B] dark:text-gray-400 text-[18px]">filter_list</span>
+                  <input class="w-full h-10 pl-3 pr-8 text-xs font-normal border border-[#E7E4DC] dark:border-white/10 rounded bg-white dark:bg-white/[0.03] shadow-sm focus:outline-none focus:border-blue-500" type="text" value="HPTLC Standardization, Molecular Docking"/>
+                  <span class="material-symbols-outlined absolute right-2.5 top-2.5 text-[#6E6962] dark:text-gray-400 text-[18px]">filter_list</span>
                 </div>
-                <div class="p-2 bg-slate-50 dark:bg-white/[0.02] border border-[#E2E8F0] dark:border-white/10 rounded space-y-1">
+                <div class="p-2 bg-slate-50 dark:bg-white/[0.02] border border-[#E7E4DC] dark:border-white/10 rounded space-y-1">
                   <div class="flex justify-between items-center text-[11px] uppercase tracking-wider font-semibold">
-                    <span class="text-[#0F172A] dark:text-white">14 Unreleased Scholars Identified</span>
+                    <span class="text-[#1C1917] dark:text-white">14 Unreleased Scholars Identified</span>
                     <span class="font-mono text-emerald-600 dark:text-emerald-400 font-semibold">98.1% Exact Match</span>
                   </div>
-                  <div class="text-[11px] uppercase tracking-wider text-[#64748B] dark:text-gray-400">Institutions: AIIA New Delhi (8), GAU Jamnagar (4), NIA Jaipur (2)</div>
+                  <div class="text-[11px] uppercase tracking-wider text-[#6E6962] dark:text-gray-400">Institutions: AIIA New Delhi (8), GAU Jamnagar (4), NIA Jaipur (2)</div>
                 </div>
                 <button onclick="handleDispatchInquiry()" class="w-full bg-[#0F172A] dark:bg-white/10 text-white dark:text-gray-100 py-2 px-3 rounded text-[11px] uppercase tracking-wider font-semibold hover:bg-[#1E293B] dark:hover:bg-white/20 transition-colors flex items-center justify-center space-x-1.5">
                   <span class="material-symbols-outlined text-[16px]">outgoing_mail</span>
@@ -564,89 +573,151 @@
             </div>
 
             <!-- Module 2: Skill Match ROI & Recruiter Feedback Loop -->
-            <div id="skill-calibrator-section" class="bg-white dark:bg-white/[0.03] border border-[#E2E8F0] dark:border-white/10 rounded-lg p-6 shadow-none">
-              <div class="flex items-center justify-between pb-2 border-b border-[#E2E8F0] dark:border-white/10">
+            <div id="skill-calibrator-section" class="bg-white dark:bg-white/[0.03] border border-[#E7E4DC] dark:border-white/10 rounded-lg p-6 shadow-none">
+              <div class="flex items-center justify-between pb-2 border-b border-[#E7E4DC] dark:border-white/10">
                 <div class="flex items-center space-x-1">
                   <span class="material-symbols-outlined text-purple-600 dark:text-purple-400 text-[20px]">tune</span>
-                  <h2 class="text-base sm:text-lg font-bold text-[#0F172A] dark:text-white">Skill Match ROI &amp; Calibrator</h2>
+                  <h2 class="text-base sm:text-lg font-bold text-[#1C1917] dark:text-white">Skill Match ROI &amp; Calibrator</h2>
                 </div>
                 <span class="font-mono text-xs text-emerald-600 dark:text-emerald-400 font-bold">94.2% ACCURACY</span>
               </div>
               <div class="mt-2 space-y-2">
                 <div class="flex justify-between items-baseline text-[11px] uppercase tracking-wider">
-                  <span class="text-[#64748B] dark:text-gray-400">Predicted vs Evaluated Alignment:</span>
-                  <span class="font-mono text-[#0F172A] dark:text-white font-semibold">High Precision (+3.4%)</span>
+                  <span class="text-[#6E6962] dark:text-gray-400">Predicted vs Evaluated Alignment:</span>
+                  <span class="font-mono text-[#1C1917] dark:text-white font-semibold">High Precision (+3.4%)</span>
                 </div>
-                <div class="border border-[#E2E8F0] dark:border-white/10 rounded p-2 bg-white dark:bg-white/[0.03] space-y-2">
-                  <span class="text-[11px] uppercase tracking-wider text-[#0F172A] dark:text-white font-semibold block">Calibrate Requisition AI Scoring Weights</span>
+                <div class="border border-[#E7E4DC] dark:border-white/10 rounded p-2 bg-white dark:bg-white/[0.03] space-y-2">
+                  <span class="text-[11px] uppercase tracking-wider text-[#1C1917] dark:text-white font-semibold block">Calibrate Requisition AI Scoring Weights</span>
                   <div class="space-y-1">
-                    <div class="flex justify-between text-[11px] text-[#64748B] dark:text-gray-400">
+                    <div class="flex justify-between text-[11px] text-[#6E6962] dark:text-gray-400">
                       <span>Weight: GLP Certified Lab Hours</span>
                       <span class="font-mono">40%</span>
                     </div>
                     <input class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded appearance-none cursor-pointer accent-blue-600" max="70" min="10" type="range" value="40"/>
                   </div>
                   <div class="space-y-1">
-                    <div class="flex justify-between text-[11px] text-[#64748B] dark:text-gray-400">
+                    <div class="flex justify-between text-[11px] text-[#6E6962] dark:text-gray-400">
                       <span>Weight: Computational AutoDock Skills</span>
                       <span class="font-mono">35%</span>
                     </div>
                     <input class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded appearance-none cursor-pointer accent-blue-600" max="70" min="10" type="range" value="35"/>
                   </div>
                   <div class="pt-1">
-                    <label class="text-[11px] font-semibold text-[#64748B] dark:text-gray-400 block mb-1">Feedback on Last Interview Batch (Candidate Quality)</label>
+                    <label class="text-[11px] font-semibold text-[#6E6962] dark:text-gray-400 block mb-1">Feedback on Last Interview Batch (Candidate Quality)</label>
                     <div class="flex items-center space-x-1">
-                      <button class="flex-1 py-1 text-center border border-[#E2E8F0] dark:border-white/10 rounded hover:bg-slate-100 dark:hover:bg-white/[0.06] text-[11px] font-semibold text-[#0F172A] dark:text-white">Superior</button>
-                      <button class="flex-1 py-1 text-center border border-[#E2E8F0] dark:border-white/10 rounded bg-[#0F172A] dark:bg-white/10 text-white dark:text-gray-100 text-[11px] font-semibold">Accurate</button>
-                      <button class="flex-1 py-1 text-center border border-[#E2E8F0] dark:border-white/10 rounded hover:bg-slate-100 dark:hover:bg-white/[0.06] text-[11px] font-semibold text-[#0F172A] dark:text-white">Needs Variance</button>
+                      <button class="flex-1 py-1 text-center border border-[#E7E4DC] dark:border-white/10 rounded hover:bg-slate-100 dark:hover:bg-white/[0.06] text-[11px] font-semibold text-[#1C1917] dark:text-white">Superior</button>
+                      <button class="flex-1 py-1 text-center border border-[#E7E4DC] dark:border-white/10 rounded bg-[#0F172A] dark:bg-white/10 text-white dark:text-gray-100 text-[11px] font-semibold">Accurate</button>
+                      <button class="flex-1 py-1 text-center border border-[#E7E4DC] dark:border-white/10 rounded hover:bg-slate-100 dark:hover:bg-white/[0.06] text-[11px] font-semibold text-[#1C1917] dark:text-white">Needs Variance</button>
                     </div>
                   </div>
                 </div>
-                <button onclick="handleSubmitCalibration()" class="w-full border border-[#E2E8F0] dark:border-white/10 text-[#0F172A] dark:text-white py-1.5 px-3 rounded text-[11px] uppercase tracking-wider font-semibold hover:bg-slate-50 dark:bg-white/[0.02] transition-colors text-center">
+                <button onclick="handleSubmitCalibration()" class="w-full border border-[#E7E4DC] dark:border-white/10 text-[#1C1917] dark:text-white py-1.5 px-3 rounded text-[11px] uppercase tracking-wider font-semibold hover:bg-slate-50 dark:bg-white/[0.02] transition-colors text-center">
                   Submit Weight Calibration to AYUSH Model
                 </button>
               </div>
             </div>
 
             <!-- Module 3: Active Corporate Requisitions Manager -->
-            <div id="corporate-requisitions-section" class="bg-white dark:bg-white/[0.03] border border-[#E2E8F0] dark:border-white/10 rounded-lg p-6 shadow-none">
-              <div class="flex items-center justify-between pb-2 border-b border-[#E2E8F0] dark:border-white/10">
+            <div id="corporate-requisitions-section" class="bg-white dark:bg-white/[0.03] border border-[#E7E4DC] dark:border-white/10 rounded-lg p-6 shadow-none">
+              <div class="flex items-center justify-between pb-2 border-b border-[#E7E4DC] dark:border-white/10">
                 <div class="flex items-center space-x-1">
                   <span class="material-symbols-outlined text-purple-600 dark:text-purple-400 text-[20px]">work</span>
-                  <h2 class="text-base sm:text-lg font-bold text-[#0F172A] dark:text-white">Corporate Requisitions</h2>
+                  <h2 class="text-base sm:text-lg font-bold text-[#1C1917] dark:text-white">Corporate Requisitions</h2>
                 </div>
-                <span class="text-[11px] uppercase tracking-wider font-mono text-[#64748B] dark:text-gray-400">3 Active</span>
+                <span class="text-[11px] uppercase tracking-wider font-mono text-[#6E6962] dark:text-gray-400">3 Active</span>
               </div>
               <div class="divide-y divide-[#E2E8F0] dark:divide-white/10 mt-2">
                 <div class="py-2 flex items-center justify-between">
                   <div>
-                    <div class="text-xs font-semibold text-[#0F172A] dark:text-white">Dabur Phytochemical Intern</div>
-                    <div class="text-[11px] uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">Sahibabad Central R&amp;D • 14 Applicants</div>
+                    <div class="text-xs font-semibold text-[#1C1917] dark:text-white">Dabur Phytochemical Intern</div>
+                    <div class="text-[11px] uppercase tracking-wider font-semibold text-[#6E6962] dark:text-gray-400">Sahibabad Central R&amp;D • 14 Applicants</div>
                   </div>
                   <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-[#ecfdf5] text-[#065f46] border border-[#a7f3d0]">Active</span>
                 </div>
                 <div class="py-2 flex items-center justify-between">
                   <div>
-                    <div class="text-xs font-semibold text-[#0F172A] dark:text-white">Patanjali QC Formulation Scientist</div>
-                    <div class="text-[11px] uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">Haridwar Division • 19 Applicants</div>
+                    <div class="text-xs font-semibold text-[#1C1917] dark:text-white">Patanjali QC Formulation Scientist</div>
+                    <div class="text-[11px] uppercase tracking-wider font-semibold text-[#6E6962] dark:text-gray-400">Haridwar Division • 19 Applicants</div>
                   </div>
                   <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-[#ecfdf5] text-[#065f46] border border-[#a7f3d0]">Active</span>
                 </div>
                 <div class="py-2 flex items-center justify-between">
                   <div>
-                    <div class="text-xs font-semibold text-[#0F172A] dark:text-white">Micro-Gigs (Sprint Tasks: HPTLC)</div>
-                    <div class="text-[11px] uppercase tracking-wider font-semibold text-[#64748B] dark:text-gray-400">Remote Formulation Audit • 5 Applicants</div>
+                    <div class="text-xs font-semibold text-[#1C1917] dark:text-white">Micro-Gigs (Sprint Tasks: HPTLC)</div>
+                    <div class="text-[11px] uppercase tracking-wider font-semibold text-[#6E6962] dark:text-gray-400">Remote Formulation Audit • 5 Applicants</div>
                   </div>
                   <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-[#fffbeb] text-[#92400e] border border-[#fde68a]">Closing Soon</span>
                 </div>
               </div>
-              <div class="pt-4 mt-1 border-t border-[#E2E8F0] dark:border-white/10">
+              <div class="pt-4 mt-1 border-t border-[#E7E4DC] dark:border-white/10">
                 <a class="text-[11px] uppercase tracking-wider font-semibold text-purple-600 dark:text-purple-400 hover:underline flex items-center justify-between" href="src/industry/industry-requisitions.html">
                   <span>View Requisition Analytics Ledger</span>
                   <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
                 </a>
               </div>
             </div>
+
+            <!-- ============================================================= -->
+            <!-- FEATURE 3: Corporate Tech Stack Disclosure Registry           -->
+            <!-- ============================================================= -->
+            <div class="bg-white dark:bg-white/[0.03] border border-[#E7E4DC] dark:border-white/10 rounded-lg p-6 shadow-none space-y-3">
+              <div class="flex items-center justify-between pb-2 border-b border-[#E7E4DC] dark:border-white/10">
+                <div class="flex items-center space-x-1.5">
+                  <span class="material-symbols-outlined text-[#2D5542] dark:text-[#4EBA87] text-[20px]">biotech</span>
+                  <h2 class="text-base font-bold text-[#1C1917] dark:text-white">Active Tech Stack Disclosures</h2>
+                </div>
+                <span class="px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-[#2D5542] dark:text-[#4EBA87] font-mono text-[10px] font-bold">RADAR SYNCED</span>
+              </div>
+              <p class="font-normal text-xs text-[#6E6962] dark:text-gray-400 leading-relaxed">
+                Broadcast active analytical tools, laboratory standards, and data pipelines to university Academic Councils to align student curricula.
+              </p>
+
+              <div id="industry-tech-stacks-list" class="space-y-2 pt-1">
+                <!-- Rendered dynamically -->
+                <div class="p-2.5 rounded border border-[#E7E4DC] dark:border-white/10 bg-slate-50 dark:bg-white/[0.02]">
+                  <div class="flex justify-between items-center text-xs font-bold text-[#1C1917] dark:text-white">
+                    <span>HPTLC CAMAG ATS 4</span>
+                    <span class="text-[10px] font-mono text-emerald-600 dark:text-emerald-400">Core Production</span>
+                  </div>
+                  <div class="text-[11px] text-[#6E6962] dark:text-gray-400 mt-0.5">Analytical Instrumentation · Demand: Production Mastery</div>
+                </div>
+
+                <div class="p-2.5 rounded border border-[#E7E4DC] dark:border-white/10 bg-slate-50 dark:bg-white/[0.02]">
+                  <div class="flex justify-between items-center text-xs font-bold text-[#1C1917] dark:text-white">
+                    <span>21 CFR Part 11 ELN / LIMS</span>
+                    <span class="text-[10px] font-mono text-emerald-600 dark:text-emerald-400">Core Production</span>
+                  </div>
+                  <div class="text-[11px] text-[#6E6962] dark:text-gray-400 mt-0.5">Compliance &amp; QA · Demand: Intermediate</div>
+                </div>
+              </div>
+
+              <button onclick="openPublishTechStackModal()" class="w-full mt-2 py-2 px-3 rounded-lg border border-[#2D5542] dark:border-[#4EBA87] text-[#2D5542] dark:text-[#4EBA87] hover:bg-[#2D5542] hover:text-white transition font-semibold text-xs flex items-center justify-center gap-1">
+                <span class="material-symbols-outlined text-base">add</span>
+                <span>Publish New Tool / Tech Stack</span>
+              </button>
+            </div>
+
+            <!-- ============================================================= -->
+            <!-- FEATURE 4 & 7: Workshops & Skill Quizzes Gateway              -->
+            <!-- ============================================================= -->
+            <div class="bg-white dark:bg-white/[0.03] border border-[#E7E4DC] dark:border-white/10 rounded-lg p-6 shadow-none space-y-4">
+              <div class="flex items-center justify-between pb-2 border-b border-[#E7E4DC] dark:border-white/10">
+                <div class="flex items-center space-x-1.5">
+                  <span class="material-symbols-outlined text-[#944C23] dark:text-[#E07A48] text-[20px]">co_present</span>
+                  <h2 class="text-base font-bold text-[#1C1917] dark:text-white">University Workshop Gateway</h2>
+                </div>
+                <span class="px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/40 text-[#944C23] dark:text-[#E07A48] font-mono text-[10px] font-bold">BILATERAL</span>
+              </div>
+              <p class="font-normal text-xs text-[#6E6962] dark:text-gray-400 leading-relaxed">
+                Host joint virtual masterclasses with AIIA and partner institutes. Proposals route directly to the Dean of Academic Affairs for calendar approval.
+              </p>
+
+              <button onclick="openProposeWorkshopModal()" class="w-full py-2 px-3 rounded-lg bg-[#944C23] hover:bg-[#7C3D1B] dark:bg-[#E07A48] text-white font-semibold text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
+                <span class="material-symbols-outlined text-base">video_call</span>
+                <span>Propose Virtual Masterclass</span>
+              </button>
+            </div>
+
           </div>
         </div>
       </div>
@@ -654,10 +725,197 @@
   </main>
 </div>
 
+<!-- ===================================================================== -->
+<!-- MODALS FOR INDUSTRY PORTAL                                            -->
+<!-- ===================================================================== -->
+
+<!-- Modal 1: Publish New Tech Stack -->
+<div id="tech-stack-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div class="bg-white dark:bg-[#101115] border border-[#E7E4DC] dark:border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
+    <div class="flex items-center justify-between pb-3 border-b border-[#E7E4DC] dark:border-white/10">
+      <h3 class="text-base font-bold text-[#1C1917] dark:text-white flex items-center gap-2">
+        <span class="material-symbols-outlined text-[#2D5542] dark:text-[#4EBA87]">biotech</span>
+        Disclose Industrial Tool / Tech Stack
+      </h3>
+      <button onclick="closePublishTechStackModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-white">✕</button>
+    </div>
+
+    <form onsubmit="submitTechStackDisclosure(event)" class="space-y-3">
+      <div>
+        <label class="block text-xs font-semibold text-[#1C1917] dark:text-gray-300 mb-1">Technology / Instrument Name *</label>
+        <input id="ts-name" type="text" required placeholder="e.g. CAMAG Automatic TLC Sampler 4 (ATS 4)" class="w-full px-3 py-2 rounded-xl border border-[#E7E4DC] dark:border-white/10 bg-[#FAF8F5] dark:bg-white/5 text-xs text-[#1C1917] dark:text-white focus:ring-2 focus:ring-[#2D5542]">
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-[#1C1917] dark:text-gray-300 mb-1">Sector</label>
+          <select id="ts-sector" class="w-full px-3 py-2 rounded-xl border border-[#E7E4DC] dark:border-white/10 bg-[#FAF8F5] dark:bg-white/5 text-xs text-[#1C1917] dark:text-white focus:ring-2 focus:ring-[#2D5542]">
+            <option value="Herbal Phytomedicine & Formulation">Phytomedicine & Formulation</option>
+            <option value="Pharmaceutical QA & Compliance">QA & Compliance</option>
+            <option value="Health Informatics & AI">Informatics & AI</option>
+            <option value="Herbal Drug Standardization">Drug Standardization</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-[#1C1917] dark:text-gray-300 mb-1">Demand Level</label>
+          <select id="ts-proficiency" class="w-full px-3 py-2 rounded-xl border border-[#E7E4DC] dark:border-white/10 bg-[#FAF8F5] dark:bg-white/5 text-xs text-[#1C1917] dark:text-white focus:ring-2 focus:ring-[#2D5542]">
+            <option value="Production Mastery">Production Mastery</option>
+            <option value="Intermediate Practitioner">Intermediate</option>
+            <option value="Familiarity">Familiarity</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-[#1C1917] dark:text-gray-300 mb-1">Curriculum Relevance Note for University</label>
+        <textarea id="ts-note" rows="2" placeholder="Why should colleges teach this? e.g. Needed for Withanolide marker profiling..." class="w-full px-3 py-2 rounded-xl border border-[#E7E4DC] dark:border-white/10 bg-[#FAF8F5] dark:bg-white/5 text-xs text-[#1C1917] dark:text-white focus:ring-2 focus:ring-[#2D5542]"></textarea>
+      </div>
+
+      <div class="pt-3 flex items-center justify-end gap-2 border-t border-[#E7E4DC] dark:border-white/10">
+        <button type="button" onclick="closePublishTechStackModal()" class="px-4 py-2 rounded-xl border border-[#E7E4DC] dark:border-white/10 text-xs font-semibold text-[#6E6962] dark:text-gray-400">Cancel</button>
+        <button type="submit" class="px-5 py-2 rounded-xl bg-[#2D5542] dark:bg-[#4EBA87] text-white text-xs font-bold shadow-sm">Broadcast to Tech Radar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal 2: Propose Virtual Masterclass -->
+<div id="propose-workshop-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div class="bg-white dark:bg-[#101115] border border-[#E7E4DC] dark:border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
+    <div class="flex items-center justify-between pb-3 border-b border-[#E7E4DC] dark:border-white/10">
+      <h3 class="text-base font-bold text-[#1C1917] dark:text-white flex items-center gap-2">
+        <span class="material-symbols-outlined text-[#944C23] dark:text-[#E07A48]">video_call</span>
+        Propose Masterclass to Universities
+      </h3>
+      <button onclick="closeProposeWorkshopModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-white">✕</button>
+    </div>
+
+    <form onsubmit="submitWorkshopProposal(event)" class="space-y-3">
+      <div>
+        <label class="block text-xs font-semibold text-[#1C1917] dark:text-gray-300 mb-1">Session Title *</label>
+        <input id="wsp-title" type="text" required placeholder="e.g. Good Laboratory Practice (GLP) & Densitometry" class="w-full px-3 py-2 rounded-xl border border-[#E7E4DC] dark:border-white/10 bg-[#FAF8F5] dark:bg-white/5 text-xs text-[#1C1917] dark:text-white focus:ring-2 focus:ring-[#944C23]">
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-[#1C1917] dark:text-gray-300 mb-1">Speaker Name *</label>
+          <input id="wsp-speaker" type="text" required placeholder="e.g. Lead Scientist / Speaker" class="w-full px-3 py-2 rounded-xl border border-[#E7E4DC] dark:border-white/10 bg-[#FAF8F5] dark:bg-white/5 text-xs text-[#1C1917] dark:text-white focus:ring-2 focus:ring-[#944C23]">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-[#1C1917] dark:text-gray-300 mb-1">Speaker Designation</label>
+          <input id="wsp-designation" type="text" placeholder="Chief Scientist & VP R&D" class="w-full px-3 py-2 rounded-xl border border-[#E7E4DC] dark:border-white/10 bg-[#FAF8F5] dark:bg-white/5 text-xs text-[#1C1917] dark:text-white focus:ring-2 focus:ring-[#944C23]">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-[#1C1917] dark:text-gray-300 mb-1">Scheduled Date &amp; Time *</label>
+          <input id="wsp-start" type="datetime-local" required class="w-full px-3 py-2 rounded-xl border border-[#E7E4DC] dark:border-white/10 bg-[#FAF8F5] dark:bg-white/5 text-xs text-[#1C1917] dark:text-white focus:ring-2 focus:ring-[#944C23]">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-[#1C1917] dark:text-gray-300 mb-1">Max Student Seats</label>
+          <input id="wsp-seats" type="number" value="250" class="w-full px-3 py-2 rounded-xl border border-[#E7E4DC] dark:border-white/10 bg-[#FAF8F5] dark:bg-white/5 text-xs text-[#1C1917] dark:text-white focus:ring-2 focus:ring-[#944C23]">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-[#1C1917] dark:text-gray-300 mb-1">Brief Description</label>
+        <textarea id="wsp-desc" rows="2" placeholder="Key topics covered, live demonstration, and Q&A..." class="w-full px-3 py-2 rounded-xl border border-[#E7E4DC] dark:border-white/10 bg-[#FAF8F5] dark:bg-white/5 text-xs text-[#1C1917] dark:text-white focus:ring-2 focus:ring-[#944C23]"></textarea>
+      </div>
+
+      <div class="pt-3 flex items-center justify-end gap-2 border-t border-[#E7E4DC] dark:border-white/10">
+        <button type="button" onclick="closeProposeWorkshopModal()" class="px-4 py-2 rounded-xl border border-[#E7E4DC] dark:border-white/10 text-xs font-semibold text-[#6E6962] dark:text-gray-400">Cancel</button>
+        <button type="submit" class="px-5 py-2 rounded-xl bg-[#944C23] text-white text-xs font-bold shadow-sm">Submit to University Dean</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <!-- Scripts (Relative Paths) -->
 <script src="js/frontend/api-client.js"></script>
 <script src="js/frontend/notifications.js"></script>
 <script src="js/frontend/industry-ui.js"></script>
+<script src="/js/frontend/animations.js"></script>
+
+<!-- Industry Portal Interactive Handlers -->
+<script>
+function openPublishTechStackModal() {
+  document.getElementById('tech-stack-modal')?.classList.remove('hidden');
+}
+function closePublishTechStackModal() {
+  document.getElementById('tech-stack-modal')?.classList.add('hidden');
+}
+
+async function submitTechStackDisclosure(e) {
+  e.preventDefault();
+  const techName = document.getElementById('ts-name').value;
+  const sector = document.getElementById('ts-sector').value;
+  const proficiencyDemandLevel = document.getElementById('ts-proficiency').value;
+  const curriculumRelevanceNote = document.getElementById('ts-note').value;
+
+  try {
+    const res = await fetch('/api/industry/tech-stack', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        companyName: 'Dabur India Ltd. / R&D Division',
+        techName,
+        sector,
+        proficiencyDemandLevel,
+        curriculumRelevanceNote
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      closePublishTechStackModal();
+      if (window.showToast) window.showToast(`Tool "${techName}" registered & synced to University Tech Radar!`, 'Tech Stack Registry', 'success');
+    }
+  } catch (err) {
+    console.error('[Tech Stack Error]:', err);
+  }
+}
+
+function openProposeWorkshopModal() {
+  document.getElementById('propose-workshop-modal')?.classList.remove('hidden');
+}
+function closeProposeWorkshopModal() {
+  document.getElementById('propose-workshop-modal')?.classList.add('hidden');
+}
+
+async function submitWorkshopProposal(e) {
+  e.preventDefault();
+  const title = document.getElementById('wsp-title').value;
+  const speakerName = document.getElementById('wsp-speaker').value;
+  const speakerDesignation = document.getElementById('wsp-designation').value;
+  const scheduledStart = document.getElementById('wsp-start').value;
+  const maxSeats = document.getElementById('wsp-seats').value;
+  const description = document.getElementById('wsp-desc').value;
+
+  try {
+    const res = await fetch('/api/industry/workshops/propose', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title,
+        speakerName,
+        speakerDesignation,
+        scheduledStart,
+        maxSeats,
+        description
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      closeProposeWorkshopModal();
+      if (window.showToast) window.showToast(`Workshop "${title}" submitted to University for approval!`, 'Workshop Gateway', 'success');
+    }
+  } catch (err) {
+    console.error('[Workshop Proposal Error]:', err);
+  }
+}
+</script>
 </body>
 </html>

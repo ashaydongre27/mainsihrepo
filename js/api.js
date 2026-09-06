@@ -102,7 +102,7 @@ const JoblexAPI = {
       studentGateway: "Student Sector",
       academyGateway: "Academy Sector",
       industryGateway: "Industry Sector",
-      accessButton: "⚡ Enter JOBLEX Portal / Access Roles ➔"
+      accessButton: "Enter JOBLEX Portal / Access Roles"
     },
     hi: {
       portalTitle: "जॉबलेक्स (JOBLEX)",
@@ -112,7 +112,7 @@ const JoblexAPI = {
       studentGateway: "विद्यार्थी क्षेत्र (Student Portal)",
       academyGateway: "अकादमिक संस्थान (Academy Portal)",
       industryGateway: "उद्योग एवं प्लेसमेंट (Industry Portal)",
-      accessButton: "⚡ जॉबलेक्स पोर्टल में प्रवेश करें ➔"
+      accessButton: "जॉबलेक्स पोर्टल में प्रवेश करें"
     }
   },
 
@@ -277,12 +277,12 @@ const JoblexAPI = {
       }
     } catch(e) {}
     const query = (prompt || '').toLowerCase();
-    let text = `### 💡 Zulu AI Guidance\n\nNamaste! Regarding **"${prompt.trim()}"**:\n\n- **Strategic Overview**: Combining classical wisdom with modern analytical methodologies (HPTLC, Phytochemistry, In-silico AutoDock) positions you in the top tier of applicants.\n- **Action Item**: Check your **Career Roadmap** to complete active skill modules and protect your Anti-Decay XP streak! 🌿`;
+    let text = `### Zulu AI Guidance\n\nNamaste! Regarding **"${prompt.trim()}"**:\n\n- **Strategic Overview**: Combining classical wisdom with modern analytical methodologies (HPTLC, Phytochemistry, In-silico AutoDock) positions you in the top tier of applicants.\n- **Action Item**: Check your **Career Roadmap** to complete active skill modules and protect your Anti-Decay XP streak! `;
 
     if (query.includes('dabur') || query.includes('patanjali') || query.includes('himalaya') || query.includes('internship') || query.includes('job')) {
-      text = `### 🌿 Industry R&D & Competency Pathway\n\nNamaste! Based on recruitment benchmarks from Dabur, Himalaya, and Patanjali R&D labs:\n\n1. **High-Demand Competencies**: HPTLC fingerprinting, GLP/GCP compliance, and Python computational biology.\n2. **Next Steps**: Apply via your *Internships Board* or complete Phase 2 of your *Career Roadmap* for direct referral. 🚀`;
+      text = `### Industry R&D & Competency Pathway\n\nNamaste! Based on recruitment benchmarks from Dabur, Himalaya, and Patanjali R&D labs:\n\n1. **High-Demand Competencies**: HPTLC fingerprinting, GLP/GCP compliance, and Python computational biology.\n2. **Next Steps**: Apply via your *Internships Board* or complete Phase 2 of your *Career Roadmap* for direct referral. `;
     } else if (query.includes('decay') || query.includes('freeze') || query.includes('xp') || query.includes('quiz')) {
-      text = `### ❄️ Anti-Decay XP & Competency Freeze Engine\n\nGreetings! Completing any Quiz Arena module or daily check-in freezes your competency score for **72 hours** and awards a 1.5x XP streak multiplier in recruiter talent pools! ⚡`;
+      text = `### Anti-Decay XP & Competency Freeze Engine\n\nGreetings! Completing any Quiz Arena module or daily check-in freezes your competency score for **72 hours** and awards a 1.5x XP streak multiplier in recruiter talent pools! `;
     }
 
     return {

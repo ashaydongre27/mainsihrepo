@@ -21,7 +21,7 @@ app = Flask(__name__, static_folder=STATIC_DIR, static_url_path='')
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # ----------------- SUPABASE DATABASE CONFIGURATION ----------------- #
-SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://kdajefgyyfvmiojqispu.supabase.co").rstrip('/')
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "").rstrip('/')
 SUPABASE_KEY = (
     os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or 
     os.environ.get("SUPABASE_SECRET_KEY") or 
@@ -65,8 +65,8 @@ DB = {
     "users": [
         {
             "id": "usr-student-01",
-            "name": "Ashay Verma",
-            "email": "student@nexus.edu",
+            "name": "Ayush Scholar",
+            "email": "scholar@institution.edu",
             "password": "password123",
             "role": "student",
             "institution": "All India Institute of Ayurveda (AIIA), New Delhi",
@@ -167,8 +167,8 @@ DB = {
             "opportunity_title": "Phytochemical Research Intern",
             "company": "Dabur India Ltd.",
             "type": "Internship",
-            "student_name": "Ashay Verma",
-            "student_email": "student@nexus.edu",
+            "student_name": "Aarav Sharma",
+            "student_email": "aarav.sharma@aiia.gov.in",
             "college": "All India Institute of Ayurveda (AIIA), New Delhi",
             "skills": ["Herbal Formulation", "Phytochemistry", "GLP", "Python"],
             "match": 94,
@@ -211,7 +211,7 @@ DB = {
         }
     ],
     "candidates": [
-        {"id": "cand-1", "name": "Ashay Verma", "college": "All India Institute of Ayurveda", "score": 94, "status": "Shortlisted", "skills": ["Herbal Formulation", "Python", "GLP"]},
+        {"id": "cand-1", "name": "Aarav Sharma", "college": "All India Institute of Ayurveda", "score": 94, "status": "Shortlisted", "skills": ["Herbal Formulation", "Python", "GLP"]},
         {"id": "cand-2", "name": "Pooja Verma", "college": "AIIA New Delhi", "score": 86, "status": "Interview Scheduled", "skills": ["HPTLC", "Spectroscopy", "GLP"]},
         {"id": "cand-3", "name": "Arjun Reddy", "college": "BHU Varanasi", "score": 79, "status": "Under Review", "skills": ["Classical Botany", "Clinical Trials"]},
         {"id": "cand-4", "name": "Kavya Singh", "college": "AIIA New Delhi", "score": 91, "status": "Offer Extended", "skills": ["Machine Learning", "EHR", "Python"]}
@@ -311,18 +311,11 @@ def login():
     role = data.get("role", "").strip().lower()
 
     user = next((u for u in DB["users"] if u["email"].lower() == email), None)
-    if not user:
-        user = {
-            "id": f"usr-{str(uuid.uuid4())[:8]}",
-            "name": email.split("@")[0].replace(".", " ").title(),
-            "email": email,
-            "password": password or "password123",
-            "role": role or "student",
-            "institution": "National Institute of Ayurveda" if role != "industry" else "Himalaya Wellness",
-            "xp": 1200,
-            "streak": 3
-        }
-        DB["users"].append(user)
+    if not user or user.get("password") != password:
+        return jsonify({"success": False, "error": "Invalid email or password. Please check your credentials."}), 401
+
+    if role and user.get("role", "").lower() != role:
+        return jsonify({"success": False, "error": f"Account Role Mismatch: Account is {user.get('role', '').upper()}, not {role.upper()}."}), 400
 
     user_info = {k: v for k, v in user.items() if k != "password"}
     token = f"jwt-token-{user['id']}-{int(datetime.datetime.now().timestamp())}"
@@ -390,8 +383,8 @@ def apply_opportunity():
         "opportunity_title": data.get("opportunityTitle") or data.get("opportunity_title") or "Phytochemical Research Intern",
         "company": data.get("company") or "Dabur India Ltd.",
         "type": data.get("type") or "Internship",
-        "student_name": data.get("studentName") or data.get("student_name") or "Ashay Verma",
-        "student_email": data.get("studentEmail") or data.get("student_email") or "student@nexus.edu",
+        "student_name": data.get("studentName") or data.get("student_name") or "Verified Scholar",
+        "student_email": data.get("studentEmail") or data.get("student_email") or "scholar@institution.edu",
         "college": data.get("college") or "All India Institute of Ayurveda (AIIA), New Delhi",
         "skills": data.get("skills") if isinstance(data.get("skills"), list) else ["Herbal Formulation", "GLP", "Python"],
         "match": int(data.get("match", 92)),

@@ -25,11 +25,12 @@ async function authenticateToken(req, res, next) {
     try {
       const { data: { user }, error } = await supabase.auth.getUser(token);
       if (!error && user) {
+        const userEmail = user.email || '';
         req.user = {
           id: user.id,
-          email: user.email,
+          email: userEmail,
           role: user.user_metadata?.role || 'student',
-          name: user.user_metadata?.name || user.email.split('@')[0],
+          name: user.user_metadata?.name || (userEmail ? userEmail.split('@')[0] : 'User'),
           institution: user.user_metadata?.institution,
           company: user.user_metadata?.company,
           metadata: user.user_metadata
@@ -41,11 +42,15 @@ async function authenticateToken(req, res, next) {
     }
   }
 
-  // 2. Fallback local token verification for demo sessions
-  if (token.startsWith('jwt-') || token.startsWith('demo-')) {
-    const user = DB.users.find(u => token.includes(u.id) || token.includes(u.email.split('@')[0])) || DB.users[0];
-    if (user) {
-      const { password: _, ...safeUser } = user;
+  // 2. Fallback local token verification for demo sessions (only for known demo accounts)
+  if ((token.startsWith('jwt-') || token.startsWith('demo-')) && Array.isArray(DB.users)) {
+    const matchedUser = DB.users.find(u => {
+      const emailPrefix = u.email ? u.email.split('@')[0].toLowerCase() : '';
+      return (u.id && token.includes(u.id)) || (emailPrefix && token.toLowerCase().includes(emailPrefix));
+    });
+
+    if (matchedUser) {
+      const { password: _, ...safeUser } = matchedUser;
       req.user = safeUser;
       return next();
     }
@@ -68,7 +73,11 @@ function requireRole(allowedRoles = []) {
     }
 
     const userRole = (req.user.role || '').toLowerCase();
-    const hasRole = allowedRoles.some(r => r.toLowerCase() === userRole);
+    const normalizedAllowed = allowedRoles.map(r => r.toLowerCase());
+    const isAcademyPermitted = normalizedAllowed.includes('academy') || normalizedAllowed.includes('academician') || normalizedAllowed.includes('faculty');
+    const isUserAcademyRole = userRole === 'academy' || userRole === 'academician' || userRole === 'faculty';
+
+    const hasRole = normalizedAllowed.includes(userRole) || (isAcademyPermitted && isUserAcademyRole);
 
     if (!hasRole) {
       return res.status(403).json({

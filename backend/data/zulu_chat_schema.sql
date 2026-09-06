@@ -54,38 +54,38 @@ ALTER TABLE public.zulu_chat_messages ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Students can view own zulu chat sessions" ON public.zulu_chat_sessions;
 CREATE POLICY "Students can view own zulu chat sessions"
     ON public.zulu_chat_sessions FOR SELECT
-    USING (auth.uid()::text = user_id OR user_id = current_setting('request.jwt.claim.sub', true) OR true);
+    USING (auth.uid()::text = user_id OR user_id = current_setting('request.jwt.claim.sub', true));
 
 DROP POLICY IF EXISTS "Students can create own zulu chat sessions" ON public.zulu_chat_sessions;
 CREATE POLICY "Students can create own zulu chat sessions"
     ON public.zulu_chat_sessions FOR INSERT
-    WITH CHECK (true);
+    WITH CHECK (auth.uid()::text = user_id OR user_id = current_setting('request.jwt.claim.sub', true));
 
 DROP POLICY IF EXISTS "Students can update own zulu chat sessions" ON public.zulu_chat_sessions;
 CREATE POLICY "Students can update own zulu chat sessions"
     ON public.zulu_chat_sessions FOR UPDATE
-    USING (true);
+    USING (auth.uid()::text = user_id OR user_id = current_setting('request.jwt.claim.sub', true));
 
 DROP POLICY IF EXISTS "Students can delete own zulu chat sessions" ON public.zulu_chat_sessions;
 CREATE POLICY "Students can delete own zulu chat sessions"
     ON public.zulu_chat_sessions FOR DELETE
-    USING (true);
+    USING (auth.uid()::text = user_id OR user_id = current_setting('request.jwt.claim.sub', true));
 
 -- 7. RLS Policies for zulu_chat_messages (Students can access ONLY their own messages)
 DROP POLICY IF EXISTS "Students can view own zulu chat messages" ON public.zulu_chat_messages;
 CREATE POLICY "Students can view own zulu chat messages"
     ON public.zulu_chat_messages FOR SELECT
-    USING (auth.uid()::text = user_id OR user_id = current_setting('request.jwt.claim.sub', true) OR true);
+    USING (auth.uid()::text = user_id OR user_id = current_setting('request.jwt.claim.sub', true));
 
 DROP POLICY IF EXISTS "Students can insert own zulu chat messages" ON public.zulu_chat_messages;
 CREATE POLICY "Students can insert own zulu chat messages"
     ON public.zulu_chat_messages FOR INSERT
-    WITH CHECK (true);
+    WITH CHECK (auth.uid()::text = user_id OR user_id = current_setting('request.jwt.claim.sub', true));
 
 DROP POLICY IF EXISTS "Students can delete own zulu chat messages" ON public.zulu_chat_messages;
 CREATE POLICY "Students can delete own zulu chat messages"
     ON public.zulu_chat_messages FOR DELETE
-    USING (true);
+    USING (auth.uid()::text = user_id OR user_id = current_setting('request.jwt.claim.sub', true));
 
 -- 8. Automated Trigger Function to refresh updated_at timestamp on new activity
 CREATE OR REPLACE FUNCTION public.update_zulu_session_timestamp()

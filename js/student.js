@@ -16,7 +16,7 @@ let activeModule = 'Roadmap';
 
 // Sample resumes for instant load
 const SAMPLE_RESUMES = {
-  herbal: `Ashay Verma | BAMS 3rd Year | All India Institute of Ayurveda
+  herbal: `Aarav Sharma | BAMS 3rd Year | All India Institute of Ayurveda
 Skills: Herbal Formulation, Ayurvedic Pharmacognosy, Good Laboratory Practice (GLP), Basic Phytochemistry, Python fundamentals.
 Projects: Standardization of classical Ashwagandha Kwatha, Phytochemical screening of Withania somnifera.
 Certifications: GLP Certificate - NMPB 2025.`,
@@ -107,8 +107,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 function updateHeaderMetrics() {
   const xpEl = document.getElementById('header-xp-badge');
   const streakEl = document.getElementById('header-streak-badge');
-  if (xpEl) xpEl.innerText = `🔥 ${currentXp} XP`;
-  if (streakEl) streakEl.innerText = `🎯 ${currentStreak}-Day Streak`;
+  if (xpEl) xpEl.innerText = `${currentXp} XP`;
+  if (streakEl) streakEl.innerText = `${currentStreak}-Day Streak`;
 }
 
 // Module Navigation
@@ -336,7 +336,7 @@ async function runResumeAnalysis() {
   const res = await JoblexAPI.analyzeResume(textarea.value, roleSelect.value);
 
   btn.disabled = false;
-  btn.innerText = '⚡ Run AI Gap Analysis';
+  btn.innerText = 'Run AI Gap Analysis';
 
   if (res && resultsContainer) {
     resultsContainer.classList.remove('hidden');
@@ -428,7 +428,7 @@ function renderQuiz() {
     result.classList.remove('hidden');
 
     document.getElementById('quiz-final-score').innerText = `${quizState.score}/${QUIZ_DATA.length}`;
-    document.getElementById('quiz-earned-xp').innerText = `Earned ${quizState.score * 50} XP 🔥`;
+    document.getElementById('quiz-earned-xp').innerText = `Earned ${quizState.score * 50} XP`;
 
     currentXp += (quizState.score * 50);
     updateHeaderMetrics();
@@ -534,8 +534,8 @@ function renderOpportunities(filter) {
 
         <div>
           <div class="grid grid-cols-2 gap-2 text-xs text-gray-400 mb-4 pt-3 border-t border-gray-800">
-            <div><span class="mr-1 opacity-60">📍</span> ${opp.location}</div>
-            <div><span class="mr-1 opacity-60">💰</span> ${opp.stipend}</div>
+            <div><span class="material-symbols-outlined text-xs mr-1 opacity-60 align-middle">location_on</span> ${opp.location}</div>
+            <div><span class="material-symbols-outlined text-xs mr-1 opacity-60 align-middle">payments</span> ${opp.stipend}</div>
             <div class="col-span-2"><span class="mr-1 opacity-60">⏳</span> Deadline: ${opp.deadline}</div>
           </div>
           <button 

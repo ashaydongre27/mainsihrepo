@@ -5,86 +5,78 @@
  */
 
 (function () {
-  const STORAGE_KEY = 'joblex_notifications_v1';
-
-  const DEFAULT_NOTIFICATIONS = [
-    {
-      id: 'notif-1',
-      title: 'Corporate Dossier View',
-      message: 'Dabur India Ltd. (R&D Division) reviewed your verified botanical dossier for the Phytochemical Research Intern role.',
-      type: 'corporate',
-      time: '12m ago',
-      unread: true,
-      link: 'student-internships.html',
-      icon: 'business_center',
-      iconBg: 'bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300'
-    },
-    {
-      id: 'notif-2',
-      title: 'Anti-Decay Cycle Alert',
-      message: '72-hour competency freeze expires in 48 hours. Check in or complete a Quiz Arena module to protect your 7-Day XP streak (+50 XP).',
-      type: 'decay',
-      time: '1h ago',
-      unread: true,
-      link: 'student-roadmap.html',
-      icon: 'verified_user',
-      iconBg: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
-    },
-    {
-      id: 'notif-3',
-      title: 'New Full-Time Placement',
-      message: 'Patanjali Research Foundation published a new corporate opening: Formulation Development Scientist (₹8.5 - 12.0 LPA).',
-      type: 'job',
-      time: '3h ago',
-      unread: true,
-      link: 'student-jobs.html',
-      icon: 'work',
-      iconBg: 'bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300'
-    },
-    {
-      id: 'notif-4',
-      title: 'Micro-Gig Task Bounty Open',
-      message: 'Dabur Research Labs posted sprint: "Clean & Standardize 50 Ashwagandha Trial Records" (₹6,000 Bounty, 94% Match).',
-      type: 'gig',
-      time: '5h ago',
-      unread: false,
-      link: 'student-internships.html',
-      icon: 'bolt',
-      iconBg: 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300'
-    },
-    {
-      id: 'notif-5',
-      title: 'Institutional Credential Stamped',
-      message: 'AIIA Dean of Academic Affairs validated digital cryptographic hash for AIIA-CERT-2026-9842 on National Ayush Registry.',
-      type: 'academic',
-      time: '1d ago',
-      unread: false,
-      link: 'student-portfolio.html',
-      icon: 'shield',
-      iconBg: 'bg-teal-100 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300'
+  function getStorageKey() {
+    try {
+      const user = JSON.parse(localStorage.getItem('joblex_user') || localStorage.getItem('joblex_auth_user') || '{}');
+      const uKey = user.email || user.id || 'guest';
+      return `joblex_notifications_${uKey}`;
+    } catch(e) {
+      return 'joblex_notifications_guest';
     }
-  ];
+  }
+
+  const DEFAULT_NOTIFICATIONS = [];
 
   let notifications = [];
   let currentFilter = 'all';
 
-  function loadNotifications() {
+  function formatTimeAgo(isoString) {
+    if (!isoString) return 'Just now';
+    const diffSec = Math.floor((Date.now() - new Date(isoString).getTime()) / 1000);
+    if (diffSec < 60) return 'Just now';
+    if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`;
+    if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h ago`;
+    return `${Math.floor(diffSec / 86400)}d ago`;
+  }
+
+  async function loadNotifications() {
+    const storageKey = getStorageKey();
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = localStorage.getItem(storageKey);
       if (stored) {
         notifications = JSON.parse(stored);
       } else {
-        notifications = DEFAULT_NOTIFICATIONS;
-        saveNotifications();
+        notifications = [];
       }
     } catch (e) {
-      notifications = DEFAULT_NOTIFICATIONS;
+      notifications = [];
     }
+
+    // Connect to backend API for live notifications
+    try {
+      const user = JSON.parse(localStorage.getItem('joblex_user') || localStorage.getItem('joblex_auth_user') || '{}');
+      const recipientId = user.email || user.id || (window.location.pathname.includes('industry') ? 'usr-industry-01' : (window.location.pathname.includes('academy') ? 'usr-academy-01' : 'usr-student-01'));
+      const res = await fetch(`/api/notifications?recipientId=${encodeURIComponent(recipientId)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.notifications)) {
+          const apiNotifs = data.notifications.map(n => ({
+            id: n.id,
+            title: n.title,
+            message: n.message,
+            type: n.category || 'system',
+            time: formatTimeAgo(n.createdAt || n.created_at),
+            unread: !n.isRead && !n.is_read,
+            link: n.actionUrl || n.action_url || '#',
+            icon: n.category === 'interview_invite' ? 'event' : (n.category === 'new_opportunity' ? 'work' : 'notifications'),
+            iconBg: n.category === 'interview_invite' ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
+          }));
+          notifications = apiNotifs;
+          saveNotifications();
+          updateBadgeUI();
+          renderNotificationList();
+        }
+      }
+    } catch (err) {
+      console.warn('[Notifications] Remote fetch fallback to local:', err.message);
+    }
+    updateBadgeUI();
+    renderNotificationList();
   }
 
   function saveNotifications() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
+      localStorage.setItem(getStorageKey(), JSON.stringify(notifications));
     } catch (e) {}
   }
 
@@ -253,11 +245,20 @@
     renderNotificationList();
   }
 
-  function markAllRead() {
+  async function markAllRead() {
     notifications.forEach(n => n.unread = false);
     saveNotifications();
     updateBadgeUI();
     renderNotificationList();
+    try {
+      const user = JSON.parse(localStorage.getItem('joblex_user') || localStorage.getItem('joblex_auth_user') || '{}');
+      const recipientId = user.email || user.id || (window.location.pathname.includes('industry') ? 'usr-industry-01' : (window.location.pathname.includes('academy') ? 'usr-academy-01' : 'usr-student-01'));
+      await fetch('/api/notifications/read-all', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipientId })
+      });
+    } catch (e) {}
   }
 
   function clearAll() {
@@ -267,15 +268,18 @@
     renderNotificationList();
   }
 
-  function handleClickItem(id, link) {
+  async function handleClickItem(id, link) {
     const item = notifications.find(n => n.id === id);
     if (item) {
       item.unread = false;
       saveNotifications();
       updateBadgeUI();
     }
+    try {
+      await fetch(`/api/notifications/${encodeURIComponent(id)}/read`, { method: 'PATCH' });
+    } catch (e) {}
     closeDropdown();
-    if (link && window.location.pathname.indexOf(link) === -1) {
+    if (link && link !== '#' && window.location.pathname.indexOf(link) === -1) {
       window.location.href = link;
     }
   }

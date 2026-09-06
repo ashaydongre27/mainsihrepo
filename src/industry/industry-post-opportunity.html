@@ -4,13 +4,16 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>JOBLEX · Enterprise Gateway — Post New Internship or Job</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
-  
+  <!-- Google Fonts Preconnect -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
-
+  <!-- High-Tech Editorial Typography: Space Grotesk, Outfit, JetBrains Mono -->
+    <!-- High-Tech Editorial Typography: Plus Jakarta Sans, Newsreader, JetBrains Mono -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Google Material Symbols Outlined -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%236366f1'>✦</text></svg>">
+  
   <!-- Prevent FOUC: Early Theme Detection -->
   <script src="/js/frontend/theme.js"></script>
 
@@ -18,19 +21,28 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
+      darkMode: "class",
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            sans: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            serif: ['Newsreader', 'Georgia', 'serif'],
             mono: ['JetBrains Mono', 'monospace']
+          },
+          colors: {
+            bone: { 50: '#FAF9F6', 100: '#F4F2EC', 200: '#E8E5DC', 300: '#D7D2C5' },
+            obsidian: { 950: '#070709', 900: '#0C0D10', 800: '#111215', 700: '#16181D', 600: '#22252C' },
+            sage: { 50: '#F2F6F3', 100: '#E3EDE6', 500: '#3D7055', 600: '#2D5542', 700: '#1E3C2E', glow: '#4EBA87' },
+            terracotta: { 50: '#FAF4F0', 100: '#F4E7DF', 500: '#B85E2E', 600: '#944C23', glow: '#E07A48' },
+            ochre: { 50: '#FAF6EF', 100: '#F4EBDA', 500: '#A67332', 600: '#855828', glow: '#D4973B' }
           }
         }
       }
-    }
+    };
   </script>
 </head>
-<body class="bg-gradient-to-b from-white via-[#F8F9FA] to-[#F1F3F5] dark:from-[#07071A] dark:via-[#090924] dark:to-[#07071A] text-[#0F172A] dark:text-slate-100 font-sans min-h-screen flex flex-col antialiased transition-colors duration-200">
+<body class="bg-[#FAF8F5] dark:bg-[#070709] text-[#1C1917] dark:text-[#F4F4F6] font-sans min-h-screen flex flex-col antialiased transition-colors duration-200">
 
   <!-- Main Container -->
   <div class="flex-1 flex flex-col justify-between max-w-4xl mx-auto w-full p-4 sm:p-6 lg:p-8 space-y-6">
@@ -58,7 +70,7 @@
     </div>
 
     <!-- Opportunity Posting Card -->
-    <div class="bg-white dark:bg-[#0c0e14] border border-slate-200 dark:border-white/10 rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
+    <div class="bg-white dark:bg-[#101115] border border-slate-200 dark:border-white/10 rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
       
       <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-gray-800">
         <div>
@@ -66,7 +78,7 @@
           <p class="text-xs text-slate-500 dark:text-gray-400 mt-0.5">Submitting this form publishes the opportunity directly into the PostgreSQL Database and notifies matching scholars across AIIA & affiliated institutions.</p>
         </div>
         <span class="px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-mono text-xs font-bold border border-blue-200 dark:border-blue-800/60 shrink-0">
-          🛡️ Database Synced
+          <span class="material-symbols-outlined text-emerald-500 text-sm align-middle mr-1">verified_user</span> Database Synced
         </span>
       </div>
 
@@ -79,10 +91,10 @@
               Opportunity Type <span class="text-red-500">*</span>
             </label>
             <select id="post-type" required class="w-full p-3 rounded-xl bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-800 text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none">
-              <option value="Internship">🎓 Internship (3-6 Months)</option>
-              <option value="Job">💼 Full-Time Corporate Job</option>
-              <option value="Hackathon">⚡ Ayush Innovation Challenge / Hackathon</option>
-              <option value="Micro-Gig">🔬 Research Micro-Gig Bounty</option>
+              <option value="Internship">Internship (3-6 Months)</option>
+              <option value="Job">Full-Time Corporate Job</option>
+              <option value="Hackathon">Ayush Innovation Challenge / Hackathon</option>
+              <option value="Micro-Gig">Research Micro-Gig Bounty</option>
             </select>
           </div>
 
@@ -150,7 +162,7 @@
             Cancel &amp; Return
           </a>
           <button type="submit" id="submit-btn" class="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-extrabold text-xs shadow-lg transition transform hover:scale-105">
-            🚀 Publish Requisition to Database
+            Publish Requisition to Database
           </button>
         </div>
 
@@ -166,6 +178,50 @@
 
   <!-- Client JavaScript -->
   <script src="/js/frontend/api-client.js"></script>
-  
+  <script src="/js/frontend/notifications.js"></script>
+  <script>
+    async function handlePostSubmit(event) {
+      event.preventDefault();
+      const submitBtn = document.getElementById('submit-btn');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'Publishing Requisition...';
+      }
+
+      const payload = {
+        type: document.getElementById('post-type')?.value || 'Internship',
+        title: document.getElementById('post-title')?.value || '',
+        company: document.getElementById('post-company')?.value || 'Corporate Partner',
+        location: document.getElementById('post-location')?.value || 'Hybrid / New Delhi',
+        stipend: document.getElementById('post-stipend')?.value || '₹25,000/mo',
+        deadline: document.getElementById('post-deadline')?.value || '2026-11-30',
+        skills: (document.getElementById('post-skills')?.value || '').split(',').map(s => s.trim()).filter(Boolean),
+        description: document.getElementById('post-description')?.value || ''
+      };
+
+      try {
+        const res = await JoblexApiClient.postOpportunity(payload);
+        if (window.showToast) {
+          showToast('Requisition Published! Successfully added to corporate talent pool.', 'Success', 'success');
+        } else {
+          alert('Requisition Published successfully!');
+        }
+        setTimeout(() => {
+          window.location.href = 'industry-requisitions.html';
+        }, 1200);
+      } catch (err) {
+        if (window.showToast) {
+          showToast('Failed to publish: ' + err.message, 'Error', 'error');
+        } else {
+          alert('Error: ' + err.message);
+        }
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerText = 'Publish Requisition to Database';
+        }
+      }
+    }
+  </script>
+<script src="../../js/frontend/animations.js"></script>
 </body>
 </html>

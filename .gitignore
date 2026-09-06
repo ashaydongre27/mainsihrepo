@@ -36,3 +36,5 @@ venv/
 .venv/
 env/
 *.lnk
+# Added by code-review-graph
+.code-review-graph/

@@ -8,7 +8,7 @@
 let activeAcademyTab = 'Progress';
 
 const STUDENTS_DATA = [
-  { name: 'Ashay Verma', dept: 'Pharmacology & Health-AI', score: 88, quizzes: 8, status: 'On Track' },
+  { name: 'Aarav Sharma', dept: 'Pharmacology & Health-AI', score: 88, quizzes: 8, status: 'On Track' },
   { name: 'Kavya Singh', dept: 'Ayurvedic Informatics', score: 92, quizzes: 10, status: 'On Track' },
   { name: 'Rohan Sharma', dept: 'Phytochemistry & QC', score: 68, quizzes: 4, status: 'Needs Attention' },
   { name: 'Ananya Roy', dept: 'Clinical Herbal Medicine', score: 79, quizzes: 7, status: 'On Track' },
@@ -108,7 +108,7 @@ function renderSyllabusProposals() {
         <p class="text-xs text-gray-200">${prop.currentTopic}</p>
       </div>
       <div class="p-3 rounded-xl bg-black/40 border border-emerald-500/20">
-        <h4 class="text-xs text-emerald-300 font-bold mb-1">💡 Proposed Syllabus Modernization:</h4>
+        <h4 class="text-xs text-emerald-300 font-bold mb-1">Proposed Syllabus Modernization:</h4>
         <p class="text-xs sm:text-sm text-white font-medium">${prop.suggestedAddition}</p>
         <span class="text-[11px] text-gray-400 mt-1 block">Impact: ${prop.impact}</span>
       </div>

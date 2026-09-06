@@ -9,7 +9,7 @@
 let activeIndustryTab = 'Candidates';
 
 const CANDIDATES_DATA = [
-  { name: 'Ashay Verma', college: 'All India Institute of Ayurveda', match: 94, skills: ['Herbal Formulation', 'GLP', 'Phytochemistry', 'Python'], status: 'Ready for Interview' },
+  { name: 'Aarav Sharma', college: 'All India Institute of Ayurveda', match: 94, skills: ['Herbal Formulation', 'GLP', 'Phytochemistry', 'Python'], status: 'Ready for Interview' },
   { name: 'Kavya Singh', college: 'AIIA New Delhi', match: 91, skills: ['Health Informatics', 'Python', 'NLP for Classical Texts', 'SQL'], status: 'Shortlisted' },
   { name: 'Rohan Sharma', college: 'National Institute of Ayurveda, Jaipur', match: 82, skills: ['Ayurvedic Pharmacognosy', 'Standardization', 'Quality Control'], status: 'Under Review' },
   { name: 'Ananya Roy', college: 'Banaras Hindu University (IMS)', match: 88, skills: ['Clinical Research', 'Pharmacology', 'Herbal Formulation'], status: 'Shortlisted' },

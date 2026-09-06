@@ -35,7 +35,7 @@ const memoryMessages = {
       session_id: defaultSessId,
       user_id: 'usr-student-01',
       sender: 'zulu',
-      message: 'Namaste 🌿 I am **Zulu**, your specialized Ayush Career & Research Counselor. How can I assist your career roadmap today?',
+      message: 'Namaste, I am **Zulu**, your specialized Ayush Career & Research Counselor. How can I assist your career roadmap today?',
       provider: 'zulu-ai-engine',
       created_at: new Date(Date.now() - 86400000).toISOString()
     },
@@ -53,7 +53,7 @@ const memoryMessages = {
       session_id: defaultSessId,
       user_id: 'usr-student-01',
       sender: 'zulu',
-      message: '🌿 **Key Competencies for Dabur R&D Roles**:\n\n• **Analytical Standardization**: High-Performance Thin-Layer Chromatography (HPTLC) fingerprinting and HPLC quantification.\n• **Regulatory Compliance**: Good Laboratory Practice (GLP) and Ayurvedic Pharmacopoeia of India (API) standards.\n• **In-Silico Drug Discovery**: Molecular docking using AutoDock and Python phytochemical analytics.\n• **Formulation Stability**: Accelerated thermal and humidity stability testing for botanical extracts.',
+      message: '**Key Competencies for Dabur R&D Roles**:\n\n• **Analytical Standardization**: High-Performance Thin-Layer Chromatography (HPTLC) fingerprinting and HPLC quantification.\n• **Regulatory Compliance**: Good Laboratory Practice (GLP) and Ayurvedic Pharmacopoeia of India (API) standards.\n• **In-Silico Drug Discovery**: Molecular docking using AutoDock and Python phytochemical analytics.\n• **Formulation Stability**: Accelerated thermal and humidity stability testing for botanical extracts.',
       provider: 'zulu-ai-engine',
       created_at: new Date(Date.now() - 3590000).toISOString()
     }
@@ -100,7 +100,7 @@ async function getUserSessions(userId = 'usr-student-01') {
         session_id: newSessId,
         user_id: userId,
         sender: 'zulu',
-        message: 'Namaste 🌿 I am **Zulu**, your specialized Ayush Career & Research Counselor. How can I assist your career roadmap today?',
+        message: 'Namaste, I am **Zulu**, your specialized Ayush Career & Research Counselor. How can I assist your career roadmap today?',
         provider: 'zulu-ai-engine',
         created_at: new Date().toISOString()
       }
@@ -148,7 +148,7 @@ async function createSession(userId = 'usr-student-01', initialTitle = 'New Conv
       session_id: newId,
       user_id: userId,
       sender: 'zulu',
-      message: 'Namaste 🌿 I am **Zulu**, your specialized Ayush Career & Research Counselor. How can I assist your career roadmap today?',
+      message: 'Namaste, I am **Zulu**, your specialized Ayush Career & Research Counselor. How can I assist your career roadmap today?',
       provider: 'zulu-ai-engine',
       created_at: now
     }
@@ -162,11 +162,16 @@ async function createSession(userId = 'usr-student-01', initialTitle = 'New Conv
 async function getSessionMessages(sessionId, userId = 'usr-student-01') {
   if (isConfigured && supabase && isValidUuid(sessionId)) {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('zulu_chat_messages')
         .select('*')
-        .eq('session_id', sessionId)
-        .order('created_at', { ascending: true });
+        .eq('session_id', sessionId);
+
+      if (userId) {
+        query = query.eq('user_id', userId);
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: true });
 
       if (!error && Array.isArray(data)) {
         return data;
@@ -176,7 +181,8 @@ async function getSessionMessages(sessionId, userId = 'usr-student-01') {
     }
   }
 
-  return memoryMessages[sessionId] || [];
+  const msgs = memoryMessages[sessionId] || [];
+  return userId ? msgs.filter(m => m.user_id === userId) : msgs;
 }
 
 /**
@@ -208,9 +214,20 @@ async function addMessageToSession(sessionId, userId, sender, messageText, provi
 
       if (sender === 'user') {
         const titleSnippet = messageText.length > 35 ? messageText.substring(0, 35) + '...' : messageText;
+        const { data: curSess } = await supabase
+          .from('zulu_chat_sessions')
+          .select('title')
+          .eq('id', targetSessionId)
+          .maybeSingle();
+
+        const updates = { updated_at: now };
+        if (!curSess || curSess.title === 'New Conversation' || curSess.title === 'Zulu AI') {
+          updates.title = titleSnippet;
+        }
+
         await supabase
           .from('zulu_chat_sessions')
-          .update({ updated_at: now, title: titleSnippet })
+          .update(updates)
           .eq('id', targetSessionId);
       }
 
@@ -254,16 +271,26 @@ async function addMessageToSession(sessionId, userId, sender, messageText, provi
 async function deleteSession(sessionId, userId = 'usr-student-01') {
   if (isConfigured && supabase && isValidUuid(sessionId)) {
     try {
-      await supabase
-        .from('zulu_chat_messages')
-        .delete()
-        .eq('session_id', sessionId);
-
-      await supabase
+      // Verify session ownership before deleting messages and session
+      const { data: sessionData } = await supabase
         .from('zulu_chat_sessions')
-        .delete()
+        .select('id')
         .eq('id', sessionId)
-        .eq('user_id', userId);
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (sessionData) {
+        await supabase
+          .from('zulu_chat_messages')
+          .delete()
+          .eq('session_id', sessionId);
+
+        await supabase
+          .from('zulu_chat_sessions')
+          .delete()
+          .eq('id', sessionId)
+          .eq('user_id', userId);
+      }
     } catch (e) {
       console.warn('[ZuluChatService] Supabase session delete fallback:', e.message);
     }

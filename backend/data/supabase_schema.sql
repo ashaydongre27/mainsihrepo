@@ -383,22 +383,40 @@ ON public.opportunities FOR INSERT TO authenticated WITH CHECK (true);
 -- Applications Policies
 DROP POLICY IF EXISTS "Students and recruiters can view applications" ON public.applications;
 CREATE POLICY "Students and recruiters can view applications" 
-ON public.applications FOR SELECT TO authenticated USING (true);
+ON public.applications FOR SELECT TO authenticated 
+USING (
+  auth.uid()::text = student_id::text 
+  OR EXISTS (
+    SELECT 1 FROM public.profiles 
+    WHERE profiles.id = auth.uid() AND profiles.role IN ('industry', 'admin')
+  )
+);
 
 DROP POLICY IF EXISTS "Students can submit applications" ON public.applications;
 CREATE POLICY "Students can submit applications" 
-ON public.applications FOR INSERT TO authenticated WITH CHECK (true);
+ON public.applications FOR INSERT TO authenticated 
+WITH CHECK (auth.uid()::text = student_id::text OR student_id IS NULL);
 
 DROP POLICY IF EXISTS "Recruiters and admins can update application statuses" ON public.applications;
 CREATE POLICY "Recruiters and admins can update application statuses" 
-ON public.applications FOR UPDATE TO authenticated USING (true);
+ON public.applications FOR UPDATE TO authenticated 
+USING (
+  EXISTS (
+    SELECT 1 FROM public.profiles 
+    WHERE profiles.id = auth.uid() AND profiles.role IN ('industry', 'admin')
+  )
+);
 
 -- Zulu AI Chat Policies
 DROP POLICY IF EXISTS "Users can manage their own Zulu sessions" ON public.zulu_chat_sessions;
-CREATE POLICY "Users can manage their own Zulu sessions" ON public.zulu_chat_sessions FOR ALL TO authenticated, anon USING (true);
+CREATE POLICY "Users can manage their own Zulu sessions" 
+ON public.zulu_chat_sessions FOR ALL TO authenticated 
+USING (auth.uid()::text = user_id OR user_id = current_setting('request.jwt.claim.sub', true));
 
 DROP POLICY IF EXISTS "Users can manage their own Zulu messages" ON public.zulu_chat_messages;
-CREATE POLICY "Users can manage their own Zulu messages" ON public.zulu_chat_messages FOR ALL TO authenticated, anon USING (true);
+CREATE POLICY "Users can manage their own Zulu messages" 
+ON public.zulu_chat_messages FOR ALL TO authenticated 
+USING (auth.uid()::text = user_id OR user_id = current_setting('request.jwt.claim.sub', true));
 
 -- Public Read Policies for Portals
 DROP POLICY IF EXISTS "MoUs readable by all" ON public.mou_partnerships;
@@ -427,6 +445,149 @@ CREATE POLICY "Candidates readable by all" ON public.candidates FOR SELECT TO au
 
 DROP POLICY IF EXISTS "Peer benchmarking readable by all" ON public.peer_benchmarking;
 CREATE POLICY "Peer benchmarking readable by all" ON public.peer_benchmarking FOR SELECT TO authenticated, anon USING (true);
+
+-- ============================================================================
+-- ============================================================================
+-- 4B. EXTENDED 7-FEATURE PLATFORM TABLES
+-- ============================================================================
+
+-- Table 16: Student Contextual To-Do Tasks
+CREATE TABLE IF NOT EXISTS public.student_todos (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    student_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    category VARCHAR(50) DEFAULT 'Personal' CHECK (category IN ('Academic', 'Application', 'Skill', 'Roadmap', 'Personal')),
+    priority VARCHAR(20) DEFAULT 'Medium' CHECK (priority IN ('Low', 'Medium', 'High', 'Urgent')),
+    due_date TIMESTAMP WITH TIME ZONE,
+    is_completed BOOLEAN DEFAULT FALSE NOT NULL,
+    completed_at TIMESTAMP WITH TIME ZONE,
+    source_type VARCHAR(50) DEFAULT 'user_created' CHECK (source_type IN ('user_created', 'system_roadmap', 'system_interview', 'university_broadcast')),
+    source_ref_id VARCHAR(100),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_student_todos_student ON public.student_todos(student_id, is_completed);
+
+-- Table 17: In-Portal Notifications Hub
+CREATE TABLE IF NOT EXISTS public.in_portal_notifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    recipient_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    sender_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+    title VARCHAR(150) NOT NULL,
+    message TEXT NOT NULL,
+    action_url VARCHAR(255),
+    category VARCHAR(50) CHECK (category IN ('application_update', 'new_opportunity', 'interview_invite', 'system_alert')),
+    is_read BOOLEAN DEFAULT FALSE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_notifications_recipient ON public.in_portal_notifications(recipient_id, is_read);
+
+-- Table 18: Corporate Tech Stack Disclosures
+CREATE TABLE IF NOT EXISTS public.company_tech_stacks (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    company_name VARCHAR(150) NOT NULL,
+    sector VARCHAR(100) NOT NULL,
+    tech_category VARCHAR(100) NOT NULL,
+    tech_name VARCHAR(150) NOT NULL,
+    proficiency_demand_level VARCHAR(30) CHECK (proficiency_demand_level IN ('Familiarity', 'Intermediate Practitioner', 'Production Mastery')),
+    adoption_stage VARCHAR(30) CHECK (adoption_stage IN ('Core Production', 'Rapid Growth', 'Piloting / Experimental', 'Phasing Out')),
+    curriculum_relevance_note TEXT,
+    last_verified_date DATE DEFAULT CURRENT_DATE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Table 19: Virtual Workshops & Masterclasses
+CREATE TABLE IF NOT EXISTS public.virtual_workshops (
+    id VARCHAR(50) PRIMARY KEY DEFAULT ('wsp-' || substr(md5(random()::text), 1, 8)),
+    host_company_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    host_company_name VARCHAR(150) NOT NULL,
+    speaker_name VARCHAR(150) NOT NULL,
+    speaker_designation VARCHAR(150) NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    description TEXT NOT NULL,
+    target_departments TEXT[] NOT NULL DEFAULT '{}'::TEXT[],
+    scheduled_start TIMESTAMP WITH TIME ZONE NOT NULL,
+    duration_minutes INTEGER DEFAULT 90,
+    meeting_link VARCHAR(255),
+    max_seats INTEGER DEFAULT 250,
+    enrolled_count INTEGER DEFAULT 0,
+    status VARCHAR(30) DEFAULT 'Proposed' CHECK (status IN ('Proposed', 'Approved', 'Completed', 'Cancelled')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Table 20: Workshop Enrollments
+CREATE TABLE IF NOT EXISTS public.workshop_enrollments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    workshop_id VARCHAR(50) NOT NULL REFERENCES public.virtual_workshops(id) ON DELETE CASCADE,
+    student_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    student_name VARCHAR(150) NOT NULL,
+    attendance_confirmed BOOLEAN DEFAULT FALSE,
+    certificate_issued BOOLEAN DEFAULT FALSE,
+    registered_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    UNIQUE(workshop_id, student_id)
+);
+
+-- Table 21: Co-Curricular & Holistic Aptitude Questions
+CREATE TABLE IF NOT EXISTS public.assessment_questions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    domain VARCHAR(50) NOT NULL CHECK (domain IN ('Quantitative', 'Logical_Reasoning', 'Verbal_Ability', 'General_Knowledge', 'Industry_Ethics')),
+    difficulty VARCHAR(20) DEFAULT 'Medium' CHECK (difficulty IN ('Easy', 'Medium', 'Hard')),
+    question_text TEXT NOT NULL,
+    options JSONB NOT NULL,
+    correct_option_index INTEGER NOT NULL,
+    explanation TEXT
+);
+
+-- Table 22: Aptitude Assessment Sessions
+CREATE TABLE IF NOT EXISTS public.assessment_sessions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    student_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    assessment_type VARCHAR(100) NOT NULL,
+    started_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    completed_at TIMESTAMP WITH TIME ZONE,
+    raw_score NUMERIC(5, 2),
+    total_questions INTEGER DEFAULT 30,
+    percentage NUMERIC(5, 2),
+    percentile NUMERIC(5, 2),
+    domain_scores JSONB DEFAULT '{}'::JSONB,
+    passed BOOLEAN DEFAULT FALSE,
+    badge_hash VARCHAR(64)
+);
+
+-- Table 23: Company Skill Certification Quizzes
+CREATE TABLE IF NOT EXISTS public.company_quizzes (
+    id VARCHAR(50) PRIMARY KEY DEFAULT ('quiz-' || substr(md5(random()::text), 1, 8)),
+    company_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    company_name VARCHAR(150) NOT NULL,
+    badge_title VARCHAR(150) NOT NULL,
+    badge_icon VARCHAR(50) DEFAULT 'verified',
+    skill_category VARCHAR(100) NOT NULL,
+    time_limit_minutes INTEGER DEFAULT 15,
+    passing_percentage INTEGER DEFAULT 75,
+    total_takers INTEGER DEFAULT 0,
+    pass_count INTEGER DEFAULT 0,
+    is_active BOOLEAN DEFAULT TRUE NOT NULL,
+    questions JSONB NOT NULL DEFAULT '[]'::JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Table 24: Student Quiz Certifications
+CREATE TABLE IF NOT EXISTS public.student_quiz_certifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    quiz_id VARCHAR(50) NOT NULL REFERENCES public.company_quizzes(id) ON DELETE CASCADE,
+    student_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    student_name VARCHAR(150) NOT NULL,
+    company_name VARCHAR(150) NOT NULL,
+    badge_title VARCHAR(150) NOT NULL,
+    score_percentage NUMERIC(5, 2) NOT NULL,
+    passed BOOLEAN NOT NULL,
+    attempted_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    verification_token VARCHAR(64) UNIQUE NOT NULL,
+    expires_at TIMESTAMP WITH TIME ZONE,
+    is_displayed_on_profile BOOLEAN DEFAULT TRUE NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_student_quiz_certifications_student ON public.student_quiz_certifications(student_id, passed);
 
 -- ============================================================================
 -- 5. AUTOMATIC USER PROFILE TRIGGER ON AUTH SIGNUP
@@ -479,5 +640,6 @@ GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO service_role;
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO authenticated;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO authenticated;
 
-GRANT SELECT ON public.opportunities, public.mou_partnerships, public.syllabus_suggestions, public.consultancy_grants, public.fdp_programs, public.sponsored_bootcamps, public.cross_college_benchmarks, public.candidates, public.peer_benchmarking TO anon;
+GRANT SELECT ON public.opportunities, public.mou_partnerships, public.syllabus_suggestions, public.consultancy_grants, public.fdp_programs, public.sponsored_bootcamps, public.cross_college_benchmarks, public.candidates, public.peer_benchmarking, public.company_tech_stacks, public.virtual_workshops, public.company_quizzes TO anon;
+
 

@@ -3,13 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JOBLEX | AI Resume Analyzer & Skill Gap Discovery</title>
-  <!-- Material Symbols Outlined -->
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <title>JOBLEX | AI Resume Analyzer, NLP Parser & Auto-Assessment</title>
+  <!-- Google Fonts Preconnect -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- High-Tech Editorial Typography: Space Grotesk, Outfit, JetBrains Mono -->
+    <!-- High-Tech Editorial Typography: Plus Jakarta Sans, Newsreader, JetBrains Mono -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Google Material Symbols Outlined -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   <script src="/js/frontend/theme.js"></script>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -19,21 +21,45 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            sans: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            serif: ['Newsreader', 'Georgia', 'serif'],
             mono: ['JetBrains Mono', 'monospace']
+          },
+          colors: {
+            bone: { 50: '#FAF9F6', 100: '#F4F2EC', 200: '#E8E5DC', 300: '#D7D2C5' },
+            obsidian: { 950: '#070709', 900: '#0C0D10', 800: '#111215', 700: '#16181D', 600: '#22252C' },
+            sage: { 50: '#F2F6F3', 100: '#E3EDE6', 500: '#3D7055', 600: '#2D5542', 700: '#1E3C2E', glow: '#4EBA87' },
+            terracotta: { 50: '#FAF4F0', 100: '#F4E7DF', 500: '#B85E2E', 600: '#944C23', glow: '#E07A48' },
+            ochre: { 50: '#FAF6EF', 100: '#F4EBDA', 500: '#A67332', 600: '#855828', glow: '#D4973B' }
           }
         }
       }
+    };
+  </script>
+  <!-- Chart.js CDN for Vector Radar & Gap Analysis -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- PDF.js CDN for Client-Side Document Streaming -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    if (window['pdfjs-dist/build/pdf']) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     }
   </script>
   <!-- Custom Styles -->
   <link rel="stylesheet" href="/css/styles.css">
-  
+  <style>
+    @media print {
+      body * { visibility: hidden; }
+      #printable-dossier-modal, #printable-dossier-modal * { visibility: visible; }
+      #printable-dossier-modal { position: absolute; left: 0; top: 0; width: 100%; }
+      .no-print { display: none !important; }
+    }
+  </style>
 </head>
-<body class="bg-gradient-to-b from-[#FFFFFF] via-[#F8F9FA] to-[#F1F3F5] dark:from-[#07071A] dark:via-[#090924] dark:to-[#07071A] text-[#0F172A] dark:text-slate-100 font-sans min-h-screen flex flex-col antialiased transition-colors duration-200">
+<body class="bg-[#FAF8F5] dark:bg-[#070709] text-[#1C1917] dark:text-[#F4F4F6] font-sans min-h-screen flex flex-col antialiased transition-colors duration-200">
 
-
-<header class="sticky top-0 z-50 w-full bg-white/90 dark:bg-[#07071A]/95 backdrop-blur-md border-b border-[#E2E8F0] dark:border-white/5 transition-colors duration-200">
+<header class="sticky top-0 z-50 w-full bg-white/85 dark:bg-[#070709]/90 backdrop-blur-md border-b border-[#E7E4DC] dark:border-white/5 transition-colors duration-200 no-print">
   <div class="w-full px-3 sm:px-6 py-2 flex items-center justify-between">
     <!-- Mobile Hamburger + Brand Logo -->
     <div class="flex items-center gap-3">
@@ -41,8 +67,8 @@
         <span class="material-symbols-outlined text-[20px]">menu</span>
       </button>
       <a href="../../student.html" class="flex items-center gap-2.5 cursor-pointer select-none">
-        <div class="w-1.5 h-8 bg-gradient-to-b from-cyan-400 to-purple-600 rounded-full shadow-[0_0_12px_rgba(99,102,241,0.7)]"></div>
-        <span class="text-xl font-extrabold tracking-widest text-[#0F172A] dark:text-white uppercase block">JOBLEX</span>
+        <div class="w-1.5 h-7 bg-[#2D5542] dark:bg-[#4EBA87] rounded-full"></div>
+        <span class="text-xl font-extrabold tracking-widest text-[#1C1917] dark:text-white uppercase block">JOBLEX</span>
       </a>
     </div>
 
@@ -50,22 +76,20 @@
     <div class="flex items-center gap-2 sm:gap-3">
       <!-- Live Metrics -->
       <span id="header-xp-badge" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 font-mono text-xs font-bold border border-purple-200 dark:border-purple-800/60">
-        🔥 1,450 XP
+        <span class="material-symbols-outlined text-purple-500 text-sm align-middle mr-1">bolt</span>0 XP
       </span>
       <span id="header-streak-badge" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-bold border border-emerald-200 dark:border-emerald-800/60">
-        🎯 7-Day Streak
+        <span class="material-symbols-outlined text-amber-500 text-sm align-middle mr-1">local_fire_department</span>0-Day Streak
       </span>
 
       <!-- Notification Bell -->
-      <button id="notification-bell-btn" type="button" aria-label="Open Notifications" class="relative p-2 rounded-xl text-[#475569] dark:text-gray-300 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 border border-[#E2E8F0] dark:border-white/10 transition-colors">
+      <button id="notification-bell-btn" type="button" aria-label="Open Notifications" class="relative p-2 rounded-xl text-[#6E6962] dark:text-gray-300 hover:text-[#1C1917] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 border border-[#E7E4DC] dark:border-white/10 transition-colors">
         <span class="material-symbols-outlined text-[20px]">notifications</span>
-        <span class="notification-badge-indicator absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-purple-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
-          3
-        </span>
+        <span class="notification-badge-indicator hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[#2D5542] dark:bg-[#4EBA87] text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">0</span>
       </button>
 
       <!-- Theme Switcher -->
-      <button id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Light/Dark Theme" title="Toggle Light/Dark Theme" class="p-2 rounded-xl border border-[#E2E8F0] dark:border-white/10 bg-white dark:bg-white/5 text-[#475569] dark:text-gray-300 hover:text-[#0F172A] dark:hover:text-white transition-colors duration-150 flex items-center justify-center">
+      <button id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Light/Dark Theme" title="Toggle Light/Dark Theme" class="p-2 rounded-xl border border-[#E7E4DC] dark:border-white/10 bg-white dark:bg-white/5 text-[#6E6962] dark:text-gray-300 hover:text-[#1C1917] dark:hover:text-white transition-colors duration-150 flex items-center justify-center">
         <span id="theme-toggle-icon" class="material-symbols-outlined text-[18px]">dark_mode</span>
       </button>
 
@@ -75,229 +99,501 @@
 </header>
 
 <!-- MOBILE SLIDE-OUT DRAWER -->
-<div id="mobile-drawer" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden lg:hidden">
-  <div class="fixed inset-y-0 left-0 w-72 bg-white dark:bg-[#0c0e14] p-5 flex flex-col justify-between shadow-2xl border-r border-[#E2E8F0] dark:border-white/10 overflow-y-auto">
+<div id="mobile-drawer" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden lg:hidden no-print">
+  <div class="fixed inset-y-0 left-0 w-72 bg-white dark:bg-[#101115] p-5 flex flex-col justify-between shadow-2xl border-r border-[#E7E4DC] dark:border-white/10 overflow-y-auto">
     <div class="space-y-4">
       <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-gray-800">
         <span class="text-xs uppercase tracking-wider text-purple-600 dark:text-purple-400 font-bold">Student Navigation</span>
-        <button onclick="closeMobileMenu()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white">✕</button>
+        <button onclick="closeMobileMenu()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"><span class="material-symbols-outlined text-lg">close</span></button>
       </div>
       <div class="space-y-1 pt-1">
         <a href="../../student.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
-          <span class="flex items-center gap-3"><span>📊</span> <span>Student Overview</span></span>
-          
+          <span class="flex items-center gap-3"><span class="material-symbols-outlined text-purple-400 text-base">grid_view</span> <span>Student Overview</span></span>
         </a>
         <a href="student-roadmap.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
-          <span class="flex items-center gap-3"><span>🗺️</span> <span>Career Roadmap</span></span>
-          
+          <span class="flex items-center gap-3"><span class="material-symbols-outlined text-cyan-400 text-base">alt_route</span> <span>Career Roadmap</span></span>
         </a>
         <a href="student-resume.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition bg-[#0F172A] text-white dark:bg-white/10 dark:text-white font-bold">
-          <span class="flex items-center gap-3"><span>📄</span> <span>AI Resume Analyzer</span></span>
+          <span class="flex items-center gap-3"><span class="material-symbols-outlined text-blue-400 text-base">document_scanner</span> <span>AI Resume Analyzer</span></span>
           <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-500 text-white font-bold">Active</span>
         </a>
         <a href="student-quiz.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
-          <span class="flex items-center gap-3"><span>⚡</span> <span>Quiz Arena</span></span>
-          
+          <span class="flex items-center gap-3"><span class="material-symbols-outlined text-amber-400 text-base">quiz</span> <span>Quiz Arena</span></span>
         </a>
         <a href="student-internships.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
-          <span class="flex items-center gap-3"><span>💼</span> <span>Apply for Internships</span></span>
-          
+          <span class="flex items-center gap-3"><span class="material-symbols-outlined text-emerald-400 text-base">work_outline</span> <span>Apply for Internships</span></span>
         </a>
         <a href="student-jobs.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
-          <span class="flex items-center gap-3"><span>🏢</span> <span>Apply for Jobs</span></span>
-          
+          <span class="flex items-center gap-3"><span class="material-symbols-outlined text-indigo-400 text-base">apartment</span> <span>Apply for Jobs</span></span>
         </a>
         <a href="student-zulu.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
-          <span class="flex items-center gap-3"><span>🤖</span> <span>Zulu AI Companion</span></span>
-          
+          <span class="flex items-center gap-3"><span class="material-symbols-outlined text-pink-400 text-base">smart_toy</span> <span>Zulu AI Companion</span></span>
         </a>
         <a href="student-skilltree.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
-          <span class="flex items-center gap-3"><span>🌐</span> <span>Skill Constellation</span></span>
-          
+          <span class="flex items-center gap-3"><span class="material-symbols-outlined text-teal-400 text-base">hub</span> <span>Skill Constellation</span></span>
         </a>
         <a href="student-portfolio.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
-          <span class="flex items-center gap-3"><span>🏆</span> <span>Verified Portfolio</span></span>
-          
+          <span class="flex items-center gap-3"><span class="material-symbols-outlined text-yellow-400 text-base">verified</span> <span>Verified Portfolio</span></span>
         </a>
       </div>
     </div>
     <div class="pt-4 border-t border-slate-200 dark:border-gray-800">
       <button onclick="JoblexApiClient.logout()" class="w-full py-2.5 rounded-xl text-center text-xs font-semibold text-slate-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition flex items-center justify-center gap-2">
-        <span>🚪</span> <span>Sign Out</span>
+        <span class="material-symbols-outlined text-rose-400 text-base">logout</span> <span>Sign Out</span>
       </button>
     </div>
   </div>
 </div>
+
 <div class="flex-1 flex overflow-hidden">
   <!-- COLLAPSIBLE SIDEBAR -->
-  <aside id="student-sidebar" class="hidden lg:flex w-64 bg-white/90 dark:bg-[#080812]/90 border-r border-[#E2E8F0] dark:border-white/5 backdrop-blur-md p-3.5 flex-col justify-between shrink-0 transition-all duration-300">
+  <aside id="student-sidebar" class="hidden lg:flex w-64 bg-white/80 dark:bg-[#101115]/90 border-r border-[#E7E4DC] dark:border-white/5 backdrop-blur-md p-3.5 flex-col justify-between shrink-0 transition-all duration-300 no-print">
     <div class="space-y-1">
       <div class="flex items-center justify-between px-2 pb-2 mb-2 border-b border-slate-200 dark:border-gray-800/80">
         <span class="sidebar-text-label text-[10px] uppercase tracking-wider text-purple-600 dark:text-purple-400 font-bold">Student Modules</span>
         <button id="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" title="Minimize / Expand Sidebar" class="p-1.5 rounded-lg bg-slate-100 dark:bg-gray-900 border border-slate-200 dark:border-gray-800 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white text-xs transition">
-          <span>◀</span>
+          <span class="material-symbols-outlined text-xs">chevron_left</span>
         </button>
       </div>
-      <a href="../../student.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">📊</span>
+      <a href="../../student.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#6E6962] dark:text-gray-400 hover:text-[#1C1917] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+        <span class="material-symbols-outlined text-base shrink-0 text-purple-400">grid_view</span>
         <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
           <span class="font-bold text-xs truncate">Student Overview</span>
-          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">Central Dashboard</span>
+          <span class="text-[10px] text-[#6E6962] dark:text-gray-500 truncate">Central Dashboard</span>
         </div>
       </a>
-      <a href="student-roadmap.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">🗺️</span>
+      <a href="student-roadmap.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#6E6962] dark:text-gray-400 hover:text-[#1C1917] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+        <span class="material-symbols-outlined text-base shrink-0 text-cyan-400">alt_route</span>
         <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
           <span class="font-bold text-xs truncate">Career Roadmap</span>
-          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">4-Phase Progression</span>
+          <span class="text-[10px] text-[#6E6962] dark:text-gray-500 truncate">4-Phase Progression</span>
         </div>
       </a>
       <a href="student-resume.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all bg-[#0F172A] text-white dark:bg-white/10 dark:text-white shadow-sm">
-        <span class="text-base shrink-0">📄</span>
+        <span class="material-symbols-outlined text-base shrink-0 text-blue-400">document_scanner</span>
         <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
           <span class="font-bold text-xs truncate">AI Resume Analyzer</span>
-          <span class="text-[10px] text-gray-300 dark:text-gray-400 truncate">Skill Gap Discovery</span>
+          <span class="text-[10px] text-gray-300 dark:text-gray-400 truncate">NLP Parser &amp; Benchmark</span>
         </div>
       </a>
-      <a href="student-quiz.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">⚡</span>
+      <a href="student-quiz.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#6E6962] dark:text-gray-400 hover:text-[#1C1917] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+        <span class="material-symbols-outlined text-base shrink-0 text-amber-400">quiz</span>
         <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
           <span class="font-bold text-xs truncate">Quiz Arena</span>
-          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">Knowledge Validation</span>
+          <span class="text-[10px] text-[#6E6962] dark:text-gray-500 truncate">Knowledge Validation</span>
         </div>
       </a>
-      <a href="student-internships.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">💼</span>
+      <a href="student-internships.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#6E6962] dark:text-gray-400 hover:text-[#1C1917] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+        <span class="material-symbols-outlined text-base shrink-0 text-emerald-400">work_outline</span>
         <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
           <span class="font-bold text-xs truncate">Apply for Internships</span>
-          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">Fellowships & Bounties</span>
+          <span class="text-[10px] text-[#6E6962] dark:text-gray-500 truncate">Fellowships &amp; Bounties</span>
         </div>
       </a>
-      <a href="student-jobs.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">🏢</span>
+      <a href="student-jobs.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#6E6962] dark:text-gray-400 hover:text-[#1C1917] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+        <span class="material-symbols-outlined text-base shrink-0 text-indigo-400">apartment</span>
         <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
           <span class="font-bold text-xs truncate">Apply for Jobs</span>
-          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">Corporate Placements</span>
+          <span class="text-[10px] text-[#6E6962] dark:text-gray-500 truncate">Corporate Placements</span>
         </div>
       </a>
-      <a href="student-zulu.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">🤖</span>
+      <a href="student-zulu.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#6E6962] dark:text-gray-400 hover:text-[#1C1917] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+        <span class="material-symbols-outlined text-base shrink-0 text-pink-400">smart_toy</span>
         <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
           <span class="font-bold text-xs truncate">Zulu AI Companion</span>
-          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">Career Counselor</span>
+          <span class="text-[10px] text-[#6E6962] dark:text-gray-500 truncate">Career Counselor</span>
         </div>
       </a>
-      <a href="student-skilltree.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">🌐</span>
+      <a href="student-skilltree.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#6E6962] dark:text-gray-400 hover:text-[#1C1917] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+        <span class="material-symbols-outlined text-base shrink-0 text-teal-400">hub</span>
         <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
           <span class="font-bold text-xs truncate">Skill Constellation</span>
-          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">Interactive 2D Map</span>
+          <span class="text-[10px] text-[#6E6962] dark:text-gray-500 truncate">Interactive 2D Map</span>
         </div>
       </a>
-      <a href="student-portfolio.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
-        <span class="text-base shrink-0">🏆</span>
+      <a href="student-portfolio.html" class="sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-[#6E6962] dark:text-gray-400 hover:text-[#1C1917] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+        <span class="material-symbols-outlined text-base shrink-0 text-yellow-400">verified</span>
         <div class="sidebar-text-label flex flex-col text-left overflow-hidden">
           <span class="font-bold text-xs truncate">Verified Portfolio</span>
-          <span class="text-[10px] text-[#64748B] dark:text-gray-500 truncate">Tamper-Proof Ledger</span>
+          <span class="text-[10px] text-[#6E6962] dark:text-gray-500 truncate">Tamper-Proof Ledger</span>
         </div>
       </a>
     </div>
     <div class="mt-4 pt-3 border-t border-slate-200 dark:border-gray-800/80">
       <button onclick="JoblexApiClient.logout()" class="w-full py-2 rounded-xl text-center text-xs font-semibold text-slate-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition flex items-center justify-center gap-2">
-        <span>🚪</span> <span class="sidebar-text-label">Sign Out</span>
+        <span class="material-symbols-outlined text-base shrink-0">logout</span> <span class="sidebar-text-label">Sign Out</span>
       </button>
     </div>
   </aside>
+
   <!-- WORKSPACE -->
   <main class="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 custom-scrollbar">
-    <div class="w-full max-w-6xl mx-auto">
+    <div class="w-full max-w-6xl mx-auto space-y-6">
 
       <!-- HERO BANNER -->
-      <div class="rounded-2xl border border-[#E2E8F0] dark:border-white/10 bg-white dark:bg-white/[0.03] p-6 sm:p-8 shadow-sm mb-6">
+      <div class="rounded-2xl border border-[#E7E4DC] dark:border-white/10 bg-white dark:bg-white/[0.03] p-6 sm:p-8 shadow-sm">
         <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div class="space-y-2">
             <div class="flex items-center gap-2">
-              <span class="text-xs font-semibold uppercase tracking-wider text-[#64748B] dark:text-gray-400">AI Competency Benchmarking</span>
+              <span class="text-xs font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400">AI Resume Parser &amp; Skill Gap Engine</span>
               <span class="text-slate-300 dark:text-gray-700">•</span>
               <span class="inline-flex items-center gap-1 text-[11px] font-mono text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 px-2.5 py-0.5 rounded-full">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                Automated Curriculum Mapping Active
+                85+ Skill Ontology Active
               </span>
             </div>
-            <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#0F172A] dark:text-white">
-              AI Resume Analyzer &amp; Skill Gap Discovery
+            <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1C1917] dark:text-white">
+              Resume Ingestion, NLP Extraction &amp; Auto-Assessment
             </h1>
-            <p class="text-sm text-[#475569] dark:text-gray-300 max-w-3xl leading-relaxed">
-              Benchmark your credentials against industrial job descriptions from Dabur, Himalaya, and Patanjali. Missing skills are automatically flagged and injected into your Career Roadmap.
+            <p class="text-sm text-[#6E6962] dark:text-gray-300 max-w-3xl leading-relaxed">
+              Upload PDF or DOCX documents to automatically extract contact info, education, and technical competencies. Compare parsed competencies side-by-side with industry role benchmarks and merge directly into your live digital portfolio.
             </p>
           </div>
-          <div class="flex items-center gap-4 shrink-0">
-            <div class="text-right">
-              <div class="text-xs text-[#64748B] dark:text-gray-400">Current Readiness</div>
-              <div class="text-xl font-extrabold text-[#0F172A] dark:text-white font-mono">78% Match</div>
-            </div>
+          <div class="flex items-center gap-3 shrink-0">
+            <button id="export-dossier-btn" onclick="triggerDossierExport()" class="px-4 py-2.5 rounded-xl border border-purple-300 dark:border-purple-600/40 bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/40 font-semibold text-xs transition flex items-center gap-2">
+              <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+              <span>Export Official Dossier</span>
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- RESUME SCANNER CONSOLE -->
-      <div class="rounded-2xl border border-[#E2E8F0] dark:border-white/10 bg-white dark:bg-white/[0.03] p-6 shadow-sm space-y-5">
+      <!-- RESUME SCANNER & UPLOADER CONSOLE -->
+      <div class="rounded-2xl border border-[#E7E4DC] dark:border-white/10 bg-white dark:bg-white/[0.03] p-6 sm:p-8 shadow-sm space-y-6">
+        
+        <!-- Target Role Benchmark Dropdown -->
         <div>
-          <label class="block text-xs font-bold text-[#0F172A] dark:text-gray-200 mb-2">Target Corporate Role Benchmark</label>
-          <select id="target-role-select" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-gray-900 border border-[#E2E8F0] dark:border-gray-700 text-xs sm:text-sm text-[#0F172A] dark:text-white focus:ring-2 focus:ring-purple-500 transition">
-            <option value="Herbal Formulation Scientist">Herbal Formulation Scientist (Dabur India Ltd. R&amp;D)</option>
-            <option value="Phytochemical Quality Control Officer">Phytochemical QC Officer (Patanjali Research Foundation)</option>
-            <option value="Ayush Clinical Data Specialist">Ayush Clinical Data Specialist (Himalaya Wellness)</option>
-            <option value="Bio-Informatics Research Associate">Bio-Informatics Research Associate (AIIA Digital Cell)</option>
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-xs font-bold uppercase tracking-wider text-[#1C1917] dark:text-gray-200">
+              Target Corporate Role Benchmark
+            </label>
+            <span class="text-[11px] text-[#6E6962] dark:text-gray-400">Calculates Hybrid Cosine-Jaccard Fit</span>
+          </div>
+          <select id="target-role-select" class="w-full p-3.5 rounded-xl bg-slate-50 dark:bg-gray-900 border border-[#E7E4DC] dark:border-gray-700 text-xs sm:text-sm font-medium text-[#1C1917] dark:text-white focus:ring-2 focus:ring-purple-500 transition">
+            <option value="Software Development Engineer">Software Development Engineer (Tech &amp; Systems Engineering)</option>
+            <option value="Data Scientist &amp; ML Engineer">Data Scientist &amp; ML Engineer (AI Platforms &amp; Analytics)</option>
+            <option value="Full Stack Cloud Developer">Full Stack Cloud Developer (Modern Web &amp; Distributed Systems)</option>
+            <option value="Bio-Informatics Research Associate">Bio-Informatics Research Associate (Computational Life Sciences)</option>
+            <option value="Healthcare Informatics Specialist">Healthcare Informatics Specialist (Clinical &amp; Health Systems)</option>
+            <option value="Herbal Formulation &amp; Pharma Scientist">Herbal Formulation &amp; Pharma Scientist (Phytochemistry &amp; R&amp;D)</option>
+            <option value="Product &amp; Business Analyst">Product &amp; Business Analyst (Strategy &amp; Consulting)</option>
           </select>
         </div>
 
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <label class="text-xs font-bold text-[#0F172A] dark:text-gray-200">Candidate Qualifications &amp; Research Portfolio</label>
-            <div class="flex items-center gap-2">
-              <button onclick="document.getElementById('resume-textarea').value = SAMPLE_RESUMES.herbal" class="text-[11px] font-semibold text-purple-600 dark:text-purple-400 hover:underline">Load Herbal Sample</button>
-              <span class="text-slate-300 dark:text-gray-700">•</span>
-              <button onclick="document.getElementById('resume-textarea').value = SAMPLE_RESUMES.tech" class="text-[11px] font-semibold text-purple-600 dark:text-purple-400 hover:underline">Load Health-AI Sample</button>
-            </div>
-          </div>
-          <textarea id="resume-textarea" rows="6" class="w-full p-3.5 rounded-xl bg-slate-50 dark:bg-gray-900 border border-[#E2E8F0] dark:border-gray-700 text-xs sm:text-sm font-mono text-[#0F172A] dark:text-gray-200 focus:ring-2 focus:ring-purple-500 transition" placeholder="Paste your academic and technical resume text here..."></textarea>
-        </div>
-
-        <div class="flex justify-end pt-2">
-          <button onclick="handleAnalyzeResume()" class="px-6 py-2.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] dark:bg-white/10 dark:hover:bg-white/20 text-white font-semibold text-xs transition-colors shadow-sm flex items-center gap-2">
-            <span class="material-symbols-outlined text-[18px]">document_scanner</span>
-            <span>Execute AI Skill Gap Discovery</span>
+        <!-- Ingestion Mode Selector Tabs -->
+        <div class="flex items-center gap-2 border-b border-[#E7E4DC] dark:border-white/10 pb-3">
+          <button id="tab-btn-file" onclick="switchInputMode('file')" class="px-4 py-2 rounded-xl text-xs font-bold bg-[#0F172A] text-white dark:bg-white/10 dark:text-white transition shadow-sm flex items-center gap-2">
+            <span class="material-symbols-outlined text-[16px]">upload_file</span>
+            <span>Upload Document (PDF / DOCX / TXT)</span>
+          </button>
+          <button id="tab-btn-text" onclick="switchInputMode('text')" class="px-4 py-2 rounded-xl text-xs font-medium text-[#6E6962] dark:text-gray-400 hover:text-[#1C1917] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition flex items-center gap-2">
+            <span class="material-symbols-outlined text-[16px]">edit_note</span>
+            <span>Paste Resume Text / Samples</span>
           </button>
         </div>
 
-        <!-- RESULTS REPORT BOX -->
-        <div id="resume-results-box" class="hidden mt-6 pt-6 border-t border-[#E2E8F0] dark:border-white/5 space-y-4">
-          <div class="flex items-center justify-between">
-            <h3 class="text-base font-bold text-[#0F172A] dark:text-white">Diagnostic Skill Gap Report</h3>
-            <span class="text-sm font-mono font-bold text-emerald-600 dark:text-emerald-400">Match Score: <span id="resume-match-score">0%</span></span>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/40 space-y-2">
-              <span class="text-xs font-bold text-emerald-800 dark:text-emerald-300 block">✓ Validated Industrial Competencies</span>
-              <div id="resume-extracted-skills" class="flex flex-wrap gap-1.5"></div>
+        <!-- Mode 1: Drag & Drop File Zone -->
+        <div id="file-upload-mode" class="space-y-3">
+          <div id="resume-dropzone" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleFileDrop(event)" onclick="document.getElementById('resume-file-input').click()" class="border-2 border-dashed border-purple-300 dark:border-purple-600/40 rounded-2xl p-8 sm:p-10 text-center cursor-pointer hover:border-purple-500 dark:hover:border-purple-400 hover:bg-purple-50/40 dark:hover:bg-purple-950/20 transition-all group">
+            <input type="file" id="resume-file-input" accept=".pdf,.docx,.txt,.doc" class="hidden" onchange="handleFileSelect(event)">
+            <div class="w-16 h-16 rounded-3xl bg-purple-100 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-700/50 flex items-center justify-center text-purple-600 dark:text-purple-400 text-3xl mx-auto shadow-sm group-hover:scale-110 transition-transform">
+              <span class="material-symbols-outlined text-[32px]">cloud_upload</span>
             </div>
-            <div class="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 space-y-2">
-              <span class="text-xs font-bold text-amber-800 dark:text-amber-300 block">⚠️ Critical Missing Competencies</span>
-              <div id="resume-missing-skills" class="flex flex-wrap gap-1.5"></div>
+            <h3 class="text-base font-bold text-[#1C1917] dark:text-white mt-4">Drag and drop your Resume document</h3>
+            <p class="text-xs text-[#6E6962] dark:text-gray-400 mt-1">Supports PDF (via in-browser PDF.js), DOCX, or TXT (Max 10MB)</p>
+            <div class="mt-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-semibold border border-purple-200 dark:border-purple-700/50">
+              <span class="material-symbols-outlined text-[16px]">folder_open</span>
+              <span>Browse Local Files</span>
+            </div>
+          </div>
+          <div id="selected-file-info" class="hidden p-3 rounded-xl bg-slate-50 dark:bg-gray-900/60 border border-[#E7E4DC] dark:border-gray-800 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2 overflow-hidden">
+              <span class="material-symbols-outlined text-[18px] text-purple-600 dark:text-purple-400">description</span>
+              <span id="file-name-display" class="font-mono font-medium truncate max-w-xs">resume.pdf</span>
+              <span id="file-size-display" class="text-slate-400 font-mono text-[10px]"></span>
+            </div>
+            <button onclick="clearSelectedFile(event)" class="text-slate-400 hover:text-red-500 text-xs font-bold">Remove</button>
+          </div>
+        </div>
+
+        <!-- Mode 2: Direct Text Area with Sample Loaders -->
+        <div id="text-input-mode" class="hidden space-y-3">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-bold text-[#1C1917] dark:text-gray-200">Raw Candidate Resume Text</label>
+            <div class="flex items-center gap-2">
+              <button onclick="loadSampleResume('herbal')" class="text-[11px] font-semibold text-purple-600 dark:text-purple-400 hover:underline">Load Herbal Sample</button>
+              <span class="text-slate-300 dark:text-gray-700">•</span>
+              <button onclick="loadSampleResume('tech')" class="text-[11px] font-semibold text-purple-600 dark:text-purple-400 hover:underline">Load Health-AI Sample</button>
+              <span class="text-slate-300 dark:text-gray-700">•</span>
+              <button onclick="loadSampleResume('clinical')" class="text-[11px] font-semibold text-purple-600 dark:text-purple-400 hover:underline">Load Clinical Sample</button>
+            </div>
+          </div>
+          <textarea id="resume-textarea" rows="7" class="w-full p-4 rounded-xl bg-slate-50 dark:bg-gray-900 border border-[#E7E4DC] dark:border-gray-700 text-xs sm:text-sm font-mono text-[#1C1917] dark:text-gray-200 focus:ring-2 focus:ring-purple-500 transition leading-relaxed" placeholder="Paste your academic and technical resume text here..."></textarea>
+        </div>
+
+        <!-- Action Button & Parsing Progress -->
+        <div class="space-y-4 pt-2">
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <span class="text-xs text-[#6E6962] dark:text-gray-400 flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[16px] text-emerald-500">lock</span>
+              <span>All candidate parsing executes securely on your institutional cluster</span>
+            </span>
+            <button id="execute-parse-btn" onclick="handleExecuteParse()" class="w-full sm:w-auto px-7 py-3 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] dark:bg-purple-600 dark:hover:bg-purple-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center justify-center gap-2 hover:scale-[1.02]">
+              <span class="material-symbols-outlined text-[20px]">document_scanner</span>
+              <span>Parse &amp; Auto-Assess Resume</span> <span class="material-symbols-outlined text-sm align-middle ml-1">arrow_forward</span>
+            </button>
+          </div>
+
+          <!-- Live Parsing Progress Tracker -->
+          <div id="parsing-progress-box" class="hidden p-5 rounded-2xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800/40 space-y-3">
+            <div class="flex items-center justify-between text-xs font-semibold text-purple-900 dark:text-purple-200">
+              <span id="parsing-status-step" class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-purple-600 animate-ping"></span>
+                <span>Reading Document Text...</span>
+              </span>
+              <span id="parsing-progress-percent" class="font-mono font-bold">25%</span>
+            </div>
+            <div class="w-full bg-slate-200 dark:bg-gray-800 h-2 rounded-full overflow-hidden">
+              <div id="parsing-progress-bar" class="bg-gradient-to-r from-purple-600 to-cyan-500 h-full transition-all duration-300" style="width: 25%"></div>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] font-mono text-slate-500 dark:text-gray-400 pt-1">
+              <span id="step-1" class="text-purple-600 font-bold">1. Ingestion</span>
+              <span id="step-2">2. NLP Extraction</span>
+              <span id="step-3">3. Ontology Match</span>
+              <span id="step-4">4. Vector Assessment</span>
             </div>
           </div>
         </div>
-      </div>
-    
-    </div>
 
+      </div>
+
+      <!-- RESULTS REPORT CONTAINER (Initially Hidden) -->
+      <div id="resume-results-container" class="hidden space-y-6">
+
+        <!-- Top Overview Score Card -->
+        <div class="rounded-2xl border border-[#E7E4DC] dark:border-white/10 bg-white dark:bg-white/[0.03] p-6 shadow-sm">
+          <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span id="match-tier-badge" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
+                  Strong Match
+                </span>
+                <span class="text-xs text-[#6E6962] dark:text-gray-400">Target: <strong id="results-target-role" class="text-slate-900 dark:text-white font-medium">Herbal Formulation Scientist</strong></span>
+              </div>
+              <h2 class="text-2xl font-extrabold text-[#1C1917] dark:text-white">
+                Candidate Competency &amp; Gap Diagnostics
+              </h2>
+              <p class="text-xs sm:text-sm text-[#6E6962] dark:text-gray-300 leading-relaxed max-w-2xl">
+                Hybrid Cosine-Jaccard alignment calculated against industrial role vectors. Skills verified through NLP parsing can be directly committed into your permanent portfolio.
+              </p>
+            </div>
+            <div class="flex items-center gap-6 p-4 rounded-2xl bg-slate-50 dark:bg-black/40 border border-[#E7E4DC] dark:border-gray-800">
+              <div class="text-center">
+                <span class="text-[10px] uppercase font-bold text-[#6E6962] dark:text-gray-400 block">Hybrid Fit</span>
+                <span id="resume-match-score" class="text-3xl font-black font-mono text-purple-600 dark:text-purple-400">0%</span>
+              </div>
+              <div class="w-px h-10 bg-slate-200 dark:bg-gray-800"></div>
+              <div class="text-center">
+                <span class="text-[10px] uppercase font-bold text-[#6E6962] dark:text-gray-400 block">Skills Extracted</span>
+                <span id="resume-skills-count" class="text-3xl font-black font-mono text-emerald-600 dark:text-emerald-400">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Parsed Contact & Profile Details Card -->
+        <div class="rounded-2xl border border-[#E7E4DC] dark:border-white/10 bg-white dark:bg-white/[0.03] p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-[#E7E4DC] dark:border-white/5 pb-3">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-[#1C1917] dark:text-white flex items-center gap-2">
+              <span class="material-symbols-outlined text-[18px] text-purple-600">badge</span>
+              <span>Extracted Candidate Profile</span>
+            </h3>
+            <span class="text-xs font-mono text-slate-400">NLP Entity Tagger v2.4</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-gray-900/60 border border-[#E7E4DC] dark:border-gray-800">
+              <span class="text-slate-400 block text-[10px] uppercase font-semibold">Candidate Name</span>
+              <strong id="parsed-candidate-name" class="text-sm text-slate-900 dark:text-white truncate block">—</strong>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-gray-900/60 border border-[#E7E4DC] dark:border-gray-800">
+              <span class="text-slate-400 block text-[10px] uppercase font-semibold">Email Contact</span>
+              <strong id="parsed-candidate-email" class="text-sm text-slate-900 dark:text-white truncate block">—</strong>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-gray-900/60 border border-[#E7E4DC] dark:border-gray-800">
+              <span class="text-slate-400 block text-[10px] uppercase font-semibold">Institution / Degree</span>
+              <strong id="parsed-candidate-education" class="text-sm text-slate-900 dark:text-white truncate block">—</strong>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-gray-900/60 border border-[#E7E4DC] dark:border-gray-800">
+              <span class="text-slate-400 block text-[10px] uppercase font-semibold">Experience Level</span>
+              <strong id="parsed-candidate-experience" class="text-sm text-slate-900 dark:text-white truncate block">—</strong>
+            </div>
+          </div>
+
+          <!-- Summary Snippet -->
+          <div id="parsed-summary-box" class="p-3.5 rounded-xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800/40 text-xs text-slate-700 dark:text-gray-300 leading-relaxed">
+            <span class="font-bold text-purple-900 dark:text-purple-300 block mb-1">Executive Summary:</span>
+            <span id="parsed-candidate-summary">Standardization of classical Ashwagandha Kwatha and phytochemical screening.</span>
+          </div>
+        </div>
+
+        <!-- SIDE-BY-SIDE COMPARATOR & PROFILE MERGE -->
+        <div class="rounded-2xl border border-[#E7E4DC] dark:border-white/10 bg-white dark:bg-white/[0.03] p-6 shadow-sm space-y-4">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-[#E7E4DC] dark:border-white/5 pb-3">
+            <div>
+              <h3 class="text-base font-bold text-[#1C1917] dark:text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-[20px] text-cyan-500">compare_arrows</span>
+                <span>Side-by-Side: Parsed Competencies vs Live Profile</span>
+              </h3>
+              <p class="text-xs text-[#6E6962] dark:text-gray-400">Select skills verified in your resume to merge directly into your permanent institutional profile.</p>
+            </div>
+            <button id="merge-to-profile-btn" onclick="handleMergeSelectedSkills()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-md transition flex items-center gap-2 hover:scale-105">
+              <span class="material-symbols-outlined text-[18px]">sync</span>
+              <span>Merge Selected to Live Profile</span>
+            </button>
+          </div>
+
+          <!-- Two Column Table / Comparator Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Left: Parsed from Resume -->
+            <div class="p-4 rounded-xl bg-slate-50 dark:bg-gray-900/60 border border-[#E7E4DC] dark:border-gray-800 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                  <span>Extracted from Resume</span>
+                </span>
+                <button onclick="toggleSelectAllSkills(true)" class="text-[10px] text-purple-600 hover:underline">Select All</button>
+              </div>
+              <div id="side-by-side-parsed-list" class="space-y-2 max-h-96 overflow-y-auto pr-1 custom-scrollbar">
+                <!-- Dynamically rendered -->
+              </div>
+            </div>
+
+            <!-- Right: Target Benchmark & Current Profile -->
+            <div class="p-4 rounded-xl bg-slate-50 dark:bg-gray-900/60 border border-[#E7E4DC] dark:border-gray-800 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-cyan-700 dark:text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-cyan-500"></span>
+                  <span>Current Assessed Profile</span>
+                </span>
+                <span class="text-[10px] text-slate-400">Institutional Ledger</span>
+              </div>
+              <div id="side-by-side-current-list" class="space-y-2 max-h-96 overflow-y-auto pr-1 custom-scrollbar">
+                <!-- Dynamically rendered -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RADAR BENCHMARK CHART & ACTION ROADMAP -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Chart.js Radar Canvas Card -->
+          <div class="rounded-2xl border border-[#E7E4DC] dark:border-white/10 bg-white dark:bg-white/[0.03] p-6 shadow-sm flex flex-col justify-between space-y-4">
+            <div>
+              <h3 class="text-base font-bold text-[#1C1917] dark:text-white flex items-center gap-2 mb-1">
+                <span class="material-symbols-outlined text-[18px] text-purple-600">radar</span>
+                <span>Role Benchmark Vector Radar</span>
+              </h3>
+              <p class="text-xs text-[#6E6962] dark:text-gray-400">Comparing extracted candidate skill vector against corporate mandate targets.</p>
+            </div>
+            <div class="w-full aspect-square max-h-80 mx-auto flex items-center justify-center relative">
+              <canvas id="resume-benchmark-radar-chart"></canvas>
+            </div>
+            <div class="text-[11px] text-center text-slate-500 dark:text-gray-400 font-mono">
+              Purple: Candidate Extracted Vector · Cyan: Target Industry Benchmark
+            </div>
+          </div>
+
+          <!-- Strengths, Gaps & Action Recommendations -->
+          <div class="space-y-4">
+            <!-- Strengths -->
+            <div class="p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/40 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-emerald-500 text-base">verified</span> <span>Top Contributing Strengths</span>
+                </span>
+                <span id="strengths-count" class="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">3 Skills</span>
+              </div>
+              <div id="diagnostic-strengths-box" class="flex flex-wrap gap-1.5">
+                <!-- Chips rendered dynamically -->
+              </div>
+            </div>
+
+            <!-- Critical Gaps -->
+            <div class="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-amber-500 text-base">warning</span> <span>Critical Skill Gaps (High Corporate Weight)</span>
+                </span>
+                <span id="critical-gaps-count" class="text-[10px] font-mono text-amber-600 dark:text-amber-400 font-bold">2 Gaps</span>
+              </div>
+              <div id="diagnostic-critical-gaps-box" class="flex flex-wrap gap-1.5">
+                <!-- Chips rendered dynamically -->
+              </div>
+            </div>
+
+            <!-- Action Recommendations -->
+            <div class="p-4 rounded-2xl bg-purple-50/70 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800/40 space-y-2.5">
+              <span class="text-xs font-bold text-purple-800 dark:text-purple-300 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-indigo-500 text-base">track_changes</span> <span>Prescribed Remediation Actions</span>
+              </span>
+              <div id="diagnostic-actions-box" class="space-y-1.5 text-xs text-slate-700 dark:text-gray-300">
+                <!-- Actions rendered dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
   </main>
 </div>
 
+<!-- PRINTABLE OFFICIAL DOSSIER MODAL / VIEW (Triggered on Print) -->
+<div id="printable-dossier-modal" class="hidden p-8 max-w-4xl mx-auto bg-white text-slate-900 font-sans space-y-6">
+  <div class="border-b-2 border-slate-900 pb-4 flex justify-between items-start">
+    <div>
+      <div class="text-xs font-bold uppercase tracking-widest text-slate-500">Higher Education &amp; National Academic Registry</div>
+      <h1 class="text-2xl font-black tracking-tight text-slate-900">JOBLEX OFFICIAL COMPETENCY DOSSIER</h1>
+      <p class="text-xs text-slate-600">Candidate Skill Benchmark &amp; Industry Alignment Report</p>
+    </div>
+    <div class="text-right font-mono text-xs">
+      <div>Date: <span id="dossier-date">2026-03-01</span></div>
+      <div class="text-[10px] text-slate-500">Hash: 0x9B44...F022</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 border p-4 rounded text-xs">
+    <div><strong>Candidate:</strong> <span id="dossier-name">—</span></div>
+    <div><strong>Institution:</strong> <span id="dossier-institution">Accredited University / College</span></div>
+    <div><strong>Target Benchmark:</strong> <span id="dossier-target-role">Technical &amp; Professional Benchmark</span></div>
+    <div><strong>Overall Readiness Fit:</strong> <span id="dossier-fit-score" class="font-bold">78%</span></div>
+  </div>
+
+  <div class="space-y-2">
+    <h3 class="text-sm font-bold uppercase border-b pb-1">Verified Technical Competencies</h3>
+    <div id="dossier-skills-list" class="grid grid-cols-2 gap-2 text-xs">
+      <!-- Injected -->
+    </div>
+  </div>
+
+  <div class="space-y-2">
+    <h3 class="text-sm font-bold uppercase border-b pb-1 text-amber-700">Identified Competency Gaps</h3>
+    <div id="dossier-gaps-list" class="space-y-1 text-xs">
+      <!-- Injected -->
+    </div>
+  </div>
+
+  <div class="pt-6 border-t flex justify-between items-center text-[10px] text-slate-500">
+    <span>Verified via JOBLEX AI Engine (SIH Problem Statement 26044)</span>
+    <span>Dean of Academic Affairs Signature: _____________________</span>
+  </div>
+</div>
 
 <script src="/js/frontend/api-client.js"></script>
 <script src="/js/frontend/notifications.js"></script>
 <script src="/js/frontend/student-ui.js"></script>
+<script src="../../js/frontend/animations.js"></script>
 </body>
 </html>

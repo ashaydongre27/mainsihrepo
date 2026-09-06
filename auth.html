@@ -4,13 +4,48 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JOBLEX - Authentication & Access Gateway</title>
-  <!-- Google Fonts: Inter & JetBrains Mono -->
+  
+  <!-- Google Fonts Preconnect -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <!-- Material Symbols Outlined -->
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <!-- High-Tech Editorial Typography: Space Grotesk, Outfit, JetBrains Mono -->
+    <!-- High-Tech Editorial Typography: Plus Jakarta Sans, Newsreader, JetBrains Mono -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Google Material Symbols Outlined (Local + CDN fallback) -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  
+  <style>
+    @font-face {
+      font-family: 'Material Symbols Outlined';
+      font-style: normal;
+      font-weight: 100 700;
+      font-display: block;
+      src: url('/css/fonts/material-symbols-outlined.woff2') format('woff2'),
+           url('css/fonts/material-symbols-outlined.woff2') format('woff2'),
+           url('https://fonts.gstatic.com/s/materialsymbolsoutlined/v369/kJEhBvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oFsI.woff2') format('woff2');
+    }
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined' !important;
+      font-weight: normal;
+      font-style: normal;
+      font-size: 24px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+    }
+  </style>
+
   <script src="/js/frontend/theme.js"></script>
+  <!-- Custom Stylesheet with cache buster -->
+  <link rel="stylesheet" href="css/styles.css?v=20260906.2">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -19,85 +54,125 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            sans: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            serif: ['Newsreader', 'Georgia', 'serif'],
             mono: ['JetBrains Mono', 'monospace']
+          },
+          colors: {
+            bone: { 50: '#FAF9F6', 100: '#F4F2EC', 200: '#E8E5DC', 300: '#D7D2C5' },
+            obsidian: { 950: '#070709', 900: '#0C0D10', 800: '#111215', 700: '#16181D', 600: '#22252C' },
+            sage: { 50: '#F2F6F3', 100: '#E3EDE6', 500: '#3D7055', 600: '#2D5542', 700: '#1E3C2E', glow: '#4EBA87' },
+            terracotta: { 50: '#FAF4F0', 100: '#F4E7DF', 500: '#B85E2E', 600: '#944C23', glow: '#E07A48' },
+            ochre: { 50: '#FAF6EF', 100: '#F4EBDA', 500: '#A67332', 600: '#855828', glow: '#D4973B' }
           }
         }
       }
-    }
+    };
   </script>
-  
 </head>
-<body class="bg-gradient-to-b from-[#FFFFFF] via-[#F8F9FA] to-[#F1F3F5] dark:from-[#0B0D11] dark:via-[#111317] dark:to-[#1A1C20] text-[#111827] dark:text-[#E2E2E8] min-h-screen flex flex-col justify-between font-sans antialiased selection:bg-[#E2E8F0] dark:selection:bg-[#333539] selection:text-[#0F172A] dark:selection:text-[#ADC6FF] transition-colors duration-200">
+<body class="bg-[#FAF8F5] dark:bg-[#070709] text-[#1C1917] dark:text-[#F4F4F6] font-sans min-h-screen flex flex-col antialiased transition-colors duration-200">
+
+  <!-- Floating Ambient Glow Orbs -->
+  <div class="ambient-glow-orb-1"></div>
+  <div class="ambient-glow-orb-2"></div>
 
   <!-- Top Minimal Utility Bar -->
-  <header class="w-full max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
-    <a href="index.html" class="flex items-center gap-2.5 text-[#0F172A] dark:text-[#E2E2E8] hover:opacity-80 transition-opacity">
-      <span class="w-6 h-6 bg-[#0F172A] dark:bg-[#ADC6FF] text-white dark:text-[#002E6A] flex items-center justify-center rounded text-xs font-mono font-bold">J</span>
-      <span class="text-base font-bold tracking-tight uppercase">JOBLEX</span>
-      <span class="text-[11px] text-[#64748B] dark:text-[#8C909F] pl-2 border-l border-[#E2E8F0] dark:border-[#333539]">National Ayush Gateway</span>
+  <header class="w-full max-w-5xl mx-auto px-6 py-5 flex items-center justify-between relative z-10">
+    <a href="index.html" class="flex items-center gap-2.5 text-slate-900 dark:text-white hover:opacity-80 transition-opacity">
+      <span class="w-7 h-7 bg-slate-900 dark:bg-white text-white dark:text-slate-950 flex items-center justify-center rounded-lg text-xs font-mono font-bold shadow-sm">J</span>
+      <span class="text-base font-display font-bold tracking-wider uppercase">JOBLEX</span>
+      <span class="text-[11px] text-slate-500 dark:text-slate-400 pl-2 border-l border-slate-200 dark:border-white/[0.08]">Unified Multi-Disciplinary Gateway</span>
     </a>
     <div class="flex items-center gap-3">
-      <!-- Theme Toggle Button -->
-      <button id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Light/Dark Theme" title="Toggle Light/Dark Theme" class="p-1.5 rounded-lg border border-[#E2E8F0] dark:border-[#333539] bg-white dark:bg-[#1A1C20] text-[#475569] dark:text-[#C2C6D6] hover:text-[#0F172A] dark:hover:text-white transition-colors duration-150 flex items-center justify-center">
-        <span id="theme-toggle-icon" class="material-symbols-outlined text-[18px]">dark_mode</span>
+      <!-- Theme Toggle Button with Pure SVG -->
+      <button id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Light/Dark Theme" title="Toggle Light/Dark Theme" class="p-2.5 rounded-xl border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.03] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors duration-150 flex items-center justify-center tactile-btn shadow-sm">
+        <svg id="theme-toggle-icon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
       </button>
-      <a href="src/students/student-roadmap.html" class="text-xs text-[#475569] dark:text-[#8C909F] hover:text-[#0F172A] dark:hover:text-white font-medium transition-colors">
-        Direct Roadmap Access ➔
+      <a href="src/students/student-roadmap.html" class="text-xs text-[#6E6962] dark:text-[#8C909F] hover:text-[#1C1917] dark:hover:text-white font-medium transition-colors flex items-center gap-1">
+        Direct Roadmap Access <span>➔</span>
       </a>
     </div>
   </header>
 
   <!-- Centered Auth Card Container -->
-  <main class="w-full max-w-lg mx-auto px-4 py-8 flex-1 flex items-center justify-center">
-    <div id="auth-card-container" class="w-full bg-[#FFFFFF] dark:bg-[#111317] border border-[#E5E7EB] dark:border-[#282A2E] rounded-2xl p-6 sm:p-8 shadow-[0_1px_3px_rgba(0,0,0,0.05),0_10px_25px_-5px_rgba(0,0,0,0.03)] dark:shadow-none transition-all duration-200">
+  <main class="w-full max-w-lg mx-auto px-4 py-8 flex-1 flex items-center justify-center relative z-10">
+    <div id="auth-card-container" class="w-full portal-card rounded-2xl p-6 sm:p-8 backdrop-blur-xl border border-slate-200/90 dark:border-white/[0.08] shadow-2xl bg-white/95 dark:bg-[#0d1017]/95 transition-all duration-200">
       
       <!-- Institutional Header Lockup -->
-      <div class="border-b border-[#F1F5F9] dark:border-[#282A2E] pb-5 mb-5 text-center">
-        <div class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-[#F8FAFC] dark:bg-[#1A1C20] border border-[#E2E8F0] dark:border-[#333539] text-[#0F172A] dark:text-[#ADC6FF] mb-3">
-          <span class="text-base font-mono">🔐</span>
+      <div class="border-b border-stone-200/70 dark:border-white/[0.06] pb-5 mb-5 text-center">
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#2D5542]/10 border border-[#2D5542]/25 text-[#2D5542] dark:text-[#4EBA87] mb-3 shadow-inner">
+          <!-- Vector Shield Check Icon -->
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
         </div>
-        <h1 class="text-xl font-bold text-[#0F172A] dark:text-[#E2E2E8] tracking-tight">Institutional Access Gateway</h1>
-        <p id="gateway-subtitle" class="text-xs text-[#64748B] dark:text-[#8C909F] mt-1">
-          Ministry of Ayush & Accredited Collegiate Verification Framework
+        <h1 class="text-xl font-display font-bold text-stone-900 dark:text-stone-100 tracking-tight">Institutional Access Gateway</h1>
+        <p id="gateway-subtitle" class="text-xs text-stone-500 dark:text-stone-400 mt-1">
+          Higher Education &amp; Multi-Disciplinary Career Framework
         </p>
       </div>
 
+
       <!-- Mode Selector Tabs (Login / Register) -->
-      <div class="grid grid-cols-2 gap-1 p-1 bg-[#F8FAFC] dark:bg-[#1A1C20] rounded-xl border border-[#E2E8F0] dark:border-[#333539] mb-5">
-        <button type="button" id="btn-mode-login" onclick="setAuthMode('login')" class="py-2 text-xs font-semibold rounded-lg transition-all bg-[#0F172A] dark:bg-[#ADC6FF] text-white dark:text-[#002E6A] shadow-sm">
-          Sign In
+      <div class="grid grid-cols-2 gap-1 p-1 bg-slate-100 dark:bg-white/[0.04] rounded-xl border border-slate-200/80 dark:border-white/[0.06] mb-5">
+        <button type="button" id="btn-mode-login" onclick="setAuthMode('login')" class="py-2 text-xs font-semibold rounded-lg transition-all bg-slate-900 dark:bg-white text-white dark:text-slate-950 shadow-sm flex items-center justify-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+          </svg>
+          <span>Sign In</span>
         </button>
-        <button type="button" id="btn-mode-register" onclick="setAuthMode('register')" class="py-2 text-xs font-semibold rounded-lg transition-all text-[#64748B] dark:text-[#8C909F] hover:text-[#0F172A] dark:hover:text-[#E2E2E8]">
-          Create Account
+        <button type="button" id="btn-mode-register" onclick="setAuthMode('register')" class="py-2 text-xs font-semibold rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+          </svg>
+          <span>Create Account</span>
         </button>
       </div>
 
       <!-- Context Notice -->
-      <div id="mode-context-banner" class="mb-5 p-3 rounded-xl bg-[#F8FAFC] dark:bg-[#1A1C20] border border-[#E2E8F0] dark:border-[#333539] text-xs text-[#475569] dark:text-[#C2C6D6] flex items-center justify-between">
-        <span id="banner-text">Institutional Credentials required for verified outcome tracking.</span>
-        <span class="text-[10px] font-mono text-[#0F172A] dark:text-[#ADC6FF] bg-[#E2E8F0] dark:bg-[#282A2E] px-1.5 py-0.5 rounded font-semibold">NAAC Cycle IV</span>
+      <div id="mode-context-banner" class="mb-5 p-3 rounded-xl bg-stone-100/60 dark:bg-white/[0.02] border border-stone-200/80 dark:border-white/[0.06] text-xs text-stone-600 dark:text-stone-300 flex items-center justify-between">
+        <span id="banner-text" class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-[#2D5542] dark:text-[#4EBA87] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Institutional Credentials required for outcome tracking.
+        </span>
+        <span class="text-[10px] font-mono text-stone-800 dark:text-stone-300 bg-stone-200/70 dark:bg-white/[0.05] px-2 py-0.5 rounded font-semibold border border-stone-300 dark:border-white/[0.08] shrink-0">NAAC Cycle IV</span>
       </div>
 
       <!-- Persona / Role Selector -->
       <div class="mb-4">
         <div class="flex justify-between items-center mb-1.5">
-          <label id="role-selector-label" class="text-[11px] font-semibold text-[#475569] dark:text-[#8C909F] uppercase tracking-wider">
+          <label id="role-selector-label" class="text-[11px] font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
             Sign In Portal:
           </label>
-          <span id="role-hint-badge" class="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-[#ECFDF5] dark:bg-[#003824]/40 text-[#065F46] dark:text-[#4EDEA3] border border-[#A7F3D0] dark:border-[#00A572]/40">
-            Ayush Student
+          <span id="role-hint-badge" class="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-[#2D5542]/10 text-[#2D5542] dark:text-[#4EBA87] border border-[#2D5542]/20 dark:border-[#4EBA87]/20 flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#2D5542] dark:bg-[#4EBA87] animate-pulse"></span>
+            <span>Student / Scholar</span>
           </span>
         </div>
-        <div class="grid grid-cols-3 gap-1.5 p-1 bg-[#F8FAFC] dark:bg-[#1A1C20] rounded-xl border border-[#E2E8F0] dark:border-[#333539]" id="role-tabs">
-          <button type="button" onclick="selectRole('student')" id="tab-student" class="py-2 text-xs font-semibold rounded-lg transition border border-[#0F172A] dark:border-[#ADC6FF] bg-[#FFFFFF] dark:bg-[#1E2024] text-[#0F172A] dark:text-[#ADC6FF] shadow-sm">
-            Student
+        <div class="grid grid-cols-3 gap-1.5 p-1 bg-stone-100/70 dark:bg-white/[0.04] rounded-xl border border-stone-200/80 dark:border-white/[0.06]" id="role-tabs">
+          <button type="button" onclick="selectRole('student')" id="tab-student" class="py-2 text-xs font-semibold rounded-lg transition border border-stone-900 dark:border-white bg-white dark:bg-stone-900 text-stone-900 dark:text-white shadow-xs flex items-center justify-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-[#2D5542] dark:text-[#4EBA87] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+            </svg>
+            <span>Student</span>
           </button>
-          <button type="button" onclick="selectRole('academy')" id="tab-academy" class="py-2 text-xs font-semibold rounded-lg transition border border-transparent text-[#64748B] dark:text-[#8C909F] hover:text-[#0F172A] dark:hover:text-[#E2E2E8]">
-            Academy / Dean
+          <button type="button" onclick="selectRole('academy')" id="tab-academy" class="py-2 text-xs font-semibold rounded-lg transition border border-transparent text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white flex items-center justify-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-[#855828] dark:text-[#D4973B] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M12 3l9 7H3l9-7z" />
+            </svg>
+            <span>Academy</span>
           </button>
-          <button type="button" onclick="selectRole('industry')" id="tab-industry" class="py-2 text-xs font-semibold rounded-lg transition border border-transparent text-[#64748B] dark:text-[#8C909F] hover:text-[#0F172A] dark:hover:text-[#E2E2E8]">
-            Pharma R&D
+          <button type="button" onclick="selectRole('industry')" id="tab-industry" class="py-2 text-xs font-semibold rounded-lg transition border border-transparent text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white flex items-center justify-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-[#944C23] dark:text-[#E07A48] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            <span>Industry</span>
           </button>
         </div>
       </div>
@@ -109,77 +184,82 @@
         <div id="register-fields" class="hidden space-y-3 pt-1">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="text-[11px] font-semibold text-[#475569] dark:text-[#8C909F] uppercase tracking-wider block mb-1">
+              <label class="text-[11px] font-semibold text-stone-600 dark:text-stone-400 uppercase tracking-wider block mb-1">
                 Full Legal Name <span class="text-rose-500">*</span>
               </label>
-              <input type="text" id="input-name" placeholder="e.g. Ashay Verma" class="w-full p-2.5 rounded-xl bg-[#FFFFFF] dark:bg-[#0C0E12] border border-[#E2E8F0] dark:border-[#333539] text-xs text-[#0F172A] dark:text-[#E2E2E8] placeholder:text-[#94A3B8] dark:placeholder:text-[#545F73] focus:outline-none focus:border-[#0F172A] dark:focus:border-[#ADC6FF] focus:ring-1 focus:ring-[#0F172A] dark:focus:ring-[#ADC6FF]">
+              <input type="text" id="input-name" placeholder="Enter your full name" class="w-full p-2.5 rounded-xl bg-white dark:bg-black/30 border border-stone-200 dark:border-white/[0.1] text-xs text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:outline-none focus:border-[#2D5542] dark:focus:border-[#4EBA87] focus:ring-2 focus:ring-[#2D5542]/20 dark:focus:ring-[#4EBA87]/20">
             </div>
             <div>
-              <label id="label-org" class="text-[11px] font-semibold text-[#475569] dark:text-[#8C909F] uppercase tracking-wider block mb-1">
+              <label id="label-org" class="text-[11px] font-semibold text-stone-600 dark:text-stone-400 uppercase tracking-wider block mb-1">
                 College / Institution <span class="text-rose-500">*</span>
               </label>
-              <input type="text" id="input-org" placeholder="e.g. AIIA New Delhi" class="w-full p-2.5 rounded-xl bg-[#FFFFFF] dark:bg-[#0C0E12] border border-[#E2E8F0] dark:border-[#333539] text-xs text-[#0F172A] dark:text-[#E2E2E8] placeholder:text-[#94A3B8] dark:placeholder:text-[#545F73] focus:outline-none focus:border-[#0F172A] dark:focus:border-[#ADC6FF] focus:ring-1 focus:ring-[#0F172A] dark:focus:ring-[#ADC6FF]">
+              <input type="text" id="input-org" placeholder="Enter college or university" class="w-full p-2.5 rounded-xl bg-white dark:bg-black/30 border border-stone-200 dark:border-white/[0.1] text-xs text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:outline-none focus:border-[#2D5542] dark:focus:border-[#4EBA87] focus:ring-2 focus:ring-[#2D5542]/20 dark:focus:ring-[#4EBA87]/20">
             </div>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label id="label-dept" class="text-[11px] font-semibold text-[#475569] dark:text-[#8C909F] uppercase tracking-wider block mb-1">
+              <label id="label-dept" class="text-[11px] font-semibold text-stone-600 dark:text-stone-400 uppercase tracking-wider block mb-1">
                 Department / Faculty
               </label>
-              <input type="text" id="input-dept" placeholder="e.g. Ayurvedic Pharmacology" class="w-full p-2.5 rounded-xl bg-[#FFFFFF] dark:bg-[#0C0E12] border border-[#E2E8F0] dark:border-[#333539] text-xs text-[#0F172A] dark:text-[#E2E2E8] placeholder:text-[#94A3B8] dark:placeholder:text-[#545F73] focus:outline-none focus:border-[#0F172A] dark:focus:border-[#ADC6FF] focus:ring-1 focus:ring-[#0F172A] dark:focus:ring-[#ADC6FF]">
+              <input type="text" id="input-dept" placeholder="Enter department or faculty" class="w-full p-2.5 rounded-xl bg-white dark:bg-black/30 border border-stone-200 dark:border-white/[0.1] text-xs text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:outline-none focus:border-[#2D5542] dark:focus:border-[#4EBA87] focus:ring-2 focus:ring-[#2D5542]/20 dark:focus:ring-[#4EBA87]/20">
             </div>
             <div>
-              <label id="label-role-spec" class="text-[11px] font-semibold text-[#475569] dark:text-[#8C909F] uppercase tracking-wider block mb-1">
+              <label id="label-role-spec" class="text-[11px] font-semibold text-stone-600 dark:text-stone-400 uppercase tracking-wider block mb-1">
                 Academic Year / Title
               </label>
-              <input type="text" id="input-role-spec" placeholder="e.g. 3rd Year BAMS" class="w-full p-2.5 rounded-xl bg-[#FFFFFF] dark:bg-[#0C0E12] border border-[#E2E8F0] dark:border-[#333539] text-xs text-[#0F172A] dark:text-[#E2E2E8] placeholder:text-[#94A3B8] dark:placeholder:text-[#545F73] focus:outline-none focus:border-[#0F172A] dark:focus:border-[#ADC6FF] focus:ring-1 focus:ring-[#0F172A] dark:focus:ring-[#ADC6FF]">
+              <input type="text" id="input-role-spec" placeholder="e.g. 3rd Year / Faculty" class="w-full p-2.5 rounded-xl bg-white dark:bg-black/30 border border-stone-200 dark:border-white/[0.1] text-xs text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:outline-none focus:border-[#2D5542] dark:focus:border-[#4EBA87] focus:ring-2 focus:ring-[#2D5542]/20 dark:focus:ring-[#4EBA87]/20">
             </div>
           </div>
         </div>
 
         <!-- Primary Credentials -->
         <div>
-          <label class="text-[11px] font-semibold text-[#475569] dark:text-[#8C909F] uppercase tracking-wider block mb-1">
+          <label class="text-[11px] font-semibold text-stone-600 dark:text-stone-400 uppercase tracking-wider block mb-1">
             Institutional Email Address <span class="text-rose-500">*</span>
           </label>
-          <input type="email" id="input-email" required autocomplete="off" placeholder="user@institution.edu" class="w-full p-2.5 rounded-xl bg-[#FFFFFF] dark:bg-[#0C0E12] border border-[#E2E8F0] dark:border-[#333539] text-xs text-[#0F172A] dark:text-[#E2E2E8] font-mono placeholder:text-[#94A3B8] dark:placeholder:text-[#545F73] focus:outline-none focus:border-[#0F172A] dark:focus:border-[#ADC6FF] focus:ring-1 focus:ring-[#0F172A] dark:focus:ring-[#ADC6FF]">
+          <input type="email" id="input-email" required autocomplete="off" placeholder="name@institution.edu" class="w-full p-2.5 rounded-xl bg-white dark:bg-black/30 border border-stone-200 dark:border-white/[0.1] text-xs text-stone-900 dark:text-stone-100 font-mono placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:outline-none focus:border-[#2D5542] dark:focus:border-[#4EBA87] focus:ring-2 focus:ring-[#2D5542]/20 dark:focus:ring-[#4EBA87]/20">
         </div>
 
         <div>
           <div class="flex justify-between items-center mb-1">
-            <label class="text-[11px] font-semibold text-[#475569] dark:text-[#8C909F] uppercase tracking-wider block">
+            <label class="text-[11px] font-semibold text-stone-600 dark:text-stone-400 uppercase tracking-wider block">
               Password <span class="text-rose-500">*</span>
             </label>
-            <span id="login-forgot-pass" class="text-[11px] text-[#64748B] dark:text-[#8C909F] hover:text-[#0F172A] dark:hover:text-white cursor-pointer">
+            <span id="login-forgot-pass" class="text-[11px] text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white cursor-pointer transition-colors">
               Forgot?
             </span>
           </div>
-          <input type="password" id="input-password" required autocomplete="new-password" placeholder="••••••••••••" class="w-full p-2.5 rounded-xl bg-[#FFFFFF] dark:bg-[#0C0E12] border border-[#E2E8F0] dark:border-[#333539] text-xs text-[#0F172A] dark:text-[#E2E2E8] placeholder:text-[#94A3B8] dark:placeholder:text-[#545F73] focus:outline-none focus:border-[#0F172A] dark:focus:border-[#ADC6FF] focus:ring-1 focus:ring-[#0F172A] dark:focus:ring-[#ADC6FF]">
+          <input type="password" id="input-password" required autocomplete="new-password" placeholder="••••••••••••" class="w-full p-2.5 rounded-xl bg-white dark:bg-black/30 border border-stone-200 dark:border-white/[0.1] text-xs text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:outline-none focus:border-[#2D5542] dark:focus:border-[#4EBA87] focus:ring-2 focus:ring-[#2D5542]/20 dark:focus:ring-[#4EBA87]/20">
         </div>
 
         <!-- Terms Agreement Checkbox -->
-        <div id="register-terms" class="hidden text-[11px] text-[#64748B] dark:text-[#8C909F] flex items-start gap-2 pt-1">
-          <input type="checkbox" id="terms-agree" class="mt-0.5 rounded border-[#CBD5E1] dark:border-[#333539] text-[#0F172A] dark:text-[#ADC6FF] focus:ring-[#0F172A] dark:focus:ring-[#ADC6FF]">
+        <div id="register-terms" class="hidden text-[11px] text-stone-500 dark:text-stone-400 flex items-start gap-2 pt-1">
+          <input type="checkbox" id="terms-agree" class="mt-0.5 rounded border-stone-300 dark:border-stone-700 text-[#2D5542] dark:text-[#4EBA87] focus:ring-[#2D5542]">
           <label for="terms-agree">
-            I certify my institutional affiliation under Ministry of Ayush / NAAC statutory guidelines.
+            I certify my institutional affiliation under academic accreditation and statutory guidelines.
           </label>
         </div>
 
         <!-- Submit Button -->
-        <button type="submit" id="submit-btn" class="w-full py-2.5 rounded-xl bg-[#0F172A] dark:bg-[#ADC6FF] hover:bg-[#1E293B] dark:hover:bg-[#D8E2FF] text-white dark:text-[#002E6A] font-semibold text-xs tracking-wide shadow-none transition-colors duration-150 mt-3 flex items-center justify-center gap-2 cursor-pointer">
+        <button type="submit" id="submit-btn" class="w-full py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-950 font-semibold text-xs tracking-wide shadow-xs transition-all duration-150 mt-3 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]">
           <span>Authenticate to Student Portal ➔</span>
         </button>
 
         <!-- Switch Mode Link -->
-        <div class="text-center pt-2 text-xs text-[#64748B] dark:text-[#8C909F]">
+        <div class="text-center pt-2 text-xs text-stone-500 dark:text-stone-400">
           <span id="switch-mode-prompt">Need an institutional account?</span>
-          <button type="button" id="switch-mode-action" onclick="toggleAuthMode()" class="ml-1 text-[#0F172A] dark:text-[#ADC6FF] font-semibold hover:underline cursor-pointer">
+          <button type="button" id="switch-mode-action" onclick="toggleAuthMode()" class="ml-1 text-[#2D5542] dark:text-[#4EBA87] font-semibold hover:underline cursor-pointer">
             Register Here
           </button>
         </div>
+      </form>
     </div>
   </main>
+
+  <footer class="w-full max-w-5xl mx-auto px-6 py-4 text-center text-[11px] text-slate-400 dark:text-slate-600 border-t border-slate-200/60 dark:border-white/[0.04]">
+    JOBLEX Gateway &bull; National Higher Education &bull; Multi-Disciplinary Academia-Industry Integration &bull; 2026
+  </footer>
 
   <!-- Script Implementation -->
   <script src="js/frontend/api-client.js?v=20260906"></script>
@@ -198,17 +278,20 @@
       const switchPrompt = document.getElementById('switch-mode-prompt');
       const switchAction = document.getElementById('switch-mode-action');
 
+      const activeClass = "py-2 text-xs font-semibold rounded-lg transition-all bg-slate-900 dark:bg-white text-white dark:text-slate-950 shadow-sm flex items-center justify-center gap-1.5";
+      const inactiveClass = "py-2 text-xs font-semibold rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center gap-1.5";
+
       if (mode === 'login') {
-        btnLogin.className = "py-2 text-xs font-semibold rounded-lg transition-all bg-[#0F172A] dark:bg-[#ADC6FF] text-white dark:text-[#002E6A] shadow-sm";
-        btnRegister.className = "py-2 text-xs font-semibold rounded-lg transition-all text-[#64748B] dark:text-[#8C909F] hover:text-[#0F172A] dark:hover:text-[#E2E2E8]";
+        btnLogin.className = activeClass;
+        btnRegister.className = inactiveClass;
         registerFields.classList.add('hidden');
         registerTerms.classList.add('hidden');
         submitBtn.querySelector('span').textContent = `Authenticate to ${capitalize(selectedRole)} Portal ➔`;
         switchPrompt.textContent = "Need an institutional account?";
         switchAction.textContent = "Register Here";
       } else {
-        btnRegister.className = "py-2 text-xs font-semibold rounded-lg transition-all bg-[#0F172A] dark:bg-[#ADC6FF] text-white dark:text-[#002E6A] shadow-sm";
-        btnLogin.className = "py-2 text-xs font-semibold rounded-lg transition-all text-[#64748B] dark:text-[#8C909F] hover:text-[#0F172A] dark:hover:text-[#E2E2E8]";
+        btnRegister.className = activeClass;
+        btnLogin.className = inactiveClass;
         registerFields.classList.remove('hidden');
         registerTerms.classList.remove('hidden');
         submitBtn.querySelector('span').textContent = `Create & Register ${capitalize(selectedRole)} Account ➔`;
@@ -221,6 +304,7 @@
       setAuthMode(currentMode === 'login' ? 'register' : 'login');
     }
 
+
     function selectRole(role) {
       selectedRole = role;
       const roles = ['student', 'academy', 'industry'];
@@ -228,18 +312,22 @@
         const tab = document.getElementById(`tab-${r}`);
         if (tab) {
           if (r === role) {
-            tab.className = "py-2 text-xs font-semibold rounded-lg transition border border-[#0F172A] dark:border-[#ADC6FF] bg-[#FFFFFF] dark:bg-[#1E2024] text-[#0F172A] dark:text-[#ADC6FF] shadow-sm";
+            tab.className = "py-2 text-xs font-semibold rounded-lg transition border border-slate-900 dark:border-white bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm flex items-center justify-center gap-1.5";
           } else {
-            tab.className = "py-2 text-xs font-semibold rounded-lg transition border border-transparent text-[#64748B] dark:text-[#8C909F] hover:text-[#0F172A] dark:hover:text-[#E2E2E8]";
+            tab.className = "py-2 text-xs font-semibold rounded-lg transition border border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center gap-1.5";
           }
         }
       });
 
       const badge = document.getElementById('role-hint-badge');
       if (badge) {
-        if (role === 'student') badge.textContent = 'Ayush Student';
-        else if (role === 'academy') badge.textContent = 'Collegiate Academy / Dean';
-        else badge.textContent = 'Pharma R&D Industry';
+        if (role === 'student') {
+          badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span>Student / Scholar</span>';
+        } else if (role === 'academy') {
+          badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span>Collegiate Academy</span>';
+        } else {
+          badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span><span>Industry & Enterprise</span>';
+        }
       }
 
       const submitBtn = document.getElementById('submit-btn');
@@ -276,7 +364,6 @@
           if (!redirect) {
             redirect = `${res.user.role}.html`;
           } else if (!redirect.startsWith('/') && !redirect.startsWith('http') && !redirect.startsWith('src/')) {
-            // Normalize path relative to root
             redirect = '/' + redirect;
           }
           window.location.href = redirect;
@@ -331,5 +418,6 @@
       }
     });
   </script>
+  <script src="/js/frontend/animations.js"></script>
 </body>
 </html>

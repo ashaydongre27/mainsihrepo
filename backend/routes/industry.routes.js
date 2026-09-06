@@ -126,7 +126,7 @@ router.get('/requisitions', async (req, res) => {
       : (DB.applications || []);
 
     const filteredOpps = (type && type !== 'All')
-      ? opps.filter(o => o.type.toLowerCase() === type.toLowerCase())
+      ? opps.filter(o => o.type && o.type.toLowerCase() === type.toLowerCase())
       : opps;
 
     const requisitions = filteredOpps.map(opp => {
@@ -134,7 +134,7 @@ router.get('/requisitions', async (req, res) => {
       const count = apps.filter(a => a.opportunity_id === oppId || a.opportunityId === oppId).length;
       return {
         ...opp,
-        applicantCount: maxCount(count, opp.applicantCount || 1),
+        applicantCount: Math.max(count, opp.applicantCount || 0),
         active: opp.active !== false
       };
     });
@@ -143,13 +143,11 @@ router.get('/requisitions', async (req, res) => {
   } catch (err) {
     console.warn('[Industry requisitions] Supabase query warning:', err.message);
     const list = (type && type !== 'All')
-      ? (DB.opportunities || []).filter(o => o.type.toLowerCase() === type.toLowerCase())
+      ? (DB.opportunities || []).filter(o => o.type && o.type.toLowerCase() === type.toLowerCase())
       : (DB.opportunities || []);
     return res.json({ requisitions: list });
   }
 });
-
-function maxCount(a, b) { return a > b ? a : b; }
 
 // GET /api/industry/candidates
 router.get('/candidates', async (req, res) => {
@@ -186,10 +184,45 @@ router.get('/reverse-search', (req, res) => {
 
 // POST /api/industry/inbound-invite (Idea #3)
 router.post('/inbound-invite', (req, res) => {
-  const { candidateName, roleTitle } = req.body || {};
+  const { candidateName, roleTitle, candidateId, companyName } = req.body || {};
+  const effectiveCandidateName = candidateName || 'Candidate';
+  const effectiveRole = roleTitle || 'Research Associate';
+  const effectiveCompany = companyName || 'Dabur India Ltd. / R&D Division';
+  const studentRecipId = candidateId || 'usr-student-01';
+
+  // Dispatch In-Portal Notification to Student
+  if (!DB.inPortalNotifications) DB.inPortalNotifications = [];
+  DB.inPortalNotifications.unshift({
+    id: `notif-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+    recipientId: studentRecipId,
+    senderId: 'usr-industry-01',
+    title: `Direct Interview Invitation: ${effectiveCompany}`,
+    message: `${effectiveCompany} reviewed your verified portfolio and issued an inbound invitation for "${effectiveRole}".`,
+    actionUrl: '/student.html#applications',
+    category: 'interview_invite',
+    isRead: false,
+    createdAt: new Date().toISOString()
+  });
+
+  // Inject an Interview Preparation To-Do Task for the Student
+  if (!DB.todos) DB.todos = [];
+  DB.todos.unshift({
+    id: `todo-invite-${Date.now().toString(36)}`,
+    studentId: studentRecipId,
+    title: `Inbound Interview: ${effectiveRole} at ${effectiveCompany}`,
+    description: `Direct corporate invitation received. Review botanical assay benchmarks and confirm interview availability.`,
+    category: 'Application',
+    priority: 'Urgent',
+    dueDate: new Date(Date.now() + 86400000 * 2).toISOString(),
+    isCompleted: false,
+    completedAt: null,
+    sourceType: 'system_interview',
+    sourceRefId: `inv-${Date.now().toString(36)}`
+  });
+
   res.json({
     success: true,
-    message: `Direct inbound interview invitation transmitted to ${candidateName || 'candidate'} for role "${roleTitle || 'Research Associate'}"!`
+    message: `Direct inbound interview invitation transmitted to ${effectiveCandidateName} for role "${effectiveRole}"!`
   });
 });
 
@@ -206,7 +239,7 @@ router.post('/create-bootcamp', (req, res) => {
     title: title || 'Ayush Industrial Immersion Bootcamp',
     sponsor: 'Dabur India Ltd.',
     partnerCollege: partnerCollege || 'All India Institute of Ayurveda',
-    targetHires: parseInt(targetHires) || 20,
+    targetHires: !isNaN(parseInt(targetHires, 10)) ? parseInt(targetHires, 10) : 20,
     matchedScholars: 14,
     startDate: 'Dec 01, 2026',
     stipend: stipend || 'Full Sponsorship + ₹10,000 Bounty',
@@ -219,53 +252,50 @@ router.post('/create-bootcamp', (req, res) => {
   res.json({ success: true, message: 'Sponsored Bootcamp cohort initiated!', bootcamp: newBootcamp });
 });
 
-// GET /api/industry/skill-roi (Idea #7: Skill ROI Dashboard)
+// GET /api/industry/skill-roi (Idea #7)
 router.get('/skill-roi', (req, res) => {
   res.json(DB.skillRoiMetrics || {});
 });
 
-// POST /api/industry/rate-candidate (Idea #7)
+// POST /api/industry/rate-candidate (Calibrate Model)
 router.post('/rate-candidate', (req, res) => {
-  const { candidateName, actualRating, comments } = req.body || {};
-  if (!DB.skillRoiMetrics) DB.skillRoiMetrics = { totalHiresEvaluated: 48, feedbackLogs: [] };
-  DB.skillRoiMetrics.totalHiresEvaluated += 1;
-  DB.skillRoiMetrics.feedbackLogs.unshift({
-    candidate: candidateName || 'Scholar',
+  const { candidate, rating, notes } = req.body || {};
+  if (!DB.skillRoiMetrics) DB.skillRoiMetrics = { logs: [] };
+  if (!DB.skillRoiMetrics.logs) DB.skillRoiMetrics.logs = [];
+
+  DB.skillRoiMetrics.logs.unshift({
+    candidate: candidate || 'Candidate',
     predictedMatch: 92,
-    actualLabRating: parseFloat(actualRating) || 4.8,
+    actualLabRating: Number(rating) || 4.5,
     company: 'Dabur R&D',
-    note: comments || 'Verified lab performance matches platform skill prediction.'
+    note: notes || 'Performance calibrated.'
   });
 
-  res.json({
-    success: true,
-    message: 'Feedback recorded! AI matching weight calibrated.',
-    skillRoi: DB.skillRoiMetrics
-  });
+  res.json({ success: true, message: 'Model weights updated with employer rating feedback!' });
 });
 
-// POST /api/industry/submit-skill-demand
+// POST /api/industry/submit-skill-demand (Idea #9 bridge to BoS)
 router.post('/submit-skill-demand', (req, res) => {
-  const { department, skill, justification } = req.body || {};
-  const newSuggestion = {
-    id: `syl-${Date.now().toString(36)}`,
-    currentTopic: department || 'Ayurvedic Pharmaceutical Technology',
-    suggestedAddition: skill || 'Automated HPTLC Monograph Standards',
-    source: 'Corporate Demand (Industry Advisory Board)',
-    impact: justification || 'Essential for corporate manufacturing recruitment',
+  const { skillTitle, urgentNeed, rationale } = req.body || {};
+  if (!DB.syllabus_suggestions) DB.syllabus_suggestions = [];
+
+  const newSyllabusProposal = {
+    id: `bos-${Date.now().toString(36)}`,
+    current_topic: 'Standard Pharmacognosy Lab Hours',
+    suggested_addition: skillTitle || 'Automated HPLC / HPTLC Method Development',
+    source: 'Corporate Advisory Demand Signal',
+    impact: rationale || 'High - Direct Hiring Prerequisite',
+    urgency: urgentNeed ? 'Critical' : 'Medium',
+    status: 'Pending BoS Review',
+    credits_impact: '+2 Non-Core Elective Credits',
     adopted: false
   };
+  DB.syllabus_suggestions.unshift(newSyllabusProposal);
 
-  if (!DB.syllabus_suggestions) DB.syllabus_suggestions = [];
-  DB.syllabus_suggestions.unshift(newSuggestion);
-  res.json({
-    success: true,
-    message: 'Corporate skill demand transmitted to Academic Councils under NEP-2020.',
-    syllabusUpdate: newSuggestion
-  });
+  res.json({ success: true, message: 'Skill demand signal successfully transmitted to Academic Board of Studies!', proposal: newSyllabusProposal });
 });
 
-// GET /api/industry/applications (Received from students applying to jobs/internships)
+// GET /api/industry/applications
 router.get('/applications', async (req, res) => {
   const { company, type } = req.query;
 
@@ -290,10 +320,10 @@ router.get('/applications', async (req, res) => {
 
   let list = DB.applications || [];
   if (company && company !== 'All') {
-    list = list.filter(a => a.company.toLowerCase().includes(company.toLowerCase()));
+    list = list.filter(a => a.company && a.company.toLowerCase().includes(company.toLowerCase()));
   }
   if (type && type !== 'All') {
-    list = list.filter(a => a.type.toLowerCase() === type.toLowerCase());
+    list = list.filter(a => a.type && a.type.toLowerCase() === type.toLowerCase());
   }
   res.json({
     totalApplications: list.length,
@@ -304,43 +334,471 @@ router.get('/applications', async (req, res) => {
 // POST /api/industry/applications/:id/status
 router.post('/applications/:id/status', async (req, res) => {
   const { id } = req.params;
-  const { status } = req.body || {};
+  const { status, interviewSlot = null } = req.body || {};
   const updatedStatus = status || 'Shortlisted';
+
+  let app = (DB.applications || []).find(a => a.id === id || a.applicationId === id);
 
   try {
     const { data, error } = await supabase
       .from('applications')
-      .update({ status: updatedStatus })
+      .update({ status: updatedStatus, interview_slot: interviewSlot })
       .eq('id', id)
       .select()
       .single();
 
     if (!error && data) {
-      // Sync local DB copy
-      const localApp = (DB.applications || []).find(a => a.id === id);
-      if (localApp) localApp.status = updatedStatus;
-
-      return res.json({
-        success: true,
-        message: `Application status updated to "${data.status}" for ${data.student_name || data.studentName}!`,
-        application: data
-      });
+      if (app) {
+        app.status = updatedStatus;
+        if (interviewSlot) app.interviewSlot = interviewSlot;
+      } else {
+        app = data;
+      }
     }
   } catch (err) {
     console.warn('[Update app status] Supabase error:', err.message);
   }
 
-  const app = (DB.applications || []).find(a => a.id === id);
-  if (!app) {
-    return res.status(404).json({ success: false, message: 'Application not found.', error: 'Application not found.' });
+  if (app) {
+    app.status = updatedStatus;
+    if (interviewSlot) app.interviewSlot = interviewSlot;
   }
 
-  app.status = updatedStatus;
-  res.json({
+  const studentId = (app && (app.studentEmail || app.student_email || app.studentId)) || 'usr-student-01';
+  const studentName = (app && (app.studentName || app.student_name)) || 'Candidate';
+  const compName = (app && app.company) || 'Ayush Employer';
+  const oppTitle = (app && (app.opportunityTitle || app.opportunity_title)) || 'Position';
+
+  // Auto-dispatch in-portal alert to student
+  if (!DB.inPortalNotifications) DB.inPortalNotifications = [];
+  DB.inPortalNotifications.unshift({
+    id: `notif-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+    recipientId: studentId,
+    senderId: 'usr-industry-01',
+    title: `Status Update: ${updatedStatus} (${compName})`,
+    message: `Your application for "${oppTitle}" has been updated to "${updatedStatus}".${interviewSlot ? ` Scheduled slot: ${interviewSlot}` : ''}`,
+    actionUrl: '/student.html#applications',
+    category: updatedStatus.includes('Interview') ? 'interview_invite' : 'application_update',
+    isRead: false,
+    createdAt: new Date().toISOString()
+  });
+
+  // Auto-inject a To-Do if an interview is scheduled or shortlisted
+  if (updatedStatus.includes('Interview') || updatedStatus.includes('Shortlist')) {
+    if (!DB.todos) DB.todos = [];
+    DB.todos.unshift({
+      id: `todo-app-${Date.now().toString(36)}`,
+      studentId,
+      title: `Prepare for ${compName} Interview (${oppTitle})`,
+      description: `Review pharmacognosy fundamentals, standard markers, and prepare research presentation. Slot: ${interviewSlot || 'Upcoming Date'}.`,
+      category: 'Application',
+      priority: 'Urgent',
+      dueDate: interviewSlot || new Date(Date.now() + 86400000 * 3).toISOString(),
+      isCompleted: false,
+      completedAt: null,
+      sourceType: 'system_interview',
+      sourceRefId: id
+    });
+  }
+
+  return res.json({
     success: true,
-    message: `Application status updated to "${app.status}" for ${app.studentName || app.student_name}!`,
-    application: app
+    message: `Application status updated to "${updatedStatus}" for ${studentName}!`,
+    application: app || { id, status: updatedStatus }
   });
 });
 
+// ============================================================================
+// FEATURE 3: Industry Tech Stack Registry
+// ============================================================================
+
+// POST /api/industry/tech-stack (Company publishes active tools & tech stacks)
+router.post('/tech-stack', async (req, res) => {
+  try {
+    const {
+      companyId = 'usr-industry-01',
+      companyName = 'Dabur India Ltd. / R&D Division',
+      sector = 'Herbal Phytomedicine & Formulation',
+      techCategory = 'Analytical Instrumentation',
+      techName,
+      proficiencyDemandLevel = 'Production Mastery',
+      adoptionStage = 'Core Production',
+      curriculumRelevanceNote = ''
+    } = req.body || {};
+
+    if (!techName || !techName.trim()) {
+      return res.status(400).json({ success: false, error: 'Technology / Tool name is required.' });
+    }
+
+    const newStack = {
+      id: `cts-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+      companyId,
+      companyName,
+      sector,
+      techCategory,
+      techName: techName.trim(),
+      proficiencyDemandLevel,
+      adoptionStage,
+      curriculumRelevanceNote: curriculumRelevanceNote.trim(),
+      lastVerifiedDate: new Date().toISOString().split('T')[0]
+    };
+
+    if (!DB.companyTechStacks) DB.companyTechStacks = [];
+    DB.companyTechStacks.unshift(newStack);
+
+    if (isConfigured && supabase) {
+      try {
+        await supabase.from('company_tech_stacks').insert({
+          id: newStack.id,
+          company_id: companyId,
+          company_name: companyName,
+          sector,
+          tech_category: techCategory,
+          tech_name: newStack.techName,
+          proficiency_demand_level: proficiencyDemandLevel,
+          adoption_stage: adoptionStage,
+          curriculum_relevance_note: newStack.curriculumRelevanceNote,
+          last_verified_date: newStack.lastVerifiedDate
+        });
+      } catch (err) {
+        console.warn('[Tech Stack Insert] Supabase warning:', err.message);
+      }
+    }
+
+    // Notify University Dean of new industrial disclosure
+    if (!DB.inPortalNotifications) DB.inPortalNotifications = [];
+    DB.inPortalNotifications.unshift({
+      id: `notif-${Date.now().toString(36)}`,
+      recipientId: 'usr-academy-01',
+      senderId: companyId,
+      title: 'New Industrial Tech Stack Published',
+      message: `${companyName} published active deployment of "${newStack.techName}" (${sector}).`,
+      actionUrl: '/academy.html#tech-radar',
+      category: 'system_alert',
+      isRead: false,
+      createdAt: new Date().toISOString()
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: `Technology "${newStack.techName}" registered successfully and synced to University Tech Radar!`,
+      techStack: newStack
+    });
+  } catch (err) {
+    console.error('[Industry Tech-Stack Error]:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/industry/tech-stack
+router.get('/tech-stack', async (req, res) => {
+  try {
+    const { companyId } = req.query;
+
+    if (isConfigured && supabase) {
+      try {
+        let query = supabase.from('company_tech_stacks').select('*').order('created_at', { ascending: false });
+        if (companyId) query = query.eq('company_id', companyId);
+        const { data, error } = await query;
+        if (!error && data) return res.json({ success: true, techStacks: data });
+      } catch (err) {
+        console.warn('[Tech Stack GET] Supabase warning:', err.message);
+      }
+    }
+
+    let stacks = DB.companyTechStacks || [];
+    if (companyId) stacks = stacks.filter(s => s.companyId === companyId);
+    return res.json({ success: true, techStacks: stacks });
+  } catch (err) {
+    console.error('[Tech Stack GET Error]:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ============================================================================
+// FEATURE 4: Virtual Workshops Proposal & Coordination
+// ============================================================================
+
+// POST /api/industry/workshops/propose
+router.post('/workshops/propose', async (req, res) => {
+  try {
+    const {
+      hostCompanyId = 'usr-industry-01',
+      hostCompanyName = 'Dabur India Ltd. / R&D Division',
+      speakerName,
+      speakerDesignation,
+      title,
+      description = '',
+      targetDepartments = [],
+      scheduledStart,
+      durationMinutes = 90,
+      meetingLink = '',
+      maxSeats = 250
+    } = req.body || {};
+
+    if (!title || !speakerName || !scheduledStart) {
+      return res.status(400).json({ success: false, error: 'Title, speaker name, and scheduled start date/time are required.' });
+    }
+
+    const newWorkshop = {
+      id: `wsp-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+      hostCompanyId,
+      hostCompanyName,
+      speakerName: speakerName.trim(),
+      speakerDesignation: (speakerDesignation || 'Subject Matter Expert').trim(),
+      title: title.trim(),
+      description: description.trim(),
+      targetDepartments: Array.isArray(targetDepartments) && targetDepartments.length ? targetDepartments : ['Ayush Scholars', 'Pharmacognosy', 'Dravyaguna'],
+      scheduledStart: new Date(scheduledStart).toISOString(),
+      durationMinutes: parseInt(durationMinutes, 10) || 90,
+      meetingLink: meetingLink.trim() || 'https://nexus.edu/workshops/live-room',
+      maxSeats: parseInt(maxSeats, 10) || 250,
+      enrolledCount: 0,
+      status: 'Proposed',
+      createdAt: new Date().toISOString()
+    };
+
+    if (!DB.virtualWorkshops) DB.virtualWorkshops = [];
+    DB.virtualWorkshops.unshift(newWorkshop);
+
+    if (isConfigured && supabase) {
+      try {
+        await supabase.from('virtual_workshops').insert({
+          id: newWorkshop.id,
+          host_company_id: hostCompanyId,
+          host_company_name: hostCompanyName,
+          speaker_name: newWorkshop.speakerName,
+          speaker_designation: newWorkshop.speakerDesignation,
+          title: newWorkshop.title,
+          description: newWorkshop.description,
+          target_departments: newWorkshop.targetDepartments,
+          scheduled_start: newWorkshop.scheduledStart,
+          duration_minutes: newWorkshop.durationMinutes,
+          meeting_link: newWorkshop.meetingLink,
+          max_seats: newWorkshop.maxSeats,
+          enrolled_count: 0,
+          status: 'Proposed'
+        });
+      } catch (err) {
+        console.warn('[Workshop Propose] Supabase warning:', err.message);
+      }
+    }
+
+    // Alert University Dean of new proposal
+    if (!DB.inPortalNotifications) DB.inPortalNotifications = [];
+    DB.inPortalNotifications.unshift({
+      id: `notif-${Date.now().toString(36)}`,
+      recipientId: 'usr-academy-01',
+      senderId: hostCompanyId,
+      title: 'New Virtual Workshop Proposal',
+      message: `${hostCompanyName} proposed a masterclass: "${newWorkshop.title}" (${newWorkshop.speakerName}).`,
+      actionUrl: '/academy.html#workshops',
+      category: 'system_alert',
+      isRead: false,
+      createdAt: new Date().toISOString()
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: `Workshop proposal "${newWorkshop.title}" submitted to University Academic Council for approval!`,
+      workshop: newWorkshop
+    });
+  } catch (err) {
+    console.error('[Workshop Propose Error]:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/industry/workshops
+router.get('/workshops', async (req, res) => {
+  try {
+    const { companyId } = req.query;
+
+    if (isConfigured && supabase) {
+      try {
+        let query = supabase.from('virtual_workshops').select('*').order('scheduled_start', { ascending: true });
+        if (companyId) query = query.eq('host_company_id', companyId);
+        const { data, error } = await query;
+        if (!error && data) return res.json({ success: true, workshops: data });
+      } catch (err) {
+        console.warn('[Workshops GET] Supabase warning:', err.message);
+      }
+    }
+
+    let workshops = DB.virtualWorkshops || [];
+    if (companyId) workshops = workshops.filter(w => w.hostCompanyId === companyId);
+    return res.json({ success: true, workshops });
+  } catch (err) {
+    console.error('[Workshops GET Error]:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/industry/opportunities (Create industry requisition)
+router.post('/opportunities', async (req, res) => {
+  try {
+    const { title, company, type, skills, location, stipend, deadline, description } = req.body || {};
+
+    if (!title || !company) {
+      return res.status(400).json({ success: false, error: 'Title and company are required to post an opportunity.' });
+    }
+
+    const newOpp = {
+      id: `opp-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+      title: title.trim(),
+      company: company.trim(),
+      type: type || 'Internship',
+      skills: Array.isArray(skills) ? skills : (skills ? skills.split(',').map(s => s.trim()) : ['Herbal Formulation']),
+      location: location || 'Hybrid / New Delhi',
+      stipend: stipend || '₹20,000/mo',
+      deadline: deadline || '2026-11-30',
+      match: 85,
+      description: description || 'Verified opportunity published through JOBLEX Industry portal.'
+    };
+
+    if (isConfigured && supabase) {
+      try {
+        const { data, error } = await supabase.from('opportunities').insert([newOpp]).select().single();
+        if (!error && data) {
+          return res.status(201).json({ success: true, message: 'Opportunity published successfully!', opportunity: data });
+        }
+      } catch (err) {
+        console.warn('[Post Opportunity] Supabase error, saving locally:', err.message);
+      }
+    }
+
+    if (!DB.opportunities) DB.opportunities = [];
+    DB.opportunities.unshift(newOpp);
+
+    // Broadcast in-portal notification to students
+    if (!DB.inPortalNotifications) DB.inPortalNotifications = [];
+    DB.inPortalNotifications.unshift({
+      id: `notif-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+      recipientId: 'usr-student-01',
+      senderId: 'usr-industry-01',
+      title: `New Opening: ${newOpp.title}`,
+      message: `${newOpp.company} has published a new ${newOpp.type} requisition. Check your match score!`,
+      actionUrl: '/student.html#opportunities',
+      category: 'new_opportunity',
+      isRead: false,
+      createdAt: new Date().toISOString()
+    });
+
+    return res.status(201).json({ success: true, message: 'Opportunity published successfully!', opportunity: newOpp });
+  } catch (err) {
+    console.error('[Industry Post Opportunity Error]:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ============================================================================
+// FEATURE 7: Company Skill Certification Quizzes Authoring
+// ============================================================================
+
+// POST /api/industry/quizzes (Author a skill certification quiz)
+router.post('/quizzes', async (req, res) => {
+  try {
+    const {
+      companyId = 'usr-industry-01',
+      companyName = 'Dabur India Ltd.',
+      badgeTitle,
+      badgeIcon = 'verified',
+      skillCategory,
+      timeLimitMinutes = 15,
+      passingPercentage = 75,
+      questions = []
+    } = req.body || {};
+
+    if (!badgeTitle || !skillCategory || !Array.isArray(questions) || questions.length === 0) {
+      return res.status(400).json({ success: false, error: 'Badge title, skill category, and at least one quiz question are required.' });
+    }
+
+    const newQuiz = {
+      id: `quiz-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+      companyId,
+      companyName,
+      badgeTitle: badgeTitle.trim(),
+      badgeIcon,
+      skillCategory: skillCategory.trim(),
+      timeLimitMinutes: parseInt(timeLimitMinutes, 10) || 15,
+      passingPercentage: parseInt(passingPercentage, 10) || 75,
+      totalTakers: 0,
+      passCount: 0,
+      isActive: true,
+      questions
+    };
+
+    if (!DB.companyQuizzes) DB.companyQuizzes = [];
+    DB.companyQuizzes.unshift(newQuiz);
+
+    if (isConfigured && supabase) {
+      try {
+        await supabase.from('company_quizzes').insert({
+          id: newQuiz.id,
+          company_id: companyId,
+          company_name: companyName,
+          badge_title: newQuiz.badgeTitle,
+          badge_icon: badgeIcon,
+          skill_category: newQuiz.skillCategory,
+          time_limit_minutes: newQuiz.timeLimitMinutes,
+          passing_percentage: newQuiz.passingPercentage,
+          questions: JSON.stringify(questions),
+          is_active: true
+        });
+      } catch (err) {
+        console.warn('[Quiz Create] Supabase warning:', err.message);
+      }
+    }
+
+    // Broadcast to students that a new certification quiz is available
+    if (!DB.inPortalNotifications) DB.inPortalNotifications = [];
+    DB.inPortalNotifications.unshift({
+      id: `notif-${Date.now().toString(36)}`,
+      recipientId: 'usr-student-01',
+      senderId: companyId,
+      title: `New Skill Certification: ${newQuiz.badgeTitle}`,
+      message: `${companyName} opened a certification quiz for ${newQuiz.skillCategory}. Pass to earn a verified digital badge!`,
+      actionUrl: '/student.html#certifications',
+      category: 'system_alert',
+      isRead: false,
+      createdAt: new Date().toISOString()
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: `Skill certification quiz "${newQuiz.badgeTitle}" published to student portal!`,
+      quiz: newQuiz
+    });
+  } catch (err) {
+    console.error('[Quiz Create Error]:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/industry/quizzes (List quizzes with taker & certified counts)
+router.get('/quizzes', async (req, res) => {
+  try {
+    const { companyId } = req.query;
+
+    if (isConfigured && supabase) {
+      try {
+        let query = supabase.from('company_quizzes').select('*');
+        if (companyId) query = query.eq('company_id', companyId);
+        const { data, error } = await query;
+        if (!error && data) return res.json({ success: true, quizzes: data });
+      } catch (err) {
+        console.warn('[Quizzes GET] Supabase warning:', err.message);
+      }
+    }
+
+    let quizzes = DB.companyQuizzes || [];
+    if (companyId) quizzes = quizzes.filter(q => q.companyId === companyId);
+    return res.json({ success: true, quizzes });
+  } catch (err) {
+    console.error('[Quizzes GET Error]:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 module.exports = router;
+

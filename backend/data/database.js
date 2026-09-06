@@ -3,50 +3,63 @@
  * Ministry of Ayush / All India Institute of Ayurveda | Problem Statement ID: 26044
  */
 
+const { SEED_OPPORTUNITIES, SEED_CANDIDATES, SEED_FACULTY } = require('./opportunities_seed');
+
 const DB = {
-  users: [
-    {
-      id: "usr-student-01",
-      email: "student@nexus.edu",
-      password: "password123",
-      name: "Ashay Verma",
-      role: "student",
-      institution: "All India Institute of Ayurveda",
-      department: "BAMS 3rd Year",
-      year: "3rd Year",
-      xp: 1450,
-      streak: 7,
-      verified_skills: ["Herbal Formulation", "Pharmacognosy", "HPTLC", "Python"]
-    },
-    {
-      id: "usr-academy-01",
-      email: "academy@nexus.edu",
-      password: "password123",
-      name: "Dr. Rajesh Sharma",
-      role: "academy",
-      institution: "All India Institute of Ayurveda",
-      department: "Dravyaguna & Ayurvedic Pharmacology",
-      designation: "Dean & HOD Dravyaguna",
-      xp: 2100,
-      streak: 15,
-      verified_skills: ["Pharmacognosy Research", "Curriculum Design", "GLP Standards"]
-    },
-    {
-      id: "usr-industry-01",
-      email: "industry@nexus.edu",
-      password: "password123",
-      name: "Dr. Vikram Malhotra",
-      role: "industry",
-      company: "Dabur India Ltd. / R&D Division",
-      department: "Herbal Formulation & Phytochemistry Labs",
-      designation: "Chief Scientist & VP R&D",
-      xp: 3400,
-      streak: 22,
-      verified_skills: ["Formulation R&D", "Industrial Extraction", "Quality Assurance"]
-    }
-  ],
+  users: [],
+
+  candidates: SEED_CANDIDATES,
 
   opportunities: [
+    {
+      id: "opp-tech-01",
+      title: "Software Engineering & Systems Intern",
+      company: "Apex Cloud Innovations",
+      type: "Internship",
+      skills: ["Python", "JavaScript", "Data Structures", "REST APIs", "Git"],
+      location: "Bengaluru / Hybrid",
+      stipend: "₹30,000/mo",
+      deadline: "2026-11-30",
+      match: 95,
+      description: "Build high-throughput backend services, optimize database queries, and contribute to production cloud architectures."
+    },
+    {
+      id: "opp-tech-02",
+      title: "Machine Learning & Data Science Fellow",
+      company: "Cognitive Nexus Labs",
+      type: "Internship",
+      skills: ["Python", "Machine Learning", "Data Analysis", "SQL", "Pandas"],
+      location: "Hyderabad / Remote",
+      stipend: "₹35,000/mo",
+      deadline: "2026-12-01",
+      match: 93,
+      description: "Develop predictive machine learning models, statistical pipelines, and real-time inference microservices."
+    },
+    {
+      id: "opp-tech-03",
+      title: "Full Stack Web Developer",
+      company: "Vanguard Digital Systems",
+      type: "Job",
+      skills: ["React", "Node.js", "TypeScript", "SQL", "Cloud Architecture"],
+      location: "Pune / Hybrid",
+      stipend: "₹10.0 - 14.5 LPA",
+      deadline: "2026-11-25",
+      match: 89,
+      description: "Design and implement scalable web applications, enterprise user interfaces, and robust API integrations."
+    },
+    {
+      id: "opp-tech-04",
+      title: "National Student Innovation Challenge 2026",
+      company: "National Collegiate Innovation Council",
+      type: "Hackathon",
+      skills: ["Python", "Problem Solving", "AI & Analytics", "System Design"],
+      location: "National / Online",
+      stipend: "Bounty Pool: ₹5,00,000",
+      deadline: "2026-11-15",
+      match: 91,
+      description: "Pan-university multi-disciplinary hackathon solving real-world challenges across healthcare, climate, education, and AI."
+    },
+    ...SEED_OPPORTUNITIES,
     {
       id: "opp-1",
       title: "Phytochemical Research Intern",
@@ -123,52 +136,52 @@ const DB = {
 
   student_roadmap: {
     userId: "usr-student-01",
-    careerGoal: "Ayush Health-Tech & Formulation Specialist",
-    currentLevel: "Level 3 - Intermediate Innovator",
-    totalXp: 1450,
-    streakDays: 7,
-    decayStatus: "Active - Decay Frozen for 72 hrs",
+    careerGoal: "Multi-Disciplinary Technical & Research Specialist",
+    currentLevel: "Level 1 - Aspiring Scholar",
+    totalXp: 0,
+    streakDays: 0,
+    decayStatus: "Active",
     currentPhase: 1,
     phases: [
       {
         id: 1,
-        name: "Core Ayurvedic Pharmacognosy & GLP",
+        name: "Core Fundamentals & Technical Standards",
         xpReward: 350,
         status: "IN_PROGRESS",
         tasks: [
-          { id: "t1", title: "Complete Good Laboratory Practice (GLP) module", xp: 50, completed: true },
-          { id: "t2", title: "Ayurvedic botanical authentication quiz in Arena", xp: 50, completed: true },
-          { id: "t3", title: "Prepare Ashwagandha classical decoction report", xp: 100, completed: false }
+          { id: "t1", title: "Complete Foundational Competency assessment in Arena", xp: 50, completed: false },
+          { id: "t2", title: "Verify Technical and Quantitative problem solving", xp: 50, completed: false },
+          { id: "t3", title: "Document initial domain portfolio project", xp: 100, completed: false }
         ]
       },
       {
         id: 2,
-        name: "Chromatography & HPTLC Profiling",
+        name: "Domain Methodologies & Practical Tooling",
         xpReward: 450,
         status: "LOCKED",
         tasks: [
-          { id: "t4", title: "MoU Partner (Dabur) Webinar on HPLC standards", xp: 75, completed: false },
-          { id: "t5", title: "Perform Fingerprint Marker Analysis quiz", xp: 75, completed: false }
+          { id: "t4", title: "Participate in Industry Partner technical webinar", xp: 75, completed: false },
+          { id: "t5", title: "Complete Advanced Skill verification module", xp: 75, completed: false }
         ]
       },
       {
         id: 3,
-        name: "Computational Drug Discovery & Health-AI",
+        name: "Applied Analytics, Systems & Innovation",
         xpReward: 500,
         status: "LOCKED",
         tasks: [
-          { id: "t6", title: "Python for Pharmacological Data Processing", xp: 100, completed: false },
-          { id: "t7", title: "In-silico docking of Phytochemical compounds", xp: 150, completed: false }
+          { id: "t6", title: "Applied Programming and Computational Data Analysis", xp: 100, completed: false },
+          { id: "t7", title: "Deploy capstone project or technical simulation", xp: 150, completed: false }
         ]
       },
       {
         id: 4,
-        name: "Corporate Internship & Capstone Formulation",
+        name: "Corporate Internship & Placement Readiness",
         xpReward: 600,
         status: "LOCKED",
         tasks: [
-          { id: "t8", title: "Submit candidate CV to Dabur / Patanjali via Board", xp: 200, completed: false },
-          { id: "t9", title: "Pass Final Technical Evaluation Panel", xp: 400, completed: false }
+          { id: "t8", title: "Submit candidate dossier to corporate partner requisitions", xp: 200, completed: false },
+          { id: "t9", title: "Pass Final Technical & Professional Evaluation Panel", xp: 400, completed: false }
         ]
       }
     ]
@@ -239,7 +252,8 @@ const DB = {
   ],
 
   candidates: [
-    { name: "Ashay Verma", college: "All India Institute of Ayurveda", match: 94, skills: ["Herbal Formulation", "GLP", "Phytochemistry", "Python"], status: "Ready for Interview" },
+    ...SEED_CANDIDATES,
+    { name: "Aarav Sharma", college: "All India Institute of Ayurveda", match: 94, skills: ["Herbal Formulation", "GLP", "Phytochemistry", "Python"], status: "Ready for Interview" },
     { name: "Kavya Singh", college: "AIIA New Delhi", match: 91, skills: ["Health Informatics", "Python", "NLP for Classical Texts", "SQL"], status: "Shortlisted" },
     { name: "Rohan Sharma", college: "National Institute of Ayurveda, Jaipur", match: 82, skills: ["Ayurvedic Pharmacognosy", "Standardization", "Quality Control"], status: "Under Review" },
     { name: "Ananya Roy", college: "Banaras Hindu University (IMS)", match: 88, skills: ["Clinical Research", "Pharmacology", "Herbal Formulation"], status: "Shortlisted" },
@@ -288,7 +302,7 @@ const DB = {
     totalHiresEvaluated: 48,
     averageRecruiterRating: 4.8,
     feedbackLogs: [
-      { candidate: "Ashay Verma", predictedMatch: 94, actualLabRating: 4.9, company: "Dabur R&D", note: "Exceptional botanical extraction & Python modeling accuracy." },
+      { candidate: "Aarav Sharma", predictedMatch: 94, actualLabRating: 4.9, company: "Dabur R&D", note: "Exceptional botanical extraction & Python modeling accuracy." },
       { candidate: "Pooja Verma", predictedMatch: 86, actualLabRating: 4.6, company: "Himalaya", note: "Solid chromatography fundamentals; fast learner." }
     ]
   },
@@ -300,8 +314,8 @@ const DB = {
       opportunityTitle: "Phytochemical Research Intern",
       company: "Dabur India Ltd.",
       type: "Internship",
-      studentName: "Ashay Verma",
-      studentEmail: "student@nexus.edu",
+      studentName: "Aarav Sharma",
+      studentEmail: "aarav.sharma@aiia.gov.in",
       college: "All India Institute of Ayurveda (AIIA), New Delhi",
       skills: ["Herbal Formulation", "Phytochemistry", "GLP", "Python"],
       match: 94,
@@ -348,8 +362,8 @@ const DB = {
       opportunityTitle: "Clean & Standardize 50 Ashwagandha Trial Records",
       company: "Dabur Research Labs",
       type: "Micro-Gig",
-      studentName: "Ashay Verma",
-      studentEmail: "student@nexus.edu",
+      studentName: "Aarav Sharma",
+      studentEmail: "aarav.sharma@aiia.gov.in",
       college: "All India Institute of Ayurveda (AIIA), New Delhi",
       skills: ["Data Analysis", "Phytochemistry"],
       match: 90,
@@ -437,7 +451,660 @@ const DB = {
       enrolled: 68,
       seats: 100
     }
-  ]
+  ],
+
+  wishlists: {},
+
+  skillProfiles: {},
+
+  portfolioItems: [],
+
+  facultyOpportunities: [
+    {
+      id: "fac-opp-01",
+      title: "Industrial Sabbatical: High-Throughput Phytochemical Screening",
+      industry: "Dabur India Ltd. R&D",
+      type: "Faculty Internship",
+      duration: "4 Weeks",
+      stipend: "₹1,20,000 Total Honorarium",
+      eligibility: "Associate Professors / Professors in Pharmacognosy or Chemistry",
+      skills: ["Ayurvedic Pharmacognosy", "HPTLC Fingerprinting", "Good Laboratory Practice (GLP)"],
+      deadline: "2026-11-30",
+      description: "Faculty industrial immersion in modern quality control labs working with chromatography and mass spectrometry."
+    },
+    {
+      id: "fac-opp-02",
+      title: "Joint Research Grant: Withanolide Water-Solubility Enhancement",
+      industry: "Himalaya Drug Co. & Ministry of Ayush",
+      type: "Consultancy Grant",
+      duration: "12 Months",
+      stipend: "₹24,00,000 Research Grant",
+      eligibility: "Principal Investigators in Ayush Institutions",
+      skills: ["Herbal Formulation", "Nanomedicine in Ayurveda", "In-Vitro Bio-Assays"],
+      deadline: "2026-12-15",
+      description: "Industry-sponsored research grant for development and pre-clinical bio-efficacy validation of nano-curcumin and ashwagandha formulations."
+    },
+    {
+      id: "fac-opp-03",
+      title: "Faculty Development Program: Computational Drug Discovery in Ayush",
+      industry: "IIT Delhi Ayush Cell & AIIA",
+      type: "FDP",
+      duration: "2 Weeks (Hybrid)",
+      stipend: "UGC / AICTE Approved (Cert. + Travel Grant)",
+      eligibility: "All Ayush Faculty Members",
+      skills: ["In-Silico Molecular Docking", "Health Informatics", "Python"],
+      deadline: "2026-11-20",
+      description: "NEP-2020 aligned advanced FDP training faculty in AutoDock, network pharmacology, and Python data pipelines."
+    }
+  ],
+
+  facultyApplications: [
+    {
+      id: "fac-app-01",
+      facultyId: "usr-academy-01",
+      facultyName: "Dr. Rajesh Sharma",
+      facultyEmail: "faculty@aiia.gov.in",
+      opportunityId: "fac-opp-02",
+      opportunityTitle: "Joint Research Grant: Withanolide Water-Solubility Enhancement",
+      industry: "Himalaya Drug Co. & Ministry of Ayush",
+      appliedDate: "2026-09-02",
+      status: "Shortlisted",
+      proposalTitle: "Nano-Emulsion Delivery Matrix for Active Withanolides",
+      grantAmount: "₹24,00,000"
+    }
+  ],
+
+  // Feature 1: Student Contextual To-Do Engine
+  todos: [],
+
+  // Feature 2: In-Portal Notifications Hub
+  inPortalNotifications: [],
+
+  // Feature 3: Company Tech Stack Registry
+  companyTechStacks: [
+    {
+      id: "cts-001",
+      companyId: "usr-industry-01",
+      companyName: "Dabur India Ltd. / R&D Division",
+      sector: "Herbal Phytomedicine & Formulation",
+      techCategory: "Analytical Instrumentation",
+      techName: "High-Performance Thin-Layer Chromatography (HPTLC CAMAG 4)",
+      proficiencyDemandLevel: "Production Mastery",
+      adoptionStage: "Core Production",
+      curriculumRelevanceNote: "Mandatory for standardized marker compound profiling (Withaferin-A, Curcuminoids). University syllabus currently covers only classical paper chromatography.",
+      lastVerifiedDate: "2026-09-01"
+    },
+    {
+      id: "cts-002",
+      companyId: "usr-industry-01",
+      companyName: "Dabur India Ltd. / R&D Division",
+      sector: "Pharmaceutical QA & Compliance",
+      techCategory: "Laboratory Informatics & Compliance",
+      techName: "21 CFR Part 11 Electronic Lab Notebooks (ELN / LIMS)",
+      proficiencyDemandLevel: "Intermediate Practitioner",
+      adoptionStage: "Core Production",
+      curriculumRelevanceNote: "Regulatory requirement for audit trails and GLP raw data integrity. Urgent need to train Ayush postgraduates in audit-trail navigation.",
+      lastVerifiedDate: "2026-09-02"
+    },
+    {
+      id: "cts-003",
+      companyId: "comp-patanjali",
+      companyName: "Patanjali Research Foundation",
+      sector: "Herbal Drug Standardization",
+      techCategory: "Advanced Bio-Separation",
+      techName: "Liquid Chromatography-Tandem Mass Spectrometry (LC-MS/MS)",
+      proficiencyDemandLevel: "Production Mastery",
+      adoptionStage: "Rapid Growth",
+      curriculumRelevanceNote: "Required for heavy-metal trace screening, pesticide multi-residue analysis, and metabolomics.",
+      lastVerifiedDate: "2026-08-28"
+    },
+    {
+      id: "cts-004",
+      companyId: "comp-himalaya",
+      companyName: "Himalaya Wellness Company",
+      sector: "Health Informatics & AI",
+      techCategory: "Computational Biology & Data Science",
+      techName: "Python (Polars, SciPy, BioPython, AutoDock Vina)",
+      proficiencyDemandLevel: "Intermediate Practitioner",
+      adoptionStage: "Rapid Growth",
+      curriculumRelevanceNote: "Network pharmacology and reverse phytopharmacological docking pipelines now standard in preliminary formulation research.",
+      lastVerifiedDate: "2026-09-04"
+    }
+  ],
+
+  // Feature 4: Virtual Workshops & Bilateral Negotiations
+  virtualWorkshops: [
+    {
+      id: "wsp-001",
+      hostCompanyId: "usr-industry-01",
+      hostCompanyName: "Dabur India Ltd. / R&D Division",
+      speakerName: "Dr. Vikram Malhotra",
+      speakerDesignation: "Chief Scientist & VP R&D",
+      title: "Good Laboratory Practice (GLP) & Industrial Densitometry Validation",
+      description: "An intensive 90-minute live interactive masterclass demonstrating real-time HPTLC peak identification, baseline drift correction, and FDA audit-trail best practices.",
+      targetDepartments: ["Dravyaguna", "Pharmacognosy", "Pharmaceutical Chemistry", "Ayush Research Scholars"],
+      scheduledStart: "2026-10-18T14:30:00.000Z",
+      durationMinutes: 90,
+      meetingLink: "https://nexus.edu/workshops/glp-validation-live",
+      maxSeats: 250,
+      enrolledCount: 194,
+      status: "Approved",
+      createdAt: "2026-09-01T10:00:00.000Z"
+    },
+    {
+      id: "wsp-002",
+      hostCompanyId: "comp-patanjali",
+      hostCompanyName: "Patanjali Research Foundation",
+      speakerName: "Dr. Anurag Varshney",
+      speakerDesignation: "Head of Drug Discovery & Bio-Safety",
+      title: "In-Silico Network Pharmacology & Classical Ayush Target Deconvolution",
+      description: "Practical computational workshop teaching Ayush researchers how to map multi-herb phytoconstituents to human cytokine and receptor network targets.",
+      targetDepartments: ["Ayush Informatics", "Biotechnology", "Ayurvedic Pharmacology"],
+      scheduledStart: "2026-10-25T11:00:00.000Z",
+      durationMinutes: 120,
+      meetingLink: "https://nexus.edu/workshops/network-pharm-live",
+      maxSeats: 300,
+      enrolledCount: 228,
+      status: "Approved",
+      createdAt: "2026-09-03T11:30:00.000Z"
+    },
+    {
+      id: "wsp-003",
+      hostCompanyId: "comp-himalaya",
+      hostCompanyName: "Himalaya Wellness Company",
+      speakerName: "Siddharth Sen",
+      speakerDesignation: "Director of Clinical Quality & Regulatory Affairs",
+      title: "Regulatory Dossier Compilation for Herbal Therapeutics (WHO & Ayush GMP)",
+      description: "Corporate-academic dialogue on building export-ready botanical drug safety dossiers for European and GCC markets.",
+      targetDepartments: ["Regulatory Affairs", "Dravyaguna", "Ayush Faculty"],
+      scheduledStart: "2026-11-05T15:00:00.000Z",
+      durationMinutes: 75,
+      meetingLink: "https://nexus.edu/workshops/who-gmp-dossier",
+      maxSeats: 150,
+      enrolledCount: 88,
+      status: "Proposed",
+      createdAt: "2026-09-05T16:00:00.000Z"
+    }
+  ],
+
+  workshopEnrollments: [
+    {
+      id: "we-001",
+      workshopId: "wsp-001",
+      studentId: "usr-student-01",
+      studentName: "Aarav Sharma",
+      attendanceConfirmed: false,
+      certificateIssued: false,
+      registeredAt: "2026-09-06T13:00:00.000Z"
+    }
+  ],
+
+  // Feature 5: Co-Curricular & Holistic Aptitude Question Bank (30 Questions across 5 Domains)
+  aptitudeQuestions: [
+    // 1. Quantitative Aptitude
+    {
+      id: "apt-q1",
+      domain: "Quantitative",
+      difficulty: "Medium",
+      questionText: "An herbal extraction vessel operates with an 85% solvent recovery efficiency. If 400 liters of ethanol are used per batch, how many total liters of fresh ethanol are consumed across 5 identical production batches?",
+      options: ["300 Liters", "340 Liters", "60 Liters", "240 Liters"],
+      correctOptionIndex: 0,
+      explanation: "Loss per batch = 15% of 400L = 60L fresh ethanol needed per batch. For 5 batches: 5 * 60L = 300 Liters."
+    },
+    {
+      id: "apt-q2",
+      domain: "Quantitative",
+      difficulty: "Easy",
+      questionText: "A standardized Ashwagandha extract is formulated to contain 2.5% Withaferin-A by weight. How many grams of Withaferin-A are present in a 250g therapeutic batch?",
+      options: ["5.0 g", "6.25 g", "7.5 g", "10.0 g"],
+      correctOptionIndex: 1,
+      explanation: "2.5% of 250g = (2.5 / 100) * 250 = 6.25 grams."
+    },
+    {
+      id: "apt-q3",
+      domain: "Quantitative",
+      difficulty: "Medium",
+      questionText: "A freeze-drying lyophilizer completes a run in 18 hours with 4 condensors active. If 2 additional condensors of equal capacity are brought online, how many hours will the same batch take assuming linear heat sublimation?",
+      options: ["10 Hours", "12 Hours", "14 Hours", "15 Hours"],
+      correctOptionIndex: 1,
+      explanation: "Work = 18 * 4 = 72 condensor-hours. With 6 condensors: 72 / 6 = 12 Hours."
+    },
+    {
+      id: "apt-q4",
+      domain: "Quantitative",
+      difficulty: "Hard",
+      questionText: "A lab technician mixes two herbal tinctures: Solution A has 12% alcohol and Solution B has 32% alcohol. In what ratio must Solution A and Solution B be blended to obtain a 24% alcohol blend?",
+      options: ["2 : 3", "3 : 2", "1 : 2", "4 : 3"],
+      correctOptionIndex: 0,
+      explanation: "By Alligation: |12 - 24| = 12, |32 - 24| = 8. Ratio A:B = 8:12 = 2:3."
+    },
+    {
+      id: "apt-q5",
+      domain: "Quantitative",
+      difficulty: "Medium",
+      questionText: "If the concentration of an active marker in an herbal decoction degrades exponentially at 5% per month at 25°C, what fraction of the original marker remains after 2 months (rounded to nearest %)?",
+      options: ["90%", "95%", "92%", "88%"],
+      correctOptionIndex: 0,
+      explanation: "Month 1 = 95%. Month 2 = 95% * 0.95 = 90.25% ~ 90%."
+    },
+    {
+      id: "apt-q6",
+      domain: "Quantitative",
+      difficulty: "Easy",
+      questionText: "A clinical trial cohort enrolls 120 patients across 4 regional clinics in the ratio 3:4:2:1. How many patients are enrolled at the largest clinic?",
+      options: ["36", "48", "24", "60"],
+      correctOptionIndex: 1,
+      explanation: "Total parts = 3 + 4 + 2 + 1 = 10 parts. 1 part = 120 / 10 = 12. Largest clinic has 4 parts = 4 * 12 = 48 patients."
+    },
+
+    // 2. Logical Reasoning
+    {
+      id: "apt-q7",
+      domain: "Logical_Reasoning",
+      difficulty: "Medium",
+      questionText: "Statements: All standardized herbal extracts undergo chromatography. Some chromatography tests require LC-MS. Conclusion I: Some standardized extracts require LC-MS. Conclusion II: All LC-MS tests are performed on standardized extracts.",
+      options: ["Only Conclusion I follows", "Only Conclusion II follows", "Both I and II follow", "Neither follows with certainty"],
+      correctOptionIndex: 0,
+      explanation: "Since some chromatography tests require LC-MS and all standardized extracts undergo chromatography, the intersection allows that some standardized extracts undergo LC-MS."
+    },
+    {
+      id: "apt-q8",
+      domain: "Logical_Reasoning",
+      difficulty: "Easy",
+      questionText: "Find the next item in the logical sequence: BAMS, CBMS, DCMS, EDMS, ___?",
+      options: ["FEMS", "EEMS", "FCMS", "GDMS"],
+      correctOptionIndex: 0,
+      explanation: "The first letter advances sequentially: B, C, D, E, F while remaining letters remain 'EMS'."
+    },
+    {
+      id: "apt-q9",
+      domain: "Logical_Reasoning",
+      difficulty: "Medium",
+      questionText: "If GLP is coded as 7-12-16 in an audit ledger, how is GMP coded in the same system?",
+      options: ["7-13-16", "7-14-16", "6-13-15", "8-13-17"],
+      correctOptionIndex: 0,
+      explanation: "Standard alphabetical positions: G=7, M=13, P=16."
+    },
+    {
+      id: "apt-q10",
+      domain: "Logical_Reasoning",
+      difficulty: "Hard",
+      questionText: "In a quality test, Sample X is purer than Sample Y. Sample Z is purer than Sample W but less pure than Sample Y. Which sample is the least pure?",
+      options: ["Sample X", "Sample Y", "Sample Z", "Sample W"],
+      correctOptionIndex: 3,
+      explanation: "Order of purity: X > Y > Z > W. Therefore, Sample W is the least pure."
+    },
+    {
+      id: "apt-q11",
+      domain: "Logical_Reasoning",
+      difficulty: "Medium",
+      questionText: "Six scientists (A, B, C, D, E, F) sit around a circular lab bench. A is opposite to D. B is to the immediate right of A. C is opposite to B. Who sits to the immediate left of D?",
+      options: ["C", "B", "E", "F"],
+      correctOptionIndex: 0,
+      explanation: "Sitting circular positions: If A is at 12 o'clock, D is at 6 o'clock. B is at 1 o'clock (immediate right). C is opposite B at 7 o'clock. In circular seating facing inward, 7 o'clock is immediate left of 6 o'clock (D)."
+    },
+    {
+      id: "apt-q12",
+      domain: "Logical_Reasoning",
+      difficulty: "Easy",
+      questionText: "Which word does NOT belong with the others: Pipette, Burette, Centrifuge, Spectrophotometer, Sanskrit?",
+      options: ["Pipette", "Centrifuge", "Spectrophotometer", "Sanskrit"],
+      correctOptionIndex: 3,
+      explanation: "Sanskrit is an ancient classical language; all other terms are laboratory instruments."
+    },
+
+    // 3. Verbal Ability & Technical Communication
+    {
+      id: "apt-q13",
+      domain: "Verbal_Ability",
+      difficulty: "Medium",
+      questionText: "Choose the word most nearly opposite in meaning to 'ADULTERATED' in analytical quality standards:",
+      options: ["Tainted", "Unblemished / Pristine", "Spurious", "Homogenized"],
+      correctOptionIndex: 1,
+      explanation: "Adulterated means contaminated or degraded by foreign substances. Pristine / Unblemished signifies untouched purity."
+    },
+    {
+      id: "apt-q14",
+      domain: "Verbal_Ability",
+      difficulty: "Medium",
+      questionText: "Select the correctly punctuated and grammatically sound technical statement:",
+      options: [
+        "The chromatographic baseline having drifted, the analyst recalibrated the detector.",
+        "The chromatographic baseline having drifted the analyst, recalibrated the detector.",
+        "The chromatographic baseline had drifted, however analyst recalibrated detector.",
+        "The chromatographic baseline having drift, the analyst recalibrated."
+      ],
+      correctOptionIndex: 0,
+      explanation: "Standard nominative absolute participial phrase properly set off by a comma."
+    },
+    {
+      id: "apt-q15",
+      domain: "Verbal_Ability",
+      difficulty: "Easy",
+      questionText: "Complete the sentence: 'Rigorous documentation according to GLP guidelines is not merely a bureaucratic formality; it is an __________ safeguard against data falsification.'",
+      options: ["optional", "indispensable", "ephemeral", "incidental"],
+      correctOptionIndex: 1,
+      explanation: "'Indispensable' means absolutely essential, which correctly fits the technical emphasis."
+    },
+    {
+      id: "apt-q16",
+      domain: "Verbal_Ability",
+      difficulty: "Hard",
+      questionText: "Identify the idiom or phrase that best conveys 'reconciling modern empirical proof with classical traditional wisdom':",
+      options: ["Reinventing the wheel", "Bridging epistemological paradigms", "Cutting the Gordian knot", "Burying the hatchet"],
+      correctOptionIndex: 1,
+      explanation: "'Bridging epistemological paradigms' precisely denotes harmonizing two distinct systems of knowing (classical Ayurvedic Shastra and Western empirical science)."
+    },
+    {
+      id: "apt-q17",
+      domain: "Verbal_Ability",
+      difficulty: "Medium",
+      questionText: "Choose the correct spelling for the term denoting the study of drugs derived from natural plant and animal sources:",
+      options: ["Pharmacognocy", "Pharmacognosy", "Pharmocognosy", "Pharmacognozy"],
+      correctOptionIndex: 1,
+      explanation: "The correct standard scientific spelling is 'Pharmacognosy'."
+    },
+    {
+      id: "apt-q18",
+      domain: "Verbal_Ability",
+      difficulty: "Easy",
+      questionText: "In a professional email to an industry recruiter, which closing is most appropriate?",
+      options: ["Cheers mate,", "Warm regards,", "Sent from my phone,", "Later,"],
+      correctOptionIndex: 1,
+      explanation: "'Warm regards,' is the established standard professional sign-off."
+    },
+
+    // 4. General Knowledge & Ayush Industry Context
+    {
+      id: "apt-q19",
+      domain: "General_Knowledge",
+      difficulty: "Easy",
+      questionText: "Under the Ministry of Ayush, what does the acronym 'AIIA' stand for?",
+      options: [
+        "All India Institute of Ayurveda",
+        "All India Industrial Academy",
+        "Apex Indian Institute of Ayush",
+        "Association of Indian Indigenous Apothecaries"
+      ],
+      correctOptionIndex: 0,
+      explanation: "AIIA stands for the All India Institute of Ayurveda, New Delhi."
+    },
+    {
+      id: "apt-q20",
+      domain: "General_Knowledge",
+      difficulty: "Medium",
+      questionText: "Which national policy in India mandates multi-disciplinary research, credit transfer frameworks (ABC), and active industry-academia syllabus co-design?",
+      options: ["National Education Policy 2020 (NEP-2020)", "Ayush Vision 2030", "Digital India Act 2022", "Pharma Standards Act 2018"],
+      correctOptionIndex: 0,
+      explanation: "NEP-2020 introduces Academic Bank of Credits, multi-disciplinary research, and industry-aligned syllabus revisions."
+    },
+    {
+      id: "apt-q21",
+      domain: "General_Knowledge",
+      difficulty: "Medium",
+      questionText: "Which standard pharmacopoeial compendium publishes official regulatory standards for identity, purity, and strength of Ayurvedic formulations in India?",
+      options: [
+        "Ayurvedic Pharmacopoeia of India (API)",
+        "British Pharmacopoeia (BP)",
+        "Charaka Samhita Digital Edition",
+        "United States Dispensatory"
+      ],
+      correctOptionIndex: 0,
+      explanation: "The Ayurvedic Pharmacopoeia of India (API), published by PCIM&H under the Ministry of Ayush, is the statutory legal standard."
+    },
+    {
+      id: "apt-q22",
+      domain: "General_Knowledge",
+      difficulty: "Hard",
+      questionText: "What is the primary chemical marker utilized internationally for chromatographic standardization of Ashwagandha (Withania somnifera)?",
+      options: ["Withaferin-A", "Curcumin", "Piperine", "Ginkgolide-B"],
+      correctOptionIndex: 0,
+      explanation: "Withaferin-A and Withanolide-A are the principal steroidal lactone markers used for Ashwagandha standardization."
+    },
+    {
+      id: "apt-q23",
+      domain: "General_Knowledge",
+      difficulty: "Easy",
+      questionText: "Which body provides NAAC accreditation to universities and higher education institutions in India?",
+      options: ["UGC", "AICTE", "NITI Aayog", "Ministry of Finance"],
+      correctOptionIndex: 0,
+      explanation: "The National Assessment and Accreditation Council (NAAC) is an autonomous body funded by the University Grants Commission (UGC)."
+    },
+    {
+      id: "apt-q24",
+      domain: "General_Knowledge",
+      difficulty: "Medium",
+      questionText: "What international WHO guideline establishes technical quality benchmarks for medicinal plant materials from cultivation to processing?",
+      options: ["WHO GACP Guidelines", "ISO 9001", "FDA Title 21", "ICH Q10"],
+      correctOptionIndex: 0,
+      explanation: "WHO Good Agricultural and Collection Practices (GACP) for Medicinal Plants govern cultivation, harvesting, and post-harvest handling."
+    },
+
+    // 5. Industry Ethics & Data Integrity
+    {
+      id: "apt-q25",
+      domain: "Industry_Ethics",
+      difficulty: "Medium",
+      questionText: "Under FDA 21 CFR Part 11 and Good Laboratory Practices (GLP), what does the acronym 'ALCOA' stand for in data integrity?",
+      options: [
+        "Attributable, Legible, Contemporaneous, Original, Accurate",
+        "Actionable, Logical, Continuous, Operational, Auditable",
+        "Authorized, Legal, Certified, Organized, Archived",
+        "Automated, Laboratory, Calibrated, Optimal, Accurate"
+      ],
+      correctOptionIndex: 0,
+      explanation: "ALCOA is the cornerstone principle of pharmaceutical data integrity: Attributable, Legible, Contemporaneous, Original, and Accurate."
+    },
+    {
+      id: "apt-q26",
+      domain: "Industry_Ethics",
+      difficulty: "Easy",
+      questionText: "If an unexpected peak appears in a duplicate chromatographic trial, what is the ethically correct protocol?",
+      options: [
+        "Investigate the root cause, document the Out of Specification (OOS), and retain all raw injection traces.",
+        "Delete the raw chromatogram file and reinject until the peak disappears.",
+        "Adjust the integration threshold until the peak area falls below detection limits.",
+        "Replace the result with the first trial's numbers without noting the deviation."
+      ],
+      correctOptionIndex: 0,
+      explanation: "Data integrity strictly mandates logging an Out of Specification (OOS) investigation and never discarding or altering raw data."
+    },
+    {
+      id: "apt-q27",
+      domain: "Industry_Ethics",
+      difficulty: "Medium",
+      questionText: "What is an Institutional Ethics Committee (IEC) clearance required for prior to starting a health study?",
+      options: [
+        "Any human clinical trial or therapeutic intervention",
+        "Purchasing laboratory glassware",
+        "Signing an employment contract",
+        "Registering for an online student portal"
+      ],
+      correctOptionIndex: 0,
+      explanation: "IEC clearance is legally required for any biomedical and health research involving human participants to safeguard ethics and safety."
+    },
+    {
+      id: "apt-q28",
+      domain: "Industry_Ethics",
+      difficulty: "Medium",
+      questionText: "A pharmaceutical sponsor asks an academic researcher to suppress adverse-event data observed during a herbal trial. The researcher must:",
+      options: [
+        "Refuse to suppress data and report all adverse events in accordance with pharmacovigilance regulations.",
+        "Agree to suppress if the sponsor increases the research grant.",
+        "Delay publishing until the drug hits retail shelves.",
+        "Publish only the positive bio-efficacy findings in a local magazine."
+      ],
+      correctOptionIndex: 0,
+      explanation: "Pharmacovigilance regulations and scientific ethics mandate transparent reporting of all adverse drug reactions."
+    },
+    {
+      id: "apt-q29",
+      domain: "Industry_Ethics",
+      difficulty: "Hard",
+      questionText: "Which document constitutes legally binding intellectual property protection when a university and company begin confidential joint research?",
+      options: [
+        "Non-Disclosure Agreement (NDA) & Material Transfer Agreement (MTA)",
+        "Student ID Card",
+        "Syllabus Outline",
+        "Press Release"
+      ],
+      correctOptionIndex: 0,
+      explanation: "NDAs protect confidential proprietary know-how, while MTAs govern biological sample ownership and usage rights."
+    },
+    {
+      id: "apt-q30",
+      domain: "Industry_Ethics",
+      difficulty: "Medium",
+      questionText: "Under the Biological Diversity Act 2002 of India, prior approval from the National Biodiversity Authority (NBA) is mandatory when:",
+      options: [
+        "Commercializing Indian biological resources or applying for patents based on them by foreign entities.",
+        "Selling agricultural vegetables in a local bazaar.",
+        "Reading historical Ayurvedic manuscripts in a university library.",
+        "Teaching botany to undergraduate students."
+      ],
+      correctOptionIndex: 0,
+      explanation: "The NBA regulates fair and equitable benefit sharing when biological resources from India are commercially exploited or patented."
+    }
+  ],
+
+  assessmentSessions: [
+    {
+      id: "sess-001",
+      studentId: "usr-student-01",
+      assessmentType: "National Foundational Aptitude (NFAT-2026)",
+      startedAt: "2026-09-04T10:00:00.000Z",
+      completedAt: "2026-09-04T10:28:45.000Z",
+      rawScore: 26,
+      totalQuestions: 30,
+      percentage: 86.67,
+      percentile: 91.4,
+      domainScores: {
+        Quantitative: 83.3,
+        Logical_Reasoning: 100.0,
+        Verbal_Ability: 83.3,
+        General_Knowledge: 83.3,
+        Industry_Ethics: 83.3
+      },
+      passed: true,
+      badgeHash: "a7c89f012e8b6543d2c109876543210fedcba9876543210abcdef0123456789a"
+    }
+  ],
+
+  // Feature 7: Company-Provided Quizzes for Skill Certification
+  companyQuizzes: [
+    {
+      id: "quiz-dabur-01",
+      companyId: "usr-industry-01",
+      companyName: "Dabur India Ltd.",
+      badgeTitle: "Dabur Certified Herbal Formulation Specialist",
+      badgeIcon: "verified",
+      skillCategory: "Herbal Formulation & Extraction",
+      timeLimitMinutes: 15,
+      passingPercentage: 75,
+      totalTakers: 412,
+      passCount: 268,
+      isActive: true,
+      questions: [
+        {
+          id: "dq-1",
+          question: "Which solvent system is most widely standard for separating Withanolides on Silica Gel 60 F254 TLC plates?",
+          options: [
+            "Toluene : Ethyl Acetate : Formic Acid (5:4:1)",
+            "Pure Distilled Water (10:0)",
+            "Hexane : Petroleum Ether (9:1)",
+            "Methanol : Ammonia (1:9)"
+          ],
+          correctIndex: 0,
+          explanation: "Toluene : Ethyl Acetate : Formic Acid provides optimal resolution without tailing for withanolides."
+        },
+        {
+          id: "dq-2",
+          question: "In industrial maceration, what does the term 'Menstruum' signify?",
+          options: [
+            "The solvent liquid employed for dissolving extractive matter from crude botanical drugs",
+            "The solid fibrous plant residue remaining after straining",
+            "The temperature at which drying occurs",
+            "The speed of the centrifugal stirrer"
+          ],
+          correctIndex: 0,
+          explanation: "Menstruum is the extraction solvent; the remaining insoluble residue is known as the 'Marc'."
+        },
+        {
+          id: "dq-3",
+          question: "Under Ayush Good Manufacturing Practices (Schedule T), what is the maximum permissible total microbial count for oral herbal extracts?",
+          options: [
+            "10^5 CFU/g for aerobic bacteria; 10^3 CFU/g for fungi",
+            "Zero CFU/g (total sterile requirement)",
+            "10^8 CFU/g without limits",
+            "Not specified in Schedule T"
+          ],
+          correctIndex: 0,
+          explanation: "Schedule T and Pharmacopoeial standards align on 10^5 CFU/g aerobic bacterial limit and 10^3 CFU/g yeast and moulds."
+        },
+        {
+          id: "dq-4",
+          question: "Why is Nitrogen gas sparging frequently employed in high-end herbal oil formulation processing?",
+          options: [
+            "To prevent oxidative rancidity of polyunsaturated fatty acids and preserve active phytosterols",
+            "To change the natural scent of the oil",
+            "To solidify the oil into wax",
+            "To speed up gravity filtration"
+          ],
+          correctIndex: 0,
+          explanation: "Nitrogen creates an inert blanket protecting sensitive botanical oils from oxidation."
+        }
+      ]
+    },
+    {
+      id: "quiz-patanjali-01",
+      companyId: "comp-patanjali",
+      companyName: "Patanjali Research Foundation",
+      badgeTitle: "Patanjali Certified Analytical Chromatographer",
+      badgeIcon: "biotech",
+      skillCategory: "HPTLC & Spectrophotometry",
+      timeLimitMinutes: 15,
+      passingPercentage: 75,
+      totalTakers: 310,
+      passCount: 189,
+      isActive: true,
+      questions: [
+        {
+          id: "pq-1",
+          question: "What is the primary role of the CAMAG Derivatizer in HPTLC visualization of non-UV active triterpenoids?",
+          options: [
+            "Even micro-aerosol spraying of Anisaldehyde-Sulfuric Acid reagent followed by controlled thermal plate heating",
+            "Cutting the TLC silica plate into strips",
+            "Drying the plate using microwave radiation",
+            "Reading optical absorbance without reagents"
+          ],
+          correctIndex: 0,
+          explanation: "Automated derivatizers ensure uniform reagent aerosol deposition, eliminating manual spray artifacts."
+        },
+        {
+          id: "pq-2",
+          question: "In chromatographic method validation (ICH Q2R1), what does the parameter 'Resolution (Rs)' between two adjacent peaks ideally equal or exceed?",
+          options: ["Rs >= 1.5", "Rs >= 0.2", "Rs = 0", "Rs <= -1.0"],
+          correctIndex: 0,
+          explanation: "Baseline resolution between adjacent peaks is attained when Rs >= 1.5."
+        },
+        {
+          id: "pq-3",
+          question: "Which detector is considered a universal mass-concentration detector for lipids and carbohydrates lacking UV chromophores?",
+          options: [
+            "Evaporative Light Scattering Detector (ELSD) / CAD",
+            "Photodiode Array (PDA) at 254 nm",
+            "Fluorescence detector",
+            "Refractometer at 100°C"
+          ],
+          correctIndex: 0,
+          explanation: "ELSD evaporates the mobile phase and measures scattered light from solute aerosol particles, making it independent of optical absorption."
+        }
+      ]
+    }
+  ],
+
+  studentQuizCertifications: []
 };
 
 module.exports = DB;
+

@@ -21,9 +21,9 @@
   const positions = new Float32Array(particleCount * 3);
   const colors = new Float32Array(particleCount * 3);
 
-  const colorTeal = new THREE.Color('#38bdf8');
-  const colorPurple = new THREE.Color('#a855f7');
-  const colorIndigo = new THREE.Color('#818cf8');
+  const colorSage = new THREE.Color('#4EBA87');
+  const colorWarmAmber = new THREE.Color('#D4973B');
+  const colorSlate = new THREE.Color('#8E929B');
 
   for (let i = 0; i < particleCount * 3; i += 3) {
     positions[i] = (Math.random() - 0.5) * 40;
@@ -31,7 +31,7 @@
     positions[i + 2] = (Math.random() - 0.5) * 40;
 
     const r = Math.random();
-    const c = r < 0.4 ? colorTeal : (r < 0.7 ? colorPurple : colorIndigo);
+    const c = r < 0.45 ? colorSage : (r < 0.75 ? colorWarmAmber : colorSlate);
     colors[i] = c.r;
     colors[i + 1] = c.g;
     colors[i + 2] = c.b;

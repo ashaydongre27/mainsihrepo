@@ -7,20 +7,19 @@
 
 const express = require('express');
 const router = express.Router();
-const { generateWithFailover, isGoogleApiConfigured, getMainApiKey, getBackupApiKey } = require('../services/ai.service');
+const { generateWithFailover, isGoogleApiConfigured, getMainApiKey, getBackupApiKey, getNvidiaApiKey } = require('../services/ai.service');
 const zuluChatService = require('../services/zuluChat.service');
 
 /**
- * Call Google Gemini using LangGraph Orchestrator with Multi-Key Failover
+ * Call AI (Gemini → NVIDIA NIM) using LangGraph Orchestrator with Multi-Key Failover
  */
 async function generateWithGemini(userMessage, conversationHistory = [], studentContext = null) {
-  if (!isGoogleApiConfigured()) {
-    return null;
-  }
+  const contextSnippet = studentContext ? `\nStudent Context: Role=${studentContext.role || 'Student'}, Year=${studentContext.year || 'N/A'}, Department=${studentContext.department || 'General'}` : '';
+  const systemInstruction = `You are Zulu, an expert AI Career and Research Counselor for students across all academic disciplines and professional fields. Guide students on comprehensive career roadmaps, industry-specific research and development (R&D), academic and technical documentation, mastering domain-specific tools and methodologies, navigating institutional standards and accreditations, and securing corporate placements and internships.${contextSnippet}`;
 
   const result = await generateWithFailover({
     prompt: userMessage,
-    systemInstruction: null,
+    systemInstruction,
     history: conversationHistory,
     temperature: 0.7
   });
@@ -46,25 +45,26 @@ function generateSmartZuluResponse(message, studentContext = {}) {
   const query = (message || '').toLowerCase();
   const name = studentContext.studentName || studentContext.name || 'Scholar';
 
-  if (query.includes('dabur') || query.includes('patanjali') || query.includes('himalaya') || query.includes('industry') || query.includes('internship') || query.includes('job') || query.includes('company') || query.includes('competenc')) {
-    return `### 🌿 Industry R&D & Competency Pathway
+  // 1. Tech, Software Engineering, AI & Web Development
+  if (query.includes('software') || query.includes('coding') || query.includes('python') || query.includes('javascript') || query.includes('react') || query.includes('node') || query.includes('developer') || query.includes('engineer') || query.includes('ai') || query.includes('machine learning') || query.includes('data science') || query.includes('web')) {
+    return `### Tech & Engineering Career Guidance
 
-Namaste **${name}**! Based on active recruitment benchmarks from corporate R&D partners:
+Hello **${name}**! Here is strategic guidance for technical and software development pathways:
 
-1. **Top Priority Skills**:
-   - **HPTLC & HPLC Fingerprinting**: Essential for phytochemical standardization and quality assurance.
-   - **GLP / GCP Compliance**: Required for clinical trials and regulatory documentation.
-   - **Computational Pharmacognosy**: Using Python & In-silico AutoDock for rapid ligand-target docking.
+1. **High-Demand Core Competencies**:
+   - **Data Structures & Algorithms**: Fundamental for technical interviews and scalable system design.
+   - **Modern Stack Proficiency**: Full-stack frameworks (React, Node.js/FastAPI) and relational/NoSQL databases.
+   - **AI/ML & Cloud Integration**: Building with machine learning APIs, vector databases, and containerized deployment (Docker, CI/CD).
 
-2. **Actionable Next Steps**:
-   - Apply for the **Phytochemical Research Internship** on your *Internships Board* (Stipend: ₹22,000/mo).
-   - Complete Phase 2 of your **Career Roadmap** to earn +450 XP and unlock direct corporate referral.
-
-Stay consistent with your daily modules to maintain top recruiter visibility! 🚀`;
+2. **Actionable Roadmap**:
+   - Build a portfolio of 2-3 production-grade projects demonstrating end-to-end system architecture.
+   - Explore active technical requisitions and hackathons on the **Opportunities Board**.
+   - Check the **Career Roadmap** to log your verified coding assessments and earn XP!`;
   }
 
+  // 2. Anti-Decay & Quiz Arena Mechanics
   if (query.includes('decay') || query.includes('freeze') || query.includes('xp') || query.includes('streak') || query.includes('point') || query.includes('quiz')) {
-    return `### ❄️ Anti-Decay XP & Competency Freeze Engine
+    return `### Anti-Decay XP & Competency Freeze Engine
 
 Greetings **${name}**! Here is how your skill verification freeze works:
 
@@ -72,43 +72,49 @@ Greetings **${name}**! Here is how your skill verification freeze works:
 - **Streak Multiplier**: Maintaining your active streak provides a 1.5x XP boost across all micro-gigs and placement applications.
 - **Recruiter Priority**: Students with active freeze status appear in the **Top 5% Inbound Candidate Pool** for industry partners.
 
-💡 *Tip*: Complete a quick 3-minute quiz in the **Quiz Arena** now to protect your current XP streak!`;
+*Tip*: Complete a quick 3-minute quiz in the **Quiz Arena** now to protect your current XP streak!`;
   }
 
-  if (query.includes('hptlc') || query.includes('hplc') || query.includes('chromatograph') || query.includes('autodock') || query.includes('python') || query.includes('phytochem') || query.includes('skill')) {
-    return `### 🔬 Scientific Skill & Protocol Guidance
+  // 3. Research, Fellowships, Grants & Academia
+  if (query.includes('fellowship') || query.includes('grant') || query.includes('mou') || query.includes('research') || query.includes('paper') || query.includes('publication')) {
+    return `### Research Fellowships & Institutional MoU Pathways
 
-Great question! In modern Ayush research:
+Hello **${name}**! Here are actionable research and fellowship opportunities:
 
-- **HPTLC (High-Performance Thin-Layer Chromatography)** is the gold standard for fingerprinting botanical extract identity, purity, and active marker quantitation.
-- **In-Silico Molecular Docking**: Enables virtual screening of phytochemicals against target proteins before wet-lab validation.
-- **Data Analytics**: Combining traditional concepts with Python-driven statistical profiling accelerates publication in high-impact journals.
+- **Institutional Research Grants**: Under accreditation criteria (NAAC / NIRF), students participating in sponsored research are eligible for project travel allowances and lab stipends.
+- **Active Corporate MoUs**: University agreements with industry research labs enable shared access to high-performance instrumentation, supercomputing clusters, and dataset repositories.
+- **Micro-Gigs & Project Bounties**: Browse the *Micro-Gig Task Board* for short-term data analysis, technical annotation, and prototyping bounties.
 
-Recommended action: Review the **Skill Constellation Map** in your portal to view your verified nodes and unlock advanced certifications! 📊`;
+Let me know if you would like help drafting an abstract or project proposal!`;
   }
 
-  if (query.includes('fellowship') || query.includes('grant') || query.includes('mou') || query.includes('research') || query.includes('college')) {
-    return `### 🏛️ Research Fellowships & Institutional MoU Pathways
+  // 4. Industry, Jobs & Internships
+  if (query.includes('internship') || query.includes('job') || query.includes('company') || query.includes('placement') || query.includes('recruit') || query.includes('interview') || query.includes('career')) {
+    return `### Industry Placement & Internship Roadmap
 
-Hello **${name}**! Institutional collaboration opportunities:
+Hello **${name}**! Here are targeted strategies to accelerate corporate placements:
 
-- **Research Grants**: Under NAAC Criterion 3.4, students engaged in interdisciplinary projects are eligible for research travel grants and lab bounties.
-- **Active MoUs**: Institutional agreements between colleges and corporate research centers enable shared access to high-end analytical instrumentation.
-- **Micro-Gigs**: Check the *Micro-Gig Task Board* for short-term data annotation and trial record standardization bounties (up to ₹6,000).
+1. **Recruiter Evaluation Benchmarks**:
+   - **Verified Skill Dossiers**: Employers prioritize candidates with verified project credentials over unverified resume bullet points.
+   - **Practical Problem-Solving**: Demonstrating real-world project contributions and domain certifications.
+   - **Domain Standards**: Familiarity with industry-standard tooling, version control, and documentation practices.
 
-Let me know if you need assistance tailoring your research proposal for upcoming grant cycles! 📜`;
+2. **Immediate Recommendations**:
+   - Browse the **Internships Board** to review open requisitions aligned with your skill match.
+   - Run a benchmark analysis on your resume via the **Resume Analyzer** to spot missing keywords.`;
   }
 
+  // 5. Default General Response
   const topicWords = message.split(' ').slice(0, 5).join(' ');
-  return `### 💡 Zulu AI Guidance: "${topicWords}..."
+  return `### Zulu AI Guidance: "${topicWords}..."
 
-Namaste **${name}**! Here is my analysis regarding your inquiry:
+Hello **${name}**! Here is strategic guidance regarding your inquiry:
 
-- **Strategic Overview**: Addressing **"${message.trim()}"** requires combining classical wisdom with verified analytical methodology.
-- **Key Recommendation**: Focus on strengthening your core profile competencies in **Pharmacognosy**, **Standardization Protocols**, and **Computational Phytochemistry**.
-- **Career Impact**: Completing verified practical modules in your portal increases your skill readiness index and corporate match percentage.
+- **Strategic Overview**: Navigating **"${message.trim()}"** successfully requires pairing foundational domain knowledge with applied practical experience.
+- **Key Recommendation**: Focus on strengthening your verified skill vectors in your portal profile and completing practical projects that demonstrate end-to-end execution.
+- **Career Impact**: Completing verified assessments and milestones boosts your candidate readiness percentile and corporate recruiter visibility.
 
-Feel free to ask follow-up questions about specific corporate job roles, research fellowships, or skill gap analysis! 🌟`;
+Feel free to ask follow-up questions about specific career pathways, technical certifications, or industry benchmark requirements!`;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -196,7 +202,8 @@ router.post('/chat', async (req, res) => {
     // 1. Ensure active session ID
     let targetSessionId = sessionId;
     if (!targetSessionId) {
-      const newSession = await zuluChatService.createSession(userId, cleanMessage.substring(0, 35) + '...');
+      const titleSnippet = cleanMessage.length > 35 ? cleanMessage.substring(0, 35) + '...' : cleanMessage;
+      const newSession = await zuluChatService.createSession(userId, titleSnippet);
       targetSessionId = newSession.id;
     }
 
@@ -241,16 +248,19 @@ router.get('/status', (req, res) => {
   const isConfigured = isGoogleApiConfigured();
   const hasMain = Boolean(getMainApiKey());
   const hasBackup = Boolean(getBackupApiKey());
+  const hasNvidia = Boolean(getNvidiaApiKey());
 
   res.json({
     success: true,
     engine: 'Zulu AI (LangGraph Failover Orchestrator)',
     googleApiConfigured: isConfigured,
+    nvidiaConfigured: hasNvidia,
     keys: {
       mainConfigured: hasMain,
-      backupConfigured: hasBackup
+      backupConfigured: hasBackup,
+      nvidiaConfigured: hasNvidia
     },
-    activeModel: isConfigured ? 'LangGraph Orchestrator' : 'zulu-ai-engine'
+    activeModel: isConfigured ? 'LangGraph Orchestrator' : (hasNvidia ? 'NVIDIA NIM' : 'offline-fallback')
   });
 });
 
