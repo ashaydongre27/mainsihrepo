@@ -66,7 +66,7 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Task title is required.' });
     }
 
-    const studentId = explicitStudentId || req.user?.id || 'usr-student-01';
+    const studentId = explicitStudentId || req.user?.id || req.user?.email || 'guest';
     const newTodo = {
       id: `todo-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
       studentId,
@@ -112,7 +112,10 @@ router.post('/', async (req, res) => {
  * PATCH /api/todos/:id/toggle
  * Toggles completion status and awards +10 XP on completion
  */
-router.patch('/:id/toggle', async (req, res) => {
+router.all(['/:id/toggle'], async (req, res) => {
+  if (req.method !== 'PATCH' && req.method !== 'POST') {
+    return res.status(405).json({ success: false, error: 'Method not allowed.' });
+  }
   try {
     const { id } = req.params;
     const todos = ensureTodos();
@@ -195,7 +198,7 @@ router.delete('/:id', async (req, res) => {
 router.post('/system-inject', async (req, res) => {
   try {
     const {
-      studentId = 'usr-student-01',
+      studentId = 'guest',
       title,
       description = '',
       category = 'Application',

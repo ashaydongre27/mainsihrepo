@@ -197,25 +197,34 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Academic Fields (Retained for Student & Academy, removed/hidden only in Industry) -->
+          <div id="academic-fields" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label id="label-dept" class="text-[11px] font-semibold text-stone-600 dark:text-stone-400 uppercase tracking-wider block mb-1">
                 Department / Faculty
               </label>
-              <input type="text" id="input-dept" placeholder="Enter department or faculty" class="w-full p-2.5 rounded-xl bg-white dark:bg-black/30 border border-stone-200 dark:border-white/[0.1] text-xs text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:outline-none focus:border-[#2D5542] dark:focus:border-[#4EBA87] focus:ring-2 focus:ring-[#2D5542]/20 dark:focus:ring-[#4EBA87]/20">
+              <input type="text" id="input-dept" placeholder="Enter department (e.g. Computer Science)" class="w-full p-2.5 rounded-xl bg-white dark:bg-black/30 border border-stone-200 dark:border-white/[0.1] text-xs text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:outline-none focus:border-[#2D5542] dark:focus:border-[#4EBA87] focus:ring-2 focus:ring-[#2D5542]/20 dark:focus:ring-[#4EBA87]/20">
             </div>
             <div>
               <label id="label-role-spec" class="text-[11px] font-semibold text-stone-600 dark:text-stone-400 uppercase tracking-wider block mb-1">
-                Academic Year / Title
+                Academic Year
               </label>
-              <input type="text" id="input-role-spec" placeholder="e.g. 3rd Year / Faculty" class="w-full p-2.5 rounded-xl bg-white dark:bg-black/30 border border-stone-200 dark:border-white/[0.1] text-xs text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:outline-none focus:border-[#2D5542] dark:focus:border-[#4EBA87] focus:ring-2 focus:ring-[#2D5542]/20 dark:focus:ring-[#4EBA87]/20">
+              <input type="text" id="input-role-spec" placeholder="e.g. 3rd Year / Undergraduate" class="w-full p-2.5 rounded-xl bg-white dark:bg-black/30 border border-stone-200 dark:border-white/[0.1] text-xs text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:outline-none focus:border-[#2D5542] dark:focus:border-[#4EBA87] focus:ring-2 focus:ring-[#2D5542]/20 dark:focus:ring-[#4EBA87]/20">
             </div>
+          </div>
+
+          <!-- Industry Employee UID field (shown only when selectedRole === 'industry' and currentMode === 'register') -->
+          <div id="field-industry-uid" class="hidden">
+            <label id="label-employee-uid" class="text-[11px] font-semibold text-stone-600 dark:text-stone-400 uppercase tracking-wider block mb-1">
+              Employee UID / ID No. <span class="text-rose-500">*</span>
+            </label>
+            <input type="text" id="input-employee-uid" placeholder="e.g. EMP-98241" class="w-full p-2.5 rounded-xl bg-white dark:bg-black/30 border border-stone-200 dark:border-white/[0.1] text-xs text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:outline-none focus:border-[#2D5542] dark:focus:border-[#4EBA87] focus:ring-2 focus:ring-[#2D5542]/20 dark:focus:ring-[#4EBA87]/20">
           </div>
         </div>
 
         <!-- Primary Credentials -->
         <div>
-          <label class="text-[11px] font-semibold text-stone-600 dark:text-stone-400 uppercase tracking-wider block mb-1">
+          <label id="label-email" class="text-[11px] font-semibold text-stone-600 dark:text-stone-400 uppercase tracking-wider block mb-1">
             Institutional Email Address <span class="text-rose-500">*</span>
           </label>
           <input type="email" id="input-email" required autocomplete="off" placeholder="name@institution.edu" class="w-full p-2.5 rounded-xl bg-white dark:bg-black/30 border border-stone-200 dark:border-white/[0.1] text-xs text-stone-900 dark:text-stone-100 font-mono placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:outline-none focus:border-[#2D5542] dark:focus:border-[#4EBA87] focus:ring-2 focus:ring-[#2D5542]/20 dark:focus:ring-[#4EBA87]/20">
@@ -223,20 +232,28 @@
 
         <div>
           <div class="flex justify-between items-center mb-1">
-            <label class="text-[11px] font-semibold text-stone-600 dark:text-stone-400 uppercase tracking-wider block">
+            <label id="label-password" class="text-[11px] font-semibold text-stone-600 dark:text-stone-400 uppercase tracking-wider block">
               Password <span class="text-rose-500">*</span>
             </label>
-            <span id="login-forgot-pass" class="text-[11px] text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white cursor-pointer transition-colors">
+            <button type="button" id="login-forgot-pass" onclick="openForgotPasswordModal()" class="text-[11px] text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white cursor-pointer transition-colors bg-transparent border-none p-0">
               Forgot?
-            </span>
+            </button>
           </div>
-          <input type="password" id="input-password" required autocomplete="new-password" placeholder="••••••••••••" class="w-full p-2.5 rounded-xl bg-white dark:bg-black/30 border border-stone-200 dark:border-white/[0.1] text-xs text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:outline-none focus:border-[#2D5542] dark:focus:border-[#4EBA87] focus:ring-2 focus:ring-[#2D5542]/20 dark:focus:ring-[#4EBA87]/20">
+          <input type="password" id="input-password" required autocomplete="current-password" placeholder="••••••••••••" class="w-full p-2.5 rounded-xl bg-white dark:bg-black/30 border border-stone-200 dark:border-white/[0.1] text-xs text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:outline-none focus:border-[#2D5542] dark:focus:border-[#4EBA87] focus:ring-2 focus:ring-[#2D5542]/20 dark:focus:ring-[#4EBA87]/20">
+        </div>
+
+        <!-- Confirm Password Field (Register Mode Only) -->
+        <div id="confirm-password-container" class="hidden">
+          <label class="text-[11px] font-semibold text-stone-600 dark:text-stone-400 uppercase tracking-wider block mb-1">
+            Confirm Password <span class="text-rose-500">*</span>
+          </label>
+          <input type="password" id="input-confirm-password" autocomplete="new-password" placeholder="••••••••••••" class="w-full p-2.5 rounded-xl bg-white dark:bg-black/30 border border-stone-200 dark:border-white/[0.1] text-xs text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:outline-none focus:border-[#2D5542] dark:focus:border-[#4EBA87] focus:ring-2 focus:ring-[#2D5542]/20 dark:focus:ring-[#4EBA87]/20">
         </div>
 
         <!-- Terms Agreement Checkbox -->
         <div id="register-terms" class="hidden text-[11px] text-stone-500 dark:text-stone-400 flex items-start gap-2 pt-1">
           <input type="checkbox" id="terms-agree" class="mt-0.5 rounded border-stone-300 dark:border-stone-700 text-[#2D5542] dark:text-[#4EBA87] focus:ring-[#2D5542]">
-          <label for="terms-agree">
+          <label for="terms-agree" id="label-terms">
             I certify my institutional affiliation under academic accreditation and statutory guidelines.
           </label>
         </div>
@@ -257,6 +274,50 @@
     </div>
   </main>
 
+  <!-- Institutional Password Reset Modal -->
+  <div id="forgot-password-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-all duration-200" role="dialog" aria-modal="true" aria-labelledby="reset-modal-title">
+    <div class="relative w-full max-w-md rounded-2xl p-6 backdrop-blur-xl border border-stone-200/90 dark:border-white/[0.08] shadow-2xl bg-white dark:bg-[#0d1017] transition-all duration-200">
+      <div class="flex items-start justify-between pb-3 border-b border-stone-200/70 dark:border-white/[0.06]">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-[#2D5542]/10 border border-[#2D5542]/25 text-[#2D5542] dark:text-[#4EBA87] flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+            </svg>
+          </div>
+          <div>
+            <h3 id="reset-modal-title" class="text-sm font-display font-bold text-stone-900 dark:text-stone-100">Reset Institutional Password</h3>
+            <p class="text-[11px] text-stone-500 dark:text-stone-400">Receive recovery instructions at your institutional email</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeForgotPasswordModal()" aria-label="Close modal" class="p-1.5 rounded-lg text-stone-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-white/[0.05] transition-colors cursor-pointer">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="forgot-password-form" onsubmit="handleForgotPasswordSubmit(event)" class="mt-4 space-y-3">
+        <div>
+          <label for="reset-input-email" class="text-[11px] font-semibold text-stone-600 dark:text-stone-400 uppercase tracking-wider block mb-1">
+            Registered Institutional Email <span class="text-rose-500">*</span>
+          </label>
+          <input type="email" id="reset-input-email" required placeholder="name@institution.edu" class="w-full p-2.5 rounded-xl bg-white dark:bg-black/30 border border-stone-200 dark:border-white/[0.1] text-xs text-stone-900 dark:text-stone-100 font-mono placeholder:text-stone-400 dark:placeholder:text-stone-600 focus:outline-none focus:border-[#2D5542] dark:focus:border-[#4EBA87] focus:ring-2 focus:ring-[#2D5542]/20 dark:focus:ring-[#4EBA87]/20">
+        </div>
+
+        <div id="reset-modal-status" class="hidden text-xs p-3 rounded-xl border"></div>
+
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button type="button" onclick="closeForgotPasswordModal()" class="px-3.5 py-2 text-xs font-semibold rounded-xl text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white border border-stone-200 dark:border-white/[0.08] hover:bg-stone-100 dark:hover:bg-white/[0.04] transition cursor-pointer">
+            Cancel
+          </button>
+          <button type="submit" id="reset-submit-btn" class="px-4 py-2 text-xs font-semibold rounded-xl bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-950 shadow-xs transition flex items-center gap-1.5 cursor-pointer">
+            <span>Dispatch Recovery Link</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <footer class="w-full max-w-5xl mx-auto px-6 py-4 text-center text-[11px] text-slate-400 dark:text-slate-600 border-t border-slate-200/60 dark:border-white/[0.04]">
     JOBLEX Gateway &bull; National Higher Education &bull; Multi-Disciplinary Academia-Industry Integration &bull; 2026
   </footer>
@@ -274,34 +335,130 @@
       const btnRegister = document.getElementById('btn-mode-register');
       const registerFields = document.getElementById('register-fields');
       const registerTerms = document.getElementById('register-terms');
+      const confirmPassContainer = document.getElementById('confirm-password-container');
+      const confirmPassInput = document.getElementById('input-confirm-password');
+      const academicFields = document.getElementById('academic-fields');
+      const fieldIndustryUid = document.getElementById('field-industry-uid');
+      const labelPassword = document.getElementById('label-password');
       const submitBtn = document.getElementById('submit-btn');
       const switchPrompt = document.getElementById('switch-mode-prompt');
       const switchAction = document.getElementById('switch-mode-action');
+      const forgotPassBtn = document.getElementById('login-forgot-pass');
+      const roleSelectorLabel = document.getElementById('role-selector-label');
 
-      const activeClass = "py-2 text-xs font-semibold rounded-lg transition-all bg-slate-900 dark:bg-white text-white dark:text-slate-950 shadow-sm flex items-center justify-center gap-1.5";
-      const inactiveClass = "py-2 text-xs font-semibold rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center gap-1.5";
+      const activeClass = "py-2 text-xs font-semibold rounded-lg transition-all bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-950 shadow-xs flex items-center justify-center gap-1.5";
+      const inactiveClass = "py-2 text-xs font-semibold rounded-lg transition-all text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white flex items-center justify-center gap-1.5";
 
       if (mode === 'login') {
         btnLogin.className = activeClass;
         btnRegister.className = inactiveClass;
         registerFields.classList.add('hidden');
         registerTerms.classList.add('hidden');
+        confirmPassContainer.classList.add('hidden');
+        if (confirmPassInput) confirmPassInput.removeAttribute('required');
+        if (academicFields) academicFields.classList.add('hidden');
+        if (fieldIndustryUid) fieldIndustryUid.classList.add('hidden');
+        if (forgotPassBtn) forgotPassBtn.classList.remove('hidden');
+        if (labelPassword) labelPassword.innerHTML = 'Password <span class="text-rose-500">*</span>';
+        if (roleSelectorLabel) roleSelectorLabel.textContent = 'Sign In Portal:';
         submitBtn.querySelector('span').textContent = `Authenticate to ${capitalize(selectedRole)} Portal ➔`;
-        switchPrompt.textContent = "Need an institutional account?";
+        switchPrompt.textContent = selectedRole === 'industry' ? "Need a corporate partner account?" : "Need an institutional account?";
         switchAction.textContent = "Register Here";
       } else {
         btnRegister.className = activeClass;
         btnLogin.className = inactiveClass;
         registerFields.classList.remove('hidden');
         registerTerms.classList.remove('hidden');
+        confirmPassContainer.classList.remove('hidden');
+        if (confirmPassInput) confirmPassInput.setAttribute('required', 'required');
+        if (selectedRole === 'industry') {
+          if (academicFields) academicFields.classList.add('hidden');
+          if (fieldIndustryUid) fieldIndustryUid.classList.remove('hidden');
+        } else {
+          if (academicFields) academicFields.classList.remove('hidden');
+          if (fieldIndustryUid) fieldIndustryUid.classList.add('hidden');
+        }
+        if (forgotPassBtn) forgotPassBtn.classList.add('hidden');
+        if (labelPassword) labelPassword.innerHTML = 'Create Password <span class="text-rose-500">*</span>';
+        if (roleSelectorLabel) roleSelectorLabel.textContent = 'Registration Portal:';
         submitBtn.querySelector('span').textContent = `Create & Register ${capitalize(selectedRole)} Account ➔`;
-        switchPrompt.textContent = "Already have an institutional account?";
+        switchPrompt.textContent = selectedRole === 'industry' ? "Already have a corporate account?" : "Already have an institutional account?";
         switchAction.textContent = "Sign In Here";
       }
     }
 
     function toggleAuthMode() {
       setAuthMode(currentMode === 'login' ? 'register' : 'login');
+    }
+
+    function openForgotPasswordModal() {
+      const currentEmail = (document.getElementById('input-email')?.value || '').trim();
+      const resetInput = document.getElementById('reset-input-email');
+      if (resetInput && currentEmail) {
+        resetInput.value = currentEmail;
+      }
+      const statusDiv = document.getElementById('reset-modal-status');
+      if (statusDiv) {
+        statusDiv.className = 'hidden text-xs p-3 rounded-xl border';
+        statusDiv.textContent = '';
+      }
+      const modal = document.getElementById('forgot-password-modal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        setTimeout(() => resetInput?.focus(), 50);
+      }
+    }
+
+    function closeForgotPasswordModal() {
+      const modal = document.getElementById('forgot-password-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    async function handleForgotPasswordSubmit(event) {
+      event.preventDefault();
+      const email = (document.getElementById('reset-input-email')?.value || '').trim();
+      const submitBtn = document.getElementById('reset-submit-btn');
+      const statusDiv = document.getElementById('reset-modal-status');
+
+      if (!email) {
+        alert(selectedRole === 'industry' ? 'Please enter your corporate email address.' : 'Please enter your institutional email address.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      const originalText = submitBtn.querySelector('span').textContent;
+      submitBtn.querySelector('span').textContent = 'Dispatching Link...';
+
+      if (statusDiv) {
+        statusDiv.className = 'hidden text-xs p-3 rounded-xl border';
+        statusDiv.textContent = '';
+      }
+
+      try {
+        const res = await JoblexApiClient.resetPassword(email);
+        if (statusDiv) {
+          statusDiv.className = 'text-xs p-3 rounded-xl border bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-400 block';
+          statusDiv.textContent = res.message || `Password recovery link dispatched to ${email}. Check your inbox or spam folder.`;
+        }
+        if (window.showToast) {
+          window.showToast(`Password recovery link dispatched to ${email}.`, 'Password Recovery', 'success');
+        }
+        setTimeout(() => {
+          closeForgotPasswordModal();
+        }, 2200);
+      } catch (err) {
+        if (statusDiv) {
+          statusDiv.className = 'text-xs p-3 rounded-xl border bg-rose-500/10 border-rose-500/30 text-rose-700 dark:text-rose-400 block';
+          statusDiv.textContent = err.message || 'Failed to dispatch recovery email. Please check your address and try again.';
+        }
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.querySelector('span').textContent = originalText;
+      }
     }
 
 
@@ -312,9 +469,9 @@
         const tab = document.getElementById(`tab-${r}`);
         if (tab) {
           if (r === role) {
-            tab.className = "py-2 text-xs font-semibold rounded-lg transition border border-slate-900 dark:border-white bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm flex items-center justify-center gap-1.5";
+            tab.className = "py-2 text-xs font-semibold rounded-lg transition border border-stone-900 dark:border-white bg-white dark:bg-stone-900 text-stone-900 dark:text-white shadow-xs flex items-center justify-center gap-1.5";
           } else {
-            tab.className = "py-2 text-xs font-semibold rounded-lg transition border border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center gap-1.5";
+            tab.className = "py-2 text-xs font-semibold rounded-lg transition border border-transparent text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white flex items-center justify-center gap-1.5";
           }
         }
       });
@@ -322,11 +479,85 @@
       const badge = document.getElementById('role-hint-badge');
       if (badge) {
         if (role === 'student') {
-          badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span>Student / Scholar</span>';
+          badge.className = "text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-[#2D5542]/10 text-[#2D5542] dark:text-[#4EBA87] border border-[#2D5542]/20 dark:border-[#4EBA87]/20 flex items-center gap-1.5";
+          badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-[#2D5542] dark:bg-[#4EBA87] animate-pulse"></span><span>Student / Scholar</span>';
         } else if (role === 'academy') {
-          badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span>Collegiate Academy</span>';
+          badge.className = "text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-[#855828]/10 text-[#855828] dark:text-[#D4973B] border border-[#855828]/20 dark:border-[#D4973B]/20 flex items-center gap-1.5";
+          badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-[#855828] dark:bg-[#D4973B] animate-pulse"></span><span>Collegiate Academy</span>';
         } else {
-          badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span><span>Industry & Enterprise</span>';
+          badge.className = "text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-[#944C23]/10 text-[#944C23] dark:text-[#E07A48] border border-[#944C23]/20 dark:border-[#E07A48]/20 flex items-center gap-1.5";
+          badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-[#944C23] dark:bg-[#E07A48] animate-pulse"></span><span>Industry & Enterprise</span>';
+        }
+      }
+
+      // Dynamic labels & inputs based on role
+      const labelOrg = document.getElementById('label-org');
+      const inputOrg = document.getElementById('input-org');
+      const labelEmail = document.getElementById('label-email');
+      const inputEmail = document.getElementById('input-email');
+      const academicFields = document.getElementById('academic-fields');
+      const labelDept = document.getElementById('label-dept');
+      const inputDept = document.getElementById('input-dept');
+      const labelRoleSpec = document.getElementById('label-role-spec');
+      const inputRoleSpec = document.getElementById('input-role-spec');
+      const fieldIndustryUid = document.getElementById('field-industry-uid');
+      const labelTerms = document.getElementById('label-terms');
+      const bannerText = document.getElementById('banner-text');
+      const resetModalTitle = document.getElementById('reset-modal-title');
+      const resetModalLabel = document.querySelector('label[for="reset-input-email"]');
+
+      if (role === 'industry') {
+        if (labelOrg) labelOrg.innerHTML = 'Company Name <span class="text-rose-500">*</span>';
+        if (inputOrg) inputOrg.placeholder = 'Enter company or enterprise name';
+        if (labelEmail) labelEmail.innerHTML = 'Company Email Address <span class="text-rose-500">*</span>';
+        if (inputEmail) inputEmail.placeholder = 'name@company.com';
+        if (academicFields) academicFields.classList.add('hidden'); // Removed from Industry only
+        if (fieldIndustryUid) {
+          if (currentMode === 'register') fieldIndustryUid.classList.remove('hidden');
+          else fieldIndustryUid.classList.add('hidden');
+        }
+        if (labelTerms) labelTerms.textContent = 'I certify my authorized corporate affiliation and enterprise representation.';
+        if (resetModalTitle) resetModalTitle.textContent = 'Reset Corporate Password';
+        if (resetModalLabel) resetModalLabel.innerHTML = 'Registered Corporate Email <span class="text-rose-500">*</span>';
+        if (bannerText) {
+          bannerText.innerHTML = `
+            <svg class="w-3.5 h-3.5 text-[#944C23] dark:text-[#E07A48] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            Corporate Verification & Industry-Academia Track.
+          `;
+        }
+      } else {
+        if (labelOrg) labelOrg.innerHTML = 'College / Institution <span class="text-rose-500">*</span>';
+        if (inputOrg) inputOrg.placeholder = 'Enter college or university';
+        if (labelEmail) labelEmail.innerHTML = 'Institutional Email Address <span class="text-rose-500">*</span>';
+        if (inputEmail) inputEmail.placeholder = 'name@institution.edu';
+        if (fieldIndustryUid) fieldIndustryUid.classList.add('hidden');
+        if (academicFields) {
+          if (currentMode === 'register') academicFields.classList.remove('hidden');
+          else academicFields.classList.add('hidden');
+        }
+        if (role === 'student') {
+          if (labelDept) labelDept.textContent = 'Department / Faculty';
+          if (inputDept) inputDept.placeholder = 'Enter department (e.g. Computer Science)';
+          if (labelRoleSpec) labelRoleSpec.textContent = 'Academic Year';
+          if (inputRoleSpec) inputRoleSpec.placeholder = 'e.g. 3rd Year / Undergraduate';
+        } else if (role === 'academy') {
+          if (labelDept) labelDept.textContent = 'Department / Faculty';
+          if (inputDept) inputDept.placeholder = 'Enter faculty or department';
+          if (labelRoleSpec) labelRoleSpec.textContent = 'Academic Title / Designation';
+          if (inputRoleSpec) inputRoleSpec.placeholder = 'e.g. Associate Professor / Dean';
+        }
+        if (labelTerms) labelTerms.textContent = 'I certify my institutional affiliation under academic accreditation and statutory guidelines.';
+        if (resetModalTitle) resetModalTitle.textContent = 'Reset Institutional Password';
+        if (resetModalLabel) resetModalLabel.innerHTML = 'Registered Institutional Email <span class="text-rose-500">*</span>';
+        if (bannerText) {
+          bannerText.innerHTML = `
+            <svg class="w-3.5 h-3.5 text-[#2D5542] dark:text-[#4EBA87] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            Institutional Credentials required for outcome tracking.
+          `;
         }
       }
 
@@ -335,6 +566,15 @@
         submitBtn.querySelector('span').textContent = currentMode === 'login' 
           ? `Authenticate to ${capitalize(role)} Portal ➔`
           : `Create & Register ${capitalize(role)} Account ➔`;
+      }
+
+      const switchPrompt = document.getElementById('switch-mode-prompt');
+      if (switchPrompt) {
+        if (currentMode === 'login') {
+          switchPrompt.textContent = role === 'industry' ? "Need a corporate partner account?" : "Need an institutional account?";
+        } else {
+          switchPrompt.textContent = role === 'industry' ? "Already have a corporate account?" : "Already have an institutional account?";
+        }
       }
     }
 
@@ -370,11 +610,38 @@
         } else {
           const name = document.getElementById('input-name').value.trim();
           const org = document.getElementById('input-org').value.trim();
-          const dept = document.getElementById('input-dept').value.trim();
-          const roleSpec = document.getElementById('input-role-spec').value.trim();
+          const confirmPassword = document.getElementById('input-confirm-password').value;
+          const dept = document.getElementById('input-dept')?.value.trim() || '';
+          const roleSpec = document.getElementById('input-role-spec')?.value.trim() || '';
+          const orgLabel = selectedRole === 'industry' ? 'Company Name' : 'College / Institution';
 
           if (!name || !org) {
-            alert('Full Legal Name and College / Institution are required for registration.');
+            alert(`Full Legal Name and ${orgLabel} are required for registration.`);
+            submitBtn.disabled = false;
+            submitBtn.querySelector('span').textContent = originalText;
+            return;
+          }
+
+          let empUid = null;
+          if (selectedRole === 'industry') {
+            empUid = document.getElementById('input-employee-uid')?.value.trim();
+            if (!empUid) {
+              alert('Employee UID / ID No. is required for corporate registration.');
+              submitBtn.disabled = false;
+              submitBtn.querySelector('span').textContent = originalText;
+              return;
+            }
+          }
+
+          if (password !== confirmPassword) {
+            alert('Passwords do not match. Please ensure both passwords match before registering.');
+            submitBtn.disabled = false;
+            submitBtn.querySelector('span').textContent = originalText;
+            return;
+          }
+
+          if (password.length < 6) {
+            alert('Password must be at least 6 characters long.');
             submitBtn.disabled = false;
             submitBtn.querySelector('span').textContent = originalText;
             return;
@@ -387,9 +654,11 @@
             role: selectedRole,
             institution: selectedRole === 'industry' ? null : org,
             company: selectedRole === 'industry' ? org : null,
-            department: dept,
-            year: selectedRole === 'student' ? roleSpec : null,
-            designation: selectedRole !== 'student' ? roleSpec : null
+            employee_uid: empUid,
+            employee_id: empUid,
+            department: selectedRole === 'industry' ? null : (dept || (selectedRole === 'student' ? 'General Academic Studies' : 'Academic Faculty')),
+            year: selectedRole === 'student' ? (roleSpec || '1st Year Undergraduate') : null,
+            designation: selectedRole === 'academy' ? (roleSpec || 'Faculty Researcher') : (selectedRole === 'industry' ? 'Industry Representative' : null)
           };
 
           const res = await JoblexApiClient.register(userData);
@@ -415,6 +684,19 @@
         selectRole(roleParam.toLowerCase());
       } else {
         selectRole('student');
+      }
+
+      // Close modal on Escape key
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeForgotPasswordModal();
+      });
+
+      // Close modal on backdrop click
+      const modalBackdrop = document.getElementById('forgot-password-modal');
+      if (modalBackdrop) {
+        modalBackdrop.addEventListener('click', (e) => {
+          if (e.target === modalBackdrop) closeForgotPasswordModal();
+        });
       }
     });
   </script>

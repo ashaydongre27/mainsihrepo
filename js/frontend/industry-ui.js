@@ -25,13 +25,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Auth Guard: ensure user is authenticated before accessing industry portal
   if (!JoblexApiClient.requireAuth('industry')) return;
 
-  initIndustrySidebarState();
-  renderIndustryApplications('All');
-  renderCandidates();
-  renderTalentForecast();
-  renderReverseCandidates('');
-  renderRequisitions('All');
-  renderSkillRoi();
+  try { initIndustrySidebarState(); } catch (e) { console.warn(e); }
+  try { await renderIndustryApplications('All'); } catch (e) { console.warn(e); }
+  try { renderCandidates(); } catch (e) { console.warn(e); }
+  try { await renderTalentForecast(); } catch (e) { console.warn(e); }
+  try { await renderReverseCandidates(''); } catch (e) { console.warn(e); }
+  try { await renderRequisitions('All'); } catch (e) { console.warn(e); }
+  try { await renderSkillRoi(); } catch (e) { console.warn(e); }
 });
 
 function switchIndustryTab(tabId) {
@@ -453,7 +453,7 @@ const ENTERPRISE_REQUISITIONS = [
 
 async function renderRequisitions(typeFilter = 'All') {
   currentReqFilter = typeFilter;
-  const container = document.getElementById('industry-requisitions-grid');
+  const container = document.getElementById('industry-requisitions-grid') || document.getElementById('requisitions-list');
   if (!container) return;
 
   const res = await JoblexApiClient.getRequisitions(typeFilter);
@@ -487,19 +487,19 @@ async function renderRequisitions(typeFilter = 'All') {
           <p class="text-xs text-slate-600 dark:text-gray-300 mt-2 line-clamp-2">${req.description}</p>
 
           <div class="flex flex-wrap gap-1.5 mt-3">
-            ${req.skills.map(s => `
-              <span class="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/20 text-[10px] text-blue-700 dark:text-blue-200">${s}</span>
+            ${(Array.isArray(req.skills) ? req.skills : (typeof req.skills === 'string' ? req.skills.split(',') : [])).map(s => `
+              <span class="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/20 text-[10px] text-blue-700 dark:text-blue-200">${typeof s === 'string' ? s.trim() : (s?.name || s)}</span>
             `).join('')}
           </div>
 
           <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-200 dark:border-gray-800 text-xs text-slate-600 dark:text-gray-300">
-            <div>Compensation: <strong class="text-slate-900 dark:text-white">${req.stipend}</strong></div>
-            <div>Deadline: <strong class="text-slate-500 dark:text-gray-400 font-mono">${req.deadline}</strong></div>
+            <div>Compensation: <strong class="text-slate-900 dark:text-white">${req.stipend || 'Competitive'}</strong></div>
+            <div>Deadline: <strong class="text-slate-500 dark:text-gray-400 font-mono">${req.deadline || 'Open'}</strong></div>
           </div>
         </div>
 
         <div class="pt-3 border-t border-slate-200 dark:border-gray-800 flex items-center justify-between gap-2">
-          <button onclick="switchIndustryTab('Applications')" class="flex-1 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-blue-600/30 dark:hover:bg-blue-600/50 border border-blue-200 dark:border-blue-500/40 text-blue-700 dark:text-blue-200 font-bold text-xs transition flex items-center justify-center gap-1.5">
+          <button onclick="handleViewDossiers()" class="flex-1 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-blue-600/30 dark:hover:bg-blue-600/50 border border-blue-200 dark:border-blue-500/40 text-blue-700 dark:text-blue-200 font-bold text-xs transition flex items-center justify-center gap-1.5">
             <span class="material-symbols-outlined text-sm align-middle mr-1">description</span> <span>Review Dossiers (${req.applicantCount})</span>
           </button>
           <button onclick="toggleRequisitionStatus('${req.id}')" class="px-3 py-1.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-xs font-semibold ${req.active ? 'text-amber-300' : 'text-emerald-300'} transition border border-gray-700">
@@ -635,6 +635,16 @@ function handleNewRequisition() {
     : 'src/industry/industry-post-opportunity.html';
 }
 
+function handleViewDossiers() {
+  if (document.getElementById('industry-tab-Applications')) {
+    switchIndustryTab('Applications');
+  } else {
+    window.location.href = window.location.pathname.includes('/src/industry/')
+      ? 'industry-candidates.html'
+      : 'src/industry/industry-candidates.html';
+  }
+}
+
 function handleAuditExport() {
   const csvContent = "data:text/csv;charset=utf-8," 
     + "Scholar Name,Institution,Department,Match Score,Verified Tokens,Status\n"
@@ -704,6 +714,7 @@ function filterCandidateDossiers(query) {
 }
 
 window.handleNewRequisition = handleNewRequisition;
+window.handleViewDossiers = handleViewDossiers;
 window.handleAuditExport = handleAuditExport;
 window.handleViewLedger = handleViewLedger;
 window.handleScheduleInterview = handleScheduleInterview;

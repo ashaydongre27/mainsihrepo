@@ -37,6 +37,13 @@ function cleanExpiredCache() {
 }
 
 /**
+ * Explicitly invalidate recommendation cache (called when new opportunities/applications are created)
+ */
+function clearRecommendationCache() {
+  recommendationCache.clear();
+}
+
+/**
  * Resolve a skill string or ID to its canonical ontology index
  */
 function resolveSkillIndex(skillInput) {
@@ -517,6 +524,7 @@ module.exports = {
   explainMatch,
   generateDiagnostics,
   recommendOpportunitiesForStudent,
+  clearRecommendationCache,
   getStudentRecommendations,
   recommendCandidatesForOpportunity,
   recommendOpportunitiesForAcademician,

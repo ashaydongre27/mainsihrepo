@@ -27,8 +27,8 @@ function getStudentRoadmap(studentId) {
   return DB.student_roadmaps[studentId];
 }
 
-// GET /api/roadmap
-router.get('/', async (req, res) => {
+// GET /api/roadmap, /api/roadmap/get, /api/roadmap/state
+router.get(['/', '/get', '/state'], async (req, res) => {
   const studentId = req.query.studentId || req.user?.id || req.user?.email || 'guest-student';
 
   if (isConfigured && supabase) {
@@ -145,8 +145,8 @@ router.post('/check-in', async (req, res) => {
   const studentId = req.body?.studentId || req.user?.id || 'usr-student-01';
   const rm = getStudentRoadmap(studentId);
 
-  rm.streakDays = (typeof rm.streakDays === 'number' ? rm.streakDays : 7) + 1;
-  rm.totalXp = (typeof rm.totalXp === 'number' ? rm.totalXp : 1450) + 50;
+  rm.streakDays = (typeof rm.streakDays === 'number' ? rm.streakDays : 0) + 1;
+  rm.totalXp = (typeof rm.totalXp === 'number' ? rm.totalXp : 0) + 50;
   rm.decayStatus = 'Active - Decay Frozen for 72 hrs';
   rm.decayFrozenUntil = new Date(Date.now() + 72 * 3600 * 1000).toISOString();
 
@@ -171,6 +171,35 @@ router.post('/check-in', async (req, res) => {
     streak: rm.streakDays,
     totalXp: rm.totalXp,
     decayFrozenUntil: rm.decayFrozenUntil
+  });
+});
+
+// POST /api/roadmap/update-level
+router.post('/update-level', async (req, res) => {
+  const { studentId: explicitStudentId, level } = req.body || {};
+  const studentId = explicitStudentId || req.user?.id || 'usr-student-01';
+  const rm = getStudentRoadmap(studentId);
+
+  if (level) {
+    rm.currentLevel = level;
+  }
+
+  if (isConfigured && supabase) {
+    try {
+      await supabase
+        .from('student_roadmaps')
+        .update({ current_level: rm.currentLevel })
+        .eq('student_id', studentId);
+    } catch (err) {
+      console.warn('[Update-level] Supabase sync warning:', err.message);
+    }
+  }
+
+  res.json({
+    success: true,
+    message: `Career milestone level updated to "${rm.currentLevel}"!`,
+    currentLevel: rm.currentLevel,
+    roadmap: rm
   });
 });
 

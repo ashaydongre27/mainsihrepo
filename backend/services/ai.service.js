@@ -66,10 +66,6 @@ async function callNvidiaModel({ prompt, systemInstruction = '', history = [], t
     {
       name: 'gpt-oss-20b',
       url: 'https://api.nvcf.nvidia.com/v2/nvcf/pexec/functions/24d90582-d41c-4fc6-adc0-53c97f5a710f/versions/701ca393-dc00-4457-a769-c3147960cc3a'
-    },
-    {
-      name: 'deepseek-v4-pro',
-      url: 'https://api.nvcf.nvidia.com/v2/nvcf/pexec/functions/6e70713f-4eeb-4ef7-b4f8-2d984f4141f6'
     }
   ];
 
@@ -88,8 +84,8 @@ async function callNvidiaModel({ prompt, systemInstruction = '', history = [], t
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ messages, max_tokens: 1024, stream: false }),
-        signal: AbortSignal.timeout(25000)
+        body: JSON.stringify({ messages, max_tokens: 420, stream: false }),
+        signal: AbortSignal.timeout(20000)
       });
       if (!res.ok) {
         console.warn(`[NVIDIA] ${name} returned HTTP ${res.status}`);
@@ -97,7 +93,7 @@ async function callNvidiaModel({ prompt, systemInstruction = '', history = [], t
       }
       const data = await res.json();
       const choice = data?.choices?.[0]?.message;
-      // gpt-oss-20b uses reasoning_content when content is null
+      // Extract generated answer: content takes priority, then reasoning_content/reasoning
       const text = choice?.content || choice?.reasoning_content || choice?.reasoning;
       if (text && text.trim()) {
         return { text: text.trim(), provider: `nvidia-${name}`, keyType: 'nvidia' };

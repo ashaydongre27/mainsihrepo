@@ -20,7 +20,7 @@ const { supabase, isConfigured } = require('../config/supabase');
  * GET /api/recommendations/student
  * Returns ranked opportunities with explainable breakdown for a student
  */
-router.get('/student', async (req, res) => {
+router.get(['/', '/student'], async (req, res) => {
   try {
     const {
       type = 'All',

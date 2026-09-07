@@ -180,11 +180,31 @@
               <h1 class="text-xl font-bold text-[#1C1917] dark:text-white">Corporate Job Requisitions</h1>
               <p class="text-xs text-[#6E6962] dark:text-gray-400 mt-0.5">Manage active openings and syndication across AYUSH institutions</p>
             </div>
-            <button onclick="handleNewRequisition()" class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
-              <span>+</span> <span>New Requisition</span>
+            <button onclick="handleNewRequisition()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer">
+              <span class="material-symbols-outlined text-sm">add_circle</span> <span>Post Job / Internship</span>
             </button>
           </div>
-          <div id="requisitions-list" class="space-y-4 mt-6">
+
+          <!-- Type Filters -->
+          <div class="flex items-center gap-2 mt-4 overflow-x-auto pb-1">
+            <button id="filter-req-All" onclick="filterRequisitions('All')" class="industry-req-filter-btn px-3 py-1.5 rounded-xl bg-blue-600 text-white font-bold text-xs transition">
+              All Requisitions
+            </button>
+            <button id="filter-req-Internship" onclick="filterRequisitions('Internship')" class="industry-req-filter-btn px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-gray-800 hover:bg-slate-200 dark:hover:bg-gray-700 text-slate-700 dark:text-gray-300 font-medium text-xs transition">
+              Internships
+            </button>
+            <button id="filter-req-Job" onclick="filterRequisitions('Job')" class="industry-req-filter-btn px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-gray-800 hover:bg-slate-200 dark:hover:bg-gray-700 text-slate-700 dark:text-gray-300 font-medium text-xs transition">
+              Full-Time Jobs
+            </button>
+            <button id="filter-req-Hackathon" onclick="filterRequisitions('Hackathon')" class="industry-req-filter-btn px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-gray-800 hover:bg-slate-200 dark:hover:bg-gray-700 text-slate-700 dark:text-gray-300 font-medium text-xs transition">
+              Hackathons
+            </button>
+            <button id="filter-req-Micro-Gig" onclick="filterRequisitions('Micro-Gig')" class="industry-req-filter-btn px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-gray-800 hover:bg-slate-200 dark:hover:bg-gray-700 text-slate-700 dark:text-gray-300 font-medium text-xs transition">
+              Micro-Gigs
+            </button>
+          </div>
+
+          <div id="requisitions-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
             <!-- Populated dynamically by industry-ui.js renderRequisitions -->
           </div>
         </section>
@@ -220,6 +240,9 @@
       const isAuthed = JoblexApiClient.requireAuth('industry');
       if (isAuthed && JoblexApiClient.renderUserNavbar) {
         JoblexApiClient.renderUserNavbar();
+      }
+      if (typeof renderRequisitions === 'function') {
+        renderRequisitions('All');
       }
     });
   </script>

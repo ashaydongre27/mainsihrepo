@@ -64,8 +64,8 @@ Return ONLY a JSON object matching this schema:
 
 const { supabase, isConfigured } = require('../config/supabase');
 
-// GET /api/academy/all-data
-router.get('/all-data', async (req, res) => {
+// GET /api/academy, /api/academy/all-data, /api/academy/overview, /api/academy/stats
+router.get(['/', '/all-data', '/overview', '/stats', '/analytics'], async (req, res) => {
   try {
     const [mouRes, sylRes, cgRes, fdpRes, bootRes, ccbRes] = await Promise.allSettled([
       supabase.from('mou_partnerships').select('*'),

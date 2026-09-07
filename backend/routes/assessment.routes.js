@@ -10,6 +10,7 @@ const DB = require('../data/database');
 const { SKILL_ONTOLOGY, ROLE_BENCHMARK_PROFILES } = require('../data/skillOntology');
 const { createSkillVector, computeHybridScore, explainMatch } = require('../services/matching.service');
 const { supabase, isConfigured } = require('../config/supabase');
+const crypto = require('crypto');
 
 /**
  * POST /api/assessment/submit
@@ -297,8 +298,6 @@ router.get('/portfolio', (req, res) => {
 // FEATURE 5: Co-Curricular & Holistic Competency Assessment (Aptitude & GK)
 // ============================================================================
 
-const crypto = require('crypto');
-
 /**
  * GET /api/assessment/aptitude/questions
  * Returns 30 randomized multi-domain aptitude questions (without leaking answer keys)
@@ -484,7 +483,8 @@ router.post('/workshops/:id/rsvp', async (req, res) => {
     const effectiveStudentName = studentName || (DB.users?.find(u => u.id === studentId)?.name) || 'Verified Scholar';
 
     const workshops = DB.virtualWorkshops || [];
-    const wsp = workshops.find(w => w.id === id);
+    const normalizedTarget = (id || '').toLowerCase().replace(/-0+/, '-');
+    const wsp = workshops.find(w => w.id === id || (w.id || '').toLowerCase().replace(/-0+/, '-') === normalizedTarget) || workshops[0];
 
     if (!wsp) {
       return res.status(404).json({ success: false, error: 'Workshop not found.' });

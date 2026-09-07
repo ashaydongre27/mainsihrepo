@@ -11,7 +11,9 @@ const DB = require('../data/database');
 const {
   parseResumeHeuristically,
   parseResumeWithGemini,
-  generateAutoAssessment
+  parseResumeText,
+  generateAutoAssessment,
+  getBenchmarkProfile
 } = require('../services/resumeParser.service');
 
 const ROLE_BENCHMARKS = {
@@ -239,17 +241,73 @@ router.post('/parse', async (req, res) => {
 
 /**
  * POST /api/resume/auto-assess
- * Generates initial benchmark scores, radar comparison, and gap analysis from parsed skills
+ * Generates initial benchmark scores, radar comparison, and gap analysis from parsed skills or raw resume text
  */
-router.post('/auto-assess', (req, res) => {
+router.post('/auto-assess', async (req, res) => {
   try {
-    const { parsedSkills = [], targetRole = 'Herbal Formulation Scientist' } = req.body || {};
+    const {
+      resumeText = '',
+      parsedSkills = [],
+      targetRole = 'Herbal Formulation Scientist'
+    } = req.body || {};
 
-    const autoAssessment = generateAutoAssessment(parsedSkills, targetRole);
+    let rawText = '';
+    if (typeof resumeText === 'string' && resumeText.trim()) {
+      rawText = resumeText.trim();
+    } else if (typeof parsedSkills === 'string' && parsedSkills.trim()) {
+      rawText = parsedSkills.trim();
+    }
+
+    let parsedResult;
+    let skillList = [];
+
+    if (rawText) {
+      // Full parse of resume document text
+      parsedResult = await parseResumeText(rawText);
+      skillList = (parsedResult.skills && parsedResult.skills.allExtracted) || parsedResult.extractedSkills || [];
+    } else if (Array.isArray(parsedSkills) && parsedSkills.length > 0) {
+      skillList = parsedSkills.map(s => typeof s === 'string' ? s : (s.name || s.skill || ''));
+      parsedResult = {
+        name: 'Scholar Candidate',
+        email: 'scholar@aiia.gov.in',
+        education: [{ degree: 'BAMS 3rd Year', institution: 'All India Institute of Ayurveda', year: '2022 - 2026' }],
+        experience: [{ role: 'Student Researcher', organization: 'All India Institute of Ayurveda', duration: '1 Year' }],
+        summary: 'Ayurvedic pharmacology and scientific researcher with verified academic competencies.',
+        extractedSkills: skillList
+      };
+    } else {
+      // Default fallback heuristic
+      parsedResult = parseResumeHeuristically('');
+      skillList = (parsedResult.skills && parsedResult.skills.allExtracted) || parsedResult.extractedSkills || [];
+    }
+
+    const autoAssessment = generateAutoAssessment(skillList, targetRole);
+
+    const parsedEducation = Array.isArray(parsedResult.education) 
+      ? parsedResult.education.map(e => typeof e === 'string' ? e : `${e.degree || ''} · ${e.institution || ''}`.replace(/^ · | · $/g, '')) 
+      : [parsedResult.education || 'BAMS 3rd Year · AIIA'];
+
+    const parsedExperience = Array.isArray(parsedResult.experience) && parsedResult.experience.length > 0
+      ? parsedResult.experience[0].duration || '1 Year Academic / Lab'
+      : 'Student Researcher';
+
+    const parsedData = {
+      name: parsedResult.name || (parsedResult.personalInfo && parsedResult.personalInfo.name) || 'Scholar Candidate',
+      email: parsedResult.email || (parsedResult.personalInfo && parsedResult.personalInfo.email) || 'scholar@aiia.gov.in',
+      phone: parsedResult.phone || (parsedResult.personalInfo && parsedResult.personalInfo.phone) || '+91 98765 43210',
+      education: parsedEducation,
+      experienceYears: parsedExperience,
+      summary: parsedResult.summary || (parsedResult.personalInfo && parsedResult.personalInfo.degree ? `${parsedResult.personalInfo.degree} researcher at ${parsedResult.personalInfo.institution}` : 'Ayurvedic pharmacology and scientific researcher with demonstrated lab competency.'),
+      extractedSkills: skillList,
+      projects: parsedResult.projects || [],
+      certifications: parsedResult.certifications || []
+    };
 
     return res.json({
       success: true,
       targetRole,
+      parsed: parsedData,
+      assessment: autoAssessment,
       autoAssessment
     });
   } catch (err) {
@@ -276,10 +334,12 @@ router.post('/merge-profile', (req, res) => {
       readinessScore = 84
     } = req.body || {};
 
+    const rawSkills = (skills || []).map(s => typeof s === 'string' ? s : (s.skill || s.name || '')).filter(Boolean);
+
     // 1. Update user profile verified_skills
     const user = (DB.users || []).find(u => u.id === userId || u.email === userId);
     const existingSkills = user ? (user.verified_skills || []) : [];
-    const mergedSkills = Array.from(new Set([...existingSkills, ...skills]));
+    const mergedSkills = Array.from(new Set([...existingSkills, ...rawSkills]));
 
     if (user) {
       user.verified_skills = mergedSkills;
@@ -292,7 +352,7 @@ router.post('/merge-profile', (req, res) => {
       targetRole,
       readinessScore,
       verifiedSkills: mergedSkills,
-      strengths: skills.slice(0, 4),
+      strengths: mergedSkills.slice(0, 4),
       criticalGaps: [],
       moderateGaps: [],
       lastUpdated: new Date().toISOString()
@@ -312,7 +372,7 @@ router.post('/merge-profile', (req, res) => {
           issuer: cert.issuer || "National Ayush Accreditation Board",
           issueDate: cert.date || "2025",
           verificationHash: cert.verificationHash || `0x${Math.random().toString(16).substring(2, 10).toUpperCase()}`,
-          skills: skills.slice(0, 2),
+          skills: rawSkills.slice(0, 2),
           status: "NAAR Cryptographically Verified"
         });
       }
@@ -329,7 +389,7 @@ router.post('/merge-profile', (req, res) => {
           issuer: user ? user.institution : "All India Institute of Ayurveda",
           issueDate: "2025",
           verificationHash: `0x${Math.random().toString(16).substring(2, 10).toUpperCase()}`,
-          skills: proj.techStack || skills.slice(0, 3),
+          skills: proj.techStack || rawSkills.slice(0, 3),
           status: "Peer Reviewed & Ratified"
         });
       }
@@ -339,6 +399,7 @@ router.post('/merge-profile', (req, res) => {
       success: true,
       message: 'Skills and verified credentials successfully synchronized with your profile and NAAR portfolio!',
       mergedSkills,
+      mergedCount: rawSkills.length,
       portfolioCount: DB.portfolioItems.filter(p => p.userId === userId).length,
       updatedProfile: DB.skillProfiles[userId]
     });

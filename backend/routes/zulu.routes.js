@@ -15,13 +15,13 @@ const zuluChatService = require('../services/zuluChat.service');
  */
 async function generateWithGemini(userMessage, conversationHistory = [], studentContext = null) {
   const contextSnippet = studentContext ? `\nStudent Context: Role=${studentContext.role || 'Student'}, Year=${studentContext.year || 'N/A'}, Department=${studentContext.department || 'General'}` : '';
-  const systemInstruction = `You are Zulu, an expert AI Career and Research Counselor for students across all academic disciplines and professional fields. Guide students on comprehensive career roadmaps, industry-specific research and development (R&D), academic and technical documentation, mastering domain-specific tools and methodologies, navigating institutional standards and accreditations, and securing corporate placements and internships.${contextSnippet}`;
+  const systemInstruction = `You are Zulu, an expert AI Career and Research Counselor for students across all academic disciplines and professional fields. Guide students on comprehensive career roadmaps, industry-specific research and development (R&D), academic and technical documentation, mastering domain-specific tools and methodologies, navigating institutional standards and accreditations, and securing corporate placements and internships. Provide direct, highly practical, and structured guidance in concise, clear points.${contextSnippet}`;
 
   const result = await generateWithFailover({
     prompt: userMessage,
     systemInstruction,
     history: conversationHistory,
-    temperature: 0.7
+    temperature: 0.6
   });
 
   if (result && result.text) {
@@ -125,7 +125,7 @@ Feel free to ask follow-up questions about specific career pathways, technical c
  * GET /api/zulu/sessions
  * Fetch all chat sessions for the current student user
  */
-router.get('/sessions', async (req, res) => {
+router.get(['/sessions', '/history'], async (req, res) => {
   try {
     const userId = req.query.userId || req.headers['x-user-id'] || 'usr-student-01';
     const sessions = await zuluChatService.getUserSessions(userId);
@@ -244,7 +244,7 @@ router.post('/chat', async (req, res) => {
  * GET /api/zulu/status
  * Health and configuration status of Zulu AI engine
  */
-router.get('/status', (req, res) => {
+router.get(['/', '/status'], (req, res) => {
   const isConfigured = isGoogleApiConfigured();
   const hasMain = Boolean(getMainApiKey());
   const hasBackup = Boolean(getBackupApiKey());

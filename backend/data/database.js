@@ -6,7 +6,46 @@
 const { SEED_OPPORTUNITIES, SEED_CANDIDATES, SEED_FACULTY } = require('./opportunities_seed');
 
 const DB = {
-  users: [],
+  users: [
+    {
+      id: "usr-student-01",
+      name: "Aarav Sharma",
+      email: "aarav.sharma@aiia.gov.in",
+      password: "password123",
+      role: "student",
+      institution: "All India Institute of Ayurveda",
+      department: "Ayush Health Informatics & Phytopharmacology",
+      year: "4th Year Undergraduate",
+      xp: 1450,
+      streak: 7,
+      verified_skills: ["CAMAG HPTLC Densitometry", "Phytochemical Profiling", "Good Laboratory Practice (GLP)"]
+    },
+    {
+      id: "usr-academy-01",
+      name: "Prof. R.K. Sharma",
+      email: "prof.sharma@aiia.gov.in",
+      password: "password123",
+      role: "academy",
+      institution: "All India Institute of Ayurveda",
+      department: "Dravyaguna & Pharmaceutical Sciences",
+      designation: "Dean of Academic Affairs & HoD",
+      xp: 3200,
+      streak: 15,
+      verified_skills: ["Curriculum Accreditation", "NAAC Institutional Review", "Ayush Pharmacology"]
+    },
+    {
+      id: "usr-industry-01",
+      name: "Corporate Talent Lead",
+      email: "recruiter@dabur.com",
+      password: "password123",
+      role: "industry",
+      company: "Dabur India Ltd.",
+      designation: "Senior Lead Talent Acquisition & R&D Partnerships",
+      xp: 2800,
+      streak: 12,
+      verified_skills: ["Formulation Research Recruiting", "GLP/GMP Auditing", "Corporate Requisitions"]
+    }
+  ],
 
   candidates: SEED_CANDIDATES,
 
@@ -191,11 +230,11 @@ const DB = {
     userPercentile: 78,
     branchAverageScore: 72,
     placedPeerAverageScore: 86,
-    targetCompanies: ["Dabur India", "Himalaya Wellness", "Patanjali Research"],
+    targetCompanies: ["Leading Enterprise Partners", "National R&D Labs", "Global Consultancies"],
     topMissingPeerSkills: [
-      { name: "HPTLC Fingerprinting", prevalence: "88% of placed peers" },
-      { name: "In-Silico AutoDock Molecular Docking", prevalence: "74% of placed peers" },
-      { name: "GCP Clinical Trial Protocols", prevalence: "69% of placed peers" }
+      { name: "Advanced Domain Analytics", prevalence: "88% of placed peers" },
+      { name: "System Architecture & Modeling", prevalence: "74% of placed peers" },
+      { name: "Quality & Industry Protocols", prevalence: "69% of placed peers" }
     ]
   },
 

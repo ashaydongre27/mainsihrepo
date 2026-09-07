@@ -16,7 +16,7 @@ const DB = require('../data/database');
  * Registers new user via Supabase Auth + metadata
  */
 router.post('/register', async (req, res) => {
-  const { name, email, password, role, institution, company, department, designation, year } = req.body || {};
+  const { name, email, password, role, institution, company, department, designation, year, employee_uid, employee_id } = req.body || {};
 
   if (!email || !password || !name) {
     return res.status(400).json({ success: false, error: 'Name, Email, and Password are required.' });
@@ -34,6 +34,12 @@ router.post('/register', async (req, res) => {
     return res.status(400).json({ success: false, error: `Invalid role: ${userRole}. Must be one of [student, academy, academician, faculty, industry].` });
   }
 
+  const resolvedCompany = userRole === 'industry' ? (company || institution || 'Corporate Partner Enterprise') : null;
+  const resolvedInstitution = userRole === 'industry' ? null : (institution || 'Accredited Higher Education Institution');
+  const resolvedDept = userRole === 'industry' ? null : (department || (userRole === 'student' ? 'General Academic Studies' : 'Academic Faculty'));
+  const resolvedYear = userRole === 'student' ? (year || '1st Year') : null;
+  const empUid = employee_uid || employee_id || null;
+
   // 1. Live Supabase Auth Registration
   if (isConfigured && supabase) {
     try {
@@ -48,11 +54,12 @@ router.post('/register', async (req, res) => {
           user_metadata: {
             name,
             role: userRole,
-            institution: institution || (userRole === 'industry' ? null : 'All India Institute of Ayurveda'),
-            company: company || (userRole === 'industry' ? 'Ayush Corporate Partner' : null),
-            department: department || 'Ayurvedic Sciences',
-            designation: designation || null,
-            year: year || '3rd Year'
+            institution: resolvedInstitution,
+            company: resolvedCompany,
+            employee_uid: empUid,
+            department: resolvedDept,
+            designation: designation || (userRole === 'industry' ? 'Industry Representative' : null),
+            year: resolvedYear
           }
         });
         data = adminRes.data;
@@ -67,11 +74,12 @@ router.post('/register', async (req, res) => {
             data: {
               name,
               role: userRole,
-              institution: institution || (userRole === 'industry' ? null : 'All India Institute of Ayurveda'),
-              company: company || (userRole === 'industry' ? 'Ayush Corporate Partner' : null),
-              department: department || 'Ayurvedic Sciences',
-              designation: designation || null,
-              year: year || '3rd Year'
+              institution: resolvedInstitution,
+              company: resolvedCompany,
+              employee_uid: empUid,
+              department: resolvedDept,
+              designation: designation || (userRole === 'industry' ? 'Industry Representative' : null),
+              year: resolvedYear
             }
           }
         });
@@ -91,11 +99,12 @@ router.post('/register', async (req, res) => {
             name,
             email: normalizedEmail,
             role: userRole,
-            institution: institution || (userRole === 'industry' ? null : 'Accredited Higher Education Institution'),
-            company: company || (userRole === 'industry' ? 'Corporate Partner' : null),
-            department: department || (userRole === 'student' ? 'General Academic Studies' : 'Academic Faculty'),
+            institution: resolvedInstitution,
+            company: resolvedCompany,
+            employee_uid: empUid,
+            department: resolvedDept,
             designation: designation || null,
-            year: year || (userRole === 'student' ? '1st Year' : null),
+            year: resolvedYear,
             xp: 0,
             streak: 0,
             verified_skills: []
@@ -110,11 +119,12 @@ router.post('/register', async (req, res) => {
         name,
         email: normalizedEmail,
         role: userRole,
-        institution: institution || (userRole === 'industry' ? null : 'Accredited Higher Education Institution'),
-        company: company || (userRole === 'industry' ? 'Corporate Partner' : null),
-        department: department || (userRole === 'student' ? 'General Academic Studies' : 'Academic Faculty'),
+        institution: resolvedInstitution,
+        company: resolvedCompany,
+        employee_uid: empUid,
+        department: resolvedDept,
         designation: designation || null,
-        year: year || (userRole === 'student' ? '1st Year' : null),
+        year: resolvedYear,
         xp: 0,
         streak: 0,
         verified_skills: [],
@@ -144,11 +154,12 @@ router.post('/register', async (req, res) => {
     email: normalizedEmail,
     password: password || 'password123',
     role: userRole,
-    institution: institution || (userRole === 'industry' ? null : 'Accredited Higher Education Institution'),
-    company: company || (userRole === 'industry' ? 'Corporate Partner' : null),
-    department: department || (userRole === 'student' ? 'General Academic Studies' : 'Academic Faculty'),
+    institution: resolvedInstitution,
+    company: resolvedCompany,
+    employee_uid: empUid,
+    department: resolvedDept,
     designation: designation || null,
-    year: year || (userRole === 'student' ? '1st Year' : null),
+    year: resolvedYear,
     xp: 0,
     streak: 0,
     verified_skills: [],
@@ -201,9 +212,9 @@ router.post('/login', async (req, res) => {
           email: data.user.email,
           role: userProfile.role || role || 'student',
           name: userProfile.name || normalizedEmail.split('@')[0],
-          institution: userProfile.institution || (userProfile.role === 'industry' ? null : 'Ayush Collegiate Institute'),
-          company: userProfile.company || (userProfile.role === 'industry' ? 'Corporate Partner' : null),
-          department: userProfile.department || 'Ayurvedic Sciences',
+          institution: userProfile.institution || (userProfile.role === 'industry' ? null : 'Accredited Higher Education Institution'),
+          company: userProfile.company || (userProfile.role === 'industry' ? 'Corporate Partner Enterprise' : null),
+          department: userProfile.department || (userProfile.role === 'student' ? 'General Academic & Technical Studies' : 'Academic Faculty'),
           designation: userProfile.designation || null,
           year: userProfile.year || '1st Year',
           xp: userProfile.xp !== undefined ? userProfile.xp : 0,
@@ -248,9 +259,9 @@ router.post('/login', async (req, res) => {
                 email: retryData.user.email,
                 role: userProfile.role || role || 'student',
                 name: userProfile.name || normalizedEmail.split('@')[0],
-                institution: userProfile.institution || (userProfile.role === 'industry' ? null : 'Ayush Collegiate Institute'),
-                company: userProfile.company || (userProfile.role === 'industry' ? 'Corporate Partner' : null),
-                department: userProfile.department || 'Ayurvedic Sciences',
+                institution: userProfile.institution || (userProfile.role === 'industry' ? null : 'Accredited Higher Education Institution'),
+                company: userProfile.company || (userProfile.role === 'industry' ? 'Corporate Partner Enterprise' : null),
+                department: userProfile.department || (userProfile.role === 'student' ? 'General Academic & Technical Studies' : 'Academic Faculty'),
                 designation: userProfile.designation || null,
                 year: userProfile.year || '1st Year',
                 xp: userProfile.xp !== undefined ? userProfile.xp : 0,
@@ -274,10 +285,34 @@ router.post('/login', async (req, res) => {
       }
 
       if (error) {
+        // Fallback for seed demo accounts if not yet registered in live Supabase instance
+        const seedUser = DB.users?.find(u => u.email.toLowerCase() === normalizedEmail && u.password === password);
+        if (seedUser) {
+          if (role && seedUser.role !== role.toLowerCase()) {
+            return res.status(400).json({ success: false, error: `Account Role Mismatch: This account is registered as a ${seedUser.role.toUpperCase()} account, not a ${role.toUpperCase()} account.` });
+          }
+          const { password: _, ...safeUser } = seedUser;
+          return res.json({
+            success: true,
+            message: 'Authenticated via Verified Demo Account',
+            token: `jwt-demo-${seedUser.id}-${Date.now()}`,
+            user: safeUser
+          });
+        }
         return res.status(401).json({ success: false, error: 'Invalid email or password. Please verify your credentials or register.' });
       }
     } catch (err) {
       console.warn('[Login] Supabase error:', err.message);
+      const seedUser = DB.users?.find(u => u.email.toLowerCase() === normalizedEmail && u.password === password);
+      if (seedUser) {
+        const { password: _, ...safeUser } = seedUser;
+        return res.json({
+          success: true,
+          message: 'Authenticated via Verified Demo Account',
+          token: `jwt-demo-${seedUser.id}-${Date.now()}`,
+          user: safeUser
+        });
+      }
       return res.status(401).json({ success: false, error: 'Authentication failed. Please verify your credentials.' });
     }
   }
@@ -401,19 +436,25 @@ router.post('/logout', async (req, res) => {
 });
 
 /**
- * POST /api/auth/reset-password
+ * POST /api/auth/reset-password or /api/auth/forgot-password
  * Dispatches Supabase password reset email
  */
-router.post('/reset-password', async (req, res) => {
+router.post(['/reset-password', '/forgot-password'], async (req, res) => {
   const { email } = req.body || {};
   if (!email) {
     return res.status(400).json({ success: false, error: 'Email address is required.' });
   }
 
+  const normalizedEmail = email.trim().toLowerCase();
+
   if (isConfigured && supabase) {
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase());
-      if (error) return res.status(400).json({ success: false, error: error.message });
+      const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail);
+      if (error) {
+        console.warn('[Reset Password] Supabase warning:', error.message);
+        // Supabase rate limits or invalid emails should still return a friendly message
+        return res.status(400).json({ success: false, error: error.message });
+      }
     } catch(err) {
       console.warn('[Reset Password] Supabase error:', err.message);
     }
@@ -421,7 +462,7 @@ router.post('/reset-password', async (req, res) => {
 
   res.json({
     success: true,
-    message: `Password reset instructions dispatched to ${email}.`
+    message: `Password reset instructions dispatched to ${normalizedEmail}. Please check your inbox or spam folder.`
   });
 });
 

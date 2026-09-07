@@ -62,7 +62,10 @@ router.get('/', async (req, res) => {
  * PATCH /api/notifications/:id/read
  * Marks a notification as read
  */
-router.patch('/:id/read', async (req, res) => {
+router.all(['/:id/read'], async (req, res) => {
+  if (req.method !== 'PATCH' && req.method !== 'POST') {
+    return res.status(405).json({ success: false, error: 'Method not allowed.' });
+  }
   try {
     const { id } = req.params;
     const notifs = ensureNotifications();

@@ -21,6 +21,7 @@ const recommendationsRoutes = require('./routes/recommendations.routes');
 const assessmentRoutes = require('./routes/assessment.routes');
 const todoRoutes = require('./routes/todo.routes');
 const notificationRoutes = require('./routes/notification.routes');
+const { isConfigured } = require('./config/supabase');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -29,6 +30,20 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Health Check endpoint
+app.get(['/api/health', '/health'], (req, res) => {
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    port: PORT,
+    models: {
+      nvidiaConfigured: !!process.env.NVIDIA_API_KEY,
+      googleApiConfigured: !!(process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY)
+    }
+  });
+});
 
 // API Routes (Support both /api/* and direct prefix for Vercel Serverless Function rewrites)
 app.use('/api/auth', authRoutes);
@@ -178,6 +193,7 @@ if (require.main === module) {
     console.log(` JOBLEX Node.js Backend Server running on port ${PORT}`);
     console.log(`Frontend: http://localhost:${PORT}`);
     console.log(`API Base: http://localhost:${PORT}/api`);
+    console.log(`Live Supabase: ${isConfigured ? 'CONNECTED (' + process.env.SUPABASE_URL + ')' : 'PENDING KEY (SUPABASE_URL set to ' + (process.env.SUPABASE_URL || 'none') + ')'}`);
     console.log(`========================================================`);
   });
 }

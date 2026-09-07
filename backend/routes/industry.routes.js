@@ -12,8 +12,8 @@ const router = express.Router();
 const { supabase, isConfigured } = require('../config/supabase');
 const DB = require('../data/database');
 
-// GET /api/industry/all-data
-router.get('/all-data', async (req, res) => {
+// GET /api/industry, /api/industry/all-data, /api/industry/overview, /api/industry/analytics
+router.get(['/', '/all-data', '/overview', '/stats', '/analytics'], async (req, res) => {
   try {
     const [oppRes, mouRes, candRes, bootRes, appRes] = await Promise.allSettled([
       supabase.from('opportunities').select('*').order('created_at', { ascending: false }),
@@ -148,6 +148,47 @@ router.get('/requisitions', async (req, res) => {
     return res.json({ requisitions: list });
   }
 });
+
+// GET /api/industry/applications (Real-time student applicants stream from Supabase)
+router.get('/applications', async (req, res) => {
+  const { company, type } = req.query;
+
+  if (isConfigured && supabase) {
+    try {
+      let query = supabase.from('applications').select('*').order('created_at', { ascending: false });
+      if (company && company !== 'All') {
+        query = query.ilike('company', `%${company}%`);
+      }
+      if (type && type !== 'All') {
+        query = query.ilike('type', type);
+      }
+      const { data, error } = await query;
+      if (!error && data) {
+        return res.json({
+          totalApplications: data.length,
+          applications: data
+        });
+      }
+    } catch (err) {
+      console.warn('[Industry applications] Supabase query warning:', err.message);
+    }
+  }
+
+  let apps = DB.applications || [];
+  if (company && company !== 'All') {
+    apps = apps.filter(a => (a.company || '').toLowerCase().includes(company.toLowerCase()));
+  }
+  if (type && type !== 'All') {
+    apps = apps.filter(a => (a.type || '').toLowerCase() === type.toLowerCase());
+  }
+
+  res.json({
+    totalApplications: apps.length,
+    applications: apps
+  });
+});
+
+
 
 // GET /api/industry/candidates
 router.get('/candidates', async (req, res) => {
@@ -421,12 +462,17 @@ router.post('/tech-stack', async (req, res) => {
       sector = 'Herbal Phytomedicine & Formulation',
       techCategory = 'Analytical Instrumentation',
       techName,
+      technologyName,
+      technology,
+      title,
       proficiencyDemandLevel = 'Production Mastery',
       adoptionStage = 'Core Production',
       curriculumRelevanceNote = ''
     } = req.body || {};
 
-    if (!techName || !techName.trim()) {
+    const resolvedTechName = techName || technologyName || technology || title;
+
+    if (!resolvedTechName || !resolvedTechName.trim()) {
       return res.status(400).json({ success: false, error: 'Technology / Tool name is required.' });
     }
 
@@ -436,7 +482,7 @@ router.post('/tech-stack', async (req, res) => {
       companyName,
       sector,
       techCategory,
-      techName: techName.trim(),
+      techName: resolvedTechName.trim(),
       proficiencyDemandLevel,
       adoptionStage,
       curriculumRelevanceNote: curriculumRelevanceNote.trim(),
@@ -656,6 +702,9 @@ router.post('/opportunities', async (req, res) => {
       description: description || 'Verified opportunity published through JOBLEX Industry portal.'
     };
 
+    if (!DB.opportunities) DB.opportunities = [];
+    DB.opportunities.unshift(newOpp);
+
     if (isConfigured && supabase) {
       try {
         const { data, error } = await supabase.from('opportunities').insert([newOpp]).select().single();
@@ -663,12 +712,9 @@ router.post('/opportunities', async (req, res) => {
           return res.status(201).json({ success: true, message: 'Opportunity published successfully!', opportunity: data });
         }
       } catch (err) {
-        console.warn('[Post Opportunity] Supabase error, saving locally:', err.message);
+        console.warn('[Post Opportunity] Supabase error, saved locally:', err.message);
       }
     }
-
-    if (!DB.opportunities) DB.opportunities = [];
-    DB.opportunities.unshift(newOpp);
 
     // Broadcast in-portal notification to students
     if (!DB.inPortalNotifications) DB.inPortalNotifications = [];

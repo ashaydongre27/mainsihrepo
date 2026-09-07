@@ -7,21 +7,22 @@ const assert = require('assert');
 const app = require('../server');
 
 let BASE_URL = 'http://localhost:5000';
-let server = null;
+let server;
 
 async function runTests() {
-  await new Promise((resolve, reject) => {
-    server = app.listen(0, () => {
-      const port = server.address().port;
-      BASE_URL = `http://localhost:${port}`;
-      console.log('====================================================');
-      console.log('STARTING CROSS-PORTAL CONNECTIVITY E2E TEST SUITE');
-      console.log(`Target: ${BASE_URL}`);
-      console.log('====================================================\n');
-      resolve();
-    });
-    server.on('error', reject);
-  });
+  // Try connecting or start local server instance
+  try {
+    await fetch(`${BASE_URL}/api/health`);
+  } catch (e) {
+    server = app.listen(0);
+    const port = server.address().port;
+    BASE_URL = `http://localhost:${port}`;
+  }
+
+  console.log('====================================================');
+  console.log('STARTING CROSS-PORTAL CONNECTIVITY E2E TEST SUITE');
+  console.log(`Target: ${BASE_URL}`);
+  console.log('====================================================\n');
 
   // Test 0: Health & Root Endpoints
   console.log('--- Test 0: Portal Health & Root Endpoints ---');
@@ -314,7 +315,7 @@ async function runTests() {
 }
 
 runTests().catch(err => {
-  console.error('\n❌ TEST SUITE FAILED:', err);
   if (server) server.close();
+  console.error('\n❌ TEST SUITE FAILED:', err);
   process.exit(1);
 });

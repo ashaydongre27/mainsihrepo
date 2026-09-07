@@ -38,9 +38,13 @@ function parseResumeHeuristically(resumeText, fileName = 'resume.pdf') {
   // Extract Name (First non-empty line or common pattern)
   let candidateName = 'Scholar Candidate';
   if (lines.length > 0) {
-    const firstLine = lines[0].replace(/^(resume|curriculum vitae|cv)[\s:-]*/i, '').trim();
-    if (firstLine.length > 2 && firstLine.length < 50 && !firstLine.includes('@')) {
-      candidateName = firstLine.split('|')[0].trim();
+    for (let i = 0; i < Math.min(lines.length, 5); i++) {
+      const line = lines[i].replace(/^(resume|curriculum vitae|cv|name[\s:]*)[\s:-]*/i, '').trim();
+      const firstPart = line.split(/[|•–—,-]/)[0].trim();
+      if (firstPart.length > 2 && firstPart.length < 50 && !firstPart.includes('@') && !firstPart.toLowerCase().includes('http') && !/^\+?\d/.test(firstPart)) {
+        candidateName = firstPart;
+        break;
+      }
     }
   }
 
@@ -300,12 +304,36 @@ Return ONLY a valid, raw JSON object conforming strictly to this structure:
 }
 
 /**
+ * Resolve benchmark profile with fuzzy matching across multiple role naming conventions
+ */
+function getBenchmarkProfile(targetRole = "Herbal Formulation Scientist") {
+  if (ROLE_BENCHMARK_PROFILES[targetRole]) return ROLE_BENCHMARK_PROFILES[targetRole];
+  const lower = (targetRole || '').toLowerCase();
+  for (const [key, prof] of Object.entries(ROLE_BENCHMARK_PROFILES)) {
+    if (key.toLowerCase().includes(lower) || lower.includes(key.toLowerCase())) return prof;
+  }
+  if (lower.includes('software') || lower.includes('developer') || lower.includes('cloud') || lower.includes('web')) {
+    return ROLE_BENCHMARK_PROFILES["Full Stack Software Engineer"] || ROLE_BENCHMARK_PROFILES["Herbal Formulation Scientist"];
+  }
+  if (lower.includes('data') || lower.includes('machine learning') || lower.includes('ml')) {
+    return ROLE_BENCHMARK_PROFILES["Data Scientist & ML Engineer"] || ROLE_BENCHMARK_PROFILES["Herbal Formulation Scientist"];
+  }
+  if (lower.includes('health') || lower.includes('informatics') || lower.includes('bio') || lower.includes('nlp')) {
+    return ROLE_BENCHMARK_PROFILES["Ayush Health-Tech & NLP Specialist"] || ROLE_BENCHMARK_PROFILES["Herbal Formulation Scientist"];
+  }
+  if (lower.includes('quality') || lower.includes('qc') || lower.includes('regulatory')) {
+    return ROLE_BENCHMARK_PROFILES["Quality Control & Regulatory Affairs Analyst"] || ROLE_BENCHMARK_PROFILES["Herbal Formulation Scientist"];
+  }
+  return ROLE_BENCHMARK_PROFILES["Herbal Formulation Scientist"];
+}
+
+/**
  * Generate Auto-Assessment and Gap Analysis against target role benchmarks
  * @param {Object} parsedSkills { technical, soft, aptitude, allExtracted }
  * @param {string} targetRole Target role benchmark title
  */
 function generateAutoAssessment(parsedSkills, targetRole = "Herbal Formulation Scientist") {
-  const standard = ROLE_BENCHMARK_PROFILES[targetRole] || ROLE_BENCHMARK_PROFILES["Herbal Formulation Scientist"];
+  const standard = getBenchmarkProfile(targetRole);
   
   let extractedList = [];
   if (Array.isArray(parsedSkills)) {
@@ -341,17 +369,29 @@ function generateAutoAssessment(parsedSkills, targetRole = "Herbal Formulation S
     const hasSkill = extractedList.some(s => s.toLowerCase().includes(t.name.toLowerCase()) || t.name.toLowerCase().includes(s.toLowerCase()));
     const idx = SKILL_ONTOLOGY.findIndex(s => s.name.toLowerCase() === t.name.toLowerCase());
     const userProf = idx !== -1 ? Math.round((userVec[idx] / (SKILL_ONTOLOGY[idx].weight || 1)) * 100) : 0;
+    const cat = (idx !== -1 && SKILL_ONTOLOGY[idx].category) ? SKILL_ONTOLOGY[idx].category : 'Technical Competency';
+    const conf = hasSkill ? 92 : 0;
+    const targetPct = Math.round(t.minProficiency * 100);
     
     return {
+      skill: t.name,
       skillName: t.name,
-      parsedFromResume: hasSkill,
-      confidenceScore: hasSkill ? 92 : 0,
+      category: cat,
+      confidence: conf,
+      confidenceScore: conf,
       currentProficiency: userProf,
-      targetBenchmark: Math.round(t.minProficiency * 100),
-      status: userProf >= Math.round(t.minProficiency * 100) ? 'Proficient' : (userProf > 40 ? 'Moderate Gap' : 'Critical Gap'),
-      mergeRecommended: hasSkill && userProf < Math.round(t.minProficiency * 100)
+      targetBenchmark: targetPct,
+      benchmarkLevel: `${targetPct}%`,
+      status: userProf >= targetPct ? 'Proficient' : (userProf > 40 ? 'Moderate Gap' : 'Critical Gap'),
+      alreadyInProfile: hasSkill,
+      parsedFromResume: hasSkill,
+      mergeRecommended: hasSkill && userProf < targetPct
     };
   });
+
+  const topSkills = explanation.topContributingSkills || [];
+  const critGaps = explanation.criticalGaps || [];
+  const actionRec = explanation.actionRecommendation || (standard.recommendedCourses?.[0]?.title ? `Complete ${standard.recommendedCourses[0].title}` : 'Engage in prescribed modules');
 
   return {
     targetRole: standard.title,
@@ -361,16 +401,23 @@ function generateAutoAssessment(parsedSkills, targetRole = "Herbal Formulation S
     matchPercentage: hybridScore,
     statusTier: hybridScore >= standard.targetScore ? 'Benchmark Exceeded' : (hybridScore >= 70 ? 'Industry Ready' : 'Upskilling Required'),
     matchTier: hybridScore >= standard.targetScore ? 'Benchmark Exceeded' : (hybridScore >= 70 ? 'Industry Ready' : 'Upskilling Required'),
-    strengths: explanation.topContributingSkills,
-    criticalGaps: explanation.criticalGaps,
+    strengths: topSkills,
+    criticalGaps: critGaps,
     moderateGaps: explanation.moderateGaps,
-    actionRecommendation: explanation.actionRecommendation,
+    actionRecommendation: actionRec,
+    diagnostics: {
+      topContributingSkills: topSkills,
+      criticalGaps: critGaps,
+      actionRecommendations: [actionRec]
+    },
     recommendedCourses: standard.recommendedCourses,
     sideBySideComparison,
     radarComparison: {
       labels: radarLabels,
       parsedDataset: parsedValues,
-      benchmarkDataset: benchmarkValues
+      benchmarkDataset: benchmarkValues,
+      candidate: parsedValues,
+      benchmark: benchmarkValues
     }
   };
 }
@@ -394,5 +441,6 @@ module.exports = {
   parseResumeHeuristically,
   parseResumeWithGemini,
   parseResumeText,
-  generateAutoAssessment
+  generateAutoAssessment,
+  getBenchmarkProfile
 };

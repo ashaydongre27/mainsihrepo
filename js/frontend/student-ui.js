@@ -171,6 +171,29 @@ async function updateDashboardStats(user) {
   if (readinessSubEl) {
     readinessSubEl.innerText = readinessScore > 0 ? (readinessScore >= 75 ? 'Cohort Ready' : 'In Progress') : 'Diagnostic Pending';
   }
+
+  // 5. Dynamic Top Recommendation
+  const topRecTitle = document.getElementById('top-rec-title');
+  if (topRecTitle) {
+    try {
+      const recRes = await JoblexApiClient.getStudentRecommendations({ minMatch: 0 });
+      const recs = recRes.recommendations || [];
+      if (recs.length > 0) {
+        const top = recs[0];
+        topRecTitle.innerText = top.title;
+        const compEl = document.getElementById('top-rec-company');
+        if (compEl) compEl.innerText = `${top.company} • ${top.location || 'Hybrid'}`;
+        const descEl = document.getElementById('top-rec-desc');
+        if (descEl) descEl.innerText = top.description || 'Verified opportunity published through JOBLEX portal.';
+        const fitEl = document.getElementById('top-rec-fit');
+        if (fitEl) fitEl.innerText = `${top.matchPercentage || top.match || 85}% Fit`;
+        const stipendEl = document.getElementById('top-rec-stipend');
+        if (stipendEl) stipendEl.innerText = `${top.stipend || 'Competitive'} · ${top.type || 'Internship'}`;
+      }
+    } catch (e) {
+      console.warn('[DashboardStats] Top recommendation fetch error:', e);
+    }
+  }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -252,13 +275,13 @@ async function renderInternshipsBoard(typeFilter = 'All') {
     const res = await JoblexApiClient.getStudentRecommendations({ type: typeFilter });
     const opps = res.recommendations || [];
 
-    // Filter for Internships and Micro-Gigs
+    // Filter for chosen opportunity type or show all
     const filtered = opps.filter(o => {
-      const isInternOrGig = o.type === 'Internship' || o.type === 'Micro-Gig';
-      if (!isInternOrGig) return false;
+      if (typeFilter === 'All') return true;
       if (typeFilter === 'Internship') return o.type === 'Internship';
+      if (typeFilter === 'Job') return o.type === 'Job';
       if (typeFilter === 'Micro-Gig') return o.type === 'Micro-Gig';
-      return true;
+      return (o.type || '').toLowerCase() === typeFilter.toLowerCase();
     });
 
     if (filtered.length === 0) {
@@ -595,7 +618,7 @@ function renderRoadmap() {
       <div class="space-y-2 pt-1">
         ${phase.tasks.map(t => `
           <div class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-gray-800/80 hover:border-purple-300 dark:hover:border-purple-500/30 transition">
-            <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="handleTaskToggle(${t.id})" class="mt-1 w-4 h-4 rounded text-purple-600 bg-white dark:bg-gray-950 border-slate-300 dark:border-gray-700 focus:ring-purple-500 cursor-pointer">
+            <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="handleTaskToggle('${t.id}')" class="mt-1 w-4 h-4 rounded text-purple-600 bg-white dark:bg-gray-950 border-slate-300 dark:border-gray-700 focus:ring-purple-500 cursor-pointer">
             <div class="flex-1">
               <span class="text-xs sm:text-sm font-medium ${t.completed ? 'line-through text-slate-400 dark:text-gray-500' : 'text-slate-800 dark:text-gray-200'}">${t.title}</span>
               <div class="flex items-center gap-2 mt-0.5">
@@ -847,12 +870,25 @@ async function handleExecuteParse() {
     await new Promise(r => setTimeout(r, 300));
     if (progressBox) progressBox.classList.add('hidden');
 
-    if (autoAssessRes && autoAssessRes.parsed) {
-      currentParsedData = autoAssessRes.parsed;
-      currentAutoAssessment = autoAssessRes.assessment;
+    const parsed = autoAssessRes?.parsed || autoAssessRes?.parsedResume;
+    const assessment = autoAssessRes?.assessment || autoAssessRes?.autoAssessment;
+
+    if (autoAssessRes && (parsed || assessment)) {
+      currentParsedData = parsed || {
+        name: 'Scholar Candidate',
+        email: 'scholar@aiia.gov.in',
+        education: ['BAMS 3rd Year · AIIA'],
+        experienceYears: 'Student Researcher',
+        summary: 'Verified candidate credentials.',
+        extractedSkills: []
+      };
+      currentAutoAssessment = assessment;
       // Save in session for quiz auto-fill
-      sessionStorage.setItem('joblex_latest_parsed_resume', JSON.stringify(autoAssessRes));
-      renderParsedResults(autoAssessRes.parsed, autoAssessRes.assessment, targetRole);
+      sessionStorage.setItem('joblex_latest_parsed_resume', JSON.stringify({
+        parsed: currentParsedData,
+        assessment: currentAutoAssessment
+      }));
+      renderParsedResults(currentParsedData, currentAutoAssessment, targetRole);
       showToast('Resume Parsed & Auto-Assessed Successfully', 'Auto-Assessment Ready', 'success');
     } else {
       showToast('Error parsing resume. Please check format.', 'Parsing Failed', 'error');
@@ -915,20 +951,23 @@ function renderParsedResults(parsed, assessment, targetRole) {
 
   if (parsedList) {
     parsedList.innerHTML = comparison.map((item, i) => {
-      const confBadgeColor = item.confidence >= 90
+      const confBadgeColor = (item.confidence || item.confidenceScore || 0) >= 90
         ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300'
         : 'bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border-purple-300';
+      const skillName = item.skill || item.skillName || 'Competency';
+      const category = item.category || 'Technical Competency';
+      const confScore = item.confidence !== undefined ? item.confidence : (item.confidenceScore || 85);
       return `
         <div class="p-2.5 rounded-xl bg-white dark:bg-black/40 border border-slate-200 dark:border-gray-800 flex items-center justify-between gap-2 text-xs">
           <div class="flex items-center gap-2 overflow-hidden">
-            <input type="checkbox" id="merge-chk-${i}" data-skill="${item.skill}" data-category="${item.category}" checked class="merge-skill-checkbox rounded text-purple-600 bg-white dark:bg-gray-900 border-slate-300 dark:border-gray-700 focus:ring-purple-500 cursor-pointer">
+            <input type="checkbox" id="merge-chk-${i}" data-skill="${skillName}" data-category="${category}" checked class="merge-skill-checkbox rounded text-purple-600 bg-white dark:bg-gray-900 border-slate-300 dark:border-gray-700 focus:ring-purple-500 cursor-pointer">
             <div class="overflow-hidden">
-              <span class="font-bold text-slate-800 dark:text-gray-200 block truncate">${item.skill}</span>
-              <span class="text-[10px] text-slate-400 font-mono">${item.category}</span>
+              <span class="font-bold text-slate-800 dark:text-gray-200 block truncate">${skillName}</span>
+              <span class="text-[10px] text-slate-400 font-mono">${category}</span>
             </div>
           </div>
           <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold border ${confBadgeColor} shrink-0">
-            ${item.confidence}% Conf
+            ${confScore}% Conf
           </span>
         </div>
       `;
@@ -936,33 +975,44 @@ function renderParsedResults(parsed, assessment, targetRole) {
   }
 
   if (currentList) {
-    currentList.innerHTML = comparison.map(item => `
+    currentList.innerHTML = comparison.map(item => {
+      const skillName = item.skill || item.skillName || 'Competency';
+      const bLevel = item.benchmarkLevel || `${item.targetBenchmark || 85}%`;
+      const isAlready = item.alreadyInProfile !== undefined ? item.alreadyInProfile : item.parsedFromResume;
+      return `
       <div class="p-2.5 rounded-xl bg-white dark:bg-black/40 border border-slate-200 dark:border-gray-800 flex items-center justify-between gap-2 text-xs">
         <div>
-          <span class="font-medium text-slate-700 dark:text-gray-300 block">${item.skill}</span>
-          <span class="text-[10px] text-slate-400">Target Role Benchmark: ${item.benchmarkLevel}</span>
+          <span class="font-medium text-slate-700 dark:text-gray-300 block">${skillName}</span>
+          <span class="text-[10px] text-slate-400">Target Role Benchmark: ${bLevel}</span>
         </div>
         <span class="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold ${
-          item.alreadyInProfile 
+          isAlready 
             ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 border border-emerald-200' 
             : 'bg-slate-100 dark:bg-gray-800 text-slate-500'
         }">
-          ${item.alreadyInProfile ? '✓ In Profile' : 'Not Merged'}
+          ${isAlready ? '✓ In Profile' : 'Not Merged'}
         </span>
       </div>
-    `).join('');
+    `;
+    }).join('');
   }
 
   // Diagnostics: Strengths
   const strBox = document.getElementById('diagnostic-strengths-box');
   const strCount = document.getElementById('strengths-count');
-  const diag = assessment.diagnostics || {};
+  const diag = assessment.diagnostics || {
+    topContributingSkills: assessment.strengths || [],
+    criticalGaps: assessment.criticalGaps || [],
+    actionRecommendations: Array.isArray(assessment.actionRecommendation) 
+      ? assessment.actionRecommendation 
+      : (assessment.actionRecommendation ? [assessment.actionRecommendation] : [])
+  };
   const strengths = diag.topContributingSkills || [];
 
   if (strBox) {
     strBox.innerHTML = strengths.map(s => `
       <span class="px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-700 text-xs text-emerald-800 dark:text-emerald-200 font-medium">
-        <span class="material-symbols-outlined text-[13px] align-middle text-emerald-500 mr-0.5">check_circle</span>${s.skill || s}
+        <span class="material-symbols-outlined text-[13px] align-middle text-emerald-500 mr-0.5">check_circle</span>${s.skill || s.name || s}
       </span>
     `).join('');
   }
@@ -976,7 +1026,7 @@ function renderParsedResults(parsed, assessment, targetRole) {
   if (gapsBox) {
     gapsBox.innerHTML = gaps.map(g => `
       <span class="px-2.5 py-1 rounded-lg bg-amber-100 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-700 text-xs text-amber-800 dark:text-amber-200 font-medium">
-        <span class="material-symbols-outlined text-[13px] align-middle text-amber-500 mr-0.5">info</span>${g.skill || g}
+        <span class="material-symbols-outlined text-[13px] align-middle text-amber-500 mr-0.5">info</span>${g.skill || g.name || g}
       </span>
     `).join('');
   }
@@ -984,10 +1034,10 @@ function renderParsedResults(parsed, assessment, targetRole) {
 
   // Diagnostics: Actions
   const actionsBox = document.getElementById('diagnostic-actions-box');
-  const actions = diag.actionRecommendations || [];
+  const actions = diag.actionRecommendations || (Array.isArray(assessment.actionRecommendation) ? assessment.actionRecommendation : (assessment.actionRecommendation ? [assessment.actionRecommendation] : []));
 
   if (actionsBox) {
-    actionsBox.innerHTML = actions.map(a => `
+    actionsBox.innerHTML = (actions.length > 0 ? actions : ['Engage in institutional lab modules to bridge benchmark gaps.']).map(a => `
       <div class="flex items-start gap-2">
         <span class="text-purple-600 mt-0.5">•</span>
         <span>${a}</span>
@@ -1014,8 +1064,8 @@ function renderResumeRadarChart(radarData) {
 
   const isDark = document.documentElement.classList.contains('dark');
   const labels = (radarData && radarData.labels) || ['Pharmacology', 'Chromatography', 'Health-Data', 'Formulation', 'Informatics'];
-  const candidateScores = (radarData && radarData.candidate) || [80, 60, 75, 90, 65];
-  const benchmarkScores = (radarData && radarData.benchmark) || [90, 85, 80, 85, 75];
+  const candidateScores = (radarData && (radarData.candidate || radarData.parsedDataset)) || [80, 60, 75, 90, 65];
+  const benchmarkScores = (radarData && (radarData.benchmark || radarData.benchmarkDataset)) || [90, 85, 80, 85, 75];
 
   resumeRadarChartInstance = new Chart(canvas, {
     type: 'radar',
@@ -1372,6 +1422,19 @@ async function renderPortfolioGrid() {
           </div>
         </div>
       `).join('');
+    } else {
+      container.innerHTML = `
+        <div class="col-span-full py-12 px-4 rounded-2xl border border-dashed border-[#E7E4DC] dark:border-white/10 bg-white/40 dark:bg-white/[0.01] text-center space-y-3">
+          <div class="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center mx-auto">
+            <span class="material-symbols-outlined text-2xl">verified</span>
+          </div>
+          <h3 class="text-sm font-bold text-[#1C1917] dark:text-white">No Verified Credentials Yet</h3>
+          <p class="text-xs text-[#6E6962] dark:text-gray-400 max-w-sm mx-auto">Complete assessments, earn skill badges, or upload institutional certifications to build your tamper-proof ledger.</p>
+          <button onclick="openAddCredentialModal()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-sm transition">
+            <span class="material-symbols-outlined text-sm">add_circle</span> Add Your First Credential
+          </button>
+        </div>
+      `;
     }
   } catch (e) {
     console.warn('Portfolio load error:', e);
@@ -1714,11 +1777,11 @@ function renderPeerBenchmarking() {
         <span class="text-[10px] uppercase font-bold text-purple-700 dark:text-purple-300 px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-500/20 border border-purple-200 dark:border-purple-500/40">
           Anonymized Peer Benchmark
         </span>
-        <span class="text-xs font-mono font-black text-cyan-600 dark:text-cyan-300">78th Percentile</span>
+        <span class="text-xs font-mono font-black text-cyan-600 dark:text-cyan-300">Cohort Comparison</span>
       </div>
-      <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Compare With Scholars Placed at Dabur &amp; Himalaya</h3>
+      <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Compare With Industry &amp; Corporate Placement Cohorts</h3>
       <p class="text-xs text-slate-600 dark:text-gray-300 leading-relaxed">
-        Scholars with verified offers averaged an <strong class="text-slate-900 dark:text-white">86% Competency Score</strong>. Your profile matches 3 out of 5 required industrial skills.
+        Scholars with verified corporate offers averaged an <strong class="text-slate-900 dark:text-white">86% Competency Score</strong>. Complete assessments and milestones to calibrate your percentile.
       </p>
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2 text-xs">
         <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-gray-800"><span class="text-slate-500 dark:text-gray-400 block text-[10px]">Your Score</span><strong class="text-purple-600 dark:text-purple-400">74%</strong></div>
@@ -1750,13 +1813,16 @@ function drawSkillTree() {
 
   ctx.clearRect(0, 0, w, h);
 
+  const currentUser = JoblexApiClient.getCurrentUser();
+  const hasProgress = currentUser && ((currentUser.xp && currentUser.xp > 0) || (currentUser.verified_skills && currentUser.verified_skills.length > 0));
+
   const nodes = [
-    { name: 'Classical Botany', x: w * 0.2, y: h * 0.5, acquired: true },
-    { name: 'Ayurvedic Pharmacognosy', x: w * 0.4, y: h * 0.35, acquired: true },
-    { name: 'Herbal Formulation', x: w * 0.4, y: h * 0.65, acquired: true },
-    { name: 'HPTLC Standardization', x: w * 0.65, y: h * 0.35, acquired: false },
-    { name: 'Python Health Data', x: w * 0.65, y: h * 0.65, acquired: true },
-    { name: 'In-Silico AutoDock', x: w * 0.85, y: h * 0.5, acquired: false }
+    { name: 'Core Foundations', x: w * 0.2, y: h * 0.5, acquired: !!hasProgress },
+    { name: 'Domain Methodology', x: w * 0.4, y: h * 0.35, acquired: !!hasProgress },
+    { name: 'Applied Analytics', x: w * 0.4, y: h * 0.65, acquired: !!hasProgress },
+    { name: 'Industry Protocols', x: w * 0.65, y: h * 0.35, acquired: false },
+    { name: 'Data & Systems Tech', x: w * 0.65, y: h * 0.65, acquired: !!hasProgress },
+    { name: 'Advanced R&D Modeling', x: w * 0.85, y: h * 0.5, acquired: false }
   ];
 
   const edges = [
@@ -1797,7 +1863,7 @@ function drawSkillTree() {
 
 // Global Aliases & Handlers for Student Sub-Pages
 function filterInternshipTabs(type, btn) {
-  document.querySelectorAll('#filter-btn-all, #filter-btn-internship, #filter-btn-gig').forEach(b => {
+  document.querySelectorAll('#filter-btn-all, #filter-btn-internship, #filter-btn-job, #filter-btn-gig').forEach(b => {
     b.className = 'px-4 py-2 rounded-xl text-xs font-medium bg-slate-50 dark:bg-white/[0.02] border border-[#E7E4DC] dark:border-white/10 text-[#6E6962] dark:text-gray-300 hover:border-purple-300 dark:hover:border-purple-500/40 transition';
   });
   if (btn) {

@@ -13,6 +13,8 @@
   <!-- Google Material Symbols Outlined -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%236366f1'>✦</text></svg>">
+    <!-- Prevent FOUC: Early Theme Detection -->
+  <script src="/js/frontend/theme.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -46,7 +48,7 @@
       <button onclick="toggleAcademyMobileMenu()" class="lg:hidden p-2 rounded-xl text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 border border-slate-200 dark:border-gray-800 transition" aria-label="Toggle Navigation">
         <span class="material-symbols-outlined text-[20px]">menu</span>
       </button>
-      <a href="academy.html" class="flex items-center gap-2.5 cursor-pointer select-none">
+      <a href="/academy.html" class="flex items-center gap-2.5 cursor-pointer select-none">
         <div class="w-1.5 h-7 bg-[#855828] dark:bg-[#D4973B] rounded-full"></div>
         <span class="text-xl font-extrabold tracking-widest text-[#1C1917] dark:text-white uppercase block">JOBLEX</span>
       </a>
@@ -83,7 +85,7 @@
         <button onclick="closeAcademyMobileMenu()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"><span class="material-symbols-outlined text-lg">close</span></button>
       </div>
       <div class="space-y-1 pt-1">
-        <a href="academy.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+        <a href="/academy.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
           <span class="material-symbols-outlined text-base">account_balance</span> <span>Command Center</span>
         </a>
         <a href="academy-readiness.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
@@ -124,7 +126,7 @@
           <span class="material-symbols-outlined text-xs">chevron_left</span>
         </button>
       </div>
-      <a href="academy.html" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#6E6962] dark:text-gray-400 hover:text-[#1C1917] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
+      <a href="/academy.html" class="academy-sidebar-btn sidebar-nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-[#6E6962] dark:text-gray-400 hover:text-[#1C1917] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5 border border-transparent">
         <span class="material-symbols-outlined text-base shrink-0">account_balance</span>
         <span class="sidebar-text-label font-bold text-xs">Command Center</span>
       </a>
@@ -168,7 +170,7 @@
       <!-- Breadcrumb Bar -->
       <div class="bg-white dark:bg-white/[0.03] shadow-sm border border-[#E7E4DC] dark:border-white/10 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div class="flex items-center space-x-1 text-[11px] font-semibold uppercase tracking-wider text-[#6E6962] dark:text-gray-400">
-          <a href="academy.html" class="hover:text-emerald-500 transition">Academic Council</a>
+          <a href="/academy.html" class="hover:text-emerald-500 transition">Academic Council</a>
           <span class="material-symbols-outlined text-[14px]">chevron_right</span>
           <span class="text-[#1C1917] dark:text-white font-semibold">Institutional Consultancy & Faculty Grants</span>
         </div>

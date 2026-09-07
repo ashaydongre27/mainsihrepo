@@ -9,6 +9,7 @@ const express = require('express');
 const router = express.Router();
 const { supabase, isConfigured } = require('../config/supabase');
 const DB = require('../data/database');
+const { clearRecommendationCache } = require('../services/matching.service');
 
 // GET /api/opportunities
 router.get('/', async (req, res) => {
@@ -16,13 +17,23 @@ router.get('/', async (req, res) => {
 
   if (isConfigured && supabase) {
     try {
-      let query = supabase.from('opportunities').select('*').order('created_at', { ascending: false });
+      let query = supabase.from('opportunities').select('*');
       if (type && type !== 'All') {
         query = query.ilike('type', type);
       }
       const { data, error } = await query;
       if (!error && data) {
-        return res.json({ opportunities: data });
+        const localItems = DB.opportunities || [];
+        const combined = [...data];
+        for (const loc of localItems) {
+          if (!combined.some(s => s.id === loc.id || (s.title && loc.title && s.title.toLowerCase() === loc.title.toLowerCase()))) {
+            combined.unshift(loc);
+          }
+        }
+        const filteredCombined = (type && type !== 'All')
+          ? combined.filter(o => o.type && o.type.toLowerCase() === type.toLowerCase())
+          : combined;
+        return res.json({ opportunities: filteredCombined });
       }
     } catch (err) {
       console.warn('[Opportunities GET] Supabase query warning, using fallback:', err.message);
@@ -54,39 +65,55 @@ router.post('/apply', async (req, res) => {
     return res.status(400).json({ success: false, error: 'Opportunity title and student email are required to apply.' });
   }
 
-  const newApp = {
+  let newApp = {
     id: `app-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
-    opportunity_id: opportunityId || 'opp-custom',
+    opportunity_id: opportunityId || 'opp-tech-01',
     opportunity_title: opportunityTitle,
-    opportunityTitle: opportunityTitle,
-    company: company || 'Ayush Industry Partner',
+    company: company || 'Corporate Industry Partner',
     type: type || 'Internship',
     student_name: studentName || studentEmail.split('@')[0],
-    studentName: studentName || studentEmail.split('@')[0],
     student_email: studentEmail.trim().toLowerCase(),
-    studentEmail: studentEmail.trim().toLowerCase(),
-    college: college || 'All India Institute of Ayurveda (AIIA), New Delhi',
-    skills: Array.isArray(skills) ? skills : ['Herbal Formulation', 'Phytochemistry', 'GLP'],
+    college: college || 'Accredited Higher Education Institution',
+    skills: Array.isArray(skills) ? skills : ['Technical Skills', 'Research', 'Communication'],
     match: parseInt(match, 10) || 85,
     applied_date: new Date().toISOString().split('T')[0],
-    appliedDate: new Date().toISOString().split('T')[0],
     status: 'Pending Review',
-    verified_badge: `AIIA-CERT-${Date.now().toString(36).toUpperCase()}`,
-    verifiedBadge: `AIIA-CERT-${Date.now().toString(36).toUpperCase()}`,
-    cover_note: coverNote || 'Application submitted with verified institutional credentials.',
-    coverNote: coverNote || 'Application submitted with verified institutional credentials.'
+    verified_badge: `JOBLEX-CERT-${Date.now().toString(36).toUpperCase()}`,
+    cover_note: coverNote || 'Application submitted with verified institutional credentials.'
   };
 
   if (isConfigured && supabase) {
     try {
+      let validOppId = opportunityId;
+      if (validOppId) {
+        const { data: existing } = await supabase.from('opportunities').select('id').eq('id', validOppId).maybeSingle();
+        if (!existing) validOppId = null;
+      }
+      if (!validOppId) {
+        const { data: firstOpp } = await supabase.from('opportunities').select('id').limit(1).maybeSingle();
+        validOppId = firstOpp?.id || 'opp-tech-01';
+      }
+      newApp.opportunity_id = validOppId;
+
       const { data, error } = await supabase.from('applications').insert([newApp]).select().single();
       if (!error && data) {
         newApp = { ...newApp, ...data };
+      } else if (error) {
+        console.warn('[Opportunities Apply] Supabase insert error:', error.message);
       }
     } catch (err) {
       console.warn('[Opportunities Apply] Supabase error, saving locally:', err.message);
     }
   }
+
+  // Ensure camelCase aliases for client backwards compatibility
+  newApp.opportunityId = newApp.opportunity_id;
+  newApp.opportunityTitle = newApp.opportunity_title;
+  newApp.studentName = newApp.student_name;
+  newApp.studentEmail = newApp.student_email;
+  newApp.appliedDate = newApp.applied_date;
+  newApp.verifiedBadge = newApp.verified_badge;
+  newApp.coverNote = newApp.cover_note;
 
   if (!DB.applications) DB.applications = [];
   DB.applications.unshift(newApp);
@@ -192,11 +219,12 @@ router.post('/', async (req, res) => {
     description: description || 'Verified opportunity published through JOBLEX portal.'
   };
 
+  let savedOpp = newOpp;
   if (isConfigured && supabase) {
     try {
       const { data, error } = await supabase.from('opportunities').insert([newOpp]).select().single();
       if (!error && data) {
-        return res.status(201).json({ success: true, message: 'Opportunity published successfully!', opportunity: data });
+        savedOpp = data;
       }
     } catch (err) {
       console.warn('[Post Opportunity] Supabase error, saving locally:', err.message);
@@ -204,7 +232,10 @@ router.post('/', async (req, res) => {
   }
 
   if (!DB.opportunities) DB.opportunities = [];
-  DB.opportunities.unshift(newOpp);
+  DB.opportunities.unshift(savedOpp);
+
+  // Invalidate matching/recommendation cache so students see newly posted openings immediately
+  clearRecommendationCache();
 
   // Broadcast in-portal notification to students
   if (!DB.inPortalNotifications) DB.inPortalNotifications = [];
@@ -212,15 +243,15 @@ router.post('/', async (req, res) => {
     id: `notif-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
     recipientId: 'usr-student-01',
     senderId: 'usr-industry-01',
-    title: `New Opening: ${newOpp.title}`,
-    message: `${newOpp.company} has published a new ${newOpp.type} requisition. Check your match score!`,
+    title: `New Opening: ${savedOpp.title}`,
+    message: `${savedOpp.company} has published a new ${savedOpp.type} requisition. Check your match score!`,
     actionUrl: '/student.html#opportunities',
     category: 'new_opportunity',
     isRead: false,
     createdAt: new Date().toISOString()
   });
 
-  res.status(201).json({ success: true, message: 'Opportunity published successfully!', opportunity: newOpp });
+  res.status(201).json({ success: true, message: 'Opportunity published successfully!', opportunity: savedOpp });
 });
 
 // PATCH /api/opportunities/applications/:id/status (Recruiter updates candidate status)
@@ -277,7 +308,7 @@ router.patch('/applications/:id/status', async (req, res) => {
         id: `todo-app-${Date.now().toString(36)}`,
         studentId,
         title: `Prepare for ${compName} Interview (${oppTitle})`,
-        description: `Review pharmacognosy fundamentals, standard markers, and prepare presentation. Scheduled for: ${interviewSlot || 'Upcoming Date'}.`,
+        description: `Review domain fundamentals, technical competencies, and project portfolio. Scheduled for: ${interviewSlot || 'Upcoming Date'}.`,
         category: 'Application',
         priority: 'Urgent',
         dueDate: interviewSlot || new Date(Date.now() + 86400000 * 3).toISOString(),
@@ -295,6 +326,60 @@ router.patch('/applications/:id/status', async (req, res) => {
     });
   } catch (err) {
     console.error('[Application Status Update Error]:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/opportunities (Post new Job / Internship)
+router.post('/', async (req, res) => {
+  try {
+    const {
+      title,
+      type = 'Internship',
+      company = 'Corporate Partner',
+      location = 'Remote / Hybrid',
+      stipend = 'Competitive Stipend',
+      deadline = '2026-12-31',
+      skills = [],
+      description = ''
+    } = req.body || {};
+
+    if (!title) {
+      return res.status(400).json({ success: false, error: 'Opportunity title is required.' });
+    }
+
+    const newOpp = {
+      id: `opp-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+      title: title.trim(),
+      type,
+      company: company.trim(),
+      location: location.trim(),
+      stipend: stipend.trim(),
+      deadline,
+      skills: Array.isArray(skills) ? skills : (typeof skills === 'string' ? skills.split(',').map(s => s.trim()).filter(Boolean) : []),
+      description: description.trim(),
+      match: 90,
+      createdAt: new Date().toISOString()
+    };
+
+    if (isConfigured && supabase) {
+      try {
+        await supabase.from('opportunities').insert([newOpp]);
+      } catch (err) {
+        console.warn('[Opportunities POST] Supabase insert warning:', err.message);
+      }
+    }
+
+    if (!DB.opportunities) DB.opportunities = [];
+    DB.opportunities.unshift(newOpp);
+
+    return res.status(201).json({
+      success: true,
+      message: 'Opportunity successfully posted and syndicated across student portals!',
+      opportunity: newOpp
+    });
+  } catch (err) {
+    console.error('[Opportunities POST Error]:', err);
     return res.status(500).json({ success: false, error: err.message });
   }
 });
