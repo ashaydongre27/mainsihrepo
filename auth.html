@@ -258,6 +258,14 @@
           </label>
         </div>
 
+        <!-- Inline Auth Error Banner (replaces native alert popups) -->
+        <div id="auth-error-banner" class="hidden text-xs p-3 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-500 dark:text-rose-400 flex items-start gap-2">
+          <svg class="w-4 h-4 shrink-0 text-rose-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          <span id="auth-error-banner-text" class="flex-1 font-medium"></span>
+        </div>
+
         <!-- Submit Button -->
         <button type="submit" id="submit-btn" class="w-full py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-white text-white dark:text-stone-950 font-semibold text-xs tracking-wide shadow-xs transition-all duration-150 mt-3 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]">
           <span>Authenticate to Student Portal ➔</span>
@@ -425,7 +433,12 @@
       const statusDiv = document.getElementById('reset-modal-status');
 
       if (!email) {
-        alert(selectedRole === 'industry' ? 'Please enter your corporate email address.' : 'Please enter your institutional email address.');
+        const msg = selectedRole === 'industry' ? 'Please enter your corporate email address.' : 'Please enter your institutional email address.';
+        if (statusDiv) {
+          statusDiv.className = 'text-xs p-3 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-500 dark:text-rose-400 block';
+          statusDiv.textContent = msg;
+        }
+        if (window.showToast) window.showToast(msg, 'Password Recovery', 'warning');
         return;
       }
 
@@ -582,14 +595,33 @@
       return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
+    function showAuthError(msg) {
+      const banner = document.getElementById('auth-error-banner');
+      const bannerText = document.getElementById('auth-error-banner-text');
+      if (banner && bannerText) {
+        bannerText.textContent = msg;
+        banner.classList.remove('hidden');
+        banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      if (window.showToast) {
+        window.showToast(msg, 'Authentication Notice', 'error');
+      }
+    }
+
+    function clearAuthError() {
+      const banner = document.getElementById('auth-error-banner');
+      if (banner) banner.classList.add('hidden');
+    }
+
     async function handleAuthSubmit(event) {
       event.preventDefault();
+      clearAuthError();
       const email = document.getElementById('input-email').value.trim();
       const password = document.getElementById('input-password').value;
       const submitBtn = document.getElementById('submit-btn');
 
       if (!email || !password) {
-        alert('Please provide both email address and password.');
+        showAuthError('Please provide both email address and password.');
         return;
       }
 
@@ -616,7 +648,7 @@
           const orgLabel = selectedRole === 'industry' ? 'Company Name' : 'College / Institution';
 
           if (!name || !org) {
-            alert(`Full Legal Name and ${orgLabel} are required for registration.`);
+            showAuthError(`Full Legal Name and ${orgLabel} are required for registration.`);
             submitBtn.disabled = false;
             submitBtn.querySelector('span').textContent = originalText;
             return;
@@ -626,7 +658,7 @@
           if (selectedRole === 'industry') {
             empUid = document.getElementById('input-employee-uid')?.value.trim();
             if (!empUid) {
-              alert('Employee UID / ID No. is required for corporate registration.');
+              showAuthError('Employee UID / ID No. is required for corporate registration.');
               submitBtn.disabled = false;
               submitBtn.querySelector('span').textContent = originalText;
               return;
@@ -634,14 +666,14 @@
           }
 
           if (password !== confirmPassword) {
-            alert('Passwords do not match. Please ensure both passwords match before registering.');
+            showAuthError('Passwords do not match. Please ensure both passwords match before registering.');
             submitBtn.disabled = false;
             submitBtn.querySelector('span').textContent = originalText;
             return;
           }
 
           if (password.length < 6) {
-            alert('Password must be at least 6 characters long.');
+            showAuthError('Password must be at least 6 characters long.');
             submitBtn.disabled = false;
             submitBtn.querySelector('span').textContent = originalText;
             return;
@@ -670,7 +702,7 @@
         if (msg.includes('Unexpected token') || msg.includes('not valid JSON') || msg.includes('non-JSON') || msg.includes('The page could not be found')) {
           msg = 'Authentication failed. Please verify your credentials or register a new account.';
         }
-        alert(msg);
+        showAuthError(msg);
       } finally {
         submitBtn.disabled = false;
         submitBtn.querySelector('span').textContent = originalText;

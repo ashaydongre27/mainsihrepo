@@ -203,8 +203,8 @@
         const res = await JoblexApiClient.postOpportunity(payload);
         if (window.showToast) {
           showToast('Requisition Published! Successfully added to corporate talent pool.', 'Success', 'success');
-        } else {
-          alert('Requisition Published successfully!');
+        } else if (window.JoblexApiClient) {
+          JoblexApiClient.showToast('Requisition Published! Successfully added to corporate talent pool.', 'Success', 'success');
         }
         setTimeout(() => {
           window.location.href = 'industry-requisitions.html';
@@ -212,8 +212,8 @@
       } catch (err) {
         if (window.showToast) {
           showToast('Failed to publish: ' + err.message, 'Error', 'error');
-        } else {
-          alert('Error: ' + err.message);
+        } else if (window.JoblexApiClient) {
+          JoblexApiClient.showToast('Failed to publish: ' + err.message, 'Error', 'error');
         }
         if (submitBtn) {
           submitBtn.disabled = false;

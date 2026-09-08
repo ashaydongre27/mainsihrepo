@@ -1068,8 +1068,8 @@ async function handleWorkshopDecision(workshopId, decision) {
     if (data.success) {
       if (window.showToast) {
         window.showToast(data.message, 'Academic Council Governance', 'success');
-      } else {
-        alert(data.message);
+      } else if (window.JoblexApiClient) {
+        window.JoblexApiClient.showToast(data.message, 'Academic Council Governance', 'success');
       }
       fetchPendingWorkshops();
     }
@@ -1104,8 +1104,8 @@ function submitBosRevision(e) {
   closeBosRevisionModal();
   if (window.showToast) {
     window.showToast(`BoS Revision proposed for ${dept} (${tech}). Logged into Council Docket!`, 'BoS Governance', 'success');
-  } else {
-    alert(`BoS Revision proposed for ${dept} (${tech})`);
+  } else if (window.JoblexApiClient) {
+    window.JoblexApiClient.showToast(`BoS Revision proposed for ${dept} (${tech}). Logged into Council Docket!`, 'BoS Governance', 'success');
   }
   const amendEl = document.getElementById('tr-active-amendments');
   if (amendEl) {
@@ -1146,8 +1146,8 @@ async function submitMouCounter(e) {
     if (data.success) {
       if (window.showToast) {
         window.showToast(`Counter-proposal for "${clause}" dispatched to corporate partner!`, 'Bilateral Negotiation', 'success');
-      } else {
-        alert(data.message);
+      } else if (window.JoblexApiClient) {
+        window.JoblexApiClient.showToast(`Counter-proposal for "${clause}" dispatched to corporate partner!`, 'Bilateral Negotiation', 'success');
       }
     }
   } catch (err) {

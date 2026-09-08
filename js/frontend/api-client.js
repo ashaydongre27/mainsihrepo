@@ -33,6 +33,244 @@ const JoblexApiClient = {
     window.location.href = '/auth.html';
   },
 
+  // In-Website Modern Modal Dialog (Replaces native browser alerts)
+  showNoticeModal({
+    badge = 'Portal Routing',
+    title = 'Role Mismatch Notice',
+    icon = 'swap', // 'swap', 'shield', 'info', 'check', 'warning'
+    iconColor = 'text-amber-400',
+    iconBg = 'bg-amber-500/10 border-amber-500/20',
+    message = '',
+    confirmText = 'Go to My Portal',
+    cancelText = null,
+    secondaryText = null,
+    secondaryAction = null,
+    onConfirm = null,
+    onCancel = null,
+    autoRedirectUrl = null,
+    autoRedirectSeconds = 0
+  } = {}) {
+    if (typeof document === 'undefined') return;
+
+    // Remove existing modal if one is open
+    const existing = document.getElementById('joblex-website-modal');
+    if (existing) existing.remove();
+
+    let iconSvg = `
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+      </svg>
+    `;
+    if (icon === 'shield' || icon === 'lock') {
+      iconSvg = `
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+        </svg>
+      `;
+    } else if (icon === 'check') {
+      iconSvg = `
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      `;
+    } else if (icon === 'warning') {
+      iconSvg = `
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+      `;
+    } else if (icon === 'info' || icon === 'notifications') {
+      iconSvg = `
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      `;
+    }
+
+    const overlay = document.createElement('div');
+    overlay.id = 'joblex-website-modal';
+    overlay.className = 'fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-opacity duration-200 opacity-0';
+
+    let countdownInterval = null;
+
+    const closeModal = () => {
+      if (countdownInterval) clearInterval(countdownInterval);
+      overlay.classList.remove('opacity-100');
+      overlay.classList.add('opacity-0');
+      setTimeout(() => {
+        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      }, 200);
+    };
+
+    overlay.innerHTML = `
+      <div id="joblex-modal-card" class="relative w-full max-w-md rounded-2xl p-6 bg-slate-900/95 dark:bg-stone-900/95 border border-slate-700/80 dark:border-stone-700/80 shadow-[0_25px_60px_rgba(0,0,0,0.85)] text-white backdrop-blur-xl transform transition-transform duration-200 scale-95 font-sans">
+        <div class="flex items-start justify-between gap-3 pb-3 border-b border-slate-800 dark:border-stone-800">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center border ${iconBg} ${iconColor} shrink-0">
+              ${iconSvg}
+            </div>
+            <div>
+              <span class="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/10 text-slate-300 border border-white/10">${badge}</span>
+              <h3 class="text-sm font-bold text-white mt-1">${title}</h3>
+            </div>
+          </div>
+          <button id="joblex-modal-close-btn" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition" aria-label="Close">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="py-4 text-xs text-slate-300 leading-relaxed font-normal">
+          ${message}
+        </div>
+
+        ${autoRedirectUrl && autoRedirectSeconds > 0 ? `
+          <div class="mb-4 p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/60 text-[11px] text-slate-300 flex items-center justify-between">
+            <span class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+              Navigating to portal in <strong id="joblex-modal-timer" class="text-amber-400 font-bold">${autoRedirectSeconds}</strong>s...
+            </span>
+            <button id="joblex-modal-stop-timer" type="button" class="text-[10px] uppercase font-bold text-slate-400 hover:text-white underline cursor-pointer">Stay Here</button>
+          </div>
+        ` : ''}
+
+        <div class="flex flex-wrap items-center justify-end gap-2 pt-2">
+          ${cancelText ? `
+            <button id="joblex-modal-cancel-btn" type="button" class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition cursor-pointer">
+              ${cancelText}
+            </button>
+          ` : ''}
+          ${secondaryText && secondaryAction ? `
+            <button id="joblex-modal-secondary-btn" type="button" class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-300 hover:text-purple-200 border border-purple-500/30 transition cursor-pointer">
+              ${secondaryText}
+            </button>
+          ` : ''}
+          <button id="joblex-modal-confirm-btn" type="button" class="px-4 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-md shadow-purple-600/30 transition cursor-pointer flex items-center gap-1.5">
+            <span>${confirmText}</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    requestAnimationFrame(() => {
+      overlay.classList.remove('opacity-0');
+      overlay.classList.add('opacity-100');
+      const card = document.getElementById('joblex-modal-card');
+      if (card) {
+        card.classList.remove('scale-95');
+        card.classList.add('scale-100');
+      }
+    });
+
+    document.getElementById('joblex-modal-close-btn')?.addEventListener('click', () => {
+      closeModal();
+      if (onCancel) onCancel();
+    });
+
+    document.getElementById('joblex-modal-cancel-btn')?.addEventListener('click', () => {
+      closeModal();
+      if (onCancel) onCancel();
+    });
+
+    document.getElementById('joblex-modal-confirm-btn')?.addEventListener('click', () => {
+      closeModal();
+      if (onConfirm) onConfirm();
+      else if (autoRedirectUrl) window.location.href = autoRedirectUrl;
+    });
+
+    if (secondaryAction) {
+      document.getElementById('joblex-modal-secondary-btn')?.addEventListener('click', () => {
+        closeModal();
+        secondaryAction();
+      });
+    }
+
+    if (autoRedirectUrl && autoRedirectSeconds > 0) {
+      let secondsLeft = autoRedirectSeconds;
+      const timerEl = document.getElementById('joblex-modal-timer');
+      const stopBtn = document.getElementById('joblex-modal-stop-timer');
+
+      countdownInterval = setInterval(() => {
+        secondsLeft--;
+        if (timerEl) timerEl.textContent = secondsLeft;
+        if (secondsLeft <= 0) {
+          clearInterval(countdownInterval);
+          window.location.href = autoRedirectUrl;
+        }
+      }, 1000);
+
+      if (stopBtn) {
+        stopBtn.addEventListener('click', () => {
+          clearInterval(countdownInterval);
+          countdownInterval = null;
+          stopBtn.parentElement.innerHTML = `<span class="text-slate-400 text-[11px]">Auto-navigation paused.</span>`;
+        });
+      }
+    }
+  },
+
+  // Standalone Toast Notification System
+  showToast(message, title = 'Notification', type = 'info') {
+    if (typeof window !== 'undefined' && typeof window.showToast === 'function' && window.showToast !== this.showToast) {
+      window.showToast(message, title, type);
+      return;
+    }
+
+    let container = document.getElementById('joblex-toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'joblex-toast-container';
+      container.className = 'fixed bottom-5 right-5 z-[999999] flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0';
+      document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = 'pointer-events-auto flex items-start gap-3 p-4 rounded-xl shadow-2xl border transition-all duration-300 transform translate-y-4 opacity-0 bg-slate-900/95 dark:bg-stone-900/95 text-white border-slate-700/80 backdrop-blur-md';
+
+    let iconSvg = '<svg class="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+    if (type === 'success') {
+      iconSvg = '<svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+    } else if (type === 'warning') {
+      iconSvg = '<svg class="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>';
+    } else if (type === 'danger' || type === 'error') {
+      iconSvg = '<svg class="w-5 h-5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+    }
+
+    toast.innerHTML = `
+      <div class="w-8 h-8 rounded-lg shrink-0 flex items-center justify-center bg-white/10">
+        ${iconSvg}
+      </div>
+      <div class="flex-1 min-w-0 pr-2">
+        ${title ? `<h4 class="text-xs font-bold text-white mb-0.5">${title}</h4>` : ''}
+        <p class="text-[12px] text-gray-300 leading-relaxed font-normal">${message}</p>
+      </div>
+      <button class="toast-close-btn p-1 rounded-md text-gray-400 hover:text-white transition hover:bg-white/10 shrink-0">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    `;
+
+    container.appendChild(toast);
+
+    requestAnimationFrame(() => {
+      toast.classList.remove('translate-y-4', 'opacity-0');
+    });
+
+    const removeToast = () => {
+      toast.classList.add('translate-y-4', 'opacity-0');
+      setTimeout(() => {
+        if (toast.parentNode) toast.parentNode.removeChild(toast);
+      }, 300);
+    };
+
+    toast.querySelector('.toast-close-btn')?.addEventListener('click', removeToast);
+    setTimeout(removeToast, 4000);
+  },
+
   // Auth Guard: Require login for portal pages
   requireAuth(expectedRole = null) {
     const user = this.getCurrentUser();
@@ -43,8 +281,29 @@ const JoblexApiClient = {
       return false;
     }
     if (expectedRole && user.role !== expectedRole) {
-      alert(`Access Restricted: This area is reserved for ${expectedRole.toUpperCase()} accounts. You are currently logged in as a ${user.role.toUpperCase()}. Please switch accounts or navigate to your matching portal.`);
-      window.location.href = `/${user.role}.html`;
+      const userRole = (user.role || 'user').toUpperCase();
+      const expectedRoleUpper = expectedRole.toUpperCase();
+      const userPortal = `/${user.role}.html`;
+
+      this.showNoticeModal({
+        badge: 'Access Restricted',
+        title: 'Role Mismatch Notice',
+        icon: 'shield',
+        iconColor: 'text-rose-400',
+        iconBg: 'bg-rose-500/10 border-rose-500/20',
+        message: `This portal area is reserved for <strong>${expectedRoleUpper}</strong> accounts. You are currently logged in as <strong>${userRole}</strong> (<em>${user.name || user.email}</em>). Navigating to your registered <strong>${userRole}</strong> portal.`,
+        confirmText: `Go to ${userRole} Portal`,
+        cancelText: null,
+        secondaryText: `Switch to ${expectedRoleUpper}`,
+        secondaryAction: () => {
+          window.location.href = `/auth.html?role=${encodeURIComponent(expectedRole)}&redirect=${encodeURIComponent(window.location.pathname)}`;
+        },
+        autoRedirectUrl: userPortal,
+        autoRedirectSeconds: 3,
+        onConfirm: () => {
+          window.location.href = userPortal;
+        }
+      });
       return false;
     }
     return true;
@@ -56,12 +315,37 @@ const JoblexApiClient = {
     const portalPage = `/${role}.html`;
     if (!user) {
       window.location.href = `/auth.html?role=${encodeURIComponent(role)}&redirect=${encodeURIComponent(portalPage)}`;
-    } else if (user.role !== role) {
-      alert(`Role Mismatch: Your account type is ${user.role.toUpperCase()}. Navigating to your registered ${user.role.toUpperCase()} portal.`);
-      window.location.href = `/${user.role}.html`;
-    } else {
-      window.location.href = portalPage;
+      return;
     }
+
+    if (user.role !== role) {
+      const userRole = (user.role || 'user').toUpperCase();
+      const targetRoleUpper = role.toUpperCase();
+      const userPortal = `/${user.role}.html`;
+
+      this.showNoticeModal({
+        badge: 'Portal Routing',
+        title: 'Role Mismatch Notice',
+        icon: 'swap',
+        iconColor: 'text-amber-400',
+        iconBg: 'bg-amber-500/10 border-amber-500/20',
+        message: `Your account type is <strong>${userRole}</strong> (<em>${user.name || user.email}</em>). Navigating to your registered <strong>${userRole}</strong> portal.`,
+        confirmText: `Go to ${userRole} Portal`,
+        cancelText: 'Stay on Page',
+        secondaryText: `Login as ${targetRoleUpper}`,
+        secondaryAction: () => {
+          window.location.href = `/auth.html?role=${encodeURIComponent(role)}&redirect=${encodeURIComponent(portalPage)}`;
+        },
+        autoRedirectUrl: userPortal,
+        autoRedirectSeconds: 3,
+        onConfirm: () => {
+          window.location.href = userPortal;
+        }
+      });
+      return;
+    }
+
+    window.location.href = portalPage;
   },
 
   // Dynamic User Navbar Renderer across all pages
@@ -1693,6 +1977,24 @@ if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     JoblexApiClient.renderUserNavbar();
   });
+
+  // Global Website Notification Helpers
+  window.showToast = JoblexApiClient.showToast.bind(JoblexApiClient);
+  window.showWebsiteModal = JoblexApiClient.showNoticeModal.bind(JoblexApiClient);
+
+  // Intercept and replace browser-native window.alert with Joblex Website Modal
+  window.alert = function(msg) {
+    JoblexApiClient.showNoticeModal({
+      badge: 'Website Notification',
+      title: 'Portal Notice',
+      icon: 'info',
+      iconColor: 'text-purple-400',
+      iconBg: 'bg-purple-500/10 border-purple-500/20',
+      message: String(msg),
+      confirmText: 'Acknowledge',
+      cancelText: null
+    });
+  };
 }
 
 
