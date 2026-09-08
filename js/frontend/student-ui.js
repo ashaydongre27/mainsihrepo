@@ -1153,6 +1153,192 @@ async function handleMergeSelectedSkills() {
   }
 }
 
+// ─────────────────────────────────────────────────────────────
+// PROMPT GIVER & AI RESUME OPTIMIZER COPILOT (Nemotron 550B)
+// ─────────────────────────────────────────────────────────────
+let latestOptimizationData = null;
+
+function setPromptSuggestion(promptText) {
+  const promptInput = document.getElementById('resume-custom-prompt');
+  if (promptInput) {
+    promptInput.value = promptText;
+    promptInput.focus();
+  }
+}
+
+async function handleOptimizeResume() {
+  const promptInput = document.getElementById('resume-custom-prompt');
+  const customPrompt = promptInput ? promptInput.value.trim() : '';
+
+  const btn = document.getElementById('btn-optimize-resume');
+  const loadingIndicator = document.getElementById('optimizer-loading-state');
+  const outputContainer = document.getElementById('optimizer-results-container');
+  const roleSelect = document.getElementById('target-role-select');
+  const targetRole = roleSelect ? roleSelect.value : 'Herbal Formulation Scientist';
+
+  let resumeText = '';
+  if (selectedResumeFile) {
+    try {
+      resumeText = await extractTextFromFile(selectedResumeFile);
+    } catch (e) {
+      console.warn('File read fallback:', e);
+    }
+  }
+  if (!resumeText) {
+    const textarea = document.getElementById('resume-textarea');
+    resumeText = textarea ? textarea.value.trim() : '';
+  }
+  if (!resumeText && currentParsedData) {
+    resumeText = `Candidate: ${currentParsedData.name || 'Scholar'}\nSummary: ${currentParsedData.summary || ''}\nEducation: ${(currentParsedData.education || []).join(', ')}\nSkills: ${(currentParsedData.extractedSkills || []).join(', ')}`;
+  }
+  if (!resumeText) {
+    resumeText = SAMPLE_RESUMES.herbal;
+  }
+
+  const currentSkills = (currentParsedData && currentParsedData.extractedSkills && currentParsedData.extractedSkills.length > 0)
+    ? currentParsedData.extractedSkills
+    : ["Herbal Formulation", "Ayurvedic Pharmacognosy", "Phytochemical Extraction", "Good Laboratory Practice (GLP)"];
+
+  if (btn) {
+    btn.disabled = true;
+    btn.classList.add('opacity-75', 'cursor-not-allowed');
+  }
+  if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+  if (outputContainer) outputContainer.classList.add('hidden');
+
+  try {
+    const payload = {
+      resumeText,
+      customPrompt: customPrompt || 'Tailor my resume summary and bullet points to highlight highest-impact technical competencies and align with top industry hiring standards.',
+      targetRole,
+      currentSkills
+    };
+
+    const response = await JoblexApiClient.optimizeResume(payload);
+
+    if (response && response.success && response.optimization) {
+      latestOptimizationData = response.optimization;
+      renderOptimizationResults(response.optimization, response.provider, targetRole);
+      if (outputContainer) {
+        outputContainer.classList.remove('hidden');
+        outputContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      showToast('Resume tailored with AI Copilot successfully!', 'Optimization Ready', 'success');
+    } else {
+      showToast('Optimization could not be completed. Please try again.', 'Error', 'error');
+    }
+  } catch (err) {
+    console.error('Error optimizing resume:', err);
+    showToast('Failed to connect to AI Resume Optimizer.', 'Error', 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.classList.remove('opacity-75', 'cursor-not-allowed');
+    }
+    if (loadingIndicator) loadingIndicator.classList.add('hidden');
+  }
+}
+
+function renderOptimizationResults(opt, provider, targetRole) {
+  // Provider badge
+  const providerEl = document.getElementById('optimizer-provider-badge');
+  if (providerEl) {
+    providerEl.innerText = (provider && provider.includes('nemotron')) ? 'NVIDIA Nemotron 3 Ultra 550B' : 'NVIDIA AI Copilot Engine';
+  }
+
+  // Confidence
+  const confEl = document.getElementById('optimizer-confidence-score');
+  if (confEl) {
+    confEl.innerText = `${opt.confidenceScore || 92}% Match`;
+  }
+
+  // Revised Summary
+  const sumEl = document.getElementById('optimizer-revised-summary');
+  if (sumEl) {
+    sumEl.innerText = opt.revisedSummary || 'No summary generated.';
+  }
+
+  // Tailored Bullets
+  const bulletsEl = document.getElementById('optimizer-tailored-bullets');
+  if (bulletsEl) {
+    const bullets = opt.tailoredBulletPoints || [];
+    bulletsEl.innerHTML = bullets.map(b => `
+      <li class="flex items-start gap-2.5 p-2 rounded-xl bg-white dark:bg-black/30 border border-purple-100 dark:border-purple-900/30 text-xs text-slate-700 dark:text-gray-200">
+        <span class="material-symbols-outlined text-purple-600 dark:text-purple-400 text-sm mt-0.5 shrink-0">check_circle</span>
+        <span class="flex-1">${b}</span>
+        <button type="button" onclick="copyOptimizedText('${b.replace(/'/g, "\\'")}')" title="Copy Bullet" class="text-slate-400 hover:text-purple-600 dark:hover:text-purple-300 p-1 shrink-0">
+          <span class="material-symbols-outlined text-[15px]">content_copy</span>
+        </button>
+      </li>
+    `).join('');
+  }
+
+  // Recommended Keywords
+  const kwEl = document.getElementById('optimizer-recommended-keywords');
+  if (kwEl) {
+    const kws = opt.recommendedKeywords || [];
+    kwEl.innerHTML = kws.map(k => `
+      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 text-xs font-medium text-purple-800 dark:text-purple-300">
+        <span>+</span><span>${k}</span>
+      </span>
+    `).join('');
+  }
+
+  // Structural Suggestions
+  const suggEl = document.getElementById('optimizer-structural-suggestions');
+  if (suggEl) {
+    const suggestions = opt.structuralSuggestions || [];
+    suggEl.innerHTML = suggestions.map(s => `
+      <div class="flex items-start gap-2 text-xs text-slate-600 dark:text-gray-300">
+        <span class="material-symbols-outlined text-amber-500 text-sm mt-0.5 shrink-0">lightbulb</span>
+        <span>${s}</span>
+      </div>
+    `).join('');
+  }
+}
+
+function applyOptimizedSummary() {
+  if (!latestOptimizationData || !latestOptimizationData.revisedSummary) {
+    showToast('No revised summary available to apply.', 'Notice', 'info');
+    return;
+  }
+  const sumEl = document.getElementById('parsed-candidate-summary');
+  if (sumEl) {
+    sumEl.innerText = latestOptimizationData.revisedSummary;
+  }
+  if (currentParsedData) {
+    currentParsedData.summary = latestOptimizationData.revisedSummary;
+  }
+  const txt = document.getElementById('resume-textarea');
+  if (txt && txt.value) {
+    txt.value = `SUMMARY:\n${latestOptimizationData.revisedSummary}\n\n` + txt.value;
+  }
+  showToast('Revised summary applied to Candidate Profile & Dossier!', 'Summary Updated', 'success');
+}
+
+function copyOptimizedSummary() {
+  if (!latestOptimizationData || !latestOptimizationData.revisedSummary) return;
+  navigator.clipboard.writeText(latestOptimizationData.revisedSummary).then(() => {
+    showToast('Summary copied to clipboard!', 'Copied', 'success');
+  }).catch(() => {
+    showToast('Failed to copy to clipboard.', 'Error', 'error');
+  });
+}
+
+function copyOptimizedText(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('Copied to clipboard!', 'Copied', 'success');
+  }).catch(() => {
+    showToast('Failed to copy to clipboard.', 'Error', 'error');
+  });
+}
+
+window.handleOptimizeResume = handleOptimizeResume;
+window.setPromptSuggestion = setPromptSuggestion;
+window.applyOptimizedSummary = applyOptimizedSummary;
+window.copyOptimizedSummary = copyOptimizedSummary;
+window.copyOptimizedText = copyOptimizedText;
+
 function updateDossierContent(parsed, assessment, targetRole) {
   const dName = document.getElementById('dossier-name');
   const dRole = document.getElementById('dossier-target-role');

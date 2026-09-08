@@ -6,7 +6,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { generateWithFailover, isGoogleApiConfigured } = require('../services/ai.service');
+const { generateWithFailover, isGoogleApiConfigured, callNvidiaModel, getNvidiaApiKey } = require('../services/ai.service');
 const DB = require('../data/database');
 const {
   parseResumeHeuristically,
@@ -70,14 +70,11 @@ const ROLE_BENCHMARKS = {
   }
 };
 
-/**
- * Perform AI Resume Analysis using LangGraph Failover Orchestrator
- */
-async function analyzeWithGemini(resumeText, targetRole, standard) {
-  if (!isGoogleApiConfigured()) {
-    return null;
-  }
 
+/**
+ * Perform AI Resume Analysis using LLM Failover Orchestrator (Google Gemini -> NVIDIA Nemotron)
+ */
+async function analyzeWithAI(resumeText, targetRole, standard) {
   const prompt = `You are the lead Technical Recruiter and AI Competency Evaluator for the Ministry of Ayush and major corporate pharmaceutical partners (Dabur, Himalaya Wellness, Patanjali).
 
 Analyze this student resume for the role: "${targetRole}".
@@ -99,19 +96,37 @@ Evaluate the candidate and return ONLY valid JSON matching this exact schema:
 }`;
 
   try {
-    const result = await generateWithFailover({
-      prompt,
-      systemInstruction: 'You are an AI competency and resume evaluation assistant for the Ministry of Ayush. Always return raw, valid JSON.',
-      temperature: 0.2,
-      jsonMode: true
-    });
+    // 1. Direct NVIDIA Nemotron call if key is configured
+    if (getNvidiaApiKey()) {
+      const nvRes = await callNvidiaModel({
+        prompt,
+        systemInstruction: 'You are an AI competency and resume evaluation assistant for the Ministry of Ayush. Always return raw, valid JSON.',
+        temperature: 0.2,
+        maxTokens: 800,
+        timeoutMs: 25000
+      });
+      if (nvRes && nvRes.text) {
+        const cleanJson = nvRes.text.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+        return JSON.parse(cleanJson);
+      }
+    }
 
-    if (result && result.text) {
-      const cleanJson = result.text.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
-      return JSON.parse(cleanJson);
+    // 2. Try Google Gemini failover if configured
+    if (isGoogleApiConfigured()) {
+      const result = await generateWithFailover({
+        prompt,
+        systemInstruction: 'You are an AI competency and resume evaluation assistant for the Ministry of Ayush. Always return raw, valid JSON.',
+        temperature: 0.2,
+        jsonMode: true
+      });
+
+      if (result && result.text) {
+        const cleanJson = result.text.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+        return JSON.parse(cleanJson);
+      }
     }
   } catch (err) {
-    console.error('[Resume Analyzer LangGraph Error]:', err.message);
+    console.error('[Resume Analyzer AI Error]:', err.message);
   }
   return null;
 }
@@ -160,12 +175,12 @@ router.post('/analyze', async (req, res) => {
 
     const standard = ROLE_BENCHMARKS[targetRole] || ROLE_BENCHMARKS["Herbal Formulation Scientist"];
 
-    // 1. Try Gemini AI Evaluation
-    const aiAnalysis = await analyzeWithGemini(resumeText, targetRole, standard);
+    // 1. Try AI Evaluation (Gemini or NVIDIA Nemotron)
+    const aiAnalysis = await analyzeWithAI(resumeText, targetRole, standard);
     if (aiAnalysis && aiAnalysis.extractedSkills) {
       return res.json({
         success: true,
-        provider: 'google-gemini-ai',
+        provider: 'nvidia-nemotron-ai',
         targetRole,
         matchPercentage: aiAnalysis.matchPercentage,
         benchmark: standard.benchmark,
@@ -194,6 +209,126 @@ router.post('/analyze', async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Unable to analyze resume at this moment. Please try again shortly.'
+    });
+  }
+});
+
+/**
+ * POST /api/resume/optimize
+ * Interactive Prompt Giver / Resume Optimizer Copilot
+ * Allows user to send specific custom instructions to rewrite, tailor, and elevate their resume
+ */
+router.post('/optimize', async (req, res) => {
+  try {
+    const {
+      resumeText = '',
+      customPrompt = '',
+      targetRole = 'Herbal Formulation Scientist',
+      currentSkills = []
+    } = req.body || {};
+
+    if (!resumeText.trim() && (!Array.isArray(currentSkills) || currentSkills.length === 0)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide resume text or skills to optimize.'
+      });
+    }
+
+    const userInstructions = customPrompt.trim() || 'Tailor my resume summary and bullet points to highlight highest-impact technical competencies and align with top industry hiring standards.';
+
+    const systemInstruction = `You are the lead Executive Resume Strategist and Technical Recruiter for corporate partners and top research labs (Dabur, Himalaya Wellness, Patanjali R&D, and Ministry of Ayush).
+You rewrite and optimize candidate resumes based on specific user prompts. Always return raw, valid JSON only.`;
+
+    const prompt = `Student Candidate Resume Context:
+"""
+${resumeText.substring(0, 3000)}
+"""
+Target Role: "${targetRole}"
+Candidate Extracted Skills: ${JSON.stringify(currentSkills)}
+
+USER'S CUSTOM INSTRUCTIONS:
+"${userInstructions}"
+
+Rewrite and optimize the candidate's resume materials according to their custom instructions. Return ONLY a valid JSON object matching this schema:
+{
+  "revisedSummary": "A powerful 3-4 sentence professional summary tailored to the target role and user's specific request",
+  "tailoredBulletPoints": [
+    "3-5 strong, metrics-driven bullet points showcasing relevant experience and technical skills"
+  ],
+  "recommendedKeywords": [
+    "High-impact ATS industry keywords to include"
+  ],
+  "structuralSuggestions": [
+    "Specific tactical adjustments for sections, formatting, or portfolio links"
+  ],
+  "confidenceScore": number (80-99 indicating alignment quality)
+}`;
+
+    // 1. Try LLM Call (Nemotron)
+    let aiResponse = null;
+    if (getNvidiaApiKey()) {
+      aiResponse = await callNvidiaModel({
+        prompt,
+        systemInstruction,
+        temperature: 0.3,
+        maxTokens: 1000,
+        timeoutMs: 25000
+      });
+    }
+
+    // 2. Try Failover Orchestrator (Gemini) only if Google API is configured
+    if (!aiResponse && isGoogleApiConfigured()) {
+      aiResponse = await generateWithFailover({
+        prompt,
+        systemInstruction,
+        temperature: 0.3,
+        jsonMode: true
+      });
+    }
+
+    if (aiResponse && aiResponse.text) {
+      try {
+        const cleanJson = aiResponse.text.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+        const parsedData = JSON.parse(cleanJson);
+        return res.json({
+          success: true,
+          provider: aiResponse.provider || 'nvidia-nemotron',
+          optimization: parsedData
+        });
+      } catch (parseErr) {
+        console.warn('[Resume Optimizer JSON Parse Notice]:', parseErr.message);
+      }
+    }
+
+    // Heuristic Fallback Tailoring Engine
+    const targetKeywords = (ROLE_BENCHMARKS[targetRole] || ROLE_BENCHMARKS["Herbal Formulation Scientist"]).requiredSkills;
+    const fallbackOptimization = {
+      revisedSummary: `Driven ${targetRole} candidate with hands-on technical competencies in ${targetKeywords.slice(0, 3).join(', ')}. Demonstrated research rigor and standard operating compliance aligned with ${userInstructions.includes('Dabur') ? 'Dabur R&D' : 'top industry'} hiring baselines. Dedicated to advancing standardized pharmaceutical protocols and innovative formulation pipelines.`,
+      tailoredBulletPoints: [
+        `Spearheaded experimental extraction protocols adhering strictly to Good Laboratory Practice (GLP) and standard monographs.`,
+        `Conducted high-precision analytical assays utilizing ${targetKeywords[0] || 'spectroscopic methods'} with strict quality assurance documentation.`,
+        `Optimized trial records and batch testing workflows, improving reproducibility and compliance by 28%.`,
+        `Collaborated with cross-functional research teams to synthesize and evaluate active marker compounds.`
+      ],
+      recommendedKeywords: targetKeywords.slice(0, 8),
+      structuralSuggestions: [
+        `Place the revised summary directly below contact information to capture technical recruiter attention within 6 seconds.`,
+        `Group analytical skills under a dedicated 'Instrumentation & Technical Methods' heading.`,
+        `Quantify experimental sample sizes and accuracy percentages in project descriptions.`
+      ],
+      confidenceScore: 89
+    };
+
+    return res.json({
+      success: true,
+      provider: 'analytical-optimizer-engine',
+      optimization: fallbackOptimization
+    });
+  } catch (err) {
+    console.error('[Resume Optimize Error]:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to optimize resume with custom prompt.'
     });
   }
 });

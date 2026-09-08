@@ -7,29 +7,55 @@
 
 const express = require('express');
 const router = express.Router();
-const { generateWithFailover, isGoogleApiConfigured, getMainApiKey, getBackupApiKey, getNvidiaApiKey } = require('../services/ai.service');
+const { generateWithFailover, isGoogleApiConfigured, getMainApiKey, getBackupApiKey, getNvidiaApiKey, callNvidiaModel } = require('../services/ai.service');
 const zuluChatService = require('../services/zuluChat.service');
 
 /**
- * Call AI (Gemini → NVIDIA NIM) using LangGraph Orchestrator with Multi-Key Failover
+ * Call AI (NVIDIA Nemotron 3 Ultra 550B -> Failover) for Zulu AI Counselor
  */
-async function generateWithGemini(userMessage, conversationHistory = [], studentContext = null) {
-  const contextSnippet = studentContext ? `\nStudent Context: Role=${studentContext.role || 'Student'}, Year=${studentContext.year || 'N/A'}, Department=${studentContext.department || 'General'}` : '';
-  const systemInstruction = `You are Zulu, an expert AI Career and Research Counselor for students across all academic disciplines and professional fields. Guide students on comprehensive career roadmaps, industry-specific research and development (R&D), academic and technical documentation, mastering domain-specific tools and methodologies, navigating institutional standards and accreditations, and securing corporate placements and internships. Provide direct, highly practical, and structured guidance in concise, clear points.${contextSnippet}`;
+async function generateWithZuluAI(userMessage, conversationHistory = [], studentContext = null) {
+  const contextSnippet = studentContext ? `\nStudent Context: Name=${studentContext.studentName || 'Scholar'}, Role=${studentContext.role || 'Student'}, Department=${studentContext.department || 'General'}` : '';
+  const systemInstruction = `You are Zulu, an expert AI Career and Research Counselor for students across academic disciplines and modern industries (pharmaceuticals, health-tech, biotechnology, data science). Guide students on comprehensive career roadmaps, corporate placements, verified skills, and research methodologies with actionable steps.${contextSnippet}`;
 
-  const result = await generateWithFailover({
-    prompt: userMessage,
-    systemInstruction,
-    history: conversationHistory,
-    temperature: 0.6
-  });
+  // 1. Try NVIDIA Nemotron 3 Ultra 550B if key is present
+  if (getNvidiaApiKey()) {
+    try {
+      const nvRes = await callNvidiaModel({
+        prompt: userMessage,
+        systemInstruction,
+        history: conversationHistory,
+        temperature: 0.6,
+        maxTokens: 1024,
+        timeoutMs: 25000
+      });
+      if (nvRes && nvRes.text) {
+        return {
+          text: nvRes.text,
+          model: nvRes.provider || 'nvidia/nemotron-3-ultra-550b-a55b',
+          keyType: nvRes.keyType || 'nvidia'
+        };
+      }
+    } catch (e) {
+      console.warn('[Zulu NVIDIA Call Warning]:', e.message);
+    }
+  }
 
-  if (result && result.text) {
-    return {
-      text: result.text,
-      model: result.provider,
-      keyType: result.keyType
-    };
+  // 2. Try Failover Orchestrator (Google Gemini) if configured
+  if (isGoogleApiConfigured()) {
+    const result = await generateWithFailover({
+      prompt: userMessage,
+      systemInstruction,
+      history: conversationHistory,
+      temperature: 0.6
+    });
+
+    if (result && result.text) {
+      return {
+        text: result.text,
+        model: result.provider,
+        keyType: result.keyType
+      };
+    }
   }
 
   return null;
@@ -210,14 +236,14 @@ router.post('/chat', async (req, res) => {
     // 2. Persist incoming user message to session history
     await zuluChatService.addMessageToSession(targetSessionId, userId, 'user', cleanMessage, null);
 
-    // 3. Attempt Live Google Gemini Generation or Smart Response Engine
+    // 3. Attempt Live AI Generation (NVIDIA Nemotron -> Failover) or Smart Response Engine
     let replyText = '';
-    let providerName = 'zulu-ai-engine';
+    let providerName = 'zulu-nemotron-engine';
 
-    const geminiResult = await generateWithGemini(cleanMessage, history, context);
-    if (geminiResult && geminiResult.text) {
-      replyText = geminiResult.text;
-      providerName = geminiResult.model || 'zulu-ai-engine';
+    const aiResult = await generateWithZuluAI(cleanMessage, history, context);
+    if (aiResult && aiResult.text) {
+      replyText = aiResult.text;
+      providerName = aiResult.model || 'nvidia/nemotron-3-ultra-550b-a55b';
     } else {
       replyText = generateSmartZuluResponse(cleanMessage, context);
     }

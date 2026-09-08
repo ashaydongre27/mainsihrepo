@@ -86,7 +86,7 @@
   </div>
 </header>
 <!-- MOBILE SLIDE-OUT DRAWER -->
-<div id="academy-mobile-drawer" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden lg:hidden">
+<div id="academy-mobile-drawer" onclick="if(event.target === this) closeAcademyMobileMenu()" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden lg:hidden">
   <div class="fixed inset-y-0 left-0 w-72 bg-white dark:bg-[#101115] p-5 flex flex-col justify-between shadow-2xl border-r border-[#E7E4DC] dark:border-white/10 overflow-y-auto">
     <div class="space-y-4">
       <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-gray-800">
@@ -127,7 +127,7 @@
 </div>
 <div class="flex-1 flex overflow-hidden">
   <!-- COLLAPSIBLE SIDEBAR -->
-  <aside id="academy-sidebar" class="hidden lg:flex sticky top-[61px] h-[calc(100vh-61px)] self-start overflow-y-auto w-64 bg-white/80 dark:bg-[#101115]/90 border-r border-[#E7E4DC] dark:border-white/5 backdrop-blur-md p-3.5 flex-col justify-between shrink-0 transition-all duration-300 custom-scrollbar">
+  <aside id="academy-sidebar" class="hidden lg:flex w-64 bg-white/80 dark:bg-[#101115]/90 border-r border-[#E7E4DC] dark:border-white/5 backdrop-blur-md p-3.5 flex-col justify-between shrink-0 transition-all duration-300">
     <div class="space-y-1">
       <div class="flex items-center justify-between px-2 pb-2 mb-2 border-b border-slate-200 dark:border-gray-800/80">
         <span class="sidebar-text-label text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-bold">Academic Modules</span>

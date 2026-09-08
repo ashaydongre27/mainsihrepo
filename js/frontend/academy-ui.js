@@ -133,6 +133,8 @@ function closeAcademyMobileMenu() {
 }
 
 window.switchAcademyTab = switchAcademyTab;
+window.initAcademySidebarState = initAcademySidebarState;
+window.applyAcademySidebarState = applyAcademySidebarState;
 window.toggleAcademySidebarCollapse = toggleAcademySidebarCollapse;
 window.toggleAcademyMobileMenu = toggleAcademyMobileMenu;
 window.closeAcademyMobileMenu = closeAcademyMobileMenu;
@@ -169,47 +171,74 @@ function renderDepartmentalReadiness() {
   }).join('');
 }
 
-function renderSyllabusProposals() {
-  const container = document.getElementById('syllabus-proposals-grid');
+let CURRENT_SYLLABUS_MODULES = [...SYLLABUS_PROPOSALS];
+
+async function renderSyllabusProposals() {
+  const container = document.getElementById('syllabus-proposals-grid') || document.getElementById('syllabus-proposals-container');
   if (!container) return;
 
-  container.innerHTML = SYLLABUS_PROPOSALS.map(prop => `
-    <div class="p-5 rounded-2xl bg-gray-900/60 border ${prop.adopted ? 'border-emerald-500/50 bg-emerald-950/20' : 'border-gray-800'} backdrop-blur-md space-y-3">
-      <div class="flex items-center justify-between">
-        <span class="text-[10px] uppercase font-bold text-emerald-400 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">
-          AI Curriculum Recommendation
-        </span>
-        <span class="text-xs text-gray-400 font-mono">${prop.source}</span>
+  try {
+    const data = await JoblexApiClient.getAcademyData();
+    if (data && Array.isArray(data.syllabusSuggestions) && data.syllabusSuggestions.length > 0) {
+      CURRENT_SYLLABUS_MODULES = data.syllabusSuggestions;
+    }
+  } catch (err) {
+    console.warn('[Academy UI] Loaded fallback curriculum proposals:', err.message);
+  }
+
+  container.innerHTML = CURRENT_SYLLABUS_MODULES.map(prop => `
+    <div class="p-5 rounded-2xl bg-white dark:bg-gray-900/70 border ${prop.adopted ? 'border-emerald-500/60 bg-emerald-50/50 dark:bg-emerald-950/20 shadow-sm' : 'border-[#E7E4DC] dark:border-gray-800'} backdrop-blur-md space-y-3 transition-all hover:border-emerald-400">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="text-[10px] uppercase font-bold text-emerald-700 dark:text-emerald-400 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30">
+            ${prop.nepPillar || 'NEP-2020 Module'}
+          </span>
+          ${prop.department ? `<span class="text-[11px] font-semibold text-purple-700 dark:text-purple-300 font-mono">${prop.department}</span>` : ''}
+        </div>
+        <div class="flex items-center gap-2">
+          ${prop.credits ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-gray-700">${prop.credits}</span>` : ''}
+          <span class="text-xs text-[#6E6962] dark:text-gray-400 font-mono">${prop.source}</span>
+        </div>
       </div>
       <div>
-        <h4 class="text-xs text-gray-400 font-semibold mb-0.5">Target Course Topic:</h4>
-        <p class="text-xs text-gray-200">${prop.currentTopic}</p>
+        <h4 class="text-xs text-[#6E6962] dark:text-gray-400 font-semibold mb-0.5">Current Syllabus Baseline:</h4>
+        <p class="text-xs text-[#1C1917] dark:text-gray-200 font-medium">${prop.currentTopic}</p>
       </div>
-      <div class="p-3 rounded-xl bg-black/40 border border-emerald-500/20">
-        <h4 class="text-xs text-emerald-300 font-bold mb-1"><span class="material-symbols-outlined text-xs align-middle text-emerald-400 mr-1">lightbulb</span>Proposed Syllabus Modernization:</h4>
-        <p class="text-xs sm:text-sm text-white font-medium">${prop.suggestedAddition}</p>
-        <span class="text-[11px] text-gray-400 mt-1 block">Impact: ${prop.impact}</span>
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-black/40 border border-emerald-200 dark:border-emerald-500/20 space-y-1">
+        <h4 class="text-xs text-emerald-800 dark:text-emerald-300 font-bold flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-sm text-emerald-600 dark:text-emerald-400">lightbulb</span>
+          <span>Proposed Industry Modernization:</span>
+        </h4>
+        <p class="text-xs sm:text-sm text-[#1C1917] dark:text-white font-semibold">${prop.suggestedAddition}</p>
+        <span class="text-[11px] text-[#6E6962] dark:text-gray-400 pt-1 block">Impact: ${prop.impact}</span>
       </div>
-      <div class="flex items-center justify-end gap-2 pt-2">
-        ${prop.adopted 
-          ? `<span class="text-xs text-emerald-400 font-bold px-4 py-2 rounded-xl bg-emerald-500/20 border border-emerald-500/40">✓ Adopted for Academic Council</span>`
-          : `
-            <button onclick="adoptProposal('${prop.id}')" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition">
-              Adopt Syllabus Add-on
-            </button>
-          `
-        }
+      <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-gray-800">
+        <span class="text-[11px] text-slate-500 dark:text-gray-400 font-mono">Module Ref: #${prop.id}</span>
+        <div>
+          ${prop.adopted 
+            ? `<span class="inline-flex items-center gap-1 text-xs text-emerald-700 dark:text-emerald-400 font-bold px-4 py-2 rounded-xl bg-emerald-100 dark:bg-emerald-500/20 border border-emerald-300 dark:border-emerald-500/40 shadow-sm"><span class="material-symbols-outlined text-sm">verified</span> Adopted for Academic Council</span>`
+            : `
+              <button onclick="adoptProposal('${prop.id}')" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition shadow-sm hover:scale-[1.02] flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm">add_task</span>
+                <span>Adopt Syllabus Add-on</span>
+              </button>
+            `
+          }
+        </div>
       </div>
     </div>
   `).join('');
 }
 
 async function adoptProposal(id) {
-  const p = SYLLABUS_PROPOSALS.find(x => x.id === id);
+  const p = CURRENT_SYLLABUS_MODULES.find(x => x.id === id);
   if (p) {
     p.adopted = true;
     renderSyllabusProposals();
     await JoblexApiClient.adoptSyllabus(id);
+    if (typeof showToast === 'function') {
+      showToast('Syllabus add-on ratified for Academic Council review!', 'Curriculum Council', 'success');
+    }
   }
 }
 

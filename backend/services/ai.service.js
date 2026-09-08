@@ -54,53 +54,71 @@ function getNvidiaApiKey() {
 }
 
 /**
- * Call NVIDIA via NVCF pexec endpoint (verified working with this key)
- * Primary: ai-gpt-oss-20b (function 24d90582, version 701ca393)
- * Fallback: ai-deepseek-v4-pro-0813 (function 6e70713f)
+ * Call NVIDIA Model via OpenAI-compatible integrate endpoint
+ * Primary Model: nvidia/nemotron-3-ultra-550b-a55b (with reasoning tokens & failover)
  */
-async function callNvidiaModel({ prompt, systemInstruction = '', history = [], temperature = 0.7 }) {
+async function callNvidiaModel({ prompt, systemInstruction = '', history = [], temperature = 0.7, maxTokens = 2048, enableThinking = false, timeoutMs = 25000 }) {
   const apiKey = getNvidiaApiKey();
   if (!apiKey) return null;
 
-  const NVCF_MODELS = [
-    {
-      name: 'gpt-oss-20b',
-      url: 'https://api.nvcf.nvidia.com/v2/nvcf/pexec/functions/24d90582-d41c-4fc6-adc0-53c97f5a710f/versions/701ca393-dc00-4457-a769-c3147960cc3a'
-    }
-  ];
+  const model = process.env.NVIDIA_MODEL || 'nvidia/nemotron-3-ultra-550b-a55b';
+  const endpoint = 'https://integrate.api.nvidia.com/v1/chat/completions';
 
   const messages = [];
-  if (systemInstruction) messages.push({ role: 'system', content: systemInstruction });
+  if (systemInstruction) {
+    messages.push({ role: 'system', content: systemInstruction });
+  }
   for (const h of history) {
-    if (h.role && h.content) messages.push({ role: h.role === 'model' ? 'assistant' : h.role, content: h.content });
+    if (h.role && (h.content || h.text)) {
+      messages.push({
+        role: h.role === 'model' || h.role === 'assistant' ? 'assistant' : 'user',
+        content: h.content || h.text
+      });
+    }
   }
   messages.push({ role: 'user', content: prompt });
 
-  for (const { name, url } of NVCF_MODELS) {
-    try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ messages, max_tokens: 420, stream: false }),
-        signal: AbortSignal.timeout(20000)
-      });
-      if (!res.ok) {
-        console.warn(`[NVIDIA] ${name} returned HTTP ${res.status}`);
-        continue;
-      }
-      const data = await res.json();
-      const choice = data?.choices?.[0]?.message;
-      // Extract generated answer: content takes priority, then reasoning_content/reasoning
-      const text = choice?.content || choice?.reasoning_content || choice?.reasoning;
-      if (text && text.trim()) {
-        return { text: text.trim(), provider: `nvidia-${name}`, keyType: 'nvidia' };
-      }
-    } catch (err) {
-      console.warn(`[NVIDIA] ${name} error:`, err.message);
+  try {
+    const payload = {
+      model,
+      messages,
+      temperature,
+      max_tokens: maxTokens
+    };
+    if (enableThinking) {
+      payload.chat_template_kwargs = { enable_thinking: true };
     }
+
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(timeoutMs)
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.warn(`[NVIDIA ${model}] returned HTTP ${res.status}:`, errText.substring(0, 200));
+      return null;
+    }
+
+    const data = await res.json();
+    const choice = data?.choices?.[0]?.message;
+    const text = choice?.content || choice?.reasoning_content;
+
+    if (text && text.trim()) {
+      return {
+        text: text.trim(),
+        reasoning: choice?.reasoning_content || null,
+        provider: model,
+        keyType: 'nvidia-nemotron'
+      };
+    }
+  } catch (err) {
+    console.warn(`[NVIDIA ${model} Error]:`, err.message);
   }
   return null;
 }

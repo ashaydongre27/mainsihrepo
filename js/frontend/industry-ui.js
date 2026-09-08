@@ -114,6 +114,8 @@ function closeIndustryMobileMenu() {
 }
 
 window.switchIndustryTab = switchIndustryTab;
+window.initIndustrySidebarState = initIndustrySidebarState;
+window.applyIndustrySidebarState = applyIndustrySidebarState;
 window.toggleIndustrySidebarCollapse = toggleIndustrySidebarCollapse;
 window.toggleIndustryMobileMenu = toggleIndustryMobileMenu;
 window.closeIndustryMobileMenu = closeIndustryMobileMenu;

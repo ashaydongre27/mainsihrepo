@@ -99,7 +99,7 @@
 </header>
 
 <!-- MOBILE SLIDE-OUT DRAWER -->
-<div id="mobile-drawer" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden lg:hidden no-print">
+<div id="mobile-drawer" onclick="if(event.target === this) closeMobileMenu()" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden lg:hidden no-print">
   <div class="fixed inset-y-0 left-0 w-72 bg-white dark:bg-[#101115] p-5 flex flex-col justify-between shadow-2xl border-r border-[#E7E4DC] dark:border-white/10 overflow-y-auto">
     <div class="space-y-4">
       <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-gray-800">
@@ -361,6 +361,175 @@
               <span id="step-2">2. NLP Extraction</span>
               <span id="step-3">3. Ontology Match</span>
               <span id="step-4">4. Vector Assessment</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PROMPT GIVER & AI RESUME OPTIMIZER COPILOT CARD -->
+      <div id="resume-prompt-optimizer-card" class="rounded-2xl border border-purple-200 dark:border-purple-800/50 bg-white dark:bg-white/[0.03] p-6 sm:p-8 shadow-sm space-y-6">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E7E4DC] dark:border-white/10 pb-4">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-purple-600/10 to-indigo-600/10 border border-purple-300 dark:border-purple-700/60 text-purple-700 dark:text-purple-300 text-xs font-bold uppercase tracking-wider">
+                <span class="material-symbols-outlined text-[16px] text-purple-600 animate-spin">smart_toy</span>
+                AI Prompt Giver &amp; Resume Optimizer Copilot
+              </span>
+              <span class="text-slate-300 dark:text-gray-700">•</span>
+              <span class="text-[11px] font-mono text-slate-500 dark:text-gray-400">NVIDIA Nemotron 3 Ultra 550B</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-[#1C1917] dark:text-white">
+              Instruct the AI: Send Changes &amp; Tailor Your Resume
+            </h2>
+            <p class="text-xs sm:text-sm text-[#6E6962] dark:text-gray-300 max-w-2xl leading-relaxed">
+              Upload any candidate resume, then specify custom directions below (e.g. emphasize specialized lab skills, target a specific company, or rewrite for research grants). Nemotron 550B will rewrite your summary and synthesize tailored bullet points.
+            </p>
+          </div>
+
+          <div class="shrink-0 flex sm:flex-col items-end gap-1">
+            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Active Engine</span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 text-xs font-mono font-bold">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Nemotron-3 550B Ready
+            </span>
+          </div>
+        </div>
+
+        <!-- Prompt Giver Input Console -->
+        <div class="space-y-3">
+          <label for="resume-custom-prompt" class="block text-xs font-bold uppercase tracking-wider text-[#1C1917] dark:text-gray-200">
+            What changes would you like the AI to make?
+          </label>
+          <div class="relative">
+            <textarea id="resume-custom-prompt" rows="3" class="w-full p-4 rounded-xl bg-slate-50 dark:bg-gray-900 border border-[#E7E4DC] dark:border-gray-700 text-xs sm:text-sm font-sans text-[#1C1917] dark:text-gray-200 focus:ring-2 focus:ring-purple-500 transition leading-relaxed pr-10" placeholder="e.g. Highlight chromatography and phytochemistry experience for Dabur R&amp;D internship, quantify experimental sample batches, emphasize GLP compliance, and align tone with institutional hiring standards..."></textarea>
+            <button type="button" onclick="document.getElementById('resume-custom-prompt').value=''" title="Clear Instructions" class="absolute top-3 right-3 text-slate-400 hover:text-slate-600 dark:hover:text-white p-1">
+              <span class="material-symbols-outlined text-[16px]">backspace</span>
+            </button>
+          </div>
+
+          <!-- Quick Suggestion Chips -->
+          <div class="space-y-1.5 pt-1">
+            <span class="text-[11px] font-semibold text-slate-400 dark:text-gray-500">Quick Prompt Directives:</span>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" onclick="setPromptSuggestion('Highlight chromatography, HPTLC fingerprinting, and phytochemistry for Dabur R&D internship with GLP compliance emphasis.')" class="px-3 py-1.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/60 text-purple-700 dark:text-purple-300 text-xs font-medium hover:bg-purple-100 dark:hover:bg-purple-900/60 transition flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[14px]">biotech</span>
+                <span>Target Dabur R&amp;D Formulation</span>
+              </button>
+              <button type="button" onclick="setPromptSuggestion('Focus on Bioinformatics, in-silico molecular docking, and computational drug discovery pipelines.')" class="px-3 py-1.5 rounded-xl bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-200 dark:border-cyan-800/60 text-cyan-700 dark:text-cyan-300 text-xs font-medium hover:bg-cyan-100 dark:hover:bg-cyan-900/60 transition flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[14px]">terminal</span>
+                <span>Focus on Bioinformatics &amp; AI</span>
+              </button>
+              <button type="button" onclick="setPromptSuggestion('Emphasize Good Laboratory Practice (GLP), 21 CFR Part 11 audit trails, and pharmacopeial monograph standards.')" class="px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-700 dark:text-amber-300 text-xs font-medium hover:bg-amber-100 dark:hover:bg-amber-900/60 transition flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[14px]">verified_user</span>
+                <span>Emphasize GLP &amp; QA Compliance</span>
+              </button>
+              <button type="button" onclick="setPromptSuggestion('Elevate research summary for PhD admissions and national fellowship grant review with peer-reviewed publications emphasis.')" class="px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-300 text-xs font-medium hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[14px]">school</span>
+                <span>Elevate for Academic Fellowship</span>
+              </button>
+              <button type="button" onclick="setPromptSuggestion('Quantify all project metrics, experimental yields, batch accuracy percentages, and team outcomes.')" class="px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 text-xs font-medium hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[14px]">trending_up</span>
+                <span>Quantify Project Metrics</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Optimization Action Trigger -->
+          <div class="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <span class="text-xs text-[#6E6962] dark:text-gray-400 flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-purple-500 text-[16px]">auto_awesome</span>
+              <span>Processes parsed document text or current candidate credentials with custom instructions</span>
+            </span>
+            <button id="btn-optimize-resume" type="button" onclick="handleOptimizeResume()" class="w-full sm:w-auto px-7 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 hover:scale-[1.02]">
+              <span class="material-symbols-outlined text-[20px]">auto_fix_high</span>
+              <span>Send Changes &amp; Optimize with AI</span>
+            </button>
+          </div>
+
+          <!-- Loading Spinner -->
+          <div id="optimizer-loading-state" class="hidden p-5 rounded-2xl bg-purple-50/70 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800/50 flex items-center justify-center gap-3 text-xs font-semibold text-purple-900 dark:text-purple-200">
+            <div class="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+            <span>NVIDIA Nemotron-3 550B is tailoring your resume materials based on your custom prompt...</span>
+          </div>
+        </div>
+
+        <!-- Optimization Results Display -->
+        <div id="optimizer-results-container" class="hidden pt-4 border-t border-[#E7E4DC] dark:border-white/10 space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <span id="optimizer-provider-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-800">
+                  NVIDIA Nemotron 3 Ultra 550B
+                </span>
+                <span id="optimizer-confidence-score" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                  94% Match
+                </span>
+              </div>
+              <h3 class="text-base sm:text-lg font-bold text-[#1C1917] dark:text-white mt-1">
+                Optimized Resume Materials &amp; Tailored Highlights
+              </h3>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="copyOptimizedSummary()" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-gray-700 text-xs font-semibold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[15px]">content_copy</span>
+                <span>Copy Summary</span>
+              </button>
+              <button type="button" onclick="applyOptimizedSummary()" class="px-4 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                <span class="material-symbols-outlined text-[15px]">sync</span>
+                <span>Apply to Executive Summary</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Section 1: Revised Executive Summary -->
+          <div class="p-4 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/50 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-purple-900 dark:text-purple-200 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-purple-600 text-base">format_quote</span>
+                AI-Rewritten Professional Summary
+              </span>
+              <span class="text-[10px] text-slate-400">Tailored to your instructions</span>
+            </div>
+            <p id="optimizer-revised-summary" class="text-xs sm:text-sm text-slate-800 dark:text-gray-200 leading-relaxed italic">
+              Loading tailored summary...
+            </p>
+          </div>
+
+          <!-- Section 2: Tailored High-Impact Bullets -->
+          <div class="space-y-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-[#1C1917] dark:text-white flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-indigo-500 text-base">checklist</span>
+              Tailored Experience &amp; Project Bullets (Ready to Paste)
+            </span>
+            <ul id="optimizer-tailored-bullets" class="space-y-2">
+              <!-- Rendered via JS -->
+            </ul>
+          </div>
+
+          <!-- Section 3: Recommended ATS Keywords & Tactical Suggestions -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Keywords -->
+            <div class="p-4 rounded-xl bg-slate-50 dark:bg-gray-900/60 border border-[#E7E4DC] dark:border-gray-800 space-y-2.5">
+              <span class="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-purple-500 text-base">key</span>
+                High-Impact ATS Keywords to Include
+              </span>
+              <div id="optimizer-recommended-keywords" class="flex flex-wrap gap-1.5">
+                <!-- Chips rendered via JS -->
+              </div>
+            </div>
+
+            <!-- Structural suggestions -->
+            <div class="p-4 rounded-xl bg-slate-50 dark:bg-gray-900/60 border border-[#E7E4DC] dark:border-gray-800 space-y-2.5">
+              <span class="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-amber-500 text-base">tips_and_updates</span>
+                Strategic Resume Adjustments
+              </span>
+              <div id="optimizer-structural-suggestions" class="space-y-2">
+                <!-- Suggestions rendered via JS -->
+              </div>
             </div>
           </div>
         </div>

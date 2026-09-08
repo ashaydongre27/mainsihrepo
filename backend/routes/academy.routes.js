@@ -135,6 +135,14 @@ router.get('/cross-college-benchmarking', async (req, res) => {
   res.json({ success: true, institutions: DB.crossCollegeBenchmarking || [] });
 });
 
+// GET /api/academy/curriculum-modules
+router.get('/curriculum-modules', async (req, res) => {
+  res.json({
+    success: true,
+    modules: DB.syllabus_suggestions || []
+  });
+});
+
 // POST /api/academy/adopt-syllabus
 router.post('/adopt-syllabus', async (req, res) => {
   try {
