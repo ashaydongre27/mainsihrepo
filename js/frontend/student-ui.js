@@ -2785,11 +2785,11 @@ async function handleZuluSend(e) {
 
   const studentContext = {
     studentName: currentUser ? currentUser.name : 'Scholar',
-    institution: currentUser ? currentUser.institution : 'Ayush Collegiate Institute',
-    department: (currentUser && (currentUser.department || currentUser.year)) || 'Ayurvedic Pharmacology & Health-AI',
+    institution: currentUser ? currentUser.institution : 'Academic Technical Institute',
+    department: (currentUser && (currentUser.department || currentUser.year)) || 'Engineering & Technology',
     xp: currentXp,
     streak: currentStreak,
-    targetRole: 'Herbal Formulation Scientist'
+    targetRole: currentUser?.targetRole || currentUser?.domain || 'Full Stack Software Engineer'
   };
 
   const res = await JoblexApiClient.askZulu(text, studentContext, currentZuluSessionId, userId);
