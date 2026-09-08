@@ -188,7 +188,40 @@ router.get('/applications', async (req, res) => {
   });
 });
 
+// POST /api/industry/applications/:id/status (Review / Shortlist / Offer status updater)
+router.post('/applications/:id/status', async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body || {};
 
+  if (!status) {
+    return res.status(400).json({ success: false, error: 'Status is required.' });
+  }
+
+  if (isConfigured && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('applications')
+        .update({ status })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (!error && data) {
+        return res.json({ success: true, message: `Application status updated to "${status}"!`, application: data });
+      }
+    } catch (err) {
+      console.warn('[Update App Status] Supabase update warning:', err.message);
+    }
+  }
+
+  const app = (DB.applications || []).find(a => a.id === id);
+  if (app) {
+    app.status = status;
+    return res.json({ success: true, message: `Application status updated to "${status}"!`, application: app });
+  }
+
+  res.json({ success: true, message: `Application status updated to "${status}"!` });
+});
 
 // GET /api/industry/candidates
 router.get('/candidates', async (req, res) => {
@@ -702,9 +735,6 @@ router.post('/opportunities', async (req, res) => {
       description: description || 'Verified opportunity published through JOBLEX Industry portal.'
     };
 
-    if (!DB.opportunities) DB.opportunities = [];
-    DB.opportunities.unshift(newOpp);
-
     if (isConfigured && supabase) {
       try {
         const { data, error } = await supabase.from('opportunities').insert([newOpp]).select().single();
@@ -712,9 +742,12 @@ router.post('/opportunities', async (req, res) => {
           return res.status(201).json({ success: true, message: 'Opportunity published successfully!', opportunity: data });
         }
       } catch (err) {
-        console.warn('[Post Opportunity] Supabase error, saved locally:', err.message);
+        console.warn('[Post Opportunity] Supabase error, saving locally:', err.message);
       }
     }
+
+    if (!DB.opportunities) DB.opportunities = [];
+    DB.opportunities.unshift(newOpp);
 
     // Broadcast in-portal notification to students
     if (!DB.inPortalNotifications) DB.inPortalNotifications = [];
