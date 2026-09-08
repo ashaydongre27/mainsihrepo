@@ -1189,7 +1189,7 @@ async function handleMergeSelectedSkills() {
 }
 
 // ─────────────────────────────────────────────────────────────
-// PROMPT GIVER & AI RESUME OPTIMIZER COPILOT (Nemotron 550B)
+// PROMPT GIVER & AI RESUME OPTIMIZER COPILOT (Zulu AI)
 // ─────────────────────────────────────────────────────────────
 let latestOptimizationData = null;
 
@@ -1279,7 +1279,7 @@ function renderOptimizationResults(opt, provider, targetRole) {
   // Provider badge
   const providerEl = document.getElementById('optimizer-provider-badge');
   if (providerEl) {
-    providerEl.innerText = (provider && provider.includes('nemotron')) ? 'NVIDIA Nemotron 3 Ultra 550B' : 'NVIDIA AI Copilot Engine';
+    providerEl.innerText = 'Zulu AI Copilot';
   }
 
   // Confidence
@@ -1374,6 +1374,858 @@ window.setPromptSuggestion = setPromptSuggestion;
 window.applyOptimizedSummary = applyOptimizedSummary;
 window.copyOptimizedSummary = copyOptimizedSummary;
 window.copyOptimizedText = copyOptimizedText;
+
+// ─────────────────────────────────────────────────────────────
+// INTERACTIVE RESUME BUILDER & ATS PDF EXPORTER (POWERED BY ZULU AI)
+// ─────────────────────────────────────────────────────────────
+
+let resumeBuilderState = {
+  name: '',
+  title: '',
+  email: '',
+  phone: '',
+  location: '',
+  links: '',
+  summary: '',
+  skills: '',
+  experiences: [],
+  projects: [],
+  educations: [],
+  certifications: ''
+};
+
+function escapeResumeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function openResumeBuilderModal(mode) {
+  const modal = document.getElementById('resume-builder-modal');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  document.body.classList.add('overflow-hidden');
+
+  if (mode === 'parsed') {
+    syncParsedDataToBuilder();
+  } else if (mode === 'optimized') {
+    syncParsedDataToBuilder();
+    applyOptimizedDataToState();
+  } else if (!resumeBuilderState.name && !resumeBuilderState.email) {
+    if (currentParsedData) {
+      syncParsedDataToBuilder();
+    } else {
+      initBuilderFromUserOrSample();
+    }
+  }
+
+  populateBuilderFormFields();
+  renderResumeLivePreview();
+}
+
+function closeResumeBuilderModal() {
+  const modal = document.getElementById('resume-builder-modal');
+  if (modal) modal.classList.add('hidden');
+  document.body.classList.remove('overflow-hidden');
+}
+
+function initBuilderFromUserOrSample() {
+  const user = (typeof JoblexApiClient !== 'undefined' && JoblexApiClient.getUser) 
+    ? JoblexApiClient.getUser() 
+    : JSON.parse(localStorage.getItem('joblex_user') || '{}');
+
+  if (user && (user.name || user.email)) {
+    resumeBuilderState.name = user.name || 'Scholar Candidate';
+    resumeBuilderState.email = user.email || 'student@joblex.edu';
+    resumeBuilderState.phone = user.phone || '+91 98765 43210';
+    resumeBuilderState.location = user.location || 'Bengaluru, India';
+    resumeBuilderState.title = user.fieldOfStudy || user.stream || 'Technology & Applied Sciences Specialist';
+    resumeBuilderState.links = 'linkedin.com/in/candidate • github.com/candidate';
+    resumeBuilderState.summary = 'Motivated and results-oriented professional with a strong academic foundation, demonstrated practical project competencies, and a proactive drive for continuous technical excellence.';
+    resumeBuilderState.skills = Array.isArray(user.verified_skills) && user.verified_skills.length > 0
+      ? user.verified_skills.join(', ')
+      : 'Python, JavaScript, Data Analysis, Git, Problem Solving, Technical Documentation, Team Leadership';
+
+    resumeBuilderState.experiences = [
+      {
+        id: Date.now() + 1,
+        role: 'Research & Project Trainee',
+        company: 'Academic & Industry Research Labs',
+        dates: '2025 – Present',
+        location: 'Bengaluru, India',
+        bullets: '• Spearheaded technical prototyping and data evaluation workflows with cross-functional teams.\n• Optimized process turnaround times by 35% through standardized procedural protocols.\n• Prepared institutional audit trails and peer-level technical documentation.'
+      }
+    ];
+
+    resumeBuilderState.projects = [
+      {
+        id: Date.now() + 2,
+        title: 'Core System Implementation & Diagnostic Analysis',
+        tech: 'Technical Protocols, Modern Frameworks, Analytics',
+        link: 'github.com/candidate/project-core',
+        bullets: '• Designed and deployed scalable pipeline architecture tested against industrial benchmarks.\n• Integrated automated verification workflows reducing validation discrepancies by 40%.'
+      }
+    ];
+
+    resumeBuilderState.educations = [
+      {
+        id: Date.now() + 3,
+        degree: user.fieldOfStudy ? `Bachelor of Technology / Science (${user.fieldOfStudy})` : 'Bachelor of Technology',
+        institution: user.college || user.institution || 'National Institute of Technology / University',
+        year: '2022 – 2026',
+        score: 'CGPA: 8.8 / 10.0'
+      }
+    ];
+
+    resumeBuilderState.certifications = '• National Technical Excellence Certification (Elite Honor)\n• Joblex Verified Competency Dossier (Hash: 0x9B44...F022)';
+  } else {
+    loadResumeSampleTemplate();
+  }
+}
+
+function loadResumeSampleTemplate() {
+  resumeBuilderState = {
+    name: 'Alex Sharma',
+    title: 'Full Stack Software Engineer | Distributed Systems',
+    email: 'alex.sharma@example.edu',
+    phone: '+91 98765 43210',
+    location: 'Bengaluru, Karnataka, India',
+    links: 'linkedin.com/in/alex-sharma • github.com/alexsharma • alexsharma.dev',
+    summary: 'Results-driven Software Engineer with hands-on experience architecting scalable full-stack web applications, microservices, and asynchronous event pipelines. Proven track record in optimizing backend latency by 45% and designing accessible, high-performance user interfaces aligned with enterprise standards.',
+    skills: 'JavaScript (ES6+), TypeScript, React.js, Node.js, Express, Python, PostgreSQL, MongoDB, Redis, Docker, AWS (S3, EC2), REST APIs, GraphQL, Git, CI/CD, Jest',
+    experiences: [
+      {
+        id: Date.now() + 10,
+        role: 'Full Stack Engineering Intern',
+        company: 'HyperScale Technologies',
+        dates: 'Jun 2025 – Dec 2025',
+        location: 'Bengaluru, India',
+        bullets: '• Developed and maintained 14+ RESTful endpoints serving 50k+ daily requests with 99.9% uptime.\n• Refactored SQL query execution plans with indexing, cutting average database response times from 340ms to 85ms.\n• Built responsive customer dashboards in React with real-time WebSocket state synchronization.'
+      },
+      {
+        id: Date.now() + 11,
+        role: 'Software Development Trainee',
+        company: 'TechCorp Innovation Labs',
+        dates: 'Jan 2025 – May 2025',
+        location: 'Hyderabad, India',
+        bullets: '• Collaborated with senior engineers to implement JWT-based authentication and RBAC authorization.\n• Wrote comprehensive unit and integration test suites in Jest achieving 92% code coverage.'
+      }
+    ],
+    projects: [
+      {
+        id: Date.now() + 20,
+        title: 'Distributed Real-Time Collaborative Canvas',
+        tech: 'React, Node.js, WebSockets, Redis, Canvas API',
+        link: 'github.com/alexsharma/canvas-sync',
+        bullets: '• Engineered a conflict-free replicated data engine supporting simultaneous multi-user drawing.\n• Leveraged Redis Pub/Sub to scale room message broadcasts across multiple Node.js instances with <20ms latency.'
+      },
+      {
+        id: Date.now() + 21,
+        title: 'AI Resume & Skill Gap Matcher',
+        tech: 'Python, FastAPI, SentenceTransformers, PostgreSQL, Docker',
+        link: 'github.com/alexsharma/ai-resume-parser',
+        bullets: '• Built vector embedding matching pipeline comparing candidate resumes against 100+ industry job descriptions.\n• Containerized the complete application stack with Docker Compose for seamless zero-downtime deployment.'
+      }
+    ],
+    educations: [
+      {
+        id: Date.now() + 30,
+        degree: 'Bachelor of Technology in Computer Science & Engineering',
+        institution: 'National Institute of Technology (NIT)',
+        year: '2022 – 2026',
+        score: 'CGPA: 8.9 / 10.0'
+      }
+    ],
+    certifications: '• AWS Certified Solutions Architect – Associate (2025)\n• NPTEL Elite Gold Certificate in Cloud Computing & Distributed Systems\n• Meta Certified Frontend Developer Specialization'
+  };
+
+  populateBuilderFormFields();
+  renderResumeLivePreview();
+  showToast('Loaded professional ATS resume template!', 'Template Ready', 'info');
+}
+
+function syncParsedDataToBuilder() {
+  let pData = currentParsedData;
+  if (!pData) {
+    const cached = sessionStorage.getItem('joblex_latest_parsed_resume');
+    if (cached) {
+      try {
+        const d = JSON.parse(cached);
+        if (d.parsed) pData = d.parsed;
+        if (d.assessment) currentAutoAssessment = d.assessment;
+      } catch (e) {}
+    }
+  }
+
+  if (!pData) {
+    showToast('No parsed resume detected in current session. Enter details directly or use template.', 'Notice', 'info');
+    initBuilderFromUserOrSample();
+    return;
+  }
+
+  if (pData.name && pData.name !== 'Scholar Candidate') {
+    resumeBuilderState.name = pData.name;
+  } else if (!resumeBuilderState.name) {
+    const user = (typeof JoblexApiClient !== 'undefined' && JoblexApiClient.getUser) ? JoblexApiClient.getUser() : null;
+    resumeBuilderState.name = user?.name || 'Candidate';
+  }
+
+  if (pData.email) resumeBuilderState.email = pData.email;
+  if (currentAutoAssessment?.targetRole) {
+    resumeBuilderState.title = currentAutoAssessment.targetRole;
+  } else if (pData.experienceYears) {
+    resumeBuilderState.title = `${pData.experienceYears} Specialist`;
+  }
+
+  if (pData.summary) resumeBuilderState.summary = pData.summary;
+
+  if (Array.isArray(pData.extractedSkills) && pData.extractedSkills.length > 0) {
+    resumeBuilderState.skills = pData.extractedSkills.join(', ');
+  }
+
+  if (Array.isArray(pData.education) && pData.education.length > 0) {
+    resumeBuilderState.educations = pData.education.map((edu, idx) => ({
+      id: Date.now() + idx + 50,
+      degree: edu,
+      institution: 'Accredited University / Institute',
+      year: '2022 – 2026',
+      score: 'First Class with Distinction'
+    }));
+  }
+
+  if (!resumeBuilderState.experiences || resumeBuilderState.experiences.length === 0) {
+    resumeBuilderState.experiences = [
+      {
+        id: Date.now() + 60,
+        role: resumeBuilderState.title || 'Technical Specialist',
+        company: 'Institutional Project & Innovation Center',
+        dates: '2024 – Present',
+        location: 'India',
+        bullets: '• Executed core project deliverables adhering to industry frameworks and analytical protocols.\n• Documented systematic workflows and validated experimental benchmarks with high accuracy.'
+      }
+    ];
+  }
+
+  populateBuilderFormFields();
+  renderResumeLivePreview();
+  showToast('Synced parsed credentials into Resume Maker!', 'Synced', 'success');
+}
+
+function openResumeBuilderWithParsedData() {
+  openResumeBuilderModal('parsed');
+}
+
+function openResumeBuilderWithOptimizedData() {
+  openResumeBuilderModal('optimized');
+}
+
+function applyOptimizedDataToState() {
+  if (!latestOptimizationData) return;
+
+  if (latestOptimizationData.revisedSummary) {
+    resumeBuilderState.summary = latestOptimizationData.revisedSummary;
+  }
+
+  if (Array.isArray(latestOptimizationData.recommendedKeywords) && latestOptimizationData.recommendedKeywords.length > 0) {
+    const existing = resumeBuilderState.skills ? resumeBuilderState.skills.split(',').map(s => s.trim()).filter(Boolean) : [];
+    latestOptimizationData.recommendedKeywords.forEach(k => {
+      if (!existing.includes(k)) existing.push(k);
+    });
+    resumeBuilderState.skills = existing.join(', ');
+  }
+
+  if (Array.isArray(latestOptimizationData.tailoredBulletPoints) && latestOptimizationData.tailoredBulletPoints.length > 0) {
+    if (!resumeBuilderState.experiences || resumeBuilderState.experiences.length === 0) {
+      resumeBuilderState.experiences = [
+        {
+          id: Date.now() + 70,
+          role: resumeBuilderState.title || 'Specialist Engineer',
+          company: 'Industry Capstone Organization',
+          dates: '2024 – Present',
+          location: 'Bengaluru, India',
+          bullets: latestOptimizationData.tailoredBulletPoints.map(b => `• ${b}`).join('\n')
+        }
+      ];
+    } else {
+      resumeBuilderState.experiences[0].bullets = latestOptimizationData.tailoredBulletPoints.map(b => `• ${b}`).join('\n');
+    }
+  }
+
+  populateBuilderFormFields();
+  renderResumeLivePreview();
+  showToast('Applied Zulu AI Optimized Summary & Tailored Bullets!', 'Zulu AI Applied', 'success');
+}
+
+function populateBuilderFormFields() {
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val || '';
+  };
+
+  setVal('rb-name', resumeBuilderState.name);
+  setVal('rb-title', resumeBuilderState.title);
+  setVal('rb-email', resumeBuilderState.email);
+  setVal('rb-phone', resumeBuilderState.phone);
+  setVal('rb-location', resumeBuilderState.location);
+  setVal('rb-links', resumeBuilderState.links);
+  setVal('rb-summary', resumeBuilderState.summary);
+  setVal('rb-skills', resumeBuilderState.skills);
+  setVal('rb-certifications', resumeBuilderState.certifications);
+
+  renderExperienceEntries();
+  renderProjectEntries();
+  renderEducationEntries();
+}
+
+function handleResumeFieldInput() {
+  const getVal = id => (document.getElementById(id)?.value || '').trim();
+
+  resumeBuilderState.name = getVal('rb-name');
+  resumeBuilderState.title = getVal('rb-title');
+  resumeBuilderState.email = getVal('rb-email');
+  resumeBuilderState.phone = getVal('rb-phone');
+  resumeBuilderState.location = getVal('rb-location');
+  resumeBuilderState.links = getVal('rb-links');
+  resumeBuilderState.summary = document.getElementById('rb-summary')?.value || '';
+  resumeBuilderState.skills = document.getElementById('rb-skills')?.value || '';
+  resumeBuilderState.certifications = document.getElementById('rb-certifications')?.value || '';
+
+  renderResumeLivePreview();
+}
+
+function renderExperienceEntries() {
+  const container = document.getElementById('rb-experience-container');
+  if (!container) return;
+
+  if (!resumeBuilderState.experiences || resumeBuilderState.experiences.length === 0) {
+    container.innerHTML = `<p class="text-xs text-slate-400 italic p-2">No experience entries added yet. Click "+ Add Position" above.</p>`;
+    return;
+  }
+
+  container.innerHTML = resumeBuilderState.experiences.map((exp, idx) => `
+    <div class="p-3.5 rounded-xl bg-white dark:bg-[#101115] border border-slate-200 dark:border-gray-700 space-y-2.5 text-xs relative">
+      <div class="flex items-center justify-between">
+        <span class="font-bold text-slate-700 dark:text-gray-300">Position #${idx + 1}</span>
+        <button type="button" onclick="removeExperienceEntry(${exp.id})" class="text-slate-400 hover:text-red-500 transition p-1" title="Remove position">
+          <span class="material-symbols-outlined text-[16px]">delete</span>
+        </button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div>
+          <label class="block text-[10px] text-slate-400 mb-0.5">Role / Title</label>
+          <input type="text" value="${escapeResumeHtml(exp.role || '')}" oninput="updateExperienceField(${exp.id}, 'role', this.value)" placeholder="e.g. Software Engineer Intern" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 outline-none text-slate-900 dark:text-white">
+        </div>
+        <div>
+          <label class="block text-[10px] text-slate-400 mb-0.5">Company / Organization</label>
+          <input type="text" value="${escapeResumeHtml(exp.company || '')}" oninput="updateExperienceField(${exp.id}, 'company', this.value)" placeholder="e.g. Acme Corp" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 outline-none text-slate-900 dark:text-white">
+        </div>
+        <div>
+          <label class="block text-[10px] text-slate-400 mb-0.5">Date Range / Duration</label>
+          <input type="text" value="${escapeResumeHtml(exp.dates || '')}" oninput="updateExperienceField(${exp.id}, 'dates', this.value)" placeholder="e.g. Jan 2025 – Present" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 outline-none text-slate-900 dark:text-white">
+        </div>
+        <div>
+          <label class="block text-[10px] text-slate-400 mb-0.5">Location</label>
+          <input type="text" value="${escapeResumeHtml(exp.location || '')}" oninput="updateExperienceField(${exp.id}, 'location', this.value)" placeholder="e.g. Bengaluru, India" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 outline-none text-slate-900 dark:text-white">
+        </div>
+      </div>
+      <div>
+        <div class="flex items-center justify-between mb-0.5">
+          <label class="block text-[10px] text-slate-400 font-semibold">Bullet Points (One per line):</label>
+          <button type="button" onclick="insertTailoredBulletsIntoExp(${exp.id})" class="text-[10px] text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-0.5">
+            <span class="material-symbols-outlined text-[12px]">auto_fix_high</span>
+            <span>Insert AI Bullets</span>
+          </button>
+        </div>
+        <textarea rows="3" oninput="updateExperienceField(${exp.id}, 'bullets', this.value)" placeholder="• Implemented high-throughput data processing pipeline...\n• Reduced query execution latency by 40%..." class="w-full p-2.5 rounded-lg bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 outline-none text-slate-900 dark:text-white leading-relaxed text-xs">${escapeResumeHtml(exp.bullets || '')}</textarea>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addExperienceEntry() {
+  if (!resumeBuilderState.experiences) resumeBuilderState.experiences = [];
+  resumeBuilderState.experiences.push({
+    id: Date.now(),
+    role: '',
+    company: '',
+    dates: '',
+    location: '',
+    bullets: ''
+  });
+  renderExperienceEntries();
+  renderResumeLivePreview();
+}
+
+function removeExperienceEntry(id) {
+  resumeBuilderState.experiences = resumeBuilderState.experiences.filter(e => e.id !== id);
+  renderExperienceEntries();
+  renderResumeLivePreview();
+}
+
+function updateExperienceField(id, field, value) {
+  const item = resumeBuilderState.experiences.find(e => e.id === id);
+  if (item) {
+    item[field] = value;
+    renderResumeLivePreview();
+  }
+}
+
+function insertTailoredBulletsIntoExp(expId) {
+  if (latestOptimizationData && Array.isArray(latestOptimizationData.tailoredBulletPoints) && latestOptimizationData.tailoredBulletPoints.length > 0) {
+    const item = resumeBuilderState.experiences.find(e => e.id === expId);
+    if (item) {
+      item.bullets = latestOptimizationData.tailoredBulletPoints.map(b => `• ${b}`).join('\n');
+      renderExperienceEntries();
+      renderResumeLivePreview();
+      showToast('Inserted tailored bullet points from Zulu AI!', 'Bullets Added', 'success');
+    }
+  } else {
+    showToast('Run the AI Prompt Optimizer first to generate tailored bullets.', 'Notice', 'info');
+  }
+}
+
+function renderProjectEntries() {
+  const container = document.getElementById('rb-projects-container');
+  if (!container) return;
+
+  if (!resumeBuilderState.projects || resumeBuilderState.projects.length === 0) {
+    container.innerHTML = `<p class="text-xs text-slate-400 italic p-2">No projects added yet. Click "+ Add Project" above.</p>`;
+    return;
+  }
+
+  container.innerHTML = resumeBuilderState.projects.map((proj, idx) => `
+    <div class="p-3.5 rounded-xl bg-white dark:bg-[#101115] border border-slate-200 dark:border-gray-700 space-y-2.5 text-xs relative">
+      <div class="flex items-center justify-between">
+        <span class="font-bold text-slate-700 dark:text-gray-300">Project #${idx + 1}</span>
+        <button type="button" onclick="removeProjectEntry(${proj.id})" class="text-slate-400 hover:text-red-500 transition p-1" title="Remove project">
+          <span class="material-symbols-outlined text-[16px]">delete</span>
+        </button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div>
+          <label class="block text-[10px] text-slate-400 mb-0.5">Project Title</label>
+          <input type="text" value="${escapeResumeHtml(proj.title || '')}" oninput="updateProjectField(${proj.id}, 'title', this.value)" placeholder="e.g. Distributed Analytics Engine" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 outline-none text-slate-900 dark:text-white">
+        </div>
+        <div>
+          <label class="block text-[10px] text-slate-400 mb-0.5">Technologies / Tools</label>
+          <input type="text" value="${escapeResumeHtml(proj.tech || '')}" oninput="updateProjectField(${proj.id}, 'tech', this.value)" placeholder="e.g. React, Node.js, Docker, AWS" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 outline-none text-slate-900 dark:text-white">
+        </div>
+      </div>
+      <div>
+        <label class="block text-[10px] text-slate-400 mb-0.5">Project / Repository Link (Optional)</label>
+        <input type="text" value="${escapeResumeHtml(proj.link || '')}" oninput="updateProjectField(${proj.id}, 'link', this.value)" placeholder="e.g. github.com/username/project" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 outline-none text-slate-900 dark:text-white">
+      </div>
+      <div>
+        <label class="block text-[10px] text-slate-400 font-semibold mb-0.5">Key Highlights &amp; Metrics (One per line):</label>
+        <textarea rows="2" oninput="updateProjectField(${proj.id}, 'bullets', this.value)" placeholder="• Architected scalable processing pipeline with 99.9% reliability..." class="w-full p-2.5 rounded-lg bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 outline-none text-slate-900 dark:text-white leading-relaxed text-xs">${escapeResumeHtml(proj.bullets || '')}</textarea>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addProjectEntry() {
+  if (!resumeBuilderState.projects) resumeBuilderState.projects = [];
+  resumeBuilderState.projects.push({
+    id: Date.now(),
+    title: '',
+    tech: '',
+    link: '',
+    bullets: ''
+  });
+  renderProjectEntries();
+  renderResumeLivePreview();
+}
+
+function removeProjectEntry(id) {
+  resumeBuilderState.projects = resumeBuilderState.projects.filter(p => p.id !== id);
+  renderProjectEntries();
+  renderResumeLivePreview();
+}
+
+function updateProjectField(id, field, value) {
+  const item = resumeBuilderState.projects.find(p => p.id === id);
+  if (item) {
+    item[field] = value;
+    renderResumeLivePreview();
+  }
+}
+
+function renderEducationEntries() {
+  const container = document.getElementById('rb-education-container');
+  if (!container) return;
+
+  if (!resumeBuilderState.educations || resumeBuilderState.educations.length === 0) {
+    container.innerHTML = `<p class="text-xs text-slate-400 italic p-2">No education entries added yet. Click "+ Add Education" above.</p>`;
+    return;
+  }
+
+  container.innerHTML = resumeBuilderState.educations.map((edu, idx) => `
+    <div class="p-3.5 rounded-xl bg-white dark:bg-[#101115] border border-slate-200 dark:border-gray-700 space-y-2.5 text-xs relative">
+      <div class="flex items-center justify-between">
+        <span class="font-bold text-slate-700 dark:text-gray-300">Degree #${idx + 1}</span>
+        <button type="button" onclick="removeEducationEntry(${edu.id})" class="text-slate-400 hover:text-red-500 transition p-1" title="Remove degree">
+          <span class="material-symbols-outlined text-[16px]">delete</span>
+        </button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div>
+          <label class="block text-[10px] text-slate-400 mb-0.5">Degree / Certification</label>
+          <input type="text" value="${escapeResumeHtml(edu.degree || '')}" oninput="updateEducationField(${edu.id}, 'degree', this.value)" placeholder="e.g. Bachelor of Technology" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 outline-none text-slate-900 dark:text-white">
+        </div>
+        <div>
+          <label class="block text-[10px] text-slate-400 mb-0.5">Institution / University</label>
+          <input type="text" value="${escapeResumeHtml(edu.institution || '')}" oninput="updateEducationField(${edu.id}, 'institution', this.value)" placeholder="e.g. National Institute of Technology" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 outline-none text-slate-900 dark:text-white">
+        </div>
+        <div>
+          <label class="block text-[10px] text-slate-400 mb-0.5">Graduation Year / Range</label>
+          <input type="text" value="${escapeResumeHtml(edu.year || '')}" oninput="updateEducationField(${edu.id}, 'year', this.value)" placeholder="e.g. 2022 – 2026" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 outline-none text-slate-900 dark:text-white">
+        </div>
+        <div>
+          <label class="block text-[10px] text-slate-400 mb-0.5">Grade / CGPA</label>
+          <input type="text" value="${escapeResumeHtml(edu.score || '')}" oninput="updateEducationField(${edu.id}, 'score', this.value)" placeholder="e.g. CGPA: 8.9 / 10.0" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-700 outline-none text-slate-900 dark:text-white">
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addEducationEntry() {
+  if (!resumeBuilderState.educations) resumeBuilderState.educations = [];
+  resumeBuilderState.educations.push({
+    id: Date.now(),
+    degree: '',
+    institution: '',
+    year: '',
+    score: ''
+  });
+  renderEducationEntries();
+  renderResumeLivePreview();
+}
+
+function removeEducationEntry(id) {
+  resumeBuilderState.educations = resumeBuilderState.educations.filter(e => e.id !== id);
+  renderEducationEntries();
+  renderResumeLivePreview();
+}
+
+function updateEducationField(id, field, value) {
+  const item = resumeBuilderState.educations.find(e => e.id === id);
+  if (item) {
+    item[field] = value;
+    renderResumeLivePreview();
+  }
+}
+
+function insertAiSummaryIntoBuilder() {
+  if (latestOptimizationData && latestOptimizationData.revisedSummary) {
+    resumeBuilderState.summary = latestOptimizationData.revisedSummary;
+    const el = document.getElementById('rb-summary');
+    if (el) el.value = latestOptimizationData.revisedSummary;
+    renderResumeLivePreview();
+    showToast('Inserted Zulu AI rewritten professional summary!', 'Summary Updated', 'success');
+  } else {
+    showToast('Run the AI Prompt Optimizer first to generate a tailored summary.', 'Notice', 'info');
+  }
+}
+
+function importParsedSkillsIntoBuilder() {
+  if (currentParsedData && Array.isArray(currentParsedData.extractedSkills) && currentParsedData.extractedSkills.length > 0) {
+    const existing = resumeBuilderState.skills ? resumeBuilderState.skills.split(',').map(s => s.trim()).filter(Boolean) : [];
+    currentParsedData.extractedSkills.forEach(s => {
+      if (!existing.includes(s)) existing.push(s);
+    });
+    resumeBuilderState.skills = existing.join(', ');
+    const el = document.getElementById('rb-skills');
+    if (el) el.value = resumeBuilderState.skills;
+    renderResumeLivePreview();
+    showToast(`Imported ${currentParsedData.extractedSkills.length} verified resume skills!`, 'Skills Imported', 'success');
+  } else {
+    showToast('No parsed resume skills detected in current session.', 'Notice', 'info');
+  }
+}
+
+function renderResumeLivePreview() {
+  const sheet = document.getElementById('resume-preview-sheet');
+  if (!sheet) return;
+
+  const name = resumeBuilderState.name || 'Candidate Name';
+  const title = resumeBuilderState.title || '';
+  const email = resumeBuilderState.email || '';
+  const phone = resumeBuilderState.phone || '';
+  const location = resumeBuilderState.location || '';
+  const links = resumeBuilderState.links || '';
+
+  // Contact line items
+  const contactParts = [email, phone, location, links].filter(Boolean);
+  const contactLine = contactParts.map(p => `<span>${escapeResumeHtml(p)}</span>`).join(`<span style="color: #94a3b8;"> • </span>`);
+
+  // Parse bullets helper
+  const formatBullets = raw => {
+    if (!raw) return '';
+    const lines = raw.split('\n').map(l => l.trim().replace(/^[•\-\*]\s*/, '')).filter(Boolean);
+    if (lines.length === 0) return '';
+    return `<ul style="list-style-type: disc; padding-left: 1.25rem; margin-top: 0.25rem; margin-bottom: 0.25rem; font-size: 11px; line-height: 1.45; color: #1e293b;">
+      ${lines.map(l => `<li style="margin-bottom: 2px;">${escapeResumeHtml(l)}</li>`).join('')}
+    </ul>`;
+  };
+
+  // Sections
+  let summaryHtml = '';
+  if (resumeBuilderState.summary && resumeBuilderState.summary.trim()) {
+    summaryHtml = `
+      <div style="margin-top: 14px;">
+        <div style="font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #0f172a; border-bottom: 1.5px solid #0f172a; padding-bottom: 2px; margin-bottom: 6px;">
+          Professional Summary
+        </div>
+        <p style="font-size: 11px; line-height: 1.5; color: #1e293b; text-align: justify; margin: 0;">
+          ${escapeResumeHtml(resumeBuilderState.summary)}
+        </p>
+      </div>
+    `;
+  }
+
+  let skillsHtml = '';
+  if (resumeBuilderState.skills && resumeBuilderState.skills.trim()) {
+    const skillList = resumeBuilderState.skills.split(',').map(s => s.trim()).filter(Boolean);
+    skillsHtml = `
+      <div style="margin-top: 14px;">
+        <div style="font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #0f172a; border-bottom: 1.5px solid #0f172a; padding-bottom: 2px; margin-bottom: 6px;">
+          Technical &amp; Core Competencies
+        </div>
+        <div style="font-size: 11px; line-height: 1.6; color: #1e293b;">
+          <strong>Core Skills:</strong> ${skillList.map(s => escapeResumeHtml(s)).join(', ')}
+        </div>
+      </div>
+    `;
+  }
+
+  let experienceHtml = '';
+  if (Array.isArray(resumeBuilderState.experiences) && resumeBuilderState.experiences.length > 0) {
+    const validExp = resumeBuilderState.experiences.filter(e => e.role || e.company || e.bullets);
+    if (validExp.length > 0) {
+      experienceHtml = `
+        <div style="margin-top: 14px;">
+          <div style="font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #0f172a; border-bottom: 1.5px solid #0f172a; padding-bottom: 2px; margin-bottom: 6px;">
+            Work &amp; Internship Experience
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            ${validExp.map(exp => `
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 11px;">
+                  <div>
+                    <strong style="color: #0f172a;">${escapeResumeHtml(exp.role || 'Specialist')}</strong>
+                    ${exp.company ? `<span style="color: #475569;"> | ${escapeResumeHtml(exp.company)}</span>` : ''}
+                  </div>
+                  <div style="font-size: 10px; color: #475569; font-weight: 500;">
+                    ${escapeResumeHtml(exp.dates || '')} ${exp.location ? `• ${escapeResumeHtml(exp.location)}` : ''}
+                  </div>
+                </div>
+                ${formatBullets(exp.bullets)}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  let projectsHtml = '';
+  if (Array.isArray(resumeBuilderState.projects) && resumeBuilderState.projects.length > 0) {
+    const validProj = resumeBuilderState.projects.filter(p => p.title || p.tech || p.bullets);
+    if (validProj.length > 0) {
+      projectsHtml = `
+        <div style="margin-top: 14px;">
+          <div style="font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #0f172a; border-bottom: 1.5px solid #0f172a; padding-bottom: 2px; margin-bottom: 6px;">
+            Academic &amp; Engineering Projects
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            ${validProj.map(proj => `
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 11px;">
+                  <div>
+                    <strong style="color: #0f172a;">${escapeResumeHtml(proj.title || 'Project')}</strong>
+                    ${proj.tech ? `<span style="color: #64748b; font-size: 10px;"> (${escapeResumeHtml(proj.tech)})</span>` : ''}
+                  </div>
+                  ${proj.link ? `<div style="font-size: 10px; color: #2563eb; font-family: monospace;">${escapeResumeHtml(proj.link)}</div>` : ''}
+                </div>
+                ${formatBullets(proj.bullets)}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  let educationHtml = '';
+  if (Array.isArray(resumeBuilderState.educations) && resumeBuilderState.educations.length > 0) {
+    const validEdu = resumeBuilderState.educations.filter(e => e.degree || e.institution);
+    if (validEdu.length > 0) {
+      educationHtml = `
+        <div style="margin-top: 14px;">
+          <div style="font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #0f172a; border-bottom: 1.5px solid #0f172a; padding-bottom: 2px; margin-bottom: 6px;">
+            Education &amp; Academics
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            ${validEdu.map(edu => `
+              <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 11px;">
+                <div>
+                  <strong style="color: #0f172a;">${escapeResumeHtml(edu.degree || 'Degree')}</strong>
+                  ${edu.institution ? `<span style="color: #475569;"> — ${escapeResumeHtml(edu.institution)}</span>` : ''}
+                  ${edu.score ? `<span style="color: #059669; font-weight: 600; font-size: 10px;"> (${escapeResumeHtml(edu.score)})</span>` : ''}
+                </div>
+                <div style="font-size: 10px; color: #475569; font-weight: 500;">
+                  ${escapeResumeHtml(edu.year || '')}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  let certHtml = '';
+  if (resumeBuilderState.certifications && resumeBuilderState.certifications.trim()) {
+    certHtml = `
+      <div style="margin-top: 14px;">
+        <div style="font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #0f172a; border-bottom: 1.5px solid #0f172a; padding-bottom: 2px; margin-bottom: 6px;">
+          Certifications &amp; Distinctions
+        </div>
+        ${formatBullets(resumeBuilderState.certifications)}
+      </div>
+    `;
+  }
+
+  sheet.innerHTML = `
+    <div style="font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; color: #0f172a; background-color: #ffffff; padding: 0;">
+      <!-- Header -->
+      <div style="text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 10px;">
+        <h1 style="font-size: 24px; font-weight: 900; letter-spacing: 0.04em; text-transform: uppercase; margin: 0; color: #0f172a;">
+          ${escapeResumeHtml(name)}
+        </h1>
+        ${title ? `
+          <div style="font-size: 12px; font-weight: 700; color: #475569; letter-spacing: 0.06em; text-transform: uppercase; margin-top: 3px;">
+            ${escapeResumeHtml(title)}
+          </div>
+        ` : ''}
+        ${contactLine ? `
+          <div style="font-size: 10.5px; color: #475569; margin-top: 5px; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px;">
+            ${contactLine}
+          </div>
+        ` : ''}
+      </div>
+
+      <!-- Content Sections -->
+      ${summaryHtml}
+      ${skillsHtml}
+      ${experienceHtml}
+      ${projectsHtml}
+      ${educationHtml}
+      ${certHtml}
+    </div>
+  `;
+}
+
+function downloadResumePdf() {
+  const sheet = document.getElementById('resume-preview-sheet');
+  if (!sheet) {
+    showToast('Resume preview element not found.', 'Export Error', 'error');
+    return;
+  }
+
+  const rawName = (resumeBuilderState.name || 'Candidate').trim();
+  const safeFilename = (rawName.replace(/[^a-zA-Z0-9_-]/g, '_') || 'Candidate') + '_Resume.pdf';
+
+  showToast('Generating high-resolution ATS Resume PDF...', 'Preparing PDF', 'info');
+
+  const btnTop = document.getElementById('btn-download-resume-pdf-top');
+  if (btnTop) {
+    btnTop.disabled = true;
+    btnTop.innerHTML = `<span class="material-symbols-outlined text-[17px] animate-spin">progress_activity</span><span>Generating...</span>`;
+  }
+
+  const opt = {
+    margin: [10, 10, 10, 10], // 10mm margins for ATS standard
+    filename: safeFilename,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true, letterRendering: true, logging: false, scrollY: 0 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+
+  const finish = () => {
+    if (btnTop) {
+      btnTop.disabled = false;
+      btnTop.innerHTML = `<span class="material-symbols-outlined text-[17px]">download</span><span>Download PDF</span>`;
+    }
+  };
+
+  if (window.html2pdf) {
+    window.html2pdf().set(opt).from(sheet).save().then(() => {
+      showToast('Resume PDF downloaded successfully!', 'PDF Exported', 'success');
+      finish();
+    }).catch(err => {
+      console.error('html2pdf generation error:', err);
+      showToast('Client generator fell back to print engine.', 'Notice', 'info');
+      finish();
+      window.print();
+    });
+  } else {
+    finish();
+    window.print();
+  }
+}
+
+function printResumeDocument() {
+  window.print();
+}
+
+function switchBuilderMobileTab(tab) {
+  const edPane = document.getElementById('builder-editor-pane');
+  const prevPane = document.getElementById('builder-preview-pane');
+  const edTab = document.getElementById('tab-toggle-editor');
+  const prevTab = document.getElementById('tab-toggle-preview');
+
+  if (tab === 'editor') {
+    if (edPane) edPane.classList.remove('hidden');
+    if (prevPane) prevPane.classList.add('hidden');
+    if (edTab) { edTab.classList.add('bg-purple-600', 'text-white'); edTab.classList.remove('text-slate-600', 'dark:text-gray-300'); }
+    if (prevTab) { prevTab.classList.remove('bg-purple-600', 'text-white'); prevTab.classList.add('text-slate-600', 'dark:text-gray-300'); }
+  } else {
+    if (edPane) edPane.classList.add('hidden');
+    if (prevPane) prevPane.classList.remove('hidden');
+    if (prevTab) { prevTab.classList.add('bg-purple-600', 'text-white'); prevTab.classList.remove('text-slate-600', 'dark:text-gray-300'); }
+    if (edTab) { edTab.classList.remove('bg-purple-600', 'text-white'); edTab.classList.add('text-slate-600', 'dark:text-gray-300'); }
+  }
+}
+
+window.openResumeBuilderModal = openResumeBuilderModal;
+window.closeResumeBuilderModal = closeResumeBuilderModal;
+window.openResumeBuilderWithParsedData = openResumeBuilderWithParsedData;
+window.openResumeBuilderWithOptimizedData = openResumeBuilderWithOptimizedData;
+window.loadResumeSampleTemplate = loadResumeSampleTemplate;
+window.syncParsedDataToBuilder = syncParsedDataToBuilder;
+window.handleResumeFieldInput = handleResumeFieldInput;
+window.addExperienceEntry = addExperienceEntry;
+window.removeExperienceEntry = removeExperienceEntry;
+window.updateExperienceField = updateExperienceField;
+window.insertTailoredBulletsIntoExp = insertTailoredBulletsIntoExp;
+window.addProjectEntry = addProjectEntry;
+window.removeProjectEntry = removeProjectEntry;
+window.updateProjectField = updateProjectField;
+window.addEducationEntry = addEducationEntry;
+window.removeEducationEntry = removeEducationEntry;
+window.updateEducationField = updateEducationField;
+window.insertAiSummaryIntoBuilder = insertAiSummaryIntoBuilder;
+window.importParsedSkillsIntoBuilder = importParsedSkillsIntoBuilder;
+window.downloadResumePdf = downloadResumePdf;
+window.printResumeDocument = printResumeDocument;
+window.switchBuilderMobileTab = switchBuilderMobileTab;
+window.resumeBuilderState = resumeBuilderState;
 
 function updateDossierContent(parsed, assessment, targetRole) {
   const dName = document.getElementById('dossier-name');

@@ -51,8 +51,22 @@
   <style>
     @media print {
       body * { visibility: hidden; }
-      #printable-dossier-modal, #printable-dossier-modal * { visibility: visible; }
+      #printable-dossier-modal, #printable-dossier-modal *,
+      #resume-preview-sheet, #resume-preview-sheet * { visibility: visible; }
       #printable-dossier-modal { position: absolute; left: 0; top: 0; width: 100%; }
+      #resume-preview-sheet { 
+        position: absolute !important; 
+        left: 0 !important; 
+        top: 0 !important; 
+        width: 100% !important; 
+        max-width: 100% !important; 
+        margin: 0 !important; 
+        padding: 15mm !important;
+        box-shadow: none !important;
+        border: none !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+      }
       .no-print { display: none !important; }
     }
   </style>
@@ -249,7 +263,11 @@
               Upload PDF or DOCX documents to automatically extract contact info, education, and technical competencies. Compare parsed competencies side-by-side with industry role benchmarks and merge directly into your live digital portfolio.
             </p>
           </div>
-          <div class="flex items-center gap-3 shrink-0">
+          <div class="flex flex-wrap items-center gap-2.5 sm:gap-3 shrink-0">
+            <button id="btn-open-builder-hero" onclick="openResumeBuilderModal()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-md transition flex items-center gap-2 hover:scale-[1.02]">
+              <span class="material-symbols-outlined text-[18px]">post_add</span>
+              <span>Create / Edit Resume (PDF)</span>
+            </button>
             <button id="export-dossier-btn" onclick="triggerDossierExport()" class="px-4 py-2.5 rounded-xl border border-purple-300 dark:border-purple-600/40 bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/40 font-semibold text-xs transition flex items-center gap-2">
               <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
               <span>Export Official Dossier</span>
@@ -383,21 +401,21 @@
                 AI Prompt Giver &amp; Resume Optimizer Copilot
               </span>
               <span class="text-slate-300 dark:text-gray-700">•</span>
-              <span class="text-[11px] font-mono text-slate-500 dark:text-gray-400">NVIDIA Nemotron 3 Ultra 550B</span>
+              <span class="text-[11px] font-mono text-purple-600 dark:text-purple-400 font-semibold">Powered by Zulu AI</span>
             </div>
             <h2 class="text-xl sm:text-2xl font-extrabold text-[#1C1917] dark:text-white">
               Instruct the AI: Send Changes &amp; Tailor Your Resume
             </h2>
             <p class="text-xs sm:text-sm text-[#6E6962] dark:text-gray-300 max-w-2xl leading-relaxed">
-              Upload any candidate resume, then specify custom directions below (e.g. emphasize specialized lab skills, target a specific company, or rewrite for research grants). Nemotron 550B will rewrite your summary and synthesize tailored bullet points.
+              Upload any candidate resume, then specify custom directions below (e.g. emphasize specialized lab skills, target a specific company, or rewrite for research grants). Zulu AI will rewrite your summary and synthesize tailored bullet points.
             </p>
           </div>
 
           <div class="shrink-0 flex sm:flex-col items-end gap-1">
-            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Active Engine</span>
+            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">AI Copilot</span>
             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 text-xs font-mono font-bold">
               <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Nemotron-3 550B Ready
+              Zulu AI Ready
             </span>
           </div>
         </div>
@@ -460,7 +478,7 @@
           <!-- Loading Spinner -->
           <div id="optimizer-loading-state" class="hidden p-5 rounded-2xl bg-purple-50/70 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800/50 flex items-center justify-center gap-3 text-xs font-semibold text-purple-900 dark:text-purple-200">
             <div class="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-            <span>NVIDIA Nemotron-3 550B is tailoring your resume materials based on your custom prompt...</span>
+            <span>Zulu AI is tailoring your resume materials based on your custom prompt...</span>
           </div>
         </div>
 
@@ -470,7 +488,7 @@
             <div>
               <div class="flex items-center gap-2">
                 <span id="optimizer-provider-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-800">
-                  NVIDIA Nemotron 3 Ultra 550B
+                  Zulu AI Copilot
                 </span>
                 <span id="optimizer-confidence-score" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
                   94% Match
@@ -480,14 +498,18 @@
                 Optimized Resume Materials &amp; Tailored Highlights
               </h3>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
               <button type="button" onclick="copyOptimizedSummary()" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-gray-700 text-xs font-semibold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition flex items-center gap-1.5">
                 <span class="material-symbols-outlined text-[15px]">content_copy</span>
                 <span>Copy Summary</span>
               </button>
-              <button type="button" onclick="applyOptimizedSummary()" class="px-4 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+              <button type="button" onclick="applyOptimizedSummary()" class="px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
                 <span class="material-symbols-outlined text-[15px]">sync</span>
-                <span>Apply to Executive Summary</span>
+                <span>Apply to Summary</span>
+              </button>
+              <button type="button" onclick="openResumeBuilderWithOptimizedData()" class="px-4 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md hover:scale-105">
+                <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+                <span>Export to Resume PDF</span>
               </button>
             </div>
           </div>
@@ -586,7 +608,13 @@
               <span class="material-symbols-outlined text-[18px] text-purple-600">badge</span>
               <span>Extracted Candidate Profile</span>
             </h3>
-            <span class="text-xs font-mono text-slate-400">NLP Entity Tagger v2.4</span>
+            <div class="flex items-center gap-2.5">
+              <button type="button" onclick="openResumeBuilderWithParsedData()" class="px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm hover:scale-105">
+                <span class="material-symbols-outlined text-[16px]">edit_document</span>
+                <span>Make &amp; Download Resume (PDF)</span>
+              </button>
+              <span class="text-xs font-mono text-slate-400 hidden sm:inline">NLP Entity Tagger v2.4</span>
+            </div>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
@@ -769,8 +797,252 @@
   </div>
 </div>
 
+<!-- INTERACTIVE RESUME BUILDER & ATS PDF EXPORTER MODAL -->
+<div id="resume-builder-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-2 sm:p-4 overflow-hidden">
+  <div class="w-full max-w-7xl h-[94vh] bg-white dark:bg-[#0F1117] rounded-3xl shadow-2xl border border-[#E7E4DC] dark:border-white/10 flex flex-col overflow-hidden">
+    
+    <!-- Modal Header -->
+    <div class="px-4 sm:px-6 py-3.5 border-b border-[#E7E4DC] dark:border-white/10 bg-slate-50/90 dark:bg-black/40 flex items-center justify-between shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 text-white flex items-center justify-center shadow-md shrink-0">
+          <span class="material-symbols-outlined text-[22px]">edit_document</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-base sm:text-lg font-extrabold text-[#1C1917] dark:text-white">
+              Zulu AI Resume Maker &amp; ATS Exporter
+            </h2>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-800">
+              ATS-Optimized
+            </span>
+          </div>
+          <p class="text-[11px] text-[#6E6962] dark:text-gray-400">
+            Customize your resume, inject Zulu AI suggestions, and export an employer-ready PDF
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-2.5">
+        <!-- Quick Action Buttons -->
+        <button type="button" onclick="loadResumeSampleTemplate()" title="Load Polished Sample" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-gray-800 text-xs font-semibold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+          <span class="material-symbols-outlined text-[15px]">auto_awesome</span>
+          <span>Sample Template</span>
+        </button>
+
+        <button type="button" onclick="syncParsedDataToBuilder()" title="Sync Parsed Credentials" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-purple-200 dark:border-purple-800 text-xs font-semibold text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/40 transition">
+          <span class="material-symbols-outlined text-[15px]">sync</span>
+          <span>Sync Parsed</span>
+        </button>
+
+        <button type="button" onclick="printResumeDocument()" title="Print via Browser" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-gray-800 text-xs font-semibold text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+          <span class="material-symbols-outlined text-[15px]">print</span>
+          <span>Print</span>
+        </button>
+
+        <!-- Primary Export PDF Button -->
+        <button id="btn-download-resume-pdf-top" type="button" onclick="downloadResumePdf()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold shadow-md transition flex items-center gap-2 hover:scale-[1.02]">
+          <span class="material-symbols-outlined text-[17px]">download</span>
+          <span>Download PDF</span>
+        </button>
+
+        <button type="button" onclick="closeResumeBuilderModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white transition">
+          <span class="material-symbols-outlined text-xl">close</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal Body (Split Pane: Left = Editor, Right = Live ATS Preview) -->
+    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+      
+      <!-- Mobile View Switcher (Visible on mobile only) -->
+      <div class="lg:hidden flex border-b border-[#E7E4DC] dark:border-white/10 bg-slate-50 dark:bg-gray-900 px-4 py-2 gap-2 shrink-0">
+        <button id="tab-toggle-editor" onclick="switchBuilderMobileTab('editor')" class="flex-1 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white">Edit Resume</button>
+        <button id="tab-toggle-preview" onclick="switchBuilderMobileTab('preview')" class="flex-1 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-gray-300">Live Preview &amp; PDF</button>
+      </div>
+
+      <!-- Left Column: Live Form Editor -->
+      <div id="builder-editor-pane" class="w-full lg:w-1/2 overflow-y-auto p-4 sm:p-6 space-y-6 custom-scrollbar border-b lg:border-b-0 lg:border-r border-[#E7E4DC] dark:border-white/10">
+        
+        <!-- Section 1: Contact Information -->
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-gray-900/50 border border-[#E7E4DC] dark:border-gray-800 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[16px]">person</span>
+              <span>1. Contact &amp; Identity</span>
+            </span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 dark:text-gray-300 mb-1">Full Name</label>
+              <input type="text" id="rb-name" oninput="handleResumeFieldInput()" placeholder="e.g. Alex Sharma" class="w-full px-3 py-2 rounded-xl bg-white dark:bg-[#101115] border border-slate-200 dark:border-gray-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 dark:text-gray-300 mb-1">Professional Title / Discipline</label>
+              <input type="text" id="rb-title" oninput="handleResumeFieldInput()" placeholder="e.g. Full Stack Software Engineer" class="w-full px-3 py-2 rounded-xl bg-white dark:bg-[#101115] border border-slate-200 dark:border-gray-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 dark:text-gray-300 mb-1">Email Address</label>
+              <input type="email" id="rb-email" oninput="handleResumeFieldInput()" placeholder="e.g. alex.sharma@example.edu" class="w-full px-3 py-2 rounded-xl bg-white dark:bg-[#101115] border border-slate-200 dark:border-gray-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 dark:text-gray-300 mb-1">Phone Number</label>
+              <input type="text" id="rb-phone" oninput="handleResumeFieldInput()" placeholder="e.g. +91 98765 43210" class="w-full px-3 py-2 rounded-xl bg-white dark:bg-[#101115] border border-slate-200 dark:border-gray-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 dark:text-gray-300 mb-1">Location (City, Country)</label>
+              <input type="text" id="rb-location" oninput="handleResumeFieldInput()" placeholder="e.g. Bengaluru, India" class="w-full px-3 py-2 rounded-xl bg-white dark:bg-[#101115] border border-slate-200 dark:border-gray-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 dark:text-gray-300 mb-1">Links (LinkedIn • GitHub • Portfolio)</label>
+              <input type="text" id="rb-links" oninput="handleResumeFieldInput()" placeholder="e.g. linkedin.com/in/alex • github.com/alex" class="w-full px-3 py-2 rounded-xl bg-white dark:bg-[#101115] border border-slate-200 dark:border-gray-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none">
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Executive Summary -->
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-gray-900/50 border border-[#E7E4DC] dark:border-gray-800 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[16px]">description</span>
+              <span>2. Professional Summary</span>
+            </span>
+            <button type="button" onclick="insertAiSummaryIntoBuilder()" class="text-[11px] font-semibold text-purple-600 hover:text-purple-500 dark:text-purple-400 flex items-center gap-1">
+              <span class="material-symbols-outlined text-[13px]">auto_fix_high</span>
+              <span>Insert Zulu AI Summary</span>
+            </button>
+          </div>
+          <textarea id="rb-summary" rows="3" oninput="handleResumeFieldInput()" placeholder="Write 2-3 compelling sentences highlighting your expertise, key skills, and impact..." class="w-full p-3 rounded-xl bg-white dark:bg-[#101115] border border-slate-200 dark:border-gray-700 text-xs sm:text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none leading-relaxed"></textarea>
+        </div>
+
+        <!-- Section 3: Technical Competencies & Skills -->
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-gray-900/50 border border-[#E7E4DC] dark:border-gray-800 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[16px]">psychology</span>
+              <span>3. Skills &amp; Technical Competencies</span>
+            </span>
+            <button type="button" onclick="importParsedSkillsIntoBuilder()" class="text-[11px] font-semibold text-purple-600 hover:text-purple-500 dark:text-purple-400 flex items-center gap-1">
+              <span class="material-symbols-outlined text-[13px]">download</span>
+              <span>Import Parsed Skills</span>
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-500 dark:text-gray-400">Comma-separated list of technical skills, tools, and methodologies:</p>
+          <textarea id="rb-skills" rows="2" oninput="handleResumeFieldInput()" placeholder="e.g. JavaScript, Python, React.js, Node.js, PostgreSQL, Docker, Git, REST APIs, Microservices, Testing" class="w-full p-3 rounded-xl bg-white dark:bg-[#101115] border border-slate-200 dark:border-gray-700 text-xs sm:text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none"></textarea>
+        </div>
+
+        <!-- Section 4: Work & Internship Experience -->
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-gray-900/50 border border-[#E7E4DC] dark:border-gray-800 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[16px]">work</span>
+              <span>4. Experience &amp; Internships</span>
+            </span>
+            <button type="button" onclick="addExperienceEntry()" class="px-2.5 py-1 rounded-lg bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-[11px] font-bold border border-purple-200 dark:border-purple-800 hover:bg-purple-200 dark:hover:bg-purple-900/60 transition flex items-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">add</span>
+              <span>Add Position</span>
+            </button>
+          </div>
+          <div id="rb-experience-container" class="space-y-3">
+            <!-- Dynamic Experience Cards -->
+          </div>
+        </div>
+
+        <!-- Section 5: Key Projects -->
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-gray-900/50 border border-[#E7E4DC] dark:border-gray-800 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[16px]">code</span>
+              <span>5. Academic &amp; Personal Projects</span>
+            </span>
+            <button type="button" onclick="addProjectEntry()" class="px-2.5 py-1 rounded-lg bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-[11px] font-bold border border-purple-200 dark:border-purple-800 hover:bg-purple-200 dark:hover:bg-purple-900/60 transition flex items-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">add</span>
+              <span>Add Project</span>
+            </button>
+          </div>
+          <div id="rb-projects-container" class="space-y-3">
+            <!-- Dynamic Project Cards -->
+          </div>
+        </div>
+
+        <!-- Section 6: Education -->
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-gray-900/50 border border-[#E7E4DC] dark:border-gray-800 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[16px]">school</span>
+              <span>6. Education &amp; Academics</span>
+            </span>
+            <button type="button" onclick="addEducationEntry()" class="px-2.5 py-1 rounded-lg bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-[11px] font-bold border border-purple-200 dark:border-purple-800 hover:bg-purple-200 dark:hover:bg-purple-900/60 transition flex items-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">add</span>
+              <span>Add Education</span>
+            </button>
+          </div>
+          <div id="rb-education-container" class="space-y-3">
+            <!-- Dynamic Education Cards -->
+          </div>
+        </div>
+
+        <!-- Section 7: Certifications & Publications -->
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-gray-900/50 border border-[#E7E4DC] dark:border-gray-800 space-y-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[16px]">verified</span>
+            <span>7. Certifications &amp; Achievements</span>
+          </span>
+          <textarea id="rb-certifications" rows="2" oninput="handleResumeFieldInput()" placeholder="One per line (e.g. AWS Certified Solutions Architect, NPTEL Elite Gold Medalist...)" class="w-full p-3 rounded-xl bg-white dark:bg-[#101115] border border-slate-200 dark:border-gray-700 text-xs sm:text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none"></textarea>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Live ATS Resume Preview (Printable Sheet) -->
+      <div id="builder-preview-pane" class="w-full lg:w-1/2 bg-slate-100 dark:bg-[#07080B] p-3 sm:p-6 overflow-y-auto flex flex-col items-center custom-scrollbar">
+        <div class="w-full max-w-[760px] flex items-center justify-between pb-3 text-xs text-slate-500 dark:text-gray-400 no-print">
+          <span class="flex items-center gap-1.5 font-mono text-[11px]">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Live ATS Standard Document (A4)</span>
+          </span>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="downloadResumePdf()" class="px-3 py-1 rounded-lg bg-purple-600 text-white font-semibold text-xs hover:bg-purple-500 transition flex items-center gap-1 shadow-sm">
+              <span class="material-symbols-outlined text-[15px]">picture_as_pdf</span>
+              <span>Download PDF</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- REAL PRINTABLE & EXPORTABLE ATS SHEET -->
+        <div id="resume-preview-sheet" class="w-full max-w-[760px] min-h-[960px] bg-white text-slate-900 p-8 sm:p-12 rounded-xl shadow-xl border border-slate-200 font-sans space-y-4 text-left" style="color: #0f172a; background-color: #ffffff;">
+          <!-- Dynamically populated by renderResumeLivePreview() -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="px-4 sm:px-6 py-3 border-t border-[#E7E4DC] dark:border-white/10 bg-slate-50/90 dark:bg-black/40 flex flex-wrap items-center justify-between gap-3 shrink-0">
+      <div class="flex items-center gap-3 text-xs text-slate-500 dark:text-gray-400">
+        <span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold font-mono text-[11px]">
+          <span class="material-symbols-outlined text-[15px]">check_circle</span>
+          <span>ATS Pass Rate: 98%</span>
+        </span>
+        <span class="hidden sm:inline">•</span>
+        <span class="hidden sm:inline text-[11px]">Clean ATS Parsing Structure • Powered by Zulu AI</span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="closeResumeBuilderModal()" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-gray-800 text-xs font-semibold text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition">
+          Close
+        </button>
+        <button type="button" onclick="downloadResumePdf()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold shadow-md transition flex items-center gap-2 hover:scale-105">
+          <span class="material-symbols-outlined text-[17px]">download</span>
+          <span>Download PDF Now</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="/js/frontend/html2pdf.bundle.min.js"></script>
 <script src="/js/frontend/api-client.js"></script>
 <script src="/js/frontend/notifications.js"></script>
 <script src="/js/frontend/student-ui.js"></script>
