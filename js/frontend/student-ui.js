@@ -14,6 +14,12 @@ let currentStreak = 0;
 let activeModule = 'Roadmap';
 
 const SAMPLE_RESUMES = {
+  software: `Rahul Verma | Full Stack Software Engineer | B.Tech Computer Science & Engineering
+Email: rahul.v@example.edu | Phone: +91 98765 87654
+Summary: High-performance full stack engineer experienced in building scalable web applications, RESTful microservices, and distributed cloud systems.
+Skills: Python, JavaScript, TypeScript, React.js, Node.js, Express.js, PostgreSQL, MongoDB, Docker, Git, RESTful APIs, Tailwind CSS, Redis, Unit Testing.
+Projects: Cloud-Native E-Commerce Platform (React, Node.js, PostgreSQL, Docker containerization); Real-Time Collaborative Whiteboard (WebSockets, TypeScript, Redis).
+Certifications: AWS Certified Solutions Architect Associate; Meta Frontend Developer Professional Certificate.`,
   herbal: `Aarav Sharma | BAMS 3rd Year | All India Institute of Ayurveda
 Email: aarav.s@aiia.gov.in | Phone: +91 98765 43210
 Summary: Passionate Ayurvedic pharmacology researcher with laboratory experience in classical Rasashastra and modern chromatography.
@@ -760,35 +766,58 @@ function clearSelectedFile(e) {
 
 async function extractTextFromFile(file) {
   return new Promise((resolve, reject) => {
-    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+    if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
       const reader = new FileReader();
       reader.onload = async function() {
         try {
-          if (!window['pdfjsLib']) {
-            console.warn('PDF.js not yet loaded, falling back to text decoder');
-            const dec = new TextDecoder('utf-8');
-            return resolve(dec.decode(this.result));
+          if (window['pdfjsLib']) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            const typedarray = new Uint8Array(this.result);
+            const pdf = await pdfjsLib.getDocument({ data: typedarray }).promise;
+            let fullText = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
+              const page = await pdf.getPage(i);
+              const content = await page.getTextContent();
+              const strings = content.items.map(item => item.str);
+              fullText += strings.join(' ') + '\n';
+            }
+            if (fullText.trim().length > 20) {
+              return resolve(fullText);
+            }
           }
-          const typedarray = new Uint8Array(this.result);
-          const pdf = await pdfjsLib.getDocument({ data: typedarray }).promise;
-          let fullText = '';
-          for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
-            const content = await page.getTextContent();
-            const strings = content.items.map(item => item.str);
-            fullText += strings.join(' ') + '\n';
+          // Fallback: decode text strings from PDF stream
+          const dec = new TextDecoder('utf-8');
+          const raw = dec.decode(this.result);
+          const textMatches = raw.match(/\(([^)\\]{2,100})\)\s*T[jJ]/g) || [];
+          if (textMatches.length > 5) {
+            const extracted = textMatches.map(m => m.replace(/^[(\s]+|[)\sTjJ]+$/g, '')).join(' ');
+            return resolve(extracted);
           }
-          resolve(fullText);
+          resolve(raw.replace(/[^\x20-\x7E\r\n\t]/g, ' '));
         } catch (err) {
-          console.warn('PDF.js extraction warning, fallback to text reading:', err);
-          resolve(file.name + '\n' + (SAMPLE_RESUMES.herbal || ''));
+          console.warn('PDF extraction warning:', err);
+          const dec = new TextDecoder('utf-8');
+          resolve(dec.decode(this.result).replace(/[^\x20-\x7E\r\n\t]/g, ' '));
+        }
+      };
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(file);
+    } else if (file.name.toLowerCase().endsWith('.docx') && window['mammoth']) {
+      const reader = new FileReader();
+      reader.onload = async function() {
+        try {
+          const result = await mammoth.extractRawText({ arrayBuffer: this.result });
+          resolve(result.value || '');
+        } catch (mErr) {
+          console.warn('Mammoth docx extraction error:', mErr);
+          resolve('');
         }
       };
       reader.onerror = reject;
       reader.readAsArrayBuffer(file);
     } else {
       const reader = new FileReader();
-      reader.onload = function() { resolve(this.result); };
+      reader.onload = function() { resolve(this.result || ''); };
       reader.onerror = reject;
       reader.readAsText(file);
     }
@@ -824,26 +853,31 @@ function updateParsingProgress(percent, stepText, activeStepNum) {
 async function handleExecuteParse() {
   const progressBox = document.getElementById('parsing-progress-box');
   const btn = document.getElementById('execute-parse-btn');
-  const roleSelect = document.getElementById('target-role-select');
-  const targetRole = roleSelect ? roleSelect.value : 'Herbal Formulation Scientist';
+  const targetRole = 'auto';
 
   let resumeText = '';
 
   if (selectedResumeFile) {
     if (progressBox) progressBox.classList.remove('hidden');
-    updateParsingProgress(20, 'Reading Document Text via In-Browser PDF Streamer...', 1);
+    updateParsingProgress(20, 'Reading Document Text via In-Browser PDF/DOCX Parser...', 1);
     try {
       resumeText = await extractTextFromFile(selectedResumeFile);
     } catch (err) {
       console.warn('File reading error:', err);
-      resumeText = SAMPLE_RESUMES.herbal;
+      resumeText = '';
+    }
+    if (!resumeText || resumeText.trim().length < 15) {
+      if (progressBox) progressBox.classList.add('hidden');
+      if (btn) btn.disabled = false;
+      JoblexApiClient.showNoticeModal('Could not extract readable text from this file. If it is an image or scanned document, please paste your resume text into the text tab or upload a searchable document.', 'Document Text Not Found');
+      return;
     }
   } else {
     const textarea = document.getElementById('resume-textarea');
     resumeText = textarea ? textarea.value.trim() : '';
     if (!resumeText) {
-      resumeText = SAMPLE_RESUMES.herbal;
-      if (textarea) textarea.value = resumeText;
+      JoblexApiClient.showNoticeModal('Please upload a resume file or paste your resume text into the input field to evaluate your competencies.', 'No Resume Provided');
+      return;
     }
     if (progressBox) progressBox.classList.remove('hidden');
     updateParsingProgress(25, 'Ingesting Raw Candidate Credentials...', 1);
@@ -876,10 +910,10 @@ async function handleExecuteParse() {
     if (autoAssessRes && (parsed || assessment)) {
       currentParsedData = parsed || {
         name: 'Scholar Candidate',
-        email: 'scholar@aiia.gov.in',
-        education: ['BAMS 3rd Year · AIIA'],
+        email: '',
+        education: ['Candidate Degree'],
         experienceYears: 'Student Researcher',
-        summary: 'Verified candidate credentials.',
+        summary: 'Candidate credentials evaluated.',
         extractedSkills: []
       };
       currentAutoAssessment = assessment;
@@ -888,7 +922,8 @@ async function handleExecuteParse() {
         parsed: currentParsedData,
         assessment: currentAutoAssessment
       }));
-      renderParsedResults(currentParsedData, currentAutoAssessment, targetRole);
+      const resolvedDomain = assessment?.targetRole || assessment?.detectedDomain || 'Multi-Disciplinary Specialist';
+      renderParsedResults(currentParsedData, currentAutoAssessment, resolvedDomain);
       showToast('Resume Parsed & Auto-Assessed Successfully', 'Auto-Assessment Ready', 'success');
     } else {
       showToast('Error parsing resume. Please check format.', 'Parsing Failed', 'error');
@@ -938,10 +973,10 @@ function renderParsedResults(parsed, assessment, targetRole) {
   const sumEl = document.getElementById('parsed-candidate-summary');
 
   if (nameEl) nameEl.innerText = parsed.name || 'Scholar Candidate';
-  if (emailEl) emailEl.innerText = parsed.email || 'scholar@aiia.gov.in';
-  if (eduEl) eduEl.innerText = (parsed.education && parsed.education[0]) || 'BAMS 3rd Year · AIIA';
-  if (expEl) expEl.innerText = parsed.experienceYears ? `${parsed.experienceYears} Years Academic / Lab` : 'Student Researcher';
-  if (sumEl) sumEl.innerText = parsed.summary || 'Verified Ayurvedic and technical researcher.';
+  if (emailEl) emailEl.innerText = parsed.email || (parsed.email === '' ? 'Not specified in resume' : 'candidate@joblex.in');
+  if (eduEl) eduEl.innerText = (parsed.education && parsed.education[0]) || 'Academic Scholar';
+  if (expEl) expEl.innerText = parsed.experienceYears ? `${parsed.experienceYears}` : 'Practical / Academic Experience';
+  if (sumEl) sumEl.innerText = parsed.summary || 'Verified candidate credentials across evaluated competencies.';
 
   // Side-by-Side Comparator
   const parsedList = document.getElementById('side-by-side-parsed-list');
@@ -1172,9 +1207,9 @@ async function handleOptimizeResume() {
 
   const btn = document.getElementById('btn-optimize-resume');
   const loadingIndicator = document.getElementById('optimizer-loading-state');
-  const outputContainer = document.getElementById('optimizer-results-container');
-  const roleSelect = document.getElementById('target-role-select');
-  const targetRole = roleSelect ? roleSelect.value : 'Herbal Formulation Scientist';
+  const targetRole = (currentAutoAssessment && (currentAutoAssessment.targetRole || currentAutoAssessment.detectedDomain)) 
+    ? (currentAutoAssessment.targetRole || currentAutoAssessment.detectedDomain) 
+    : 'Professional Specialist';
 
   let resumeText = '';
   if (selectedResumeFile) {
@@ -1192,12 +1227,13 @@ async function handleOptimizeResume() {
     resumeText = `Candidate: ${currentParsedData.name || 'Scholar'}\nSummary: ${currentParsedData.summary || ''}\nEducation: ${(currentParsedData.education || []).join(', ')}\nSkills: ${(currentParsedData.extractedSkills || []).join(', ')}`;
   }
   if (!resumeText) {
-    resumeText = SAMPLE_RESUMES.herbal;
+    JoblexApiClient.showNoticeModal('Please parse a resume first or provide resume text to optimize.', 'No Resume Provided');
+    return;
   }
 
   const currentSkills = (currentParsedData && currentParsedData.extractedSkills && currentParsedData.extractedSkills.length > 0)
     ? currentParsedData.extractedSkills
-    : ["Herbal Formulation", "Ayurvedic Pharmacognosy", "Phytochemical Extraction", "Good Laboratory Practice (GLP)"];
+    : [];
 
   if (btn) {
     btn.disabled = true;

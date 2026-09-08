@@ -261,23 +261,26 @@
       <!-- RESUME SCANNER & UPLOADER CONSOLE -->
       <div class="rounded-2xl border border-[#E7E4DC] dark:border-white/10 bg-white dark:bg-white/[0.03] p-6 sm:p-8 shadow-sm space-y-6">
         
-        <!-- Target Role Benchmark Dropdown -->
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <label class="text-xs font-bold uppercase tracking-wider text-[#1C1917] dark:text-gray-200">
-              Target Corporate Role Benchmark
-            </label>
-            <span class="text-[11px] text-[#6E6962] dark:text-gray-400">Calculates Hybrid Cosine-Jaccard Fit</span>
+        <!-- Universal Multi-Disciplinary Intake (Auto-Calibrated for all students) -->
+        <div class="p-4 rounded-xl bg-gradient-to-r from-purple-50/80 via-slate-50 to-indigo-50/80 dark:from-purple-950/30 dark:via-stone-900/30 dark:to-indigo-950/30 border border-purple-200/80 dark:border-purple-800/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center border border-purple-500/30 shrink-0">
+              <span class="material-symbols-outlined text-[20px]">auto_awesome</span>
+            </div>
+            <div>
+              <span class="text-xs font-bold text-[#1C1917] dark:text-white flex items-center gap-2">
+                Universal Multi-Disciplinary Ingestion
+                <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">All Disciplines</span>
+              </span>
+              <p class="text-[11px] text-[#6E6962] dark:text-gray-300 mt-0.5">
+                Upload your resume from any field (Ayurveda, Medicine, Biotechnology, Computer Science, Pharmacy, Healthcare, or Analytics). The AI automatically discovers your domain and calibrates benchmarks to your real credentials.
+              </p>
+            </div>
           </div>
-          <select id="target-role-select" class="w-full p-3.5 rounded-xl bg-slate-50 dark:bg-gray-900 border border-[#E7E4DC] dark:border-gray-700 text-xs sm:text-sm font-medium text-[#1C1917] dark:text-white focus:ring-2 focus:ring-purple-500 transition">
-            <option value="Software Development Engineer">Software Development Engineer (Tech &amp; Systems Engineering)</option>
-            <option value="Data Scientist &amp; ML Engineer">Data Scientist &amp; ML Engineer (AI Platforms &amp; Analytics)</option>
-            <option value="Full Stack Cloud Developer">Full Stack Cloud Developer (Modern Web &amp; Distributed Systems)</option>
-            <option value="Bio-Informatics Research Associate">Bio-Informatics Research Associate (Computational Life Sciences)</option>
-            <option value="Healthcare Informatics Specialist">Healthcare Informatics Specialist (Clinical &amp; Health Systems)</option>
-            <option value="Herbal Formulation &amp; Pharma Scientist">Herbal Formulation &amp; Pharma Scientist (Phytochemistry &amp; R&amp;D)</option>
-            <option value="Product &amp; Business Analyst">Product &amp; Business Analyst (Strategy &amp; Consulting)</option>
-          </select>
+          <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs font-mono font-bold border border-purple-200 dark:border-purple-700/60 shrink-0">
+            <span class="w-2 h-2 rounded-full bg-purple-600 animate-pulse"></span>
+            <span>Auto-Calibrated Fit</span>
+          </div>
         </div>
 
         <!-- Ingestion Mode Selector Tabs -->
@@ -320,7 +323,9 @@
         <div id="text-input-mode" class="hidden space-y-3">
           <div class="flex items-center justify-between">
             <label class="text-xs font-bold text-[#1C1917] dark:text-gray-200">Raw Candidate Resume Text</label>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
+              <button onclick="loadSampleResume('software')" class="text-[11px] font-semibold text-purple-600 dark:text-purple-400 hover:underline">Load CS / Software Sample</button>
+              <span class="text-slate-300 dark:text-gray-700">•</span>
               <button onclick="loadSampleResume('herbal')" class="text-[11px] font-semibold text-purple-600 dark:text-purple-400 hover:underline">Load Herbal Sample</button>
               <span class="text-slate-300 dark:text-gray-700">•</span>
               <button onclick="loadSampleResume('tech')" class="text-[11px] font-semibold text-purple-600 dark:text-purple-400 hover:underline">Load Health-AI Sample</button>
@@ -413,6 +418,10 @@
           <div class="space-y-1.5 pt-1">
             <span class="text-[11px] font-semibold text-slate-400 dark:text-gray-500">Quick Prompt Directives:</span>
             <div class="flex flex-wrap gap-2">
+              <button type="button" onclick="setPromptSuggestion('Highlight Full Stack development, REST APIs, React, Node.js, and cloud containerization with quantified metrics.')" class="px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 text-blue-700 dark:text-blue-300 text-xs font-medium hover:bg-blue-100 dark:hover:bg-blue-900/60 transition flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[14px]">code</span>
+                <span>Full Stack &amp; Cloud Systems</span>
+              </button>
               <button type="button" onclick="setPromptSuggestion('Highlight chromatography, HPTLC fingerprinting, and phytochemistry for Dabur R&D internship with GLP compliance emphasis.')" class="px-3 py-1.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/60 text-purple-700 dark:text-purple-300 text-xs font-medium hover:bg-purple-100 dark:hover:bg-purple-900/60 transition flex items-center gap-1.5">
                 <span class="material-symbols-outlined text-[14px]">biotech</span>
                 <span>Target Dabur R&amp;D Formulation</span>
@@ -547,7 +556,7 @@
                 <span id="match-tier-badge" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
                   Strong Match
                 </span>
-                <span class="text-xs text-[#6E6962] dark:text-gray-400">Target: <strong id="results-target-role" class="text-slate-900 dark:text-white font-medium">Herbal Formulation Scientist</strong></span>
+                <span class="text-xs text-[#6E6962] dark:text-gray-400">Candidate Specialization: <strong id="results-target-role" class="text-purple-600 dark:text-purple-400 font-bold">Auto-Calibrating...</strong></span>
               </div>
               <h2 class="text-2xl font-extrabold text-[#1C1917] dark:text-white">
                 Candidate Competency &amp; Gap Diagnostics
@@ -760,6 +769,8 @@
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script src="/js/frontend/api-client.js"></script>
 <script src="/js/frontend/notifications.js"></script>
 <script src="/js/frontend/student-ui.js"></script>

@@ -11,9 +11,11 @@ const DB = require('../data/database');
 const {
   parseResumeHeuristically,
   parseResumeWithGemini,
+  parseResumeWithAI,
   parseResumeText,
   generateAutoAssessment,
-  getBenchmarkProfile
+  getBenchmarkProfile,
+  detectCandidateDomain
 } = require('../services/resumeParser.service');
 
 const ROLE_BENCHMARKS = {
@@ -66,6 +68,41 @@ const ROLE_BENCHMARKS = {
       "Contribute to Charaka Samhita Sanskrit text-mining model repositories.",
       "Develop clinical data tagging pipelines for Ayurvedic Prakriti assessment.",
       "Submit a research prototype to the Ayush AI Innovation Challenge."
+    ]
+  },
+  "Full Stack Software Engineer": {
+    benchmark: 85,
+    requiredSkills: [
+      "Python",
+      "JavaScript",
+      "Node.js",
+      "React",
+      "RESTful APIs",
+      "SQL",
+      "Git",
+      "Docker"
+    ],
+    standardRecommendations: [
+      "Complete Full-Stack Microservices with Node.js & React on Joblex Developer Academy.",
+      "Build containerized microservices projects deploying with Docker and CI/CD pipelines.",
+      "Contribute to open-source developer tool repositories to demonstrate version control mastery."
+    ]
+  },
+  "Data Scientist & ML Engineer": {
+    benchmark: 86,
+    requiredSkills: [
+      "Python",
+      "Machine Learning",
+      "Pandas",
+      "Scikit-Learn",
+      "PyTorch",
+      "Vector Search & Embeddings",
+      "Quantitative Aptitude"
+    ],
+    standardRecommendations: [
+      "Complete End-to-End Machine Learning & Vector Search Systems on Joblex AI Research.",
+      "Implement deep learning architectures for NLP or computer vision using PyTorch.",
+      "Deploy production predictive models with FastAPI and containerized serving."
     ]
   }
 };
@@ -301,10 +338,18 @@ Rewrite and optimize the candidate's resume materials according to their custom 
     }
 
     // Heuristic Fallback Tailoring Engine
-    const targetKeywords = (ROLE_BENCHMARKS[targetRole] || ROLE_BENCHMARKS["Herbal Formulation Scientist"]).requiredSkills;
+    const benchmarkProfile = getBenchmarkProfile(targetRole);
+    const targetKeywords = ROLE_BENCHMARKS[targetRole]?.requiredSkills || (benchmarkProfile?.mandatorySkills ? benchmarkProfile.mandatorySkills.map(m => m.name || m.id) : (currentSkills.length > 0 ? currentSkills : ["System Architecture", "Quality Compliance", "Technical Execution"]));
+    
+    const isTechRole = /software|developer|data|ml|engineer|tech/i.test(targetRole);
     const fallbackOptimization = {
-      revisedSummary: `Driven ${targetRole} candidate with hands-on technical competencies in ${targetKeywords.slice(0, 3).join(', ')}. Demonstrated research rigor and standard operating compliance aligned with ${userInstructions.includes('Dabur') ? 'Dabur R&D' : 'top industry'} hiring baselines. Dedicated to advancing standardized pharmaceutical protocols and innovative formulation pipelines.`,
-      tailoredBulletPoints: [
+      revisedSummary: `Driven ${targetRole} candidate with hands-on technical competencies in ${targetKeywords.slice(0, 3).join(', ')}. Demonstrated ${isTechRole ? 'engineering rigor, architecture excellence,' : 'research rigor, standard operating compliance,'} and execution aligned with top industry hiring baselines. Dedicated to advancing standardized protocols and scalable high-impact solutions.`,
+      tailoredBulletPoints: isTechRole ? [
+        `Spearheaded modular architecture design and feature implementation utilizing ${targetKeywords[0] || 'modern frameworks'} with rigorous test coverage.`,
+        `Engineered scalable workflows utilizing ${targetKeywords.slice(1, 3).join(' and ') || 'cloud microservices'}, improving throughput and reducing execution latency by 32%.`,
+        `Optimized trial records, documentation, and version-controlled CI/CD delivery pipelines, increasing team velocity and deployment stability.`,
+        `Collaborated cross-functionally to evaluate system metrics, analyze requirements, and implement production-ready solutions.`
+      ] : [
         `Spearheaded experimental extraction protocols adhering strictly to Good Laboratory Practice (GLP) and standard monographs.`,
         `Conducted high-precision analytical assays utilizing ${targetKeywords[0] || 'spectroscopic methods'} with strict quality assurance documentation.`,
         `Optimized trial records and batch testing workflows, improving reproducibility and compliance by 28%.`,
@@ -313,8 +358,8 @@ Rewrite and optimize the candidate's resume materials according to their custom 
       recommendedKeywords: targetKeywords.slice(0, 8),
       structuralSuggestions: [
         `Place the revised summary directly below contact information to capture technical recruiter attention within 6 seconds.`,
-        `Group analytical skills under a dedicated 'Instrumentation & Technical Methods' heading.`,
-        `Quantify experimental sample sizes and accuracy percentages in project descriptions.`
+        `Group core proficiencies under a dedicated 'Core Competencies & Tools' heading.`,
+        `Quantify experimental metrics, benchmark accuracies, and latency reductions in project descriptions.`
       ],
       confidenceScore: 89
     };
@@ -348,12 +393,12 @@ router.post('/parse', async (req, res) => {
       });
     }
 
-    // 1. Try Gemini AI Structured Extraction
-    const aiParsed = await parseResumeWithGemini(resumeText, fileName);
+    // 1. Try AI Structured Extraction (NVIDIA Nemotron or Gemini)
+    const aiParsed = await parseResumeWithAI(resumeText, fileName);
     if (aiParsed && aiParsed.personalInfo) {
       return res.json({
         success: true,
-        provider: 'google-gemini-ai',
+        provider: aiParsed.metadata?.extractor || 'nvidia-nemotron-ai',
         parsedResume: aiParsed
       });
     }
@@ -383,7 +428,7 @@ router.post('/auto-assess', async (req, res) => {
     const {
       resumeText = '',
       parsedSkills = [],
-      targetRole = 'Herbal Formulation Scientist'
+      targetRole = 'auto'
     } = req.body || {};
 
     let rawText = '';
@@ -404,10 +449,10 @@ router.post('/auto-assess', async (req, res) => {
       skillList = parsedSkills.map(s => typeof s === 'string' ? s : (s.name || s.skill || ''));
       parsedResult = {
         name: 'Scholar Candidate',
-        email: 'scholar@aiia.gov.in',
-        education: [{ degree: 'BAMS 3rd Year', institution: 'All India Institute of Ayurveda', year: '2022 - 2026' }],
-        experience: [{ role: 'Student Researcher', organization: 'All India Institute of Ayurveda', duration: '1 Year' }],
-        summary: 'Ayurvedic pharmacology and scientific researcher with verified academic competencies.',
+        email: '',
+        education: [],
+        experience: [],
+        summary: 'Candidate credentials across evaluated competencies.',
         extractedSkills: skillList
       };
     } else {
@@ -416,23 +461,23 @@ router.post('/auto-assess', async (req, res) => {
       skillList = (parsedResult.skills && parsedResult.skills.allExtracted) || parsedResult.extractedSkills || [];
     }
 
-    const autoAssessment = generateAutoAssessment(skillList, targetRole);
+    const autoAssessment = generateAutoAssessment(skillList, targetRole || 'auto', rawText);
 
-    const parsedEducation = Array.isArray(parsedResult.education) 
+    const parsedEducation = Array.isArray(parsedResult.education) && parsedResult.education.length > 0
       ? parsedResult.education.map(e => typeof e === 'string' ? e : `${e.degree || ''} · ${e.institution || ''}`.replace(/^ · | · $/g, '')) 
-      : [parsedResult.education || 'BAMS 3rd Year · AIIA'];
+      : (parsedResult.personalInfo && parsedResult.personalInfo.institution ? [`${parsedResult.personalInfo.degree || 'Degree'} · ${parsedResult.personalInfo.institution}`] : ['Accredited University Scholar']);
 
     const parsedExperience = Array.isArray(parsedResult.experience) && parsedResult.experience.length > 0
-      ? parsedResult.experience[0].duration || '1 Year Academic / Lab'
-      : 'Student Researcher';
+      ? parsedResult.experience[0].duration || 'Academic / Practical Experience'
+      : (parsedResult.experienceYears || 'Candidate Experience');
 
     const parsedData = {
       name: parsedResult.name || (parsedResult.personalInfo && parsedResult.personalInfo.name) || 'Scholar Candidate',
-      email: parsedResult.email || (parsedResult.personalInfo && parsedResult.personalInfo.email) || 'scholar@aiia.gov.in',
-      phone: parsedResult.phone || (parsedResult.personalInfo && parsedResult.personalInfo.phone) || '+91 98765 43210',
+      email: parsedResult.email || (parsedResult.personalInfo && parsedResult.personalInfo.email) || '',
+      phone: parsedResult.phone || (parsedResult.personalInfo && parsedResult.personalInfo.phone) || '',
       education: parsedEducation,
       experienceYears: parsedExperience,
-      summary: parsedResult.summary || (parsedResult.personalInfo && parsedResult.personalInfo.degree ? `${parsedResult.personalInfo.degree} researcher at ${parsedResult.personalInfo.institution}` : 'Ayurvedic pharmacology and scientific researcher with demonstrated lab competency.'),
+      summary: parsedResult.summary || (parsedResult.personalInfo && parsedResult.personalInfo.degree ? `${parsedResult.personalInfo.degree} candidate with verified competencies in ${skillList.slice(0, 4).join(', ') || 'specialized technical domains'}.` : 'Candidate credentials evaluated across verified competencies.'),
       extractedSkills: skillList,
       projects: parsedResult.projects || [],
       certifications: parsedResult.certifications || []
@@ -440,7 +485,8 @@ router.post('/auto-assess', async (req, res) => {
 
     return res.json({
       success: true,
-      targetRole,
+      targetRole: autoAssessment.targetRole,
+      detectedDomain: autoAssessment.detectedDomain,
       parsed: parsedData,
       assessment: autoAssessment,
       autoAssessment
