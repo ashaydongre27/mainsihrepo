@@ -1765,7 +1765,9 @@ const JoblexApiClient = {
   // Zulu AI Chat & History System
   async getZuluSessions(userId = 'usr-student-01') {
     try {
-      const res = await fetch(`${API_BASE}/zulu/sessions?userId=${encodeURIComponent(userId)}`);
+      const res = await fetch(`${API_BASE}/zulu/sessions?userId=${encodeURIComponent(userId)}`, {
+        headers: this.getAuthHeaders()
+      });
       if (res.ok) return await res.json();
     } catch(e) {}
     return { success: false, sessions: [] };

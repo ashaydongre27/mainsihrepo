@@ -2860,6 +2860,11 @@ async function handleZuluSend(e) {
   const ind = document.getElementById('zulu-typing-indicator');
   if (ind) ind.remove();
 
+  if (!res || !res.success || !res.reply) {
+    showToast(res?.error || 'Zulu AI could not respond right now. Please try again.', 'Zulu AI', 'error');
+    return;
+  }
+
   if (res && res.sessionId && res.sessionId !== currentZuluSessionId) {
     currentZuluSessionId = res.sessionId;
   }
