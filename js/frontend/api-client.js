@@ -1815,9 +1815,17 @@ const JoblexApiClient = {
       });
       const parsed = await this._parseFetch(res);
       if (parsed.ok && parsed.data && parsed.data.reply) return parsed.data;
-    } catch(e) {}
+      const serverError = parsed.data?.error || parsed.data?.message;
+      return {
+        success: false,
+        sessionId,
+        reply: '',
+        error: serverError || `Zulu AI request failed (HTTP ${parsed.status || 'network error'}).`
+      };
+    } catch(e) {
+      return { success: false, sessionId, reply: '', error: `Zulu AI request failed: ${e.message}` };
+    }
 
-    return { success: false, sessionId, reply: '', error: 'Zulu AI is temporarily unavailable.' };
   },
 
   // Academy Endpoints
