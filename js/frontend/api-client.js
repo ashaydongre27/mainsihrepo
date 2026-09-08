@@ -584,6 +584,7 @@ const JoblexApiClient = {
 
       if (parsed.ok && parsed.data?.success && parsed.data?.user) {
         remoteUser = parsed.data.user;
+        if (parsed.data.token) localStorage.setItem('joblex_token', parsed.data.token);
       } else if (parsed.data?.error) {
         remoteError = parsed.data.error;
       }
@@ -633,6 +634,7 @@ const JoblexApiClient = {
 
     const { password: _, ...safeUser } = newUser;
     this.setCurrentUser(safeUser);
+    localStorage.setItem('joblex_token', `demo-${safeUser.id}`);
     return { success: true, message: 'Registered successfully!', user: safeUser };
   },
 
