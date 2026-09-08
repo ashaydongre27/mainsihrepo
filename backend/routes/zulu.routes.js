@@ -9,12 +9,15 @@ const express = require('express');
 const router = express.Router();
 const { generateWithFailover, isGoogleApiConfigured, getMainApiKey, getBackupApiKey, getNvidiaApiKey, callNvidiaModel } = require('../services/ai.service');
 const zuluChatService = require('../services/zuluChat.service');
+const { authenticateToken, requireRole } = require('../middleware/auth.middleware');
 
 /**
  * Call AI (NVIDIA Nemotron 3 Ultra 550B -> Failover) for Zulu AI Counselor
  */
 async function generateWithZuluAI(userMessage, conversationHistory = [], studentContext = null) {
-  const contextSnippet = studentContext ? `\nStudent Context: Name=${studentContext.studentName || 'Scholar'}, Role=${studentContext.role || 'Student'}, Department=${studentContext.department || 'General'}` : '';
+  const adaptive = studentContext?.adaptiveQuizPerformance;
+  const adaptiveSnippet = adaptive ? `, Quiz attempts=${adaptive.attempts || 0}, quiz accuracy=${adaptive.totalAnswered ? Math.round((adaptive.totalCorrect / adaptive.totalAnswered) * 100) : 0}%, skill accuracy=${JSON.stringify(adaptive.bySkill || {})}` : '';
+  const contextSnippet = studentContext ? `\nStudent Context: Name=${studentContext.studentName || 'Scholar'}, Role=${studentContext.role || 'Student'}, Department=${studentContext.department || 'General'}${adaptiveSnippet}` : '';
   const systemInstruction = `You are Zulu, an expert AI Career and Research Counselor for students across academic disciplines and modern industries (pharmaceuticals, health-tech, biotechnology, data science). Guide students on comprehensive career roadmaps, corporate placements, verified skills, and research methodologies with actionable steps.${contextSnippet}`;
 
   // 1. Try NVIDIA Nemotron 3 Ultra 550B if key is present
@@ -70,6 +73,10 @@ async function generateWithZuluAI(userMessage, conversationHistory = [], student
 function generateSmartZuluResponse(message, studentContext = {}) {
   const query = (message || '').toLowerCase();
   const name = studentContext.studentName || studentContext.name || 'Scholar';
+  const adaptive = studentContext.adaptiveQuizPerformance;
+  const quizSummary = adaptive && adaptive.totalAnswered
+    ? `\n\nYour adaptive quiz profile currently shows ${Math.round((adaptive.totalCorrect / adaptive.totalAnswered) * 100)}% accuracy across ${adaptive.totalAnswered} answers. I will use the lower-scoring skills to shape your next practice set.`
+    : '';
 
   // 1. Tech, Software Engineering, AI & Web Development
   if (query.includes('software') || query.includes('coding') || query.includes('python') || query.includes('javascript') || query.includes('react') || query.includes('node') || query.includes('developer') || query.includes('engineer') || query.includes('ai') || query.includes('machine learning') || query.includes('data science') || query.includes('web')) {
@@ -98,7 +105,7 @@ Greetings **${name}**! Here is how your skill verification freeze works:
 - **Streak Multiplier**: Maintaining your active streak provides a 1.5x XP boost across all micro-gigs and placement applications.
 - **Recruiter Priority**: Students with active freeze status appear in the **Top 5% Inbound Candidate Pool** for industry partners.
 
-*Tip*: Complete a quick 3-minute quiz in the **Quiz Arena** now to protect your current XP streak!`;
+*Tip*: Complete a quick 3-minute quiz in the **Quiz Arena** now to protect your current XP streak!${quizSummary}`;
   }
 
   // 3. Research, Fellowships, Grants & Academia
@@ -151,9 +158,9 @@ Feel free to ask follow-up questions about specific career pathways, technical c
  * GET /api/zulu/sessions
  * Fetch all chat sessions for the current student user
  */
-router.get(['/sessions', '/history'], async (req, res) => {
+router.get(['/sessions', '/history'], authenticateToken, requireRole(['student']), async (req, res) => {
   try {
-    const userId = req.query.userId || req.headers['x-user-id'] || 'usr-student-01';
+    const userId = req.user.id || req.user.email;
     const sessions = await zuluChatService.getUserSessions(userId);
     res.json({ success: true, sessions });
   } catch (err) {
@@ -166,9 +173,10 @@ router.get(['/sessions', '/history'], async (req, res) => {
  * POST /api/zulu/sessions
  * Create a new chat session thread
  */
-router.post('/sessions', async (req, res) => {
+router.post('/sessions', authenticateToken, requireRole(['student']), async (req, res) => {
   try {
-    const { userId = 'usr-student-01', title = 'New Conversation' } = req.body || {};
+    const { title = 'New Conversation' } = req.body || {};
+    const userId = req.user.id || req.user.email;
     const session = await zuluChatService.createSession(userId, title);
     res.json({ success: true, session });
   } catch (err) {
@@ -181,10 +189,10 @@ router.post('/sessions', async (req, res) => {
  * GET /api/zulu/sessions/:id
  * Get all messages for a specific session thread
  */
-router.get('/sessions/:id', async (req, res) => {
+router.get('/sessions/:id', authenticateToken, requireRole(['student']), async (req, res) => {
   try {
     const sessionId = req.params.id;
-    const userId = req.query.userId || req.headers['x-user-id'] || 'usr-student-01';
+    const userId = req.user.id || req.user.email;
     const messages = await zuluChatService.getSessionMessages(sessionId, userId);
     res.json({ success: true, sessionId, messages });
   } catch (err) {
@@ -197,10 +205,10 @@ router.get('/sessions/:id', async (req, res) => {
  * DELETE /api/zulu/sessions/:id
  * Delete a specific chat session thread
  */
-router.delete('/sessions/:id', async (req, res) => {
+router.delete('/sessions/:id', authenticateToken, requireRole(['student']), async (req, res) => {
   try {
     const sessionId = req.params.id;
-    const userId = req.query.userId || req.headers['x-user-id'] || 'usr-student-01';
+    const userId = req.user.id || req.user.email;
     await zuluChatService.deleteSession(sessionId, userId);
     res.json({ success: true, message: 'Session deleted successfully' });
   } catch (err) {
@@ -213,9 +221,10 @@ router.delete('/sessions/:id', async (req, res) => {
  * POST /api/zulu/chat
  * Primary chat execution endpoint with history persistence
  */
-router.post('/chat', async (req, res) => {
+router.post('/chat', authenticateToken, requireRole(['student']), async (req, res) => {
   try {
-    const { message = '', history = [], context = {}, sessionId = null, userId = 'usr-student-01' } = req.body || {};
+    const { message = '', history = [], context = {}, sessionId = null } = req.body || {};
+    const userId = req.user.id || req.user.email;
 
     const cleanMessage = (typeof message === 'string' ? message : '').trim();
     if (!cleanMessage) {

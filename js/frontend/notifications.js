@@ -46,7 +46,11 @@
     try {
       const user = JSON.parse(localStorage.getItem('joblex_user') || localStorage.getItem('joblex_auth_user') || '{}');
       const recipientId = user.email || user.id || (window.location.pathname.includes('industry') ? 'usr-industry-01' : (window.location.pathname.includes('academy') ? 'usr-academy-01' : 'usr-student-01'));
-      const res = await fetch(`/api/notifications?recipientId=${encodeURIComponent(recipientId)}`);
+      const apiBase = window.JOBLEX_API_BASE || window.JOBLEX_API_URL || '/api';
+      const token = localStorage.getItem('joblex_token');
+      const res = await fetch(`${apiBase}/notifications?recipientId=${encodeURIComponent(recipientId)}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.notifications)) {
@@ -253,10 +257,13 @@
     try {
       const user = JSON.parse(localStorage.getItem('joblex_user') || localStorage.getItem('joblex_auth_user') || '{}');
       const recipientId = user.email || user.id || (window.location.pathname.includes('industry') ? 'usr-industry-01' : (window.location.pathname.includes('academy') ? 'usr-academy-01' : 'usr-student-01'));
-      await fetch('/api/notifications/read-all', {
+      const apiBase = window.JOBLEX_API_BASE || window.JOBLEX_API_URL || '/api';
+      await fetch(`${apiBase}/notifications/read-all`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ recipientId })
+        headers: {
+          'Content-Type': 'application/json',
+          ...(localStorage.getItem('joblex_token') ? { Authorization: `Bearer ${localStorage.getItem('joblex_token')}` } : {})
+        }
       });
     } catch (e) {}
   }
@@ -276,7 +283,11 @@
       updateBadgeUI();
     }
     try {
-      await fetch(`/api/notifications/${encodeURIComponent(id)}/read`, { method: 'PATCH' });
+      const apiBase = window.JOBLEX_API_BASE || window.JOBLEX_API_URL || '/api';
+      await fetch(`${apiBase}/notifications/${encodeURIComponent(id)}/read`, {
+        method: 'PATCH',
+        headers: localStorage.getItem('joblex_token') ? { Authorization: `Bearer ${localStorage.getItem('joblex_token')}` } : {}
+      });
     } catch (e) {}
     closeDropdown();
     if (link && link !== '#' && window.location.pathname.indexOf(link) === -1) {

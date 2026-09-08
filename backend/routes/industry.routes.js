@@ -11,6 +11,9 @@ const express = require('express');
 const router = express.Router();
 const { supabase, isConfigured } = require('../config/supabase');
 const DB = require('../data/database');
+const { authenticateToken, requireRole } = require('../middleware/auth.middleware');
+
+router.use(authenticateToken, requireRole(['industry']));
 
 // GET /api/industry, /api/industry/all-data, /api/industry/overview, /api/industry/analytics
 router.get(['/', '/all-data', '/overview', '/stats', '/analytics'], async (req, res) => {
@@ -69,7 +72,7 @@ router.get(['/', '/all-data', '/overview', '/stats', '/analytics'], async (req, 
 });
 
 // POST /api/industry/post-opportunity
-router.post('/post-opportunity', async (req, res) => {
+router.post('/post-opportunity', authenticateToken, requireRole(['industry']), async (req, res) => {
   const data = req.body || {};
   const newOpp = {
     id: `opp-${Date.now().toString(36)}`,
@@ -188,8 +191,8 @@ router.get('/applications', async (req, res) => {
   });
 });
 
-// POST /api/industry/applications/:id/status (Review / Shortlist / Offer status updater)
-router.post('/applications/:id/status', async (req, res) => {
+// Legacy status implementation retained for reference; the complete handler is defined below.
+router.post('/applications/:id/status-legacy', async (req, res) => {
   const { id } = req.params;
   const { status } = req.body || {};
 
@@ -442,6 +445,9 @@ router.post('/applications/:id/status', async (req, res) => {
   const studentName = (app && (app.studentName || app.student_name)) || 'Candidate';
   const compName = (app && app.company) || 'Ayush Employer';
   const oppTitle = (app && (app.opportunityTitle || app.opportunity_title)) || 'Position';
+  const notificationTitle = updatedStatus.includes('Interview')
+    ? `Interview Scheduled: ${compName}`
+    : `Status Update: ${updatedStatus} (${compName})`;
 
   // Auto-dispatch in-portal alert to student
   if (!DB.inPortalNotifications) DB.inPortalNotifications = [];
@@ -449,7 +455,7 @@ router.post('/applications/:id/status', async (req, res) => {
     id: `notif-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
     recipientId: studentId,
     senderId: 'usr-industry-01',
-    title: `Status Update: ${updatedStatus} (${compName})`,
+    title: notificationTitle,
     message: `Your application for "${oppTitle}" has been updated to "${updatedStatus}".${interviewSlot ? ` Scheduled slot: ${interviewSlot}` : ''}`,
     actionUrl: '/student.html#applications',
     category: updatedStatus.includes('Interview') ? 'interview_invite' : 'application_update',

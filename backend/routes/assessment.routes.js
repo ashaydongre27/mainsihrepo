@@ -11,6 +11,107 @@ const { SKILL_ONTOLOGY, ROLE_BENCHMARK_PROFILES } = require('../data/skillOntolo
 const { createSkillVector, computeHybridScore, explainMatch } = require('../services/matching.service');
 const { supabase, isConfigured } = require('../config/supabase');
 const crypto = require('crypto');
+const { authenticateToken, requireRole } = require('../middleware/auth.middleware');
+
+const ADAPTIVE_QUIZ_BANK = [
+  { id: 'adaptive-hptlc-1', skill: 'HPTLC / HPLC Chromatography', difficulty: 'easy', question: 'Which technique is commonly used for herbal fingerprinting and marker quantification?', options: ['HPTLC', 'Gram staining', 'Simple distillation', 'pH titration'], correctIndex: 0 },
+  { id: 'adaptive-hptlc-2', skill: 'HPTLC / HPLC Chromatography', difficulty: 'hard', question: 'Which change most improves quantitative HPLC method robustness during herbal marker analysis?', options: ['Remove system suitability checks', 'Validate specificity, precision, accuracy, and solution stability', 'Use a different column for every sample', 'Avoid calibration standards'], correctIndex: 1 },
+  { id: 'adaptive-python-1', skill: 'Python & Data Science', difficulty: 'easy', question: 'Which Python library is widely used for tabular data manipulation?', options: ['Pandas', 'Django', 'PyGame', 'Flask'], correctIndex: 0 },
+  { id: 'adaptive-python-2', skill: 'Python & Data Science', difficulty: 'hard', question: 'Which approach best prevents target leakage in a clinical prediction pipeline?', options: ['Fit preprocessing before splitting data', 'Use a pipeline and fit transformations only on training folds', 'Shuffle labels after evaluation', 'Select features using the complete dataset'], correctIndex: 1 },
+  { id: 'adaptive-glp-1', skill: 'Good Laboratory Practice (GLP)', difficulty: 'easy', question: 'What is the primary purpose of a laboratory SOP?', options: ['Ensure consistent, reproducible, compliant work', 'Guarantee a commercial launch', 'Replace equipment calibration', 'Remove the need for records'], correctIndex: 0 },
+  { id: 'adaptive-glp-2', skill: 'Good Laboratory Practice (GLP)', difficulty: 'hard', question: 'What is the strongest response when a controlled study record contains a late data correction?', options: ['Erase the original entry', 'Backdate the correction', 'Keep the original, document the reason, date, and author, then preserve the audit trail', 'Ask another analyst to rewrite it'], correctIndex: 2 },
+  { id: 'adaptive-clinical-1', skill: 'Clinical Data Management', difficulty: 'easy', question: 'Which standard is commonly used to structure clinical trial tabulation data?', options: ['SDTM', 'CSSOM', 'SMTP', 'OAuth'], correctIndex: 0 },
+  { id: 'adaptive-clinical-2', skill: 'Clinical Data Management', difficulty: 'hard', question: 'Why are validation checks applied before a clinical database is locked?', options: ['To increase font size', 'To identify inconsistencies that could affect analysis and traceability', 'To remove protocol deviations from history', 'To avoid documenting queries'], correctIndex: 1 }
+];
+
+function getAdaptiveInsights(studentId) {
+  const attempts = (DB.adaptiveQuizAttempts || []).filter(attempt => attempt.studentId === studentId);
+  const skillStats = {};
+  attempts.forEach(attempt => (attempt.answers || []).forEach(answer => {
+    const stats = skillStats[answer.skill] || { correct: 0, total: 0 };
+    stats.total += 1;
+    if (answer.isCorrect) stats.correct += 1;
+    skillStats[answer.skill] = stats;
+  }));
+  return {
+    attempts: attempts.length,
+    totalAnswered: Object.values(skillStats).reduce((sum, stat) => sum + stat.total, 0),
+    totalCorrect: Object.values(skillStats).reduce((sum, stat) => sum + stat.correct, 0),
+    bySkill: Object.fromEntries(Object.entries(skillStats).map(([skill, stat]) => [skill, { ...stat, accuracy: Math.round((stat.correct / stat.total) * 100) }]))
+  };
+}
+
+router.get('/adaptive/insights', authenticateToken, requireRole(['student']), async (req, res) => {
+  try {
+    const studentId = req.user.id || req.user.email;
+    return res.json({ success: true, insights: getAdaptiveInsights(studentId) });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: 'Unable to load adaptive quiz insights.' });
+  }
+});
+
+router.post('/adaptive/generate', authenticateToken, requireRole(['student']), async (req, res) => {
+  try {
+    const studentId = req.user.id || req.user.email;
+    const requestedDifficulty = ['easy', 'mixed', 'hard'].includes(req.body?.difficulty) ? req.body.difficulty : 'mixed';
+    const focusPrompt = typeof req.body?.prompt === 'string' ? req.body.prompt.trim().slice(0, 180) : '';
+    const insights = getAdaptiveInsights(studentId);
+    const focusText = focusPrompt.toLowerCase();
+    const requestedSkills = Object.keys(insights.bySkill).filter(skill => focusText.includes(skill.toLowerCase().split(' ')[0]));
+    const weakSkills = Object.entries(insights.bySkill).filter(([, stat]) => stat.accuracy < 70).map(([skill]) => skill);
+    const targetSkills = requestedSkills.length ? requestedSkills : (weakSkills.length ? weakSkills : [...new Set(ADAPTIVE_QUIZ_BANK.map(question => question.skill))]);
+    const questions = ADAPTIVE_QUIZ_BANK
+      .filter(question => targetSkills.includes(question.skill))
+      .filter(question => requestedDifficulty === 'mixed' || question.difficulty === requestedDifficulty)
+      .slice(0, 4);
+    const selected = questions.length ? questions : ADAPTIVE_QUIZ_BANK.slice(0, 4);
+    const attemptId = `adaptive-${Date.now().toString(36)}`;
+    return res.json({
+      success: true,
+      attemptId,
+      difficulty: requestedDifficulty,
+      prompt: focusPrompt,
+      recommendation: weakSkills.length ? `Zulu is reinforcing: ${weakSkills.join(', ')}.` : 'Zulu is establishing your baseline across core skills.',
+      questions: selected.map(({ correctIndex, ...question }) => question)
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: 'Unable to generate an adaptive quiz.' });
+  }
+});
+
+router.post('/adaptive/submit', authenticateToken, requireRole(['student']), async (req, res) => {
+  try {
+    const studentId = req.user.id || req.user.email;
+    const answers = Array.isArray(req.body?.answers) ? req.body.answers : [];
+    const answerMap = new Map(answers.map(answer => [answer.questionId, Number(answer.selectedIndex)]));
+    const evaluatedAnswers = ADAPTIVE_QUIZ_BANK.filter(question => answerMap.has(question.id)).map(question => ({
+      questionId: question.id,
+      skill: question.skill,
+      selectedIndex: answerMap.get(question.id),
+      isCorrect: answerMap.get(question.id) === question.correctIndex
+    }));
+    const correctCount = evaluatedAnswers.filter(answer => answer.isCorrect).length;
+    const attempt = {
+      id: req.body?.attemptId || `adaptive-${Date.now().toString(36)}`,
+      studentId,
+      difficulty: req.body?.difficulty || 'mixed',
+      prompt: typeof req.body?.prompt === 'string' ? req.body.prompt.trim().slice(0, 180) : '',
+      answers: evaluatedAnswers,
+      correctCount,
+      totalQuestions: evaluatedAnswers.length,
+      createdAt: new Date().toISOString()
+    };
+    DB.adaptiveQuizAttempts.unshift(attempt);
+    const insights = getAdaptiveInsights(studentId);
+    return res.json({ success: true, attempt: { ...attempt, answers: undefined }, correctCount, totalQuestions: evaluatedAnswers.length, accuracy: evaluatedAnswers.length ? Math.round((correctCount / evaluatedAnswers.length) * 100) : 0, insights });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: 'Unable to record adaptive quiz results.' });
+  }
+});
+
+const isPublicVerification = req => req.path.startsWith('/verify/');
+router.use((req, res, next) => isPublicVerification(req) ? next() : authenticateToken(req, res, next));
+router.use((req, res, next) => isPublicVerification(req) ? next() : requireRole(['student'])(req, res, next));
 
 /**
  * POST /api/assessment/submit
@@ -19,13 +120,15 @@ const crypto = require('crypto');
 router.post('/submit', async (req, res) => {
   try {
     const {
-      userId = 'usr-student-01',
+      userId: _ignoredUserId,
       targetRole = 'Herbal Formulation Scientist',
       answers = {},
       declaredSkills = []
     } = req.body || {};
 
     const standard = ROLE_BENCHMARK_PROFILES[targetRole] || ROLE_BENCHMARK_PROFILES["Herbal Formulation Scientist"];
+
+    const userId = req.user?.id || req.user?.email;
 
     // Evaluate answers
     // Each question has a weight, computing section scores
@@ -149,7 +252,7 @@ router.post('/submit', async (req, res) => {
  */
 router.get('/skill', (req, res) => {
   try {
-    const userId = req.query.userId || req.user?.id || req.user?.email || '';
+    const userId = req.user?.id || req.user?.email;
 
     const user = (userId && (DB.users || []).find(u => u.id === userId || u.email === userId)) || {
       name: 'Scholar',
@@ -190,7 +293,8 @@ router.get('/skill', (req, res) => {
  */
 router.put('/skill', (req, res) => {
   try {
-    const { userId = 'usr-student-01', skills = [], targetRole } = req.body || {};
+    const { skills = [], targetRole } = req.body || {};
+    const userId = req.user?.id || req.user?.email;
 
     if (!Array.isArray(skills)) {
       return res.status(400).json({ success: false, error: 'Skills array required for profile update.' });
@@ -230,7 +334,7 @@ router.put('/skill', (req, res) => {
 router.post('/portfolio-upload', (req, res) => {
   try {
     const {
-      userId = 'usr-student-01',
+      userId: _ignoredUserId,
       title,
       type = 'Verified Certificate',
       issuer,
@@ -242,6 +346,7 @@ router.post('/portfolio-upload', (req, res) => {
       return res.status(400).json({ success: false, error: 'Credential or project title is required.' });
     }
 
+    const userId = req.user?.id || req.user?.email;
     const newItem = {
       id: `port-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
       userId,
@@ -281,7 +386,7 @@ router.post('/portfolio-upload', (req, res) => {
  */
 router.get('/portfolio', (req, res) => {
   try {
-    const userId = req.query.userId || req.user?.id || req.user?.email || '';
+    const userId = req.user?.id || req.user?.email;
     const items = userId ? (DB.portfolioItems || []).filter(p => p.userId === userId) : [];
     return res.json({
       success: true,
@@ -334,9 +439,10 @@ router.get('/aptitude/questions', (req, res) => {
 router.post('/aptitude/submit', async (req, res) => {
   try {
     const {
-      studentId = 'usr-student-01',
+      studentId: _ignoredStudentId,
       answers = {} // Map of questionId -> selectedOptionIndex
     } = req.body || {};
+    const studentId = req.user?.id || req.user?.email;
 
     const rawQuestions = DB.aptitudeQuestions || [];
     let correctCount = 0;
@@ -452,7 +558,7 @@ router.post('/aptitude/submit', async (req, res) => {
  */
 router.get('/workshops', (req, res) => {
   try {
-    const studentId = req.query.studentId || 'usr-student-01';
+    const studentId = req.user?.id || req.user?.email;
     const allWorkshops = DB.virtualWorkshops || [];
     const enrollments = DB.workshopEnrollments || [];
 
@@ -479,8 +585,9 @@ router.get('/workshops', (req, res) => {
 router.post('/workshops/:id/rsvp', async (req, res) => {
   try {
     const { id } = req.params;
-    const { studentId = 'usr-student-01', studentName } = req.body || {};
-    const effectiveStudentName = studentName || (DB.users?.find(u => u.id === studentId)?.name) || 'Verified Scholar';
+    const { studentName } = req.body || {};
+    const studentId = req.user?.id || req.user?.email;
+    const effectiveStudentName = (DB.users?.find(u => u.id === studentId)?.name) || studentName || req.user?.name || 'Verified Scholar';
 
     const workshops = DB.virtualWorkshops || [];
     const normalizedTarget = (id || '').toLowerCase().replace(/-0+/, '-');
@@ -550,7 +657,7 @@ router.get('/quizzes', (req, res) => {
   try {
     const quizzes = DB.companyQuizzes || [];
     const certs = DB.studentQuizCertifications || [];
-    const studentId = req.query.studentId || 'usr-student-01';
+    const studentId = req.user?.id || req.user?.email;
 
     const passedQuizIds = new Set(
       certs.filter(c => c.studentId === studentId && c.passed).map(c => c.quizId)
@@ -621,7 +728,8 @@ router.get('/quiz/:quizId', (req, res) => {
 router.post('/quiz/:quizId/submit', async (req, res) => {
   try {
     const { quizId } = req.params;
-    const { studentId = 'usr-student-01', studentName, answers = {} } = req.body || {};
+    const { studentName, answers = {} } = req.body || {};
+    const studentId = req.user?.id || req.user?.email;
 
     const quizzes = DB.companyQuizzes || [];
     const quiz = quizzes.find(q => q.id === quizId);
@@ -728,7 +836,7 @@ router.post('/quiz/:quizId/submit', async (req, res) => {
  */
 router.get('/certifications', (req, res) => {
   try {
-    const studentId = req.query.studentId || req.user?.id || req.user?.email || '';
+    const studentId = req.user?.id || req.user?.email;
     const certs = studentId ? (DB.studentQuizCertifications || []).filter(c => c.studentId === studentId) : [];
     return res.json({ success: true, certifications: certs });
   } catch (err) {

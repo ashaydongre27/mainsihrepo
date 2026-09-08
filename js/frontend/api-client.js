@@ -9,6 +9,7 @@ const API_BASE = (typeof window !== 'undefined' && window.JOBLEX_API_URL) || (
     ? '/api'
     : (typeof window !== 'undefined' && window.location.port === '5000' ? '/api' : 'http://127.0.0.1:5000/api')
 );
+if (typeof window !== 'undefined') window.JOBLEX_API_BASE = API_BASE;
 
 const JoblexApiClient = {
   // Session / User Storage
@@ -26,6 +27,11 @@ const JoblexApiClient = {
     } else {
       localStorage.removeItem('joblex_user');
     }
+  },
+
+  getAuthHeaders() {
+    const token = typeof localStorage !== 'undefined' ? localStorage.getItem('joblex_token') : null;
+    return token ? { Authorization: `Bearer ${token}` } : {};
   },
 
   logout() {
@@ -532,6 +538,7 @@ const JoblexApiClient = {
 
       if (parsed.ok && parsed.data?.success && parsed.data?.user) {
         remoteUser = parsed.data.user;
+        if (parsed.data.token) localStorage.setItem('joblex_token', parsed.data.token);
       } else if (parsed.data?.error) {
         remoteError = parsed.data.error;
       }
@@ -549,6 +556,7 @@ const JoblexApiClient = {
       const fallbackUser = this.verifyLocalCredentials(normalizedEmail, password, role);
       if (fallbackUser) {
         this.setCurrentUser(fallbackUser);
+        localStorage.setItem('joblex_token', `demo-${fallbackUser.id}`);
         return { success: true, message: 'Authenticated successfully!', user: fallbackUser };
       }
     } catch (credErr) {
@@ -762,12 +770,14 @@ const JoblexApiClient = {
     try {
       const res = await fetch(`${API_BASE}/roadmap/toggle-task`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
         body: JSON.stringify({ taskId, phaseIdx })
       });
       if (res.ok) return await res.json();
-    } catch(e) {}
-    return { success: true, task: { id: taskId, completed: true }, xpAwarded: 50 };
+    } catch(e) {
+      console.warn('[API Client toggleTask] Request failed:', e.message);
+    }
+    return { success: false, error: 'Roadmap update is temporarily unavailable.' };
   },
 
   async toggleRoadmapTask(taskId, phaseIdx) {
@@ -776,14 +786,15 @@ const JoblexApiClient = {
 
   async checkIn() {
     try {
-      const res = await fetch(`${API_BASE}/roadmap/check-in`, { method: 'POST' });
+      const res = await fetch(`${API_BASE}/roadmap/check-in`, {
+        method: 'POST',
+        headers: this.getAuthHeaders()
+      });
       if (res.ok) return await res.json();
-    } catch(e) {}
-    return {
-      success: true,
-      message: 'Daily Check-in recorded! (+50 XP, Decay Frozen 72h)',
-      decayFrozenUntil: new Date(Date.now() + 72 * 3600 * 1000).toISOString()
-    };
+    } catch(e) {
+      console.warn('[API Client checkIn] Request failed:', e.message);
+    }
+    return { success: false, error: 'Daily check-in is temporarily unavailable.' };
   },
 
   async checkInStreak() {
@@ -792,18 +803,14 @@ const JoblexApiClient = {
 
   async getPeerBenchmarking() {
     try {
-      const res = await fetch(`${API_BASE}/roadmap/peer-benchmarking`);
+      const res = await fetch(`${API_BASE}/roadmap/peer-benchmarking`, {
+        headers: this.getAuthHeaders()
+      });
       if (res.ok) return await res.json();
-    } catch(e) {}
-    return {
-      userPercentile: 78,
-      placedPeerAverageScore: 86,
-      topMissingPeerSkills: [
-        { name: "HPTLC Fingerprinting", prevalence: "88% of placed peers" },
-        { name: "In-Silico AutoDock Molecular Docking", prevalence: "74% of placed peers" },
-        { name: "GCP Clinical Trial Protocols", prevalence: "69% of placed peers" }
-      ]
-    };
+    } catch(e) {
+      console.warn('[API Client getPeerBenchmarking] Request failed:', e.message);
+    }
+    return { success: false, error: 'Peer benchmarking is temporarily unavailable.' };
   },
 
   // Domain auto-detection (client-side dynamic calibration)
@@ -1230,21 +1237,12 @@ const JoblexApiClient = {
     try {
       const res = await fetch(`${API_BASE}/resume/analyze`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
         body: JSON.stringify({ resumeText, targetRole })
       });
       if (res.ok) return await res.json();
     } catch(e) {}
-    const assessmentRes = this._generateClientAutoAssessment(resumeText, targetRole);
-    return {
-      success: true,
-      targetRole: assessmentRes.targetRole,
-      matchPercentage: assessmentRes.assessment.matchPercentage,
-      benchmark: assessmentRes.assessment.targetScore || 85,
-      extractedSkills: assessmentRes.parsed.extractedSkills,
-      missingSkills: assessmentRes.assessment.criticalGaps.map(g => g.name || g.skill),
-      recommendations: assessmentRes.assessment.diagnostics.actionRecommendations
-    };
+    return { success: false, error: 'Resume analysis is temporarily unavailable.' };
   },
 
   // Document Resume Parser (PDF / DOCX)
@@ -1252,17 +1250,14 @@ const JoblexApiClient = {
     try {
       const res = await fetch(`${API_BASE}/resume/parse`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
         body: JSON.stringify({ resumeText, fileName })
       });
       if (res.ok) return await res.json();
     } catch (e) {
       console.warn('[API Client parseResume] Falling back:', e.message);
     }
-    return {
-      success: true,
-      parsedResume: this._heuristicParseResume(resumeText, fileName)
-    };
+    return { success: false, parsedResume: null, error: 'Resume parsing is temporarily unavailable.' };
   },
 
   // Auto-Assessment from Parsed Resume Skills or Document Text
@@ -1274,7 +1269,7 @@ const JoblexApiClient = {
 
       const res = await fetch(`${API_BASE}/resume/auto-assess`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
         body: JSON.stringify(payload)
       });
       if (res.ok) {
@@ -1301,7 +1296,7 @@ const JoblexApiClient = {
     } catch (e) {
       console.warn('[API Client autoAssessResume] Falling back:', e.message);
     }
-    return this._generateClientAutoAssessment(resumeTextOrSkills, targetRole);
+    return { success: false, error: 'Resume assessment is temporarily unavailable.' };
   },
 
   // Merge Resume Competencies into Profile
@@ -1312,19 +1307,14 @@ const JoblexApiClient = {
     try {
       const res = await fetch(`${API_BASE}/resume/merge-profile`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
         body: JSON.stringify({ userId, skills: rawSkills })
       });
       if (res.ok) return await res.json();
     } catch (e) {
       console.warn('[API Client mergeResumeProfile] Falling back:', e.message);
     }
-    return {
-      success: true,
-      message: 'Skills and verified credentials successfully synchronized with your profile and NAAR portfolio!',
-      mergedSkills: rawSkills,
-      mergedCount: rawSkills.length
-    };
+    return { success: false, mergedSkills: [], mergedCount: 0, error: 'Profile synchronization is temporarily unavailable.' };
   },
 
   async mergeResumeToProfile(payload) {
@@ -1434,31 +1424,14 @@ const JoblexApiClient = {
         targetRole
       });
 
-      const res = await fetch(`${API_BASE}/recommendations/student?${params.toString()}`);
+      const res = await fetch(`${API_BASE}/recommendations/student?${params.toString()}`, {
+        headers: this.getAuthHeaders()
+      });
       if (res.ok) return await res.json();
     } catch (e) {
       console.warn('[API Client getStudentRecommendations] Falling back:', e.message);
     }
-    const defaultOpps = await this.getOpportunities(options.type || 'All');
-    return {
-      success: true,
-      totalCount: (defaultOpps.opportunities || []).length,
-      recommendations: (defaultOpps.opportunities || []).map(o => ({
-        ...o,
-        matchScore: o.match || 85,
-        matchTier: "Strong Alignment",
-        matchBadge: "bg-cyan-500/20 text-cyan-300 border-cyan-500/40",
-        whyThisMatch: {
-          topContributingSkills: [{ name: targetRole.split(' ')[0] + " Core Competencies", contribution: 0.9 }],
-          criticalGaps: [],
-          moderateGaps: [],
-          actionRecommendation: "Your profile exhibits strong alignment with this corporate mandate."
-        },
-        isWishlisted: false
-      })),
-      recommendedCourses: [],
-      wishlistCount: 0
-    };
+    return { success: false, recommendations: [], error: 'Recommendations are temporarily unavailable.' };
   },
 
   // Industry Candidate Ranking
@@ -1468,12 +1441,14 @@ const JoblexApiClient = {
       if (opportunityId) params.append('opportunityId', opportunityId);
       if (roleTitle) params.append('roleTitle', roleTitle);
 
-      const res = await fetch(`${API_BASE}/recommendations/industry?${params.toString()}`);
+      const res = await fetch(`${API_BASE}/recommendations/industry?${params.toString()}`, {
+        headers: this.getAuthHeaders()
+      });
       if (res.ok) return await res.json();
     } catch (e) {
       console.warn('[API Client getIndustryRecommendations] Falling back:', e.message);
     }
-    return { success: true, candidates: [] };
+    return { success: false, candidates: [], error: 'Candidate recommendations are temporarily unavailable.' };
   },
 
   // Academician Hub Recommendations
@@ -1481,51 +1456,57 @@ const JoblexApiClient = {
     try {
       const user = this.getCurrentUser();
       const fId = facultyId || (user ? user.id : 'usr-academy-01');
-      const res = await fetch(`${API_BASE}/recommendations/academician?facultyId=${encodeURIComponent(fId)}`);
+      const res = await fetch(`${API_BASE}/recommendations/academician?facultyId=${encodeURIComponent(fId)}`, {
+        headers: this.getAuthHeaders()
+      });
       if (res.ok) return await res.json();
     } catch (e) {
       console.warn('[API Client getAcademicianRecommendations] Falling back:', e.message);
     }
-    return { success: true, opportunities: [], mentorshipScholars: [] };
+    return { success: false, opportunities: [], mentorshipScholars: [], error: 'Academy recommendations are temporarily unavailable.' };
   },
 
   // Institution Gap Diagnostics & Recommendations
   async getInstitutionRecommendations(targetRole = 'Herbal Formulation Scientist') {
     try {
-      const res = await fetch(`${API_BASE}/recommendations/institution?targetRole=${encodeURIComponent(targetRole)}`);
+      const res = await fetch(`${API_BASE}/recommendations/institution?targetRole=${encodeURIComponent(targetRole)}`, {
+        headers: this.getAuthHeaders()
+      });
       if (res.ok) return await res.json();
     } catch (e) {
       console.warn('[API Client getInstitutionRecommendations] Falling back:', e.message);
     }
-    return { success: true, suggestedMoUs: [] };
+    return { success: false, suggestedMoUs: [], error: 'Institution recommendations are temporarily unavailable.' };
   },
 
   // Wishlist Toggle
   async toggleWishlist(opportunityId, userId) {
     try {
       const user = this.getCurrentUser();
-      const uId = userId || (user ? user.id : 'usr-student-01');
+      const uId = userId || (user ? user.id : '');
       const res = await fetch(`${API_BASE}/recommendations/wishlist`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
         body: JSON.stringify({ opportunityId, userId: uId })
       });
       if (res.ok) return await res.json();
     } catch (e) {
       console.warn('[API Client toggleWishlist] Falling back:', e.message);
     }
-    return { success: true, isWishlisted: true };
+    return { success: false, isWishlisted: false, error: 'Wishlist update is temporarily unavailable.' };
   },
 
   // Get Wishlist
   async getWishlist(userId) {
     try {
       const user = this.getCurrentUser();
-      const uId = userId || (user ? user.id : 'usr-student-01');
-      const res = await fetch(`${API_BASE}/recommendations/wishlist?userId=${encodeURIComponent(uId)}`);
+      const uId = userId || (user ? user.id : '');
+      const res = await fetch(`${API_BASE}/recommendations/wishlist?userId=${encodeURIComponent(uId)}`, {
+        headers: this.getAuthHeaders()
+      });
       if (res.ok) return await res.json();
     } catch (e) {}
-    return { success: true, wishlist: [] };
+    return { success: false, wishlist: [], error: 'Wishlist is temporarily unavailable.' };
   },
 
   // Skill Assessment Submit
@@ -1533,12 +1514,12 @@ const JoblexApiClient = {
     try {
       const user = this.getCurrentUser();
       const body = {
-        userId: user ? user.id : 'usr-student-01',
+        userId: user?.id || user?.email,
         ...payload
       };
       const res = await fetch(`${API_BASE}/assessment/submit`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
         body: JSON.stringify(body)
       });
       if (res.ok) return await res.json();
@@ -1573,16 +1554,12 @@ const JoblexApiClient = {
     const user = this.getCurrentUser();
     const uId = userId || (user ? user.id || user.email : '');
     try {
-      const res = await fetch(`${API_BASE}/profile/skill?userId=${encodeURIComponent(uId)}`);
+      const res = await fetch(`${API_BASE}/profile/skill?userId=${encodeURIComponent(uId)}`, {
+        headers: this.getAuthHeaders()
+      });
       if (res.ok) return await res.json();
     } catch (e) {}
-    return {
-      success: true,
-      profile: {
-        verifiedSkills: (user && Array.isArray(user.verified_skills)) ? user.verified_skills : [],
-        readinessScore: (user && typeof user.readinessScore === 'number') ? user.readinessScore : 0
-      }
-    };
+    return { success: false, profile: null, error: 'Skill profile is temporarily unavailable.' };
   },
 
   async getCertifications(studentId) {
@@ -1590,22 +1567,22 @@ const JoblexApiClient = {
       const user = this.getCurrentUser();
       const sId = studentId || user?.id || user?.student_id || user?.email || '';
       const url = sId ? `${API_BASE}/assessment/certifications?studentId=${encodeURIComponent(sId)}` : `${API_BASE}/assessment/certifications`;
-      const res = await fetch(url);
+      const res = await fetch(url, { headers: this.getAuthHeaders() });
       if (res.ok) return await res.json();
     } catch (e) {}
-    return { success: true, certifications: [] };
+    return { success: false, certifications: [], error: 'Certifications are temporarily unavailable.' };
   },
 
   async updateSkillProfile(payload) {
     try {
       const user = this.getCurrentUser();
       const body = {
-        userId: user ? user.id : 'usr-student-01',
+        userId: user?.id || user?.email,
         ...payload
       };
       const res = await fetch(`${API_BASE}/profile/skill`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
         body: JSON.stringify(body)
       });
       if (res.ok) return await res.json();
@@ -1714,27 +1691,22 @@ const JoblexApiClient = {
       const res = await fetch(url);
       if (res.ok) return await res.json();
     } catch(e) {}
-    return {
-      opportunities: [
-        { id: 1, title: 'Phytochemical Research Intern', company: 'Dabur India Ltd.', type: 'Internship', skills: ['Herbal Formulation', 'Phytochemistry', 'GLP'], location: 'Ghaziabad / Hybrid', stipend: '₹22,000/mo', deadline: 'Oct 15, 2026' },
-        { id: 2, title: 'Ayush AI Innovation Challenge', company: 'Ministry of Ayush & AIIA', type: 'Hackathon', skills: ['Python', 'Machine Learning', 'NLP'], location: 'New Delhi', stipend: 'Prize: ₹3,00,000', deadline: 'Nov 01, 2026' },
-        { id: 3, title: 'Formulation Scientist', company: 'Patanjali Research Foundation', type: 'Job', skills: ['Ayurvedic Pharmacognosy', 'Nanomedicine', 'QC'], location: 'Haridwar', stipend: '₹8.5 - 12 LPA', deadline: 'Oct 30, 2026' },
-        { id: 'gig-1', title: 'Clean & Standardize 50 Ashwagandha Trial Records', company: 'Dabur Research Labs', type: 'Micro-Gig', skills: ['Data Analysis', 'Phytochemistry'], location: 'Remote (10 Days)', stipend: '₹6,000 Task Bounty', deadline: 'Oct 12, 2026' },
-        { id: 'gig-2', title: 'Annotate Charaka Samhita Sanskrit Botanical Lexicon', company: 'AIIA Digital Informatics Cell', type: 'Micro-Gig', skills: ['Ayurvedic Pharmacognosy', 'NLP'], location: 'Remote (7 Days)', stipend: '₹4,500 Task Bounty', deadline: 'Oct 18, 2026' }
-      ]
-    };
+    return { success: false, opportunities: [], error: 'Opportunities are temporarily unavailable.' };
   },
 
   async postOpportunity(payload) {
     try {
       const res = await fetch(`${API_BASE}/opportunities`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
         body: JSON.stringify(payload)
       });
-      if (res.ok) return await res.json();
-    } catch(e) {}
-    return { success: true, message: 'Opportunity published successfully!' };
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) throw new Error(data.error || 'Opportunity could not be published.');
+      return data;
+    } catch(e) {
+      throw e;
+    }
   },
 
   // Apply to Internship or Job (Sends application to Industry Portal)
@@ -1742,15 +1714,15 @@ const JoblexApiClient = {
     try {
       const res = await fetch(`${API_BASE}/opportunities/apply`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
         body: JSON.stringify(payload)
       });
-      if (res.ok) return await res.json();
-    } catch(e) {}
-    return {
-      success: true,
-      message: `Application for "${payload.opportunityTitle || 'Role'}" successfully transmitted to ${payload.company || 'Company'}!`
-    };
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) throw new Error(data.error || 'Application could not be submitted.');
+      return data;
+    } catch(e) {
+      throw e;
+    }
   },
 
   async getMyApplications(email) {
@@ -1803,17 +1775,19 @@ const JoblexApiClient = {
     try {
       const res = await fetch(`${API_BASE}/zulu/sessions`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
         body: JSON.stringify({ userId, title })
       });
       if (res.ok) return await res.json();
     } catch(e) {}
-    return { success: false, session: { id: `sess-${Date.now()}`, title, user_id: userId } };
+    return { success: false, session: null, error: 'Zulu sessions are temporarily unavailable.' };
   },
 
   async getZuluMessages(sessionId, userId = 'usr-student-01') {
     try {
-      const res = await fetch(`${API_BASE}/zulu/sessions/${encodeURIComponent(sessionId)}?userId=${encodeURIComponent(userId)}`);
+      const res = await fetch(`${API_BASE}/zulu/sessions/${encodeURIComponent(sessionId)}?userId=${encodeURIComponent(userId)}`, {
+        headers: this.getAuthHeaders()
+      });
       if (res.ok) return await res.json();
     } catch(e) {}
     return { success: false, messages: [] };
@@ -1822,40 +1796,26 @@ const JoblexApiClient = {
   async deleteZuluSession(sessionId, userId = 'usr-student-01') {
     try {
       const res = await fetch(`${API_BASE}/zulu/sessions/${encodeURIComponent(sessionId)}?userId=${encodeURIComponent(userId)}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: this.getAuthHeaders()
       });
       if (res.ok) return await res.json();
     } catch(e) {}
-    return { success: true };
+    return { success: false, error: 'Zulu session could not be deleted.' };
   },
 
   async askZulu(message, context = {}, sessionId = null, userId = 'usr-student-01') {
     try {
       const res = await fetch(`${API_BASE}/zulu/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
         body: JSON.stringify({ message, context, sessionId, userId })
       });
       const parsed = await this._parseFetch(res);
       if (parsed.ok && parsed.data && parsed.data.reply) return parsed.data;
     } catch(e) {}
 
-    const query = (message || '').toLowerCase();
-    const name = context.studentName || context.name || 'Scholar';
-    let fallbackText = `### Zulu AI Career & Research Guidance\n\nGreetings **${name}**! Regarding **"${message.trim()}"**:\n\n- **Strategic Overview**: Developing verified core competencies alongside practical domain project experience positions you in the top tier of candidates.\n- **Academic & Industry Alignment**: Engage in structured R&D, cross-disciplinary problem solving, and industry-standard methodologies relevant to your field of study.\n- **Action Item**: Check your **Career Roadmap** to complete active skill milestones, earn verified credentials, and maintain your Anti-Decay streak!`;
-
-    if (query.includes('internship') || query.includes('job') || query.includes('placement') || query.includes('company') || query.includes('career')) {
-      fallbackText = `### Industry Placement & Competency Pathway\n\nGreetings **${name}**! Here is your strategic career advancement plan:\n\n1. **High-Demand Competencies**: Master domain-specific methodologies, professional documentation, and accredited industry standards.\n2. **Verified Portfolio**: Maintain an active project portfolio and verified assessments to stand out in corporate recruiter searches.\n3. **Next Steps**: Browse and apply on your *Opportunities Board* and complete your active *Career Roadmap* milestones for direct placement referrals.`;
-    } else if (query.includes('decay') || query.includes('freeze') || query.includes('xp') || query.includes('quiz')) {
-      fallbackText = `### Anti-Decay XP & Competency Freeze Engine\n\nGreetings **${name}**! Completing any Quiz Arena module or daily check-in freezes your competency score for **72 hours** and awards a 1.5x XP streak multiplier in recruiter talent pools!`;
-    }
-
-    return {
-      success: true,
-      sessionId: sessionId || `sess-${Date.now()}`,
-      provider: 'zulu-ai-engine',
-      reply: fallbackText
-    };
+    return { success: false, sessionId, reply: '', error: 'Zulu AI is temporarily unavailable.' };
   },
 
   // Academy Endpoints
@@ -2113,10 +2073,10 @@ const JoblexApiClient = {
   // Feature 4: Virtual Workshops & Bilateral Negotiations
   async getPendingWorkshops() {
     try {
-      const res = await fetch(`${API_BASE}/academy/workshops/pending`);
+      const res = await fetch(`${API_BASE}/academy/workshops/pending`, { headers: this.getAuthHeaders() });
       if (res.ok) return await res.json();
     } catch(e) {}
-    return { success: true, workshops: [] };
+    return { success: false, workshops: [], error: 'Pending workshops are temporarily unavailable.' };
   },
 
   async decideWorkshop(workshopId, decision, notes = '') {
@@ -2147,70 +2107,70 @@ const JoblexApiClient = {
   async getTodos(studentId) {
     try {
       const user = this.getCurrentUser();
-      const sId = studentId || (user ? user.email || user.id : 'usr-student-01');
-      const res = await fetch(`${API_BASE}/todos?studentId=${encodeURIComponent(sId)}`);
+      const sId = studentId || (user ? user.email || user.id : '');
+      const res = await fetch(`${API_BASE}/todos?studentId=${encodeURIComponent(sId)}`, { headers: this.getAuthHeaders() });
       if (res.ok) return await res.json();
     } catch (e) {}
-    return { success: true, todos: [] };
+    return { success: false, todos: [], error: 'Tasks are temporarily unavailable.' };
   },
 
   async createTodo(payload) {
     try {
       const user = this.getCurrentUser();
       const body = {
-        studentId: user ? user.email || user.id : 'usr-student-01',
+        studentId: user?.email || user?.id,
         ...payload
       };
       const res = await fetch(`${API_BASE}/todos`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
         body: JSON.stringify(body)
       });
       if (res.ok) return await res.json();
     } catch (e) {}
-    return { success: true, todo: { id: `todo-${Date.now()}`, ...payload, isCompleted: false } };
+    return { success: false, error: 'Task creation is temporarily unavailable.' };
   },
 
   async toggleTodo(id) {
     try {
-      const res = await fetch(`${API_BASE}/todos/${id}/toggle`, { method: 'PATCH' });
+      const res = await fetch(`${API_BASE}/todos/${id}/toggle`, { method: 'PATCH', headers: this.getAuthHeaders() });
       if (res.ok) return await res.json();
     } catch (e) {}
-    return { success: true, message: 'Task toggled.' };
+    return { success: false, error: 'Task update is temporarily unavailable.' };
   },
 
   async deleteTodo(id) {
     try {
-      const res = await fetch(`${API_BASE}/todos/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE}/todos/${id}`, { method: 'DELETE', headers: this.getAuthHeaders() });
       if (res.ok) return await res.json();
     } catch (e) {}
-    return { success: true, message: 'Task deleted.' };
+    return { success: false, error: 'Task deletion is temporarily unavailable.' };
   },
 
   // Virtual Workshops & Masterclasses
   async getWorkshops(studentId) {
     try {
       const user = this.getCurrentUser();
-      const sId = studentId || (user ? user.email || user.id : 'usr-student-01');
-      const res = await fetch(`${API_BASE}/assessment/workshops?studentId=${encodeURIComponent(sId)}`);
+      const sId = studentId || (user ? user.email || user.id : '');
+      const res = await fetch(`${API_BASE}/assessment/workshops?studentId=${encodeURIComponent(sId)}`, { headers: this.getAuthHeaders() });
       if (res.ok) return await res.json();
     } catch (e) {}
-    return { success: true, workshops: [] };
+    return { success: false, workshops: [], error: 'Workshops are temporarily unavailable.' };
   },
 
   async rsvpWorkshop(workshopId, studentId) {
     try {
       const user = this.getCurrentUser();
-      const sId = studentId || (user ? user.email || user.id : 'usr-student-01');
-      const sName = user ? user.name : 'Verified Scholar';
+      const sId = studentId || (user ? user.email || user.id : '');
+      const sName = user ? user.name : '';
       const res = await fetch(`${API_BASE}/assessment/workshops/${workshopId}/rsvp`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
         body: JSON.stringify({ studentId: sId, studentName: sName })
       });
       if (res.ok) return await res.json();
     } catch (e) {}
-    return { success: true, message: 'RSVP confirmed.' };
+    return { success: false, error: 'Workshop RSVP is temporarily unavailable.' };
   },
 
   async proposeWorkshop(payload) {
@@ -2241,42 +2201,42 @@ const JoblexApiClient = {
   // Holistic Aptitude & Quizzes
   async getAptitudeQuestions() {
     try {
-      const res = await fetch(`${API_BASE}/assessment/aptitude/questions`);
+      const res = await fetch(`${API_BASE}/assessment/aptitude/questions`, { headers: this.getAuthHeaders() });
       if (res.ok) return await res.json();
     } catch (e) {}
-    return { success: true, questions: [] };
+    return { success: false, questions: [], error: 'Aptitude questions are temporarily unavailable.' };
   },
 
   async submitAptitude(payload) {
     try {
       const user = this.getCurrentUser();
       const body = {
-        studentId: user ? user.email || user.id : 'usr-student-01',
+        studentId: user?.email || user?.id,
         ...payload
       };
       const res = await fetch(`${API_BASE}/assessment/aptitude/submit`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
         body: JSON.stringify(body)
       });
       if (res.ok) return await res.json();
     } catch (e) {}
-    return { success: true, message: 'Aptitude assessment submitted.' };
+    return { success: false, error: 'Aptitude assessment is temporarily unavailable.' };
   },
 
   async getCompanyQuizzes(studentId) {
     try {
       const user = this.getCurrentUser();
-      const sId = studentId || (user ? user.email || user.id : 'usr-student-01');
-      const res = await fetch(`${API_BASE}/assessment/quizzes?studentId=${encodeURIComponent(sId)}`);
+      const sId = studentId || (user ? user.email || user.id : '');
+      const res = await fetch(`${API_BASE}/assessment/quizzes?studentId=${encodeURIComponent(sId)}`, { headers: this.getAuthHeaders() });
       if (res.ok) return await res.json();
     } catch (e) {}
-    return { success: true, quizzes: [] };
+    return { success: false, quizzes: [], error: 'Company quizzes are temporarily unavailable.' };
   },
 
   async getCompanyQuiz(quizId) {
     try {
-      const res = await fetch(`${API_BASE}/assessment/quiz/${quizId}`);
+      const res = await fetch(`${API_BASE}/assessment/quiz/${quizId}`, { headers: this.getAuthHeaders() });
       if (res.ok) return await res.json();
     } catch (e) {}
     return { success: false, error: 'Quiz unavailable' };
@@ -2286,28 +2246,60 @@ const JoblexApiClient = {
     try {
       const user = this.getCurrentUser();
       const body = {
-        studentId: user ? user.email || user.id : 'usr-student-01',
-        studentName: user ? user.name : 'Verified Scholar',
+        studentId: user?.email || user?.id,
+        studentName: user?.name,
         ...payload
       };
       const res = await fetch(`${API_BASE}/assessment/quiz/${quizId}/submit`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
         body: JSON.stringify(body)
       });
       if (res.ok) return await res.json();
     } catch (e) {}
-    return { success: true, passed: true, message: 'Quiz submitted.' };
+    return { success: false, passed: false, error: 'Quiz submission is temporarily unavailable.' };
+  },
+
+  async getAdaptiveQuizInsights() {
+    try {
+      const res = await fetch(`${API_BASE}/assessment/adaptive/insights`, { headers: this.getAuthHeaders() });
+      if (res.ok) return await res.json();
+    } catch (e) {}
+    return { success: false, insights: { attempts: 0, totalAnswered: 0, totalCorrect: 0, bySkill: {} }, error: 'Learning insights are temporarily unavailable.' };
+  },
+
+  async generateAdaptiveQuiz(payload = {}) {
+    try {
+      const res = await fetch(`${API_BASE}/assessment/adaptive/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {}
+    return { success: false, questions: [], error: 'Adaptive quiz generation is temporarily unavailable.' };
+  },
+
+  async submitAdaptiveQuiz(payload = {}) {
+    try {
+      const res = await fetch(`${API_BASE}/assessment/adaptive/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {}
+    return { success: false, error: 'Adaptive quiz results could not be recorded.' };
   },
 
   async getCertifications(studentId) {
     try {
       const user = this.getCurrentUser();
-      const sId = studentId || (user ? user.email || user.id : 'usr-student-01');
-      const res = await fetch(`${API_BASE}/assessment/certifications?studentId=${encodeURIComponent(sId)}`);
+      const sId = studentId || (user ? user.email || user.id : '');
+      const res = await fetch(`${API_BASE}/assessment/certifications?studentId=${encodeURIComponent(sId)}`, { headers: this.getAuthHeaders() });
       if (res.ok) return await res.json();
     } catch (e) {}
-    return { success: true, certifications: [] };
+    return { success: false, certifications: [], error: 'Certifications are temporarily unavailable.' };
   },
 
   async verifyCertification(token) {

@@ -8,6 +8,7 @@ const express = require('express');
 const router = express.Router();
 const { generateWithFailover, isGoogleApiConfigured, callNvidiaModel, getNvidiaApiKey } = require('../services/ai.service');
 const DB = require('../data/database');
+const { authenticateToken, requireRole } = require('../middleware/auth.middleware');
 const {
   parseResumeHeuristically,
   parseResumeWithGemini,
@@ -199,7 +200,7 @@ function analyzeWithHeuristics(resumeText, targetRole, standard) {
 }
 
 // POST /api/resume/analyze
-router.post('/analyze', async (req, res) => {
+router.post('/analyze', authenticateToken, requireRole(['student']), async (req, res) => {
   try {
     const { resumeText = '', targetRole = 'Herbal Formulation Scientist' } = req.body || {};
 
@@ -255,7 +256,7 @@ router.post('/analyze', async (req, res) => {
  * Interactive Prompt Giver / Resume Optimizer Copilot
  * Allows user to send specific custom instructions to rewrite, tailor, and elevate their resume
  */
-router.post('/optimize', async (req, res) => {
+router.post('/optimize', authenticateToken, requireRole(['student']), async (req, res) => {
   try {
     const {
       resumeText = '',
@@ -382,7 +383,7 @@ Rewrite and optimize the candidate's resume materials according to their custom 
  * POST /api/resume/parse
  * Full multi-section document parsing (PDF / DOCX text)
  */
-router.post('/parse', async (req, res) => {
+router.post('/parse', authenticateToken, requireRole(['student']), async (req, res) => {
   try {
     const { resumeText = '', fileName = 'resume.pdf' } = req.body || {};
 
@@ -423,7 +424,7 @@ router.post('/parse', async (req, res) => {
  * POST /api/resume/auto-assess
  * Generates initial benchmark scores, radar comparison, and gap analysis from parsed skills or raw resume text
  */
-router.post('/auto-assess', async (req, res) => {
+router.post('/auto-assess', authenticateToken, requireRole(['student']), async (req, res) => {
   try {
     const {
       resumeText = '',
@@ -504,10 +505,9 @@ router.post('/auto-assess', async (req, res) => {
  * POST /api/resume/merge-profile
  * Merges parsed skills, certifications, and projects directly into student's persistent profile & digital portfolio
  */
-router.post('/merge-profile', (req, res) => {
+router.post('/merge-profile', authenticateToken, requireRole(['student']), (req, res) => {
   try {
     const {
-      userId = 'usr-student-01',
       skills = [],
       certifications = [],
       projects = [],
@@ -518,7 +518,8 @@ router.post('/merge-profile', (req, res) => {
     const rawSkills = (skills || []).map(s => typeof s === 'string' ? s : (s.skill || s.name || '')).filter(Boolean);
 
     // 1. Update user profile verified_skills
-    const user = (DB.users || []).find(u => u.id === userId || u.email === userId);
+    const userId = req.user.id || req.user.email;
+    const user = (DB.users || []).find(u => u.id === userId || u.email === userId || u.email === req.user.email);
     const existingSkills = user ? (user.verified_skills || []) : [];
     const mergedSkills = Array.from(new Set([...existingSkills, ...rawSkills]));
 

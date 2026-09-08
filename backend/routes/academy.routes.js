@@ -12,6 +12,9 @@ const {
   recommendOpportunitiesForAcademician,
   computeInstitutionSkillGaps
 } = require('../services/matching.service');
+const { authenticateToken, requireRole } = require('../middleware/auth.middleware');
+
+router.use(authenticateToken, requireRole(['academy']));
 
 /**
  * AI-powered curriculum audit using LangGraph Failover Orchestrator
@@ -100,6 +103,11 @@ router.get(['/', '/all-data', '/overview', '/stats', '/analytics'], async (req, 
       ? ccbRes.value.data
       : (DB.crossCollegeBenchmarking || []);
 
+    const students = (DB.users || []).filter(user => (user.role || '').toLowerCase() === 'student');
+    const applications = DB.applications || [];
+    const acceptedApplications = applications.filter(application => /offer|accept|placed/i.test(application.status || ''));
+    const researchProjects = DB.researchProjects || DB.research_projects || [];
+
     return res.json({
       success: true,
       mouPartnerships,
@@ -107,13 +115,16 @@ router.get(['/', '/all-data', '/overview', '/stats', '/analytics'], async (req, 
       consultancyGrants,
       fdpPrograms,
       tpoMetrics: DB.tpoMetrics || {},
+      departmentalReadiness: DB.departmentalReadiness || [],
       crossCollegeBenchmarking,
       sponsoredBootcamps,
       studentStats: {
-        totalEnrolled: 342,
-        avgSkillReadiness: "76.4%",
-        placedUnderMoU: 48,
-        activeResearchProjects: 14
+        totalEnrolled: students.length,
+        avgSkillReadiness: students.length
+          ? `${Math.round(students.reduce((sum, student) => sum + Number(student.readinessScore || student.readiness || 0), 0) / students.length)}%`
+          : '0%',
+        placedUnderMoU: acceptedApplications.length,
+        activeResearchProjects: researchProjects.length
       }
     });
   } catch (err) {

@@ -40,16 +40,7 @@ Experience: Junior Clinical Data Associate at Himalaya Wellness R&D; Clinical Re
 Projects: Multicenter observational study on Ayurvedic immunomodulators; Digitization of Prakriti pulse diagnosis records.`
 };
 
-const QUIZ_DATA = [
-  { section: "Technical & Pharmacology", question: "Which analytical chromatography technique is mandated by standard pharmacopeias for herbal fingerprinting and marker quantification?", options: ["High Performance Thin Layer Chromatography (HPTLC / HPLC)", "Simple Atmospheric Distillation", "Gram Negative Staining", "Paper Chromatography"], correct: 0, skill: "HPTLC / HPLC Chromatography" },
-  { section: "Technical & Pharmacology", question: "What is the primary pharmacological role of Withania somnifera (Ashwagandha) extracts in modern phytotherapy?", options: ["Rapid digestive stimulant", "Adaptogenic stress and cortisol modulation", "Cooling purgative agent", "Synthetic antacid substitute"], correct: 1, skill: "Ayurvedic Pharmacognosy" },
-  { section: "Health-Tech & Informatics", question: "In Python data pipelines, which library is the industry standard for tabular data manipulation and clinical trial DataFrame transformation?", options: ["Django ORM", "TensorFlow Core", "Pandas", "PyGame Audio"], correct: 2, skill: "Python & Data Science" },
-  { section: "Health-Tech & Informatics", question: "Which data standard is universally required by global regulatory agencies (e.g. CDISC, US FDA) for clinical trial study data submission?", options: ["SDTM (Study Data Tabulation Model)", "CSV Raw Text Format", "JSON Schema Draft-07", "GraphQL Mutation Schema"], correct: 0, skill: "Clinical Data Management" },
-  { section: "Regulatory & Soft Skills", question: "Under Good Laboratory Practice (GLP) and GCP, what is the primary purpose of a Standard Operating Procedure (SOP)?", options: ["To guarantee 100% yield of chemical compounds", "To ensure consistent quality, audit reproducibility, and compliance", "To speed up marketing approvals without animal testing", "To eliminate the need for equipment calibration"], correct: 1, skill: "Good Laboratory Practice (GLP)" },
-  { section: "Regulatory & Soft Skills", question: "When collaborating with corporate R&D sponsors on multi-disciplinary research, what protocol safeguards intellectual property and trial ethics?", options: ["Verbal Gentlemen's Agreement", "Institutional Ethics Committee (IEC) Clearance & Bilateral NDA / MTA", "Public Social Media Announcement", "Unregistered Patent Filing"], correct: 1, skill: "Interdisciplinary Research Communication" }
-];
-
-let quizState = { started: false, currentIndex: 0, selectedAnswer: null, score: 0, finished: false };
+let quizState = { started: false, currentIndex: 0, selectedAnswer: null, answers: [], questions: [], finished: false, difficulty: 'mixed', prompt: '', attemptId: null, result: null, loading: false };
 
 document.addEventListener('DOMContentLoaded', async () => {
   // Auth Guard: ensure user is authenticated before accessing student portal
@@ -2272,8 +2263,33 @@ function initResumeUploader() {
 // ─────────────────────────────────────────────────────────────
 // QUIZ ARENA MODULE (Multi-Category Assessment & Verification)
 // ─────────────────────────────────────────────────────────────
-function startQuiz() {
-  quizState = { started: true, currentIndex: 0, selectedAnswer: null, score: 0, answers: [], finished: false };
+async function startQuiz() {
+  const difficultyEl = document.getElementById('quiz-difficulty');
+  const promptEl = document.getElementById('quiz-focus-prompt');
+  quizState = {
+    started: false,
+    currentIndex: 0,
+    selectedAnswer: null,
+    answers: [],
+    questions: [],
+    finished: false,
+    difficulty: difficultyEl?.value || 'mixed',
+    prompt: promptEl?.value?.trim() || '',
+    attemptId: null,
+    result: null,
+    loading: true
+  };
+  renderQuiz();
+  const response = await JoblexApiClient.generateAdaptiveQuiz({ difficulty: quizState.difficulty, prompt: quizState.prompt });
+  if (!response?.success || !Array.isArray(response.questions) || response.questions.length === 0) {
+    quizState.loading = false;
+    renderQuiz(response?.error || 'Adaptive quiz generation is temporarily unavailable.');
+    return;
+  }
+  quizState.started = true;
+  quizState.loading = false;
+  quizState.questions = response.questions;
+  quizState.attemptId = response.attemptId;
   renderQuiz();
 }
 
@@ -2293,27 +2309,51 @@ function autoFillQuizWithResume() {
   }
 }
 
-function renderQuiz() {
+function renderQuiz(errorMessage = '') {
   const container = document.getElementById('quiz-arena-container');
   if (!container) return;
+
+  if (quizState.loading) {
+    container.innerHTML = '<div class="py-12 text-center text-xs text-slate-500 dark:text-gray-400"><span class="material-symbols-outlined animate-spin text-2xl text-purple-500 block mb-3">progress_activity</span>Zulu is shaping this assessment around your learning history...</div>';
+    return;
+  }
 
   if (!quizState.started) {
     const hasParsedResume = !!sessionStorage.getItem('joblex_latest_parsed_resume');
     container.innerHTML = `
-      <div class="text-center py-10 space-y-5 max-w-lg mx-auto">
+      <div class="py-6 space-y-6 max-w-3xl mx-auto">
+        <div class="text-center space-y-3">
         <div class="w-16 h-16 rounded-3xl bg-purple-100 dark:bg-purple-600/20 border border-purple-200 dark:border-purple-500/40 flex items-center justify-center text-3xl mx-auto shadow-sm">
-          
+          <span class="material-symbols-outlined text-purple-600 dark:text-purple-300">tune</span>
         </div>
         <div>
-          <h3 class="text-xl font-black text-[#0F172A] dark:text-white">Ayush Technical Mastery Arena</h3>
+          <h3 class="text-xl font-black text-[#0F172A] dark:text-white">Build a quiz that meets you where you are</h3>
           <p class="text-xs sm:text-sm text-slate-600 dark:text-gray-400 mt-1">
-            Multi-stage competency validation across Pharmacognosy, Digital Health &amp; Regulatory Protocols.
+            Zulu studies your previous answers, then targets the skills that need the most useful practice.
           </p>
         </div>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-4 text-left">
+          <label class="space-y-2">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400">Challenge level</span>
+            <select id="quiz-difficulty" class="w-full px-3 py-3 rounded-xl bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-gray-800 text-xs text-slate-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500">
+              <option value="mixed">Adaptive mix</option>
+              <option value="easy">Easier practice</option>
+              <option value="hard">Harder challenge</option>
+            </select>
+          </label>
+          <label class="space-y-2">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400">Ask for a focus</span>
+            <input id="quiz-focus-prompt" type="text" maxlength="180" placeholder="e.g. harder Python questions for clinical data" class="w-full px-3 py-3 rounded-xl bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-gray-800 text-xs text-slate-700 dark:text-gray-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500">
+          </label>
+        </div>
+
+        <div id="quiz-learning-insights" class="p-4 rounded-2xl bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-gray-800 text-left text-xs text-slate-600 dark:text-gray-300">${errorMessage ? `<span class="text-rose-600 dark:text-rose-300">${errorMessage}</span>` : 'Loading your learning profile...'}</div>
 
         <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-          <button onclick="startQuiz()" class="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-xs uppercase tracking-wider shadow-lg transition hover:scale-105">
-            Start Live Assessment (+250 XP) <span class="material-symbols-outlined text-sm align-middle ml-1">arrow_forward</span>
+          <button onclick="startQuiz()" class="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-xs uppercase tracking-wider shadow-lg transition">
+            Generate My Quiz <span class="material-symbols-outlined text-sm align-middle ml-1">arrow_forward</span>
           </button>
           ${hasParsedResume ? `
             <button onclick="autoFillQuizWithResume()" class="w-full sm:w-auto px-5 py-3 rounded-2xl border border-purple-300 dark:border-purple-600/40 bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 font-bold text-xs transition hover:bg-purple-100 flex items-center justify-center gap-2">
@@ -2324,12 +2364,13 @@ function renderQuiz() {
         </div>
       </div>
     `;
+    loadQuizInsights();
     return;
   }
 
   if (quizState.finished) {
-    const xpWon = quizState.score * 50;
-    const accuracy = Math.round((quizState.score / QUIZ_DATA.length) * 100);
+    const result = quizState.result || {};
+    const accuracy = result.accuracy || 0;
     container.innerHTML = `
       <div class="text-center py-10 space-y-6 max-w-lg mx-auto">
         <div class="w-16 h-16 rounded-3xl bg-emerald-100 dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/40 flex items-center justify-center text-3xl mx-auto shadow-sm">
@@ -2343,11 +2384,11 @@ function renderQuiz() {
         <div class="grid grid-cols-2 gap-3 text-left">
           <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-800">
             <span class="text-[10px] text-slate-400 uppercase font-semibold block">Score &amp; Accuracy</span>
-            <strong class="text-lg font-mono text-emerald-600 dark:text-emerald-400">${quizState.score} / ${QUIZ_DATA.length} (${accuracy}%)</strong>
+            <strong class="text-lg font-mono text-emerald-600 dark:text-emerald-400">${result.correctCount || 0} / ${result.totalQuestions || quizState.questions.length} (${accuracy}%)</strong>
           </div>
           <div class="p-3.5 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-500/30">
             <span class="text-[10px] text-purple-700 dark:text-purple-300 uppercase font-semibold block">XP Bounty Earned</span>
-            <strong class="text-lg font-mono text-purple-600 dark:text-purple-300">+${xpWon} XP</strong>
+            <strong class="text-lg font-mono text-purple-600 dark:text-purple-300">${accuracy >= 70 ? 'Strong progress' : 'Practice recommended'}</strong>
           </div>
         </div>
 
@@ -2355,15 +2396,15 @@ function renderQuiz() {
           <div class="font-bold flex items-center gap-1.5">
             <span class="material-symbols-outlined text-teal-400 text-base mr-1">shield</span> <span>Decay Freeze Multiplier Extended</span>
           </div>
-          <div>Your verified competencies are protected against skill decay for the next 72 hours.</div>
+          <div>Zulu has recorded this attempt and will use your skill-level accuracy to shape the next quiz.</div>
         </div>
 
         <div class="flex items-center justify-center gap-3 pt-2">
-          <button onclick="startQuiz()" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-gray-300 hover:bg-slate-100 text-xs font-bold transition">
-            Retake Quiz ↺
+          <button onclick="resetAdaptiveQuiz()" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-gray-300 hover:bg-slate-100 text-xs font-bold transition">
+            Build Another Quiz ↺
           </button>
-          <a href="student-internships.html" class="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-md transition">
-            View Recommended Internships <span class="material-symbols-outlined text-sm align-middle ml-1">arrow_forward</span>
+          <a href="student-zulu.html" onclick="openZuluQuizReview()" class="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-md transition">
+            Ask Zulu to explain <span class="material-symbols-outlined text-sm align-middle ml-1">smart_toy</span>
           </a>
         </div>
       </div>
@@ -2371,7 +2412,7 @@ function renderQuiz() {
     return;
   }
 
-  const q = QUIZ_DATA[quizState.currentIndex];
+  const q = quizState.questions[quizState.currentIndex];
   container.innerHTML = `
     <div class="space-y-5 max-w-xl mx-auto py-4">
       <div class="flex justify-between items-center text-xs text-slate-500 dark:text-gray-400">
@@ -2379,12 +2420,12 @@ function renderQuiz() {
           ${q.section || 'Technical Section'}
         </span>
         <span class="font-mono text-purple-600 dark:text-purple-400 font-bold">
-          Question ${quizState.currentIndex + 1} of ${QUIZ_DATA.length}
+          Question ${quizState.currentIndex + 1} of ${quizState.questions.length}
         </span>
       </div>
 
       <div class="w-full bg-slate-100 dark:bg-gray-900 rounded-full h-2 overflow-hidden">
-        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 h-full transition-all" style="width: ${((quizState.currentIndex + 1) / QUIZ_DATA.length) * 100}%"></div>
+        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 h-full transition-all" style="width: ${((quizState.currentIndex + 1) / quizState.questions.length) * 100}%"></div>
       </div>
 
       <h3 class="text-base sm:text-lg font-bold text-[#0F172A] dark:text-white leading-snug">${q.question}</h3>
@@ -2410,9 +2451,9 @@ function renderQuiz() {
       </div>
 
       <div class="flex justify-between items-center pt-4 border-t border-slate-100 dark:border-gray-800">
-        <span class="text-[11px] text-slate-400 font-mono">Competency: ${q.skill}</span>
+          <span class="text-[11px] text-slate-400 font-mono">Competency: ${q.skill} · ${q.difficulty}</span>
         <button onclick="nextQuizQuestion()" class="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition shadow-md flex items-center gap-2">
-          <span>${quizState.currentIndex === QUIZ_DATA.length - 1 ? 'Submit Assessment' : 'Next Question'}</span>
+          <span>${quizState.currentIndex === quizState.questions.length - 1 ? 'Submit Assessment' : 'Next Question'}</span>
           <span class="material-symbols-outlined text-sm align-middle">arrow_forward</span>
         </button>
       </div>
@@ -2426,41 +2467,25 @@ async function nextQuizQuestion() {
     return;
   }
 
-  const q = QUIZ_DATA[quizState.currentIndex];
-  const isCorrect = quizState.selectedAnswer === q.correct;
-  if (isCorrect) {
-    quizState.score += 1;
-  }
+  const q = quizState.questions[quizState.currentIndex];
   if (!quizState.answers) quizState.answers = [];
   quizState.answers.push({
-    questionIndex: quizState.currentIndex,
-    selectedOption: quizState.selectedAnswer,
-    skill: q.skill,
-    isCorrect
+    questionId: q.id,
+    selectedIndex: quizState.selectedAnswer
   });
 
-  if (quizState.currentIndex < QUIZ_DATA.length - 1) {
+  if (quizState.currentIndex < quizState.questions.length - 1) {
     quizState.currentIndex += 1;
     quizState.selectedAnswer = null;
     renderQuiz();
   } else {
-    quizState.finished = true;
-    const earnedXp = quizState.score * 50;
-    currentXp += earnedXp;
-    updateHeaderMetrics();
-
-    // Submit assessment to backend
-    try {
-      await JoblexApiClient.submitAssessment({
-        score: quizState.score,
-        total: QUIZ_DATA.length,
-        answers: quizState.answers,
-        skillsAssessed: QUIZ_DATA.map(item => item.skill)
-      });
-    } catch (e) {
-      console.warn('Assessment submit warning:', e);
+    const result = await JoblexApiClient.submitAdaptiveQuiz({ attemptId: quizState.attemptId, difficulty: quizState.difficulty, prompt: quizState.prompt, answers: quizState.answers });
+    if (!result?.success) {
+      showToast(result?.error || 'Could not record this attempt.', 'Quiz Arena', 'error');
+      return;
     }
-
+    quizState.result = result;
+    quizState.finished = true;
     renderQuiz();
   }
 }
@@ -2468,6 +2493,29 @@ async function nextQuizQuestion() {
 function selectQuizAnswer(idx) {
   quizState.selectedAnswer = idx;
   renderQuiz();
+}
+
+async function loadQuizInsights() {
+  const target = document.getElementById('quiz-learning-insights');
+  if (!target) return;
+  const response = await JoblexApiClient.getAdaptiveQuizInsights();
+  const insights = response?.insights;
+  if (!response?.success || !insights) {
+    target.innerText = response?.error || 'Your learning profile will appear after your first attempt.';
+    return;
+  }
+  const accuracy = insights.totalAnswered ? Math.round((insights.totalCorrect / insights.totalAnswered) * 100) : 0;
+  const weakSkills = Object.entries(insights.bySkill || {}).filter(([, stat]) => stat.accuracy < 70).map(([skill]) => `${skill} (${stat.accuracy}%)`);
+  target.innerHTML = `<strong class="text-slate-800 dark:text-white">Your adaptive profile</strong><span class="block mt-1">${insights.attempts} attempt(s) · ${accuracy}% overall accuracy. ${weakSkills.length ? `Zulu will reinforce: ${weakSkills.join(', ')}.` : 'Zulu is ready to increase the challenge as you improve.'}</span>`;
+}
+
+function resetAdaptiveQuiz() {
+  quizState = { started: false, currentIndex: 0, selectedAnswer: null, answers: [], questions: [], finished: false, difficulty: 'mixed', prompt: '', attemptId: null, result: null, loading: false };
+  renderQuiz();
+}
+
+function openZuluQuizReview() {
+  localStorage.setItem('joblex_zulu_prefill', 'Review my latest adaptive quiz results and explain the skills I should practice next.');
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -2603,6 +2651,14 @@ async function initZuluChat() {
     if (zuluSessionsList.length > 0) {
       const defaultId = zuluSessionsList[0].id;
       await switchZuluSession(defaultId);
+    }
+
+    const prefill = localStorage.getItem('joblex_zulu_prefill');
+    const input = document.getElementById('zulu-input');
+    if (prefill && input) {
+      input.value = prefill;
+      input.focus();
+      localStorage.removeItem('joblex_zulu_prefill');
     }
   } catch (e) {
     console.warn('[Zulu Chat Init Warning]:', e);
@@ -2791,6 +2847,13 @@ async function handleZuluSend(e) {
     streak: currentStreak,
     targetRole: currentUser?.targetRole || currentUser?.domain || 'Full Stack Software Engineer'
   };
+
+  try {
+    const insightRes = await JoblexApiClient.getAdaptiveQuizInsights();
+    if (insightRes?.success) studentContext.adaptiveQuizPerformance = insightRes.insights;
+  } catch (error) {
+    console.warn('[Zulu Quiz Context Warning]:', error);
+  }
 
   const res = await JoblexApiClient.askZulu(text, studentContext, currentZuluSessionId, userId);
 

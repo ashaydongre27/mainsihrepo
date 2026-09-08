@@ -15,6 +15,9 @@ const {
   ROLE_BENCHMARK_PROFILES
 } = require('../services/matching.service');
 const { supabase, isConfigured } = require('../config/supabase');
+const { authenticateToken } = require('../middleware/auth.middleware');
+
+router.use(authenticateToken);
 
 /**
  * GET /api/recommendations/student
@@ -27,11 +30,13 @@ router.get(['/', '/student'], async (req, res) => {
       minMatch = 0,
       search = '',
       refresh = 'false',
-      userId = 'usr-student-01',
+      userId: _ignoredUserId,
       targetRole = 'Herbal Formulation Scientist'
     } = req.query;
 
     const bypassCache = refresh === 'true' || refresh === true;
+
+    const userId = req.user?.id || req.user?.email;
 
     // Fetch user profile from DB or Supabase
     let studentProfile = (DB.users || []).find(u => u.id === userId || u.email === userId);
@@ -105,6 +110,9 @@ router.get(['/', '/student'], async (req, res) => {
  */
 router.get('/industry', async (req, res) => {
   try {
+    if (!['industry', 'admin'].includes((req.user?.role || '').toLowerCase())) {
+      return res.status(403).json({ success: false, error: 'Industry role required.' });
+    }
     const { opportunityId, roleTitle } = req.query;
 
     let targetOpp = null;
@@ -143,7 +151,10 @@ router.get('/industry', async (req, res) => {
  */
 router.get('/academician', async (req, res) => {
   try {
-    const { facultyId = 'usr-academy-01' } = req.query;
+    if (!['academy', 'academician', 'faculty', 'admin'].includes((req.user?.role || '').toLowerCase())) {
+      return res.status(403).json({ success: false, error: 'Academy role required.' });
+    }
+    const facultyId = req.user?.id || req.user?.email;
 
     const faculty = (DB.users || []).find(u => u.id === facultyId || u.role === 'academy') || {
       name: 'Dr. Rajesh Sharma',
@@ -188,6 +199,9 @@ router.get('/academician', async (req, res) => {
  */
 router.get('/institution', async (req, res) => {
   try {
+    if (!['academy', 'academician', 'faculty', 'admin'].includes((req.user?.role || '').toLowerCase())) {
+      return res.status(403).json({ success: false, error: 'Academy role required.' });
+    }
     const { targetRole = 'Herbal Formulation Scientist' } = req.query;
     const students = DB.candidates || [];
 
@@ -229,7 +243,11 @@ router.get('/institution', async (req, res) => {
  */
 router.post('/wishlist', (req, res) => {
   try {
-    const { userId = 'usr-student-01', opportunityId } = req.body || {};
+    if (!['student', 'admin'].includes((req.user?.role || '').toLowerCase())) {
+      return res.status(403).json({ success: false, error: 'Student role required.' });
+    }
+    const { opportunityId } = req.body || {};
+    const userId = req.user?.id || req.user?.email;
 
     if (!opportunityId) {
       return res.status(400).json({ success: false, error: 'Opportunity ID is required to update wishlist.' });
@@ -270,7 +288,10 @@ router.post('/wishlist', (req, res) => {
  */
 router.get('/wishlist', (req, res) => {
   try {
-    const { userId = 'usr-student-01' } = req.query;
+    if (!['student', 'admin'].includes((req.user?.role || '').toLowerCase())) {
+      return res.status(403).json({ success: false, error: 'Student role required.' });
+    }
+    const userId = req.user?.id || req.user?.email;
     const ids = DB.wishlists?.[userId] || [];
     const allOpps = DB.opportunities || [];
     const wishlistedOpps = allOpps.filter(o => ids.includes(o.id));

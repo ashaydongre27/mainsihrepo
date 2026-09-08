@@ -9,6 +9,7 @@ const express = require('express');
 const router = express.Router();
 const { supabase, isConfigured } = require('../config/supabase');
 const DB = require('../data/database');
+const { authenticateToken, requireRole } = require('../middleware/auth.middleware');
 const { clearRecommendationCache } = require('../services/matching.service');
 
 // GET /api/opportunities
@@ -47,7 +48,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/opportunities/apply (Student sends application to Industry)
-router.post('/apply', async (req, res) => {
+router.post('/apply', authenticateToken, requireRole(['student']), async (req, res) => {
   const { 
     opportunityId, 
     opportunityTitle, 
@@ -61,8 +62,11 @@ router.post('/apply', async (req, res) => {
     coverNote 
   } = req.body || {};
 
-  if (!opportunityTitle || !studentEmail) {
-    return res.status(400).json({ success: false, error: 'Opportunity title and student email are required to apply.' });
+  const authenticatedEmail = (req.user.email || '').trim().toLowerCase();
+  const authenticatedName = req.user.name || authenticatedEmail.split('@')[0];
+
+  if (!opportunityTitle) {
+    return res.status(400).json({ success: false, error: 'Opportunity title is required to apply.' });
   }
 
   let newApp = {
@@ -71,8 +75,8 @@ router.post('/apply', async (req, res) => {
     opportunity_title: opportunityTitle,
     company: company || 'Corporate Industry Partner',
     type: type || 'Internship',
-    student_name: studentName || studentEmail.split('@')[0],
-    student_email: studentEmail.trim().toLowerCase(),
+    student_name: authenticatedName,
+    student_email: authenticatedEmail,
     college: college || 'Accredited Higher Education Institution',
     skills: Array.isArray(skills) ? skills : ['Technical Skills', 'Research', 'Communication'],
     match: parseInt(match, 10) || 85,
@@ -199,7 +203,7 @@ router.get('/my-applications', async (req, res) => {
 });
 
 // POST /api/opportunities (Post an opportunity)
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, requireRole(['industry']), async (req, res) => {
   const { title, company, type, skills, location, stipend, deadline, description } = req.body || {};
 
   if (!title || !company) {
@@ -237,19 +241,21 @@ router.post('/', async (req, res) => {
   // Invalidate matching/recommendation cache so students see newly posted openings immediately
   clearRecommendationCache();
 
-  // Broadcast in-portal notification to students
+  // Broadcast in-portal notification to every known student account.
   if (!DB.inPortalNotifications) DB.inPortalNotifications = [];
-  DB.inPortalNotifications.unshift({
-    id: `notif-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
-    recipientId: 'usr-student-01',
-    senderId: 'usr-industry-01',
-    title: `New Opening: ${savedOpp.title}`,
-    message: `${savedOpp.company} has published a new ${savedOpp.type} requisition. Check your match score!`,
-    actionUrl: '/student.html#opportunities',
-    category: 'new_opportunity',
-    isRead: false,
-    createdAt: new Date().toISOString()
-  });
+  const students = (DB.users || []).filter(user => (user.role || '').toLowerCase() === 'student');
+  const recipients = students.length ? students : [{ id: 'usr-student-01' }];
+  recipients.forEach(student => DB.inPortalNotifications.unshift({
+      id: `notif-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+      recipientId: student.email || student.id,
+      senderId: req.user.id || req.user.email || 'usr-industry-01',
+      title: `New Opening: ${savedOpp.title}`,
+      message: `${savedOpp.company} has published a new ${savedOpp.type} requisition. Check your match score!`,
+      actionUrl: '/student.html#opportunities',
+      category: 'new_opportunity',
+      isRead: false,
+      createdAt: new Date().toISOString()
+    }));
 
   res.status(201).json({ success: true, message: 'Opportunity published successfully!', opportunity: savedOpp });
 });
@@ -326,60 +332,6 @@ router.patch('/applications/:id/status', async (req, res) => {
     });
   } catch (err) {
     console.error('[Application Status Update Error]:', err);
-    return res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// POST /api/opportunities (Post new Job / Internship)
-router.post('/', async (req, res) => {
-  try {
-    const {
-      title,
-      type = 'Internship',
-      company = 'Corporate Partner',
-      location = 'Remote / Hybrid',
-      stipend = 'Competitive Stipend',
-      deadline = '2026-12-31',
-      skills = [],
-      description = ''
-    } = req.body || {};
-
-    if (!title) {
-      return res.status(400).json({ success: false, error: 'Opportunity title is required.' });
-    }
-
-    const newOpp = {
-      id: `opp-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
-      title: title.trim(),
-      type,
-      company: company.trim(),
-      location: location.trim(),
-      stipend: stipend.trim(),
-      deadline,
-      skills: Array.isArray(skills) ? skills : (typeof skills === 'string' ? skills.split(',').map(s => s.trim()).filter(Boolean) : []),
-      description: description.trim(),
-      match: 90,
-      createdAt: new Date().toISOString()
-    };
-
-    if (isConfigured && supabase) {
-      try {
-        await supabase.from('opportunities').insert([newOpp]);
-      } catch (err) {
-        console.warn('[Opportunities POST] Supabase insert warning:', err.message);
-      }
-    }
-
-    if (!DB.opportunities) DB.opportunities = [];
-    DB.opportunities.unshift(newOpp);
-
-    return res.status(201).json({
-      success: true,
-      message: 'Opportunity successfully posted and syndicated across student portals!',
-      opportunity: newOpp
-    });
-  } catch (err) {
-    console.error('[Opportunities POST Error]:', err);
     return res.status(500).json({ success: false, error: err.message });
   }
 });

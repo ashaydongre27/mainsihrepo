@@ -263,6 +263,14 @@ const DB = {
     urgentInterventionNeeded: 14
   },
 
+  departmentalReadiness: [
+    { dept: 'Ayurvedic Pharmacology (Dravyaguna)', head: 'Dr. Rajeshwari Rao', obe: 94, labIndex: 'High (GLP / HPTLC)', bosStatus: 'Approved (NEP-2020)', naacCriterion: 'Criterion 3.4 Compliant' },
+    { dept: 'Rasashastra & Bhaishajya Kalpana (Pharmaceutics)', head: 'Prof. Alok Tripathi', obe: 91, labIndex: 'High (Extraction Core)', bosStatus: 'BoS Review Scheduled', naacCriterion: 'Criterion 3.4 Compliant' },
+    { dept: 'Ayush Health Informatics & Data Science', head: 'Dr. Sneha Kulkarni', obe: 96, labIndex: 'Active (Python/EHR)', bosStatus: 'Approved (NEP-2020)', naacCriterion: 'Criterion 1.2 Compliant' },
+    { dept: 'Swasthavritta & Preventive Medicine', head: 'Dr. Manoj Sharma', obe: 88, labIndex: 'Moderate (Community)', bosStatus: 'In Audit Stage', naacCriterion: 'Criterion 2.1 Compliant' },
+    { dept: 'Kaya Chikitsa & Clinical Diagnostics', head: 'Prof. Virendra Sen', obe: 93, labIndex: 'High (Hospital Link)', bosStatus: 'Approved (NEP-2020)', naacCriterion: 'Criterion 3.4 Compliant' }
+  ],
+
   syllabus_suggestions: [
     {
       id: "syl-101",
@@ -1228,7 +1236,8 @@ const DB = {
     }
   ],
 
-  studentQuizCertifications: []
+  studentQuizCertifications: [],
+  adaptiveQuizAttempts: []
 };
 
 module.exports = DB;

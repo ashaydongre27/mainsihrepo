@@ -7,6 +7,9 @@ const express = require('express');
 const router = express.Router();
 const DB = require('../data/database');
 const { supabase, isConfigured } = require('../config/supabase');
+const { authenticateToken, requireRole } = require('../middleware/auth.middleware');
+
+router.use(authenticateToken, requireRole(['student']));
 
 function ensureTodos() {
   if (!DB.todos) {
@@ -21,7 +24,7 @@ function ensureTodos() {
  */
 router.get('/', async (req, res) => {
   try {
-    const studentId = req.query.studentId || req.user?.id || req.user?.email || '';
+    const studentId = req.user?.id || req.user?.email;
 
     if (isConfigured && supabase) {
       try {
@@ -59,14 +62,14 @@ router.post('/', async (req, res) => {
       category = 'Personal',
       priority = 'Medium',
       dueDate = null,
-      studentId: explicitStudentId
+      studentId: _ignoredStudentId
     } = req.body || {};
 
     if (!title || !title.trim()) {
       return res.status(400).json({ success: false, error: 'Task title is required.' });
     }
 
-    const studentId = explicitStudentId || req.user?.id || req.user?.email || 'guest';
+    const studentId = req.user?.id || req.user?.email;
     const newTodo = {
       id: `todo-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
       studentId,
@@ -121,6 +124,10 @@ router.all(['/:id/toggle'], async (req, res) => {
     const todos = ensureTodos();
     const todo = todos.find(t => t.id === id);
 
+    if (todo && todo.studentId !== (req.user?.id || req.user?.email)) {
+      return res.status(403).json({ success: false, error: 'You cannot modify another student\'s task.' });
+    }
+
     if (!todo) {
       return res.status(404).json({ success: false, error: 'Task not found.' });
     }
@@ -174,6 +181,10 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Task not found.' });
     }
 
+    if (todos[idx].studentId !== (req.user?.id || req.user?.email)) {
+      return res.status(403).json({ success: false, error: 'You cannot delete another student\'s task.' });
+    }
+
     todos.splice(idx, 1);
 
     if (isConfigured && supabase) {
@@ -198,7 +209,7 @@ router.delete('/:id', async (req, res) => {
 router.post('/system-inject', async (req, res) => {
   try {
     const {
-      studentId = 'guest',
+      studentId: _ignoredStudentId,
       title,
       description = '',
       category = 'Application',
@@ -214,7 +225,7 @@ router.post('/system-inject', async (req, res) => {
 
     const newTodo = {
       id: `todo-sys-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
-      studentId,
+      studentId: req.user?.id || req.user?.email,
       title,
       description,
       category,

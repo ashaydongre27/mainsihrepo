@@ -11,13 +11,7 @@
 let activeIndustryTab = 'Applications';
 let currentAppFilter = 'All';
 
-const CANDIDATES_DATA = [
-  { name: 'Aarav Sharma', college: 'All India Institute of Ayurveda', match: 94, skills: ['Herbal Formulation', 'GLP', 'Phytochemistry', 'Python'], status: 'Ready for Interview' },
-  { name: 'Kavya Singh', college: 'AIIA New Delhi', match: 91, skills: ['Health Informatics', 'Python', 'NLP for Classical Texts', 'SQL'], status: 'Shortlisted' },
-  { name: 'Rohan Sharma', college: 'National Institute of Ayurveda, Jaipur', match: 82, skills: ['Ayurvedic Pharmacognosy', 'Standardization', 'Quality Control'], status: 'Under Review' },
-  { name: 'Ananya Roy', college: 'Banaras Hindu University (IMS)', match: 88, skills: ['Clinical Research', 'Pharmacology', 'Herbal Formulation'], status: 'Shortlisted' },
-  { name: 'Priya Nair', college: 'Gujarat Ayurved University, Jamnagar', match: 96, skills: ['Drug Discovery', 'Phytochemistry', 'HPTLC', 'AutoDock'], status: 'Top Applicant' }
-];
+
 
 let currentReqFilter = 'All';
 
@@ -136,7 +130,7 @@ async function renderIndustryApplications(typeFilter = 'All') {
   const allApps = allRes.applications || [];
 
   const totalCount = allApps.length;
-  const pendingCount = allApps.filter(a => a.status === 'Pending Review').length;
+  const pendingCount = allApps.filter(a => a.status === 'Pending Review' || a.status === 'Under Review').length;
   const interviewCount = allApps.filter(a => ['Shortlisted', 'Interview Scheduled', 'Offer Extended'].includes(a.status)).length;
 
   const badgeEl = document.getElementById('applications-badge-count');
@@ -170,6 +164,7 @@ async function renderIndustryApplications(typeFilter = 'All') {
     if (app.status === 'Rejected') statusClass = 'bg-rose-500/20 text-rose-300 border-rose-500/40';
 
     const isInternship = app.type === 'Internship' || app.type === 'Micro-Gig';
+    const skillsList = Array.isArray(app.skills) ? app.skills : (app.skills ? app.skills.split(',') : []);
 
     return `
       <div class="p-5 sm:p-6 rounded-3xl bg-white dark:bg-gray-900/80 border border-slate-200 dark:border-gray-800 hover:border-blue-400 dark:hover:border-blue-500/50 transition shadow-sm flex flex-col justify-between space-y-4">
@@ -182,13 +177,13 @@ async function renderIndustryApplications(typeFilter = 'All') {
                   <span class="material-symbols-outlined text-xs text-emerald-400 align-middle mr-1">verified</span>${app.verifiedBadge || "AIIA Verified"}
                 </span>
               </div>
-              <p class="text-xs text-slate-500 dark:text-gray-400 mt-0.5">${app.college}</p>
+              <p class="text-xs text-slate-500 dark:text-gray-400 mt-0.5">${app.college || 'Institution'}</p>
             </div>
             <div class="text-right">
               <span class="text-sm font-mono font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">
-                ${app.match}% Match
+                ${app.match || 80}% Match
               </span>
-              <span class="text-[10px] text-gray-500 block">Applied: ${app.appliedDate}</span>
+              <span class="text-[10px] text-gray-500 block">Applied: ${app.appliedDate || new Date().toISOString().split('T')[0]}</span>
             </div>
           </div>
 
@@ -197,20 +192,20 @@ async function renderIndustryApplications(typeFilter = 'All') {
               <span class="text-slate-500 dark:text-gray-400">Position Applied:</span>
               <span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${
                 isInternship ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-              }">${app.type}</span>
+              }">${app.type || 'Application'}</span>
             </div>
             <div class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">${app.opportunityTitle}</div>
             <div class="text-[11px] text-blue-300">${app.company}</div>
           </div>
 
           <p class="text-xs text-slate-600 dark:text-gray-300 italic border-l-2 border-purple-500/60 pl-2.5 py-0.5">
-            "${app.coverNote || 'Application submitted with AIIA verified credentials.'}"
+            "${app.coverNote || 'Application submitted with verified institutional credentials.'}"
           </p>
 
           <div>
             <span class="text-[10px] text-slate-500 dark:text-gray-400 font-semibold block mb-1.5">Verified Institutional Competencies:</span>
             <div class="flex flex-wrap gap-1.5">
-              ${(app.skills || []).map(s => `
+              ${skillsList.map(s => `
                 <span class="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/30 text-[11px] text-blue-700 dark:text-blue-200">${s}</span>
               `).join('')}
             </div>
@@ -272,41 +267,47 @@ async function handleApplicationAction(appId, newStatus) {
   }
 }
 
-function renderCandidates() {
+async function renderCandidates() {
   const container = document.getElementById('candidates-grid');
   if (!container) return;
 
-  container.innerHTML = CANDIDATES_DATA.map((c, i) => `
-    <div class="p-5 rounded-2xl bg-white dark:bg-gray-900/60 border border-slate-200 dark:border-gray-800 hover:border-blue-400 dark:hover:border-blue-500/40 transition shadow-sm flex flex-col justify-between space-y-4">
-      <div>
-        <div class="flex justify-between items-start mb-2">
-          <div>
-            <h4 class="font-bold text-sm text-slate-900 dark:text-white">${c.name}</h4>
-            <p class="text-xs text-slate-500 dark:text-gray-400">${c.college}</p>
+  const res = await JoblexApiClient.getCandidates();
+  const candidates = res.candidates || [];
+
+  container.innerHTML = candidates.map((c, i) => {
+    const skillsList = Array.isArray(c.skills) ? c.skills : (c.skills ? c.skills.split(',') : []);
+    return `
+      <div class="p-5 rounded-2xl bg-white dark:bg-gray-900/60 border border-slate-200 dark:border-gray-800 hover:border-blue-400 dark:hover:border-blue-500/40 transition shadow-sm flex flex-col justify-between space-y-4">
+        <div>
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <h4 class="font-bold text-sm text-slate-900 dark:text-white">${c.name}</h4>
+              <p class="text-xs text-slate-500 dark:text-gray-400">${c.college || c.institution || 'AIIA'}</p>
+            </div>
+            <div class="text-right">
+              <span class="text-xs font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300 font-mono text-base block">${c.match || Math.floor(Math.random() * 20 + 80)}% Match</span>
+              <span class="text-[10px] text-gray-400">${c.status || 'Ready for Interview'}</span>
+            </div>
           </div>
-          <div class="text-right">
-            <span class="text-xs font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300 font-mono text-base block">${c.match}% Match</span>
-            <span class="text-[10px] text-gray-400">${c.status}</span>
+
+          <div class="flex flex-wrap gap-1.5 mt-3">
+            ${skillsList.map(s => `
+              <span class="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-500/30 text-[11px] text-blue-700 dark:text-blue-200">${s}</span>
+            `).join('')}
           </div>
         </div>
 
-        <div class="flex flex-wrap gap-1.5 mt-3">
-          ${c.skills.map(s => `
-            <span class="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-500/30 text-[11px] text-blue-700 dark:text-blue-200">${s}</span>
-          `).join('')}
+        <div class="flex gap-2 pt-3 border-t border-slate-200 dark:border-gray-800">
+          <button onclick="showToast('Viewing full verified AIIA institutional dossier for ${c.name}', 'Dossier Loaded', 'info')" class="flex-1 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-slate-800 dark:text-white font-semibold text-xs transition border border-slate-200 dark:border-gray-700">
+            View Dossier
+          </button>
+          <button onclick="shortlistCandidate(${i}, this)" class="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition">
+            Shortlist Candidate
+          </button>
         </div>
       </div>
-
-      <div class="flex gap-2 pt-3 border-t border-slate-200 dark:border-gray-800">
-        <button onclick="showToast('Viewing full verified AIIA institutional dossier for ${c.name}', 'Dossier Loaded', 'info')" class="flex-1 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-slate-800 dark:text-white font-semibold text-xs transition border border-slate-200 dark:border-gray-700">
-          View Dossier
-        </button>
-        <button onclick="shortlistCandidate(${i}, this)" class="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition">
-          Shortlist Candidate
-        </button>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 function shortlistCandidate(idx, btn) {
@@ -372,86 +373,7 @@ function handleFilterReverseCandidates() {
 // ─────────────────────────────────────────────────────────────
 // ACTIVE REQUISITIONS MANAGER (Corporate Postings & Openings)
 // ─────────────────────────────────────────────────────────────
-const ENTERPRISE_REQUISITIONS = [
-  {
-    id: "opp-1",
-    title: "Phytochemical Research Intern",
-    company: "Dabur India Ltd. (R&D Division)",
-    type: "Internship",
-    skills: ["Herbal Formulation", "Clinical Research", "Phytochemistry", "GLP"],
-    location: "Ghaziabad / Hybrid",
-    stipend: "₹22,000/mo",
-    deadline: "2026-10-15",
-    applicantCount: 3,
-    active: true,
-    description: "Standardization and chromatographic profiling of classical Ayurvedic herbal formulations."
-  },
-  {
-    id: "opp-2",
-    title: "Ayush AI Innovation Challenge 2026",
-    company: "Ministry of Ayush & AIIA",
-    type: "Hackathon",
-    skills: ["Python", "Machine Learning", "NLP for Classical Texts", "Data Science"],
-    location: "New Delhi / National",
-    stipend: "Cash Bounty: ₹3,00,000",
-    deadline: "2026-11-01",
-    applicantCount: 4,
-    active: true,
-    description: "National challenge to build predictive Prakriti assessment engines and herbal drug-interaction databases."
-  },
-  {
-    id: "opp-3",
-    title: "Formulation Development Scientist",
-    company: "Patanjali Research Foundation",
-    type: "Job",
-    skills: ["Ayurvedic Pharmacognosy", "Nanotechnology", "Quality Control"],
-    location: "Haridwar Campus",
-    stipend: "₹8.5 - 12.0 LPA",
-    deadline: "2026-10-30",
-    applicantCount: 2,
-    active: true,
-    description: "Full-time position for postgraduate researchers in formulation optimization and stability testing."
-  },
-  {
-    id: "opp-4",
-    title: "Health Informatics & EHR Analytics Intern",
-    company: "Himalaya Wellness Company",
-    type: "Internship",
-    skills: ["Python", "Clinical Trials Data", "Health Informatics"],
-    location: "Bengaluru / Hybrid",
-    stipend: "₹25,000/mo",
-    deadline: "2026-10-20",
-    applicantCount: 2,
-    active: true,
-    description: "Analyze clinical trial databases to correlate phytochemical markers with patient therapeutic outcomes."
-  },
-  {
-    id: "opp-gig-1",
-    title: "Clean & Standardize 50 Ashwagandha Trial Records",
-    company: "Dabur Research Labs",
-    type: "Micro-Gig",
-    skills: ["Data Analysis", "Phytochemistry", "Excel/Python"],
-    location: "Remote (10 Days)",
-    stipend: "₹6,000 Task Bounty",
-    deadline: "2026-10-12",
-    applicantCount: 2,
-    active: true,
-    description: "Short sprint micro-project to clean chromatographic dataset for Withania somnifera."
-  },
-  {
-    id: "opp-gig-2",
-    title: "Annotate Charaka Samhita Sanskrit Botanical Lexicon",
-    company: "AIIA Digital Informatics Cell",
-    type: "Micro-Gig",
-    skills: ["Ayurvedic Pharmacognosy", "NLP Annotation", "Sanskrit"],
-    location: "Remote (7 Days)",
-    stipend: "₹4,500 Task Bounty",
-    deadline: "2026-10-18",
-    applicantCount: 1,
-    active: true,
-    description: "Annotation of classical botanical synonyms for NLP machine learning models."
-  }
-];
+
 
 async function renderRequisitions(typeFilter = 'All') {
   currentReqFilter = typeFilter;
@@ -459,11 +381,21 @@ async function renderRequisitions(typeFilter = 'All') {
   if (!container) return;
 
   const res = await JoblexApiClient.getRequisitions(typeFilter);
-  const requisitions = res.requisitions && res.requisitions.length ? res.requisitions : ENTERPRISE_REQUISITIONS;
+  const requisitions = res.requisitions || [];
 
   const filtered = typeFilter === 'All'
     ? requisitions
     : requisitions.filter(r => (r.type || '').toLowerCase() === typeFilter.toLowerCase());
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="col-span-full p-8 rounded-3xl bg-white dark:bg-gray-900/40 border border-slate-200 dark:border-gray-800 text-center space-y-3 shadow-sm">
+        <h4 class="text-base font-bold text-slate-900 dark:text-white">No Requisitions Found</h4>
+        <p class="text-xs text-gray-400 max-w-md mx-auto">There are currently no active requisitions matching this category.</p>
+      </div>
+    `;
+    return;
+  }
 
   container.innerHTML = filtered.map(req => {
     let typeBadge = 'bg-blue-500/20 text-blue-300 border-blue-500/40';
@@ -525,11 +457,7 @@ function filterRequisitions(type) {
 }
 
 function toggleRequisitionStatus(id) {
-  const req = ENTERPRISE_REQUISITIONS.find(r => r.id === id);
-  if (req) {
-    req.active = !req.active;
-    renderRequisitions(currentReqFilter);
-  }
+  showToast('Toggling requisition status requires a backend update. (Coming Soon)', 'Notice', 'info');
 }
 
 // ─────────────────────────────────────────────────────────────

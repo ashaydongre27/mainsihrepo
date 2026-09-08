@@ -8,6 +8,8 @@ const express = require('express');
 const router = express.Router();
 const DB = require('../data/database');
 const { supabase, isConfigured } = require('../config/supabase');
+const { authenticateToken } = require('../middleware/auth.middleware');
+const { requireRole } = require('../middleware/auth.middleware');
 
 // Active SSE client connections map: recipientId -> Set of response objects
 const sseClients = new Map();
@@ -23,30 +25,35 @@ function ensureNotifications() {
  * GET /api/notifications
  * Retrieves unread and read notifications for current recipient
  */
-router.get('/', async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
   try {
-    const recipientId = req.query.recipientId || req.query.userId || req.user?.id || req.user?.email || '';
+    const recipientIds = [req.user.id, req.user.email].filter(Boolean);
 
     if (isConfigured && supabase) {
       try {
         const { data, error } = await supabase
           .from('in_portal_notifications')
           .select('*')
-          .eq('recipient_id', recipientId)
+          .in('recipient_id', recipientIds)
           .order('created_at', { ascending: false });
 
         if (!error && data) {
-          const unreadCount = data.filter(n => !n.is_read).length;
-          return res.json({ success: true, notifications: data, unreadCount });
+          const memoryNotifications = ensureNotifications()
+            .filter(n => recipientIds.includes(n.recipientId))
+            .filter(n => !data.some(dbNotification => dbNotification.id === n.id));
+          const notifications = [...data, ...memoryNotifications]
+            .sort((a, b) => new Date(b.created_at || b.createdAt) - new Date(a.created_at || a.createdAt));
+          const unreadCount = notifications.filter(n => !(n.is_read ?? n.isRead)).length;
+          return res.json({ success: true, notifications, unreadCount });
         }
       } catch (err) {
         console.warn('[Notifications GET] Supabase warning:', err.message);
       }
     }
 
-    const notifications = recipientId
+    const notifications = recipientIds.length
       ? ensureNotifications()
-          .filter(n => n.recipientId === recipientId)
+          .filter(n => recipientIds.includes(n.recipientId))
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
       : [];
 
@@ -62,7 +69,7 @@ router.get('/', async (req, res) => {
  * PATCH /api/notifications/:id/read
  * Marks a notification as read
  */
-router.all(['/:id/read'], async (req, res) => {
+router.all(['/:id/read'], authenticateToken, async (req, res) => {
   if (req.method !== 'PATCH' && req.method !== 'POST') {
     return res.status(405).json({ success: false, error: 'Method not allowed.' });
   }
@@ -70,6 +77,10 @@ router.all(['/:id/read'], async (req, res) => {
     const { id } = req.params;
     const notifs = ensureNotifications();
     const notif = notifs.find(n => n.id === id);
+
+    if (notif && notif.recipientId !== req.user.id && notif.recipientId !== req.user.email) {
+      return res.status(403).json({ success: false, error: 'You cannot modify another user\'s notification.' });
+    }
 
     if (notif) {
       notif.isRead = true;
@@ -94,20 +105,20 @@ router.all(['/:id/read'], async (req, res) => {
  * POST /api/notifications/read-all
  * Marks all notifications as read for current user
  */
-router.post('/read-all', async (req, res) => {
+router.post('/read-all', authenticateToken, async (req, res) => {
   try {
-    const { recipientId = 'usr-student-01' } = req.body || {};
+    const recipientIds = [req.user.id, req.user.email].filter(Boolean);
     const notifs = ensureNotifications();
 
     notifs.forEach(n => {
-      if (n.recipientId === recipientId) {
+      if (recipientIds.includes(n.recipientId)) {
         n.isRead = true;
       }
     });
 
     if (isConfigured && supabase) {
       try {
-        await supabase.from('in_portal_notifications').update({ is_read: true }).eq('recipient_id', recipientId);
+        await supabase.from('in_portal_notifications').update({ is_read: true }).in('recipient_id', recipientIds);
       } catch (err) {
         console.warn('[Notifications Read-All] Supabase warning:', err.message);
       }
@@ -124,7 +135,7 @@ router.post('/read-all', async (req, res) => {
  * POST /api/notifications/dispatch
  * Internal dispatcher to push new notifications to a user
  */
-router.post('/dispatch', async (req, res) => {
+router.post('/dispatch', authenticateToken, requireRole(['academy', 'industry']), async (req, res) => {
   try {
     const {
       recipientId,

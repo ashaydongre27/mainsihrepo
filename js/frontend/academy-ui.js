@@ -1,3 +1,4 @@
+  const tbody = document.getElementById('dept-readiness-tbody');
 /**
  * JOBLEX Academy Portal UI Controller (Client-Side JavaScript)
  * Pure frontend DOM, rendering, and interaction logic
@@ -10,40 +11,7 @@
 
 let activeAcademyTab = 'Progress';
 
-const DEPARTMENTAL_READINESS_DATA = [
-  { dept: 'Ayurvedic Pharmacology (Dravyaguna)', head: 'Dr. Rajeshwari Rao', obe: 94, labIndex: 'High (GLP / HPTLC)', bosStatus: 'Approved (NEP-2020)', naacCriterion: 'Criterion 3.4 Compliant' },
-  { dept: 'Rasashastra & Bhaishajya Kalpana (Pharmaceutics)', head: 'Prof. Alok Tripathi', obe: 91, labIndex: 'High (Extraction Core)', bosStatus: 'BoS Review Scheduled', naacCriterion: 'Criterion 3.4 Compliant' },
-  { dept: 'Ayush Health Informatics & Data Science', head: 'Dr. Sneha Kulkarni', obe: 96, labIndex: 'Active (Python/EHR)', bosStatus: 'Approved (NEP-2020)', naacCriterion: 'Criterion 1.2 Compliant' },
-  { dept: 'Swasthavritta & Preventive Medicine', head: 'Dr. Manoj Sharma', obe: 88, labIndex: 'Moderate (Community)', bosStatus: 'In Audit Stage', naacCriterion: 'Criterion 2.1 Compliant' },
-  { dept: 'Kaya Chikitsa & Clinical Diagnostics', head: 'Prof. Virendra Sen', obe: 93, labIndex: 'High (Hospital Link)', bosStatus: 'Approved (NEP-2020)', naacCriterion: 'Criterion 3.4 Compliant' }
-];
 
-const SYLLABUS_PROPOSALS = [
-  {
-    id: 'syl-101',
-    currentTopic: 'Traditional Herbal Pharmacognosy (Unit 3)',
-    suggestedAddition: 'Computational Molecular Docking of Botanicals using Python & AutoDock',
-    source: 'MoU Partner: Dabur Research & Development Ltd.',
-    impact: 'Closes 68% candidate gap for Formulation Scientist positions',
-    adopted: false
-  },
-  {
-    id: 'syl-102',
-    currentTopic: 'Herbal Standardization & Quality Control (Unit 5)',
-    suggestedAddition: 'Automated High-Performance Thin-Layer Chromatography (HPTLC) Fingerprinting Protocols',
-    source: 'MoU Partner: Himalaya Wellness R&D',
-    impact: 'Required for Good Laboratory Practice (GLP) industrial compliance',
-    adopted: false
-  },
-  {
-    id: 'syl-103',
-    currentTopic: 'Clinical Medicine Protocols (Unit 2)',
-    suggestedAddition: 'Digital Health Records & AI-Powered Prakriti Profiling Databases',
-    source: 'National AYUSH Mission Initiative 2026',
-    impact: 'Meets NEP-2020 technology integration benchmarks',
-    adopted: false
-  }
-];
 
 document.addEventListener('DOMContentLoaded', async () => {
   // Auth Guard: ensure user is authenticated before accessing academy portal
@@ -139,11 +107,14 @@ window.toggleAcademySidebarCollapse = toggleAcademySidebarCollapse;
 window.toggleAcademyMobileMenu = toggleAcademyMobileMenu;
 window.closeAcademyMobileMenu = closeAcademyMobileMenu;
 
-function renderDepartmentalReadiness() {
+async function renderDepartmentalReadiness() {
   const tbody = document.getElementById('dept-readiness-table-body');
   if (!tbody) return;
 
-  tbody.innerHTML = DEPARTMENTAL_READINESS_DATA.map(d => {
+  const data = await JoblexApiClient.getAcademyData();
+  const readinessData = data.departmentalReadiness || [];
+
+  tbody.innerHTML = readinessData.map(d => {
     const obeColor = d.obe >= 90 ? 'text-emerald-400' : 'text-cyan-400';
     let bosBadge = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
     if (d.bosStatus.includes('Review') || d.bosStatus.includes('Audit')) {
@@ -171,7 +142,7 @@ function renderDepartmentalReadiness() {
   }).join('');
 }
 
-let CURRENT_SYLLABUS_MODULES = [...SYLLABUS_PROPOSALS];
+let CURRENT_SYLLABUS_MODULES = [];
 
 async function renderSyllabusProposals() {
   const container = document.getElementById('syllabus-proposals-grid') || document.getElementById('syllabus-proposals-container');
@@ -179,7 +150,7 @@ async function renderSyllabusProposals() {
 
   try {
     const data = await JoblexApiClient.getAcademyData();
-    if (data && Array.isArray(data.syllabusSuggestions) && data.syllabusSuggestions.length > 0) {
+    if (data && Array.isArray(data.syllabusSuggestions)) {
       CURRENT_SYLLABUS_MODULES = data.syllabusSuggestions;
     }
   } catch (err) {

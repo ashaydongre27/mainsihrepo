@@ -180,6 +180,10 @@
   <script src="/js/frontend/api-client.js"></script>
   <script src="/js/frontend/notifications.js"></script>
   <script>
+    if (!JoblexApiClient.requireAuth('industry')) {
+      // The auth guard owns navigation for unauthenticated or mismatched roles.
+    }
+
     async function handlePostSubmit(event) {
       event.preventDefault();
       const submitBtn = document.getElementById('submit-btn');

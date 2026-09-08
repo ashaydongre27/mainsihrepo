@@ -118,7 +118,7 @@
     <div class="space-y-4">
       <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-gray-800">
         <span class="text-xs uppercase tracking-wider text-purple-600 dark:text-purple-400 font-bold">Student Navigation</span>
-        <button onclick="closeMobileMenu()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"><span class="material-symbols-outlined text-lg">close</span></button>
+        <button type="button" onclick="closeMobileMenu()" aria-label="Close navigation" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white"><span class="material-symbols-outlined text-lg">close</span></button>
       </div>
       <div class="space-y-1 pt-1">
         <a href="../../student.html" onclick="closeMobileMenu()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs font-medium transition text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5">
@@ -845,7 +845,7 @@
           <span>Download PDF</span>
         </button>
 
-        <button type="button" onclick="closeResumeBuilderModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white transition">
+        <button type="button" onclick="closeResumeBuilderModal()" aria-label="Close resume builder" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white transition">
           <span class="material-symbols-outlined text-xl">close</span>
         </button>
       </div>

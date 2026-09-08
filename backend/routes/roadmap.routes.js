@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const { supabase, isConfigured } = require('../config/supabase');
 const DB = require('../data/database');
+const { authenticateToken, requireRole } = require('../middleware/auth.middleware');
+
+router.use(authenticateToken, requireRole(['student']));
 
 // Helper to get or initialize a student's in-memory roadmap
 function getStudentRoadmap(studentId) {
@@ -29,7 +32,7 @@ function getStudentRoadmap(studentId) {
 
 // GET /api/roadmap, /api/roadmap/get, /api/roadmap/state
 router.get(['/', '/get', '/state'], async (req, res) => {
-  const studentId = req.query.studentId || req.user?.id || req.user?.email || 'guest-student';
+  const studentId = req.user?.id || req.user?.email;
 
   if (isConfigured && supabase) {
     try {
@@ -52,7 +55,7 @@ router.get(['/', '/get', '/state'], async (req, res) => {
 
 // GET /api/roadmap/get (alias)
 router.get('/get', async (req, res) => {
-  const studentId = req.query.studentId || req.user?.id || req.user?.email || 'guest-student';
+  const studentId = req.user?.id || req.user?.email;
 
   if (isConfigured && supabase) {
     try {
@@ -90,8 +93,8 @@ router.get('/peer-benchmarking', async (req, res) => {
 
 // POST /api/roadmap/toggle-task
 router.post('/toggle-task', async (req, res) => {
-  const { taskId, phaseIdx, studentId: explicitStudentId } = req.body || {};
-  const studentId = explicitStudentId || req.user?.id || 'usr-student-01';
+  const { taskId, phaseIdx } = req.body || {};
+  const studentId = req.user?.id || req.user?.email;
   const rm = getStudentRoadmap(studentId);
   let updated = false;
   let xpGained = 0;
@@ -142,7 +145,7 @@ router.post('/toggle-task', async (req, res) => {
 
 // POST /api/roadmap/check-in (Anti-decay freeze)
 router.post('/check-in', async (req, res) => {
-  const studentId = req.body?.studentId || req.user?.id || 'usr-student-01';
+  const studentId = req.user?.id || req.user?.email;
   const rm = getStudentRoadmap(studentId);
 
   rm.streakDays = (typeof rm.streakDays === 'number' ? rm.streakDays : 0) + 1;
@@ -176,8 +179,8 @@ router.post('/check-in', async (req, res) => {
 
 // POST /api/roadmap/update-level
 router.post('/update-level', async (req, res) => {
-  const { studentId: explicitStudentId, level } = req.body || {};
-  const studentId = explicitStudentId || req.user?.id || 'usr-student-01';
+  const { level } = req.body || {};
+  const studentId = req.user?.id || req.user?.email;
   const rm = getStudentRoadmap(studentId);
 
   if (level) {
