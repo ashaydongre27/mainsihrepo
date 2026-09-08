@@ -280,7 +280,9 @@ const JoblexApiClient = {
   // Auth Guard: Require login for portal pages
   requireAuth(expectedRole = null) {
     const user = this.getCurrentUser();
-    if (!user) {
+    const hasToken = Boolean(typeof localStorage !== 'undefined' && localStorage.getItem('joblex_token'));
+    if (!user || !hasToken) {
+      if (user && !hasToken) this.setCurrentUser(null);
       const currentPath = window.location.pathname;
       const roleParam = expectedRole || 'student';
       window.location.href = `/auth.html?role=${encodeURIComponent(roleParam)}&redirect=${encodeURIComponent(currentPath)}`;
