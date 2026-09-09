@@ -701,7 +701,9 @@ function clearSelectedFile(e) {
 async function extractTextFromFile(file) {
   return new Promise((resolve, reject) => {
     const recognizeImage = async source => {
-      if (!window.Tesseract) return '';
+      if (!window.Tesseract) {
+        throw new Error('OCR engine is unavailable. Please reload the page and try again.');
+      }
       const result = await Tesseract.recognize(source, 'eng', {
         logger: message => {
           if (message.status === 'recognizing text' && typeof message.progress === 'number') {
@@ -839,7 +841,7 @@ async function handleExecuteParse() {
       JoblexApiClient.showNoticeModal({
         title: 'Document Text Not Found',
         icon: 'warning',
-        message: 'Could not extract readable text from this file. If it is an image or scanned document, please paste your resume text into the text tab or upload a searchable document.',
+        message: 'Could not extract readable text from this file. For image or scanned resumes, reload the page to initialize OCR and try again, or upload a searchable document.',
         confirmText: 'Close'
       });
       return;
