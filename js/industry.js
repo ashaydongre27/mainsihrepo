@@ -8,15 +8,6 @@
 
 let activeIndustryTab = 'Candidates';
 
-const CANDIDATES_DATA = [
-  { name: 'Aarav Sharma', college: 'All India Institute of Ayurveda', match: 94, skills: ['Herbal Formulation', 'GLP', 'Phytochemistry', 'Python'], status: 'Ready for Interview' },
-  { name: 'Kavya Singh', college: 'AIIA New Delhi', match: 91, skills: ['Health Informatics', 'Python', 'NLP for Classical Texts', 'SQL'], status: 'Shortlisted' },
-  { name: 'Rohan Sharma', college: 'National Institute of Ayurveda, Jaipur', match: 82, skills: ['Ayurvedic Pharmacognosy', 'Standardization', 'Quality Control'], status: 'Under Review' },
-  { name: 'Ananya Roy', college: 'Banaras Hindu University (IMS)', match: 88, skills: ['Clinical Research', 'Pharmacology', 'Herbal Formulation'], status: 'Shortlisted' },
-  { name: 'Priya Nair', college: 'Gujarat Ayurved University, Jamnagar', match: 96, skills: ['Drug Discovery', 'Phytochemistry', 'HPTLC', 'AutoDock'], status: 'Top Applicant' },
-  { name: 'Siddharth Patel', college: 'AIIA New Delhi', match: 76, skills: ['Ayurvedic Medicine', 'Good Laboratory Practice'], status: 'Under Review' }
-];
-
 document.addEventListener('DOMContentLoaded', () => {
   renderCandidates();
   renderTalentForecast();
@@ -39,11 +30,13 @@ function switchIndustryTab(tabId) {
   });
 }
 
-function renderCandidates() {
+async function renderCandidates() {
   const container = document.getElementById('candidates-grid');
   if (!container) return;
+  if (!window.JoblexApiClient) return;
 
-  container.innerHTML = CANDIDATES_DATA.map((c, i) => `
+  const response = await JoblexApiClient.getCandidates();
+  container.innerHTML = (response.candidates || []).map((c, i) => `
     <div class="p-5 rounded-2xl bg-gray-900/60 border border-gray-800 hover:border-blue-500/40 transition shadow-md flex flex-col justify-between space-y-4">
       <div>
         <div class="flex justify-between items-start mb-2">

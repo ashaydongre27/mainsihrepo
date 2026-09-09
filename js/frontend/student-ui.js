@@ -13,33 +13,6 @@ let currentXp = 0;
 let currentStreak = 0;
 let activeModule = 'Roadmap';
 
-const SAMPLE_RESUMES = {
-  software: `Rahul Verma | Full Stack Software Engineer | B.Tech Computer Science & Engineering
-Email: rahul.v@example.edu | Phone: +91 98765 87654
-Summary: High-performance full stack engineer experienced in building scalable web applications, RESTful microservices, and distributed cloud systems.
-Skills: Python, JavaScript, TypeScript, React.js, Node.js, Express.js, PostgreSQL, MongoDB, Docker, Git, RESTful APIs, Tailwind CSS, Redis, Unit Testing.
-Projects: Cloud-Native E-Commerce Platform (React, Node.js, PostgreSQL, Docker containerization); Real-Time Collaborative Whiteboard (WebSockets, TypeScript, Redis).
-Certifications: AWS Certified Solutions Architect Associate; Meta Frontend Developer Professional Certificate.`,
-  herbal: `Aarav Sharma | BAMS 3rd Year | All India Institute of Ayurveda
-Email: aarav.s@aiia.gov.in | Phone: +91 98765 43210
-Summary: Passionate Ayurvedic pharmacology researcher with laboratory experience in classical Rasashastra and modern chromatography.
-Skills: Herbal Formulation, Ayurvedic Pharmacognosy, Good Laboratory Practice (GLP), Phytochemical Extraction, Quality Control, HPTLC Standardization, Python, Analytical Chemistry.
-Projects: Standardization of classical Ashwagandha Kwatha (Aqueous extraction & HPTLC profiling); Phytochemical screening of Withania somnifera roots.
-Certifications: GLP Certificate - NMPB 2025; Good Clinical Practice (GCP) - ICMR.`,
-  tech: `Kavya Singh | Health Informatics & Ayurvedic Data Science
-Email: kavya.s@aiia.gov.in | Phone: +91 98765 12345
-Summary: Interdisciplinary Health-Tech researcher bridging ancient Ayush wisdom with natural language processing and modern cloud microservices.
-Skills: Python, Machine Learning, Data Analysis, Health Informatics, Sanskrit Natural Language Processing, Fast-API, React.js, Pandas, SQL, Ayurvedic Prakriti Assessment Algorithms.
-Projects: NLP Model for Classical Charaka Samhita Text Extraction; In-Silico Molecular Docking Pipeline with PyMOL & AutoDock Vina.
-Certifications: Ayurvedic Health Informatics Badge - Ayush Grid 2025.`,
-  clinical: `Dr. Vikram Joshi | Ayush Clinical Data Specialist
-Email: vikram.j@himalayawellness.com | Phone: +91 91234 56789
-Summary: Clinical research specialist with 2 years of protocol execution across Ayush clinical trials, CDISC data standards, and GCP compliance.
-Skills: Ayush Clinical Data Management, Clinical Trial Protocol Design, CDISC Standards, Sanskrit Diagnostics, Pharmacovigilance, GCP Compliance, Biostatistics with R/Python.
-Experience: Junior Clinical Data Associate at Himalaya Wellness R&D; Clinical Research Fellow at National Institute of Ayurveda.
-Projects: Multicenter observational study on Ayurvedic immunomodulators; Digitization of Prakriti pulse diagnosis records.`
-};
-
 let quizState = { started: false, currentIndex: 0, selectedAnswer: null, answers: [], questions: [], finished: false, difficulty: 'mixed', prompt: '', attemptId: null, result: null, loading: false };
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -169,28 +142,7 @@ async function updateDashboardStats(user) {
     readinessSubEl.innerText = readinessScore > 0 ? (readinessScore >= 75 ? 'Cohort Ready' : 'In Progress') : 'Diagnostic Pending';
   }
 
-  // 5. Dynamic Top Recommendation
-  const topRecTitle = document.getElementById('top-rec-title');
-  if (topRecTitle) {
-    try {
-      const recRes = await JoblexApiClient.getStudentRecommendations({ minMatch: 0 });
-      const recs = recRes.recommendations || [];
-      if (recs.length > 0) {
-        const top = recs[0];
-        topRecTitle.innerText = top.title;
-        const compEl = document.getElementById('top-rec-company');
-        if (compEl) compEl.innerText = `${top.company} • ${top.location || 'Hybrid'}`;
-        const descEl = document.getElementById('top-rec-desc');
-        if (descEl) descEl.innerText = top.description || 'Verified opportunity published through JOBLEX portal.';
-        const fitEl = document.getElementById('top-rec-fit');
-        if (fitEl) fitEl.innerText = `${top.matchPercentage || top.match || 85}% Fit`;
-        const stipendEl = document.getElementById('top-rec-stipend');
-        if (stipendEl) stipendEl.innerText = `${top.stipend || 'Competitive'} · ${top.type || 'Internship'}`;
-      }
-    } catch (e) {
-      console.warn('[DashboardStats] Top recommendation fetch error:', e);
-    }
-  }
+  // Opportunity lists are rendered only on their dedicated database-backed pages.
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -269,7 +221,7 @@ async function renderInternshipsBoard(typeFilter = 'All') {
   `;
 
   try {
-    const res = await JoblexApiClient.getStudentRecommendations({ type: typeFilter });
+    const res = await JoblexApiClient.getStudentRecommendations({ type: typeFilter, refresh: true });
     const opps = res.recommendations || [];
 
     // Filter for chosen opportunity type or show all
@@ -412,7 +364,7 @@ async function renderJobsBoard() {
   `;
 
   try {
-    const res = await JoblexApiClient.getStudentRecommendations({ type: 'Job' });
+    const res = await JoblexApiClient.getStudentRecommendations({ type: 'Job', refresh: true });
     const opps = res.recommendations || [];
     const jobs = opps.filter(o => o.type === 'Job');
 
@@ -699,15 +651,6 @@ function switchInputMode(mode) {
   }
 }
 
-function loadSampleResume(type) {
-  const textarea = document.getElementById('resume-textarea');
-  if (!textarea) return;
-  if (SAMPLE_RESUMES[type]) {
-    textarea.value = SAMPLE_RESUMES[type];
-    showToast(`Loaded ${type} sample resume.`, 'Sample Loaded', 'info');
-  }
-}
-
 function handleDragOver(e) {
   e.preventDefault();
   const dropzone = document.getElementById('resume-dropzone');
@@ -757,13 +700,44 @@ function clearSelectedFile(e) {
 
 async function extractTextFromFile(file) {
   return new Promise((resolve, reject) => {
+    const recognizeImage = async source => {
+      if (!window.Tesseract) return '';
+      const result = await Tesseract.recognize(source, 'eng', {
+        logger: message => {
+          if (message.status === 'recognizing text' && typeof message.progress === 'number') {
+            updateParsingProgress(20 + Math.round(message.progress * 20), 'Reading document with OCR...', 1);
+          }
+        }
+      });
+      return result.data.text || '';
+    };
+
+    const recognizePdfPages = async (pdfData, pdf) => {
+      let ocrText = '';
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 2 });
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+        ocrText += `${await recognizeImage(canvas)}\n`;
+      }
+      return ocrText;
+    };
+
+    if (file.type.startsWith('image/') || /\.(png|jpe?g|webp|bmp|tiff?)$/i.test(file.name)) {
+      recognizeImage(file).then(resolve).catch(reject);
+      return;
+    }
+
     if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
       const reader = new FileReader();
       reader.onload = async function() {
         try {
+          const typedarray = new Uint8Array(this.result);
           if (window['pdfjsLib']) {
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-            const typedarray = new Uint8Array(this.result);
             const pdf = await pdfjsLib.getDocument({ data: typedarray }).promise;
             let fullText = '';
             for (let i = 1; i <= pdf.numPages; i++) {
@@ -775,6 +749,8 @@ async function extractTextFromFile(file) {
             if (fullText.trim().length > 20) {
               return resolve(fullText);
             }
+            const ocrText = await recognizePdfPages(this.result, pdf);
+            if (ocrText.trim()) return resolve(ocrText);
           }
           // Fallback: decode text strings from PDF stream
           const dec = new TextDecoder('utf-8');
@@ -860,14 +836,24 @@ async function handleExecuteParse() {
     if (!resumeText || resumeText.trim().length < 15) {
       if (progressBox) progressBox.classList.add('hidden');
       if (btn) btn.disabled = false;
-      JoblexApiClient.showNoticeModal('Could not extract readable text from this file. If it is an image or scanned document, please paste your resume text into the text tab or upload a searchable document.', 'Document Text Not Found');
+      JoblexApiClient.showNoticeModal({
+        title: 'Document Text Not Found',
+        icon: 'warning',
+        message: 'Could not extract readable text from this file. If it is an image or scanned document, please paste your resume text into the text tab or upload a searchable document.',
+        confirmText: 'Close'
+      });
       return;
     }
   } else {
     const textarea = document.getElementById('resume-textarea');
     resumeText = textarea ? textarea.value.trim() : '';
     if (!resumeText) {
-      JoblexApiClient.showNoticeModal('Please upload a resume file or paste your resume text into the input field to evaluate your competencies.', 'No Resume Provided');
+      JoblexApiClient.showNoticeModal({
+        title: 'No Resume Provided',
+        icon: 'warning',
+        message: 'Please upload a resume file or paste your resume text into the input field to evaluate your competencies.',
+        confirmText: 'Close'
+      });
       return;
     }
     if (progressBox) progressBox.classList.remove('hidden');
@@ -1218,7 +1204,12 @@ async function handleOptimizeResume() {
     resumeText = `Candidate: ${currentParsedData.name || 'Scholar'}\nSummary: ${currentParsedData.summary || ''}\nEducation: ${(currentParsedData.education || []).join(', ')}\nSkills: ${(currentParsedData.extractedSkills || []).join(', ')}`;
   }
   if (!resumeText) {
-    JoblexApiClient.showNoticeModal('Please parse a resume first or provide resume text to optimize.', 'No Resume Provided');
+      JoblexApiClient.showNoticeModal({
+        title: 'No Resume Provided',
+        icon: 'warning',
+        message: 'Please parse a resume first or provide resume text to optimize.',
+        confirmText: 'Close'
+      });
     return;
   }
 

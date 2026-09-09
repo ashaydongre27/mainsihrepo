@@ -23,8 +23,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderTPOMetrics();
   renderCrossCollegeBenchmarking();
   renderConsultancyGrants();
+  renderMouPartnerships();
   if (document.getElementById('faculty-opportunities-container')) {
-    renderFacultyHub();
+    renderFdpPrograms();
   }
 });
 
@@ -235,11 +236,21 @@ async function renderTPOMetrics() {
 // IDEA #11: CROSS-COLLEGE BENCHMARKING
 // ─────────────────────────────────────────────────────────────
 async function renderCrossCollegeBenchmarking() {
-  const container = document.getElementById('cross-college-table-body');
+  const container = document.getElementById('cross-college-table-body') || document.getElementById('benchmarking-container');
   if (!container) return;
 
   const data = await JoblexApiClient.getCrossCollegeBenchmarking();
   const institutions = data.institutions || [];
+
+  if (!institutions.length) {
+    container.innerHTML = '<div class="py-8 text-center text-xs text-[#6E6962] dark:text-gray-400">No peer benchmarking records have been published by the university.</div>';
+    return;
+  }
+
+  if (container.id === 'benchmarking-container') {
+    container.innerHTML = `<div class="overflow-x-auto"><table class="w-full text-left"><thead><tr class="border-b border-slate-200 dark:border-white/10 text-[10px] uppercase tracking-wider text-[#6E6962] dark:text-gray-400"><th class="py-3 px-4">Rank</th><th class="py-3 px-4">Institution</th><th class="py-3 px-4">Skill score</th><th class="py-3 px-4">Placement</th><th class="py-3 px-4">MoUs</th><th class="py-3 px-4">NAAC</th></tr></thead><tbody id="benchmarking-rows"></tbody></table></div>`;
+    container = document.getElementById('benchmarking-rows');
+  }
 
   container.innerHTML = institutions.map(inst => `
     <tr class="border-b border-gray-800 ${inst.status === 'Your Institution' ? 'bg-emerald-950/20 font-semibold' : 'hover:bg-white/[0.02]'} transition">
@@ -299,41 +310,16 @@ async function handleRunCurriculumAudit(e) {
 // R&D CONSULTANCY GRANTS & CORPORATE PROBLEM BIDS
 // ─────────────────────────────────────────────────────────────
 async function renderConsultancyGrants() {
-  const container = document.getElementById('academy-grants-grid');
+  const container = document.getElementById('academy-grants-grid') || document.getElementById('consultancy-grants-list');
   if (!container) return;
 
   const academyData = await JoblexApiClient.getAcademyData();
-  const grants = (academyData && academyData.consultancyGrants && academyData.consultancyGrants.length)
-    ? academyData.consultancyGrants
-    : [
-      {
-        id: "cg-01",
-        title: "Standardization of Ashwagandha Active Withanolides in Water-Soluble Matrix",
-        industry: "Dabur R&D",
-        grantAmount: "₹18,50,000",
-        deadline: "2026-11-15",
-        targetDept: "Dravyaguna / Pharmaceutical Sciences",
-        status: "Open for Faculty Proposals"
-      },
-      {
-        id: "cg-02",
-        title: "Bio-Efficacy Validation of Triphala Nano-Suspension in Gut Microbiome Models",
-        industry: "Himalaya Drug Co.",
-        grantAmount: "₹24,00,000",
-        deadline: "2026-12-01",
-        targetDept: "Kaya Chikitsa & Microbiology",
-        status: "Open for Faculty Proposals"
-      },
-      {
-        id: "cg-03",
-        title: "Phytochemical Characterization & Stability Testing of Classical Polyherbal Extracts",
-        industry: "Aimil Pharmaceuticals",
-        grantAmount: "₹12,00,000",
-        deadline: "2026-12-15",
-        targetDept: "Rasashastra & Bhaishajya Kalpana",
-        status: "Open for Faculty Proposals"
-      }
-    ];
+  const grants = academyData?.consultancyGrants || [];
+
+  if (!grants.length) {
+    container.innerHTML = '<div class="py-8 text-center text-xs text-[#6E6962] dark:text-gray-400">No consultancy grant notifications have been published by the university.</div>';
+    return;
+  }
 
   container.innerHTML = grants.map(g => `
     <div class="p-5 rounded-2xl bg-gray-900/60 border border-amber-500/30 backdrop-blur-md space-y-3 flex flex-col justify-between">
@@ -348,7 +334,7 @@ async function renderConsultancyGrants() {
         <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-gray-800 text-xs text-gray-300">
           <div>Grant Amount: <strong class="text-amber-400 text-sm font-black">${g.grantAmount}</strong></div>
           <div>Proposal Deadline: <strong class="text-gray-300 font-mono">${g.deadline}</strong></div>
-          <div class="col-span-2 text-[11px] text-gray-400">Includes 15% Institutional Overhead + Lab Equipment Grant</div>
+          <div class="col-span-2 text-[11px] text-gray-400">Notification: ${g.notification_id || g.notificationId}</div>
         </div>
       </div>
 
@@ -361,6 +347,56 @@ async function renderConsultancyGrants() {
         </button>
       </div>
     </div>
+  `).join('');
+}
+
+async function renderMouPartnerships() {
+  const container = document.getElementById('mou-partnerships-container');
+  if (!container) return;
+
+  const academyData = await JoblexApiClient.getAcademyData();
+  const partnerships = academyData?.mouPartnerships || [];
+  if (!partnerships.length) {
+    container.innerHTML = '<div class="py-8 text-center text-xs text-[#6E6962] dark:text-gray-400">No bilateral MoUs have been published by the university.</div>';
+    return;
+  }
+
+  container.innerHTML = partnerships.map(mou => `
+    <article class="p-4 rounded-lg border border-[#E7E4DC] dark:border-white/10 bg-slate-50 dark:bg-white/[0.02]">
+      <div class="flex items-center justify-between gap-3">
+        <h3 class="font-bold text-sm text-[#1C1917] dark:text-white">${mou.partner || 'Unnamed partner'}</h3>
+        <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 font-mono">${mou.status || 'Unspecified'}</span>
+      </div>
+      <p class="text-xs text-[#6E6962] dark:text-gray-400 mt-2">${mou.institution || 'Institution not specified'}</p>
+      <p class="text-xs text-[#6E6962] dark:text-gray-400 mt-2">${(mou.focusAreas || mou.focus_areas || []).join(', ') || 'Focus areas not published'}</p>
+      <div class="mt-3 text-[11px] text-gray-500 font-mono">Signed: ${mou.signedDate || mou.signed_date || 'Not published'} · Valid until: ${mou.validUntil || mou.valid_until || 'Not published'}</div>
+    </article>
+  `).join('');
+}
+
+async function renderFdpPrograms() {
+  const container = document.getElementById('faculty-opportunities-container');
+  if (!container) return;
+
+  const academyData = await JoblexApiClient.getAcademyData();
+  const programs = academyData?.fdpPrograms || [];
+  if (!programs.length) {
+    container.innerHTML = '<div class="col-span-2 py-8 text-center text-xs text-[#6E6962] dark:text-gray-400">No FDP notifications have been published by the university.</div>';
+    return;
+  }
+
+  container.innerHTML = programs.map(program => `
+    <article class="p-5 rounded-lg border border-[#E7E4DC] dark:border-white/10 bg-slate-50 dark:bg-white/[0.02] space-y-3">
+      <div class="flex items-center justify-between gap-3">
+        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300">FDP</span>
+        <span class="font-mono text-xs text-gray-500">${program.duration || 'Duration not published'}</span>
+      </div>
+      <h3 class="font-bold text-sm text-[#1C1917] dark:text-white">${program.title}</h3>
+      <p class="text-xs text-[#6E6962] dark:text-gray-400">Organizer: ${program.organizer} · Mode: ${program.mode}</p>
+      <p class="text-xs text-[#6E6962] dark:text-gray-400">Eligibility: ${program.eligibility}</p>
+      <div class="pt-2 border-t border-[#E7E4DC] dark:border-white/5 text-xs text-gray-500">Seats: ${program.enrolled || 0} enrolled / ${program.seats} · Notification: ${program.notification_id || program.notificationId}</div>
+      ${program.source_url ? `<a href="${program.source_url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[11px] text-emerald-700 dark:text-emerald-300 hover:underline">Open official notice <span class="material-symbols-outlined text-sm">open_in_new</span></a>` : ''}
+    </article>
   `).join('');
 }
 

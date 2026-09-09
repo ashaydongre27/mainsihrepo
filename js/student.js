@@ -14,17 +14,6 @@ let currentXp = 1450;
 let currentStreak = 7;
 let activeModule = 'Roadmap';
 
-// Sample resumes for instant load
-const SAMPLE_RESUMES = {
-  herbal: `Aarav Sharma | BAMS 3rd Year | All India Institute of Ayurveda
-Skills: Herbal Formulation, Ayurvedic Pharmacognosy, Good Laboratory Practice (GLP), Basic Phytochemistry, Python fundamentals.
-Projects: Standardization of classical Ashwagandha Kwatha, Phytochemical screening of Withania somnifera.
-Certifications: GLP Certificate - NMPB 2025.`,
-  tech: `Kavya Singh | Health Informatics & Ayurvedic Data Science
-Skills: Python, Machine Learning, Data Analysis, Health Informatics, Pandas, SQL, Sanskrit Lexicon Processing.
-Projects: NLP Model for Classical Charaka Samhita Text Extraction, Predictive Model for Ayurvedic Prakriti Assessment.`
-};
-
 // Quiz questions
 const QUIZ_DATA = [
   {
@@ -62,19 +51,6 @@ let quizState = {
   finished: false
 };
 
-// Combined Opportunities & Micro-Gigs List
-const OPPORTUNITIES_DATA = [
-  { id: 1, title: 'Phytochemical Research Intern', company: 'Dabur India Ltd.', type: 'Internship', skills: ['Herbal Formulation', 'Phytochemistry', 'GLP'], location: 'Ghaziabad / Hybrid', stipend: '₹22,000/mo', deadline: 'Oct 15, 2026' },
-  { id: 2, title: 'Ayush AI Innovation Challenge', company: 'Ministry of Ayush & AIIA', type: 'Hackathon', skills: ['Python', 'Machine Learning', 'NLP'], location: 'New Delhi', stipend: 'Prize: ₹3,00,000', deadline: 'Nov 01, 2026' },
-  { id: 3, title: 'Formulation Scientist', company: 'Patanjali Research Foundation', type: 'Job', skills: ['Ayurvedic Pharmacognosy', 'Nanomedicine', 'QC'], location: 'Haridwar', stipend: '₹8.5 - 12 LPA', deadline: 'Oct 30, 2026' },
-  { id: 4, title: 'Health Informatics Intern', company: 'Himalaya Wellness Co.', type: 'Internship', skills: ['Data Analysis', 'Python', 'Clinical Trials'], location: 'Bangalore / Remote', stipend: '₹25,000/mo', deadline: 'Oct 20, 2026' },
-  // Micro-Gigs (Idea #4)
-  { id: 'gig-1', title: 'Clean & Standardize 50 Ashwagandha Trial Records', company: 'Dabur Research Labs', type: 'Micro-Gig', skills: ['Data Analysis', 'Phytochemistry'], location: 'Remote (10 Days)', stipend: '₹6,000 Task Bounty', deadline: 'Oct 12, 2026' },
-  { id: 'gig-2', title: 'Annotate Charaka Samhita Sanskrit Botanical Lexicon', company: 'AIIA Digital Informatics Cell', type: 'Micro-Gig', skills: ['Ayurvedic Pharmacognosy', 'NLP'], location: 'Remote (7 Days)', stipend: '₹4,500 Task Bounty', deadline: 'Oct 18, 2026' },
-  { id: 'gig-3', title: 'Validate Stability Curves for Triphala Formulations', company: 'Patanjali Ayurved R&D', type: 'Micro-Gig', skills: ['GLP', 'Quality Control'], location: 'Hybrid (14 Days)', stipend: '₹8,000 Task Bounty', deadline: 'Oct 25, 2026' },
-  { id: 5, title: 'Ayush Clinical Data Analyst', company: 'NITI Aayog Health Cell', type: 'Job', skills: ['Data Analysis', 'Python', 'Epidemiology'], location: 'New Delhi', stipend: '₹7.5 - 10 LPA', deadline: 'Dec 05, 2026' }
-];
-
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', async () => {
   const user = JoblexAPI.getCurrentUser();
@@ -99,9 +75,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Load Skills Canvas if visible
   initSkillTree();
 
-  // Load Default Resume text
-  const resumeTextarea = document.getElementById('resume-textarea');
-  if (resumeTextarea) resumeTextarea.value = SAMPLE_RESUMES.herbal;
 });
 
 function updateHeaderMetrics() {
@@ -315,13 +288,6 @@ function triggerQuickRefreshQuiz() {
 // ─────────────────────────────────────────────────────────────
 // AI RESUME ANALYZER LOGIC
 // ─────────────────────────────────────────────────────────────
-function loadSampleResume(type) {
-  const textarea = document.getElementById('resume-textarea');
-  if (textarea && SAMPLE_RESUMES[type]) {
-    textarea.value = SAMPLE_RESUMES[type];
-  }
-}
-
 async function runResumeAnalysis() {
   const textarea = document.getElementById('resume-textarea');
   const roleSelect = document.getElementById('resume-role-select');
@@ -501,10 +467,11 @@ function renderOpportunities(filter) {
     }
   });
 
-  const filtered = filter === 'All' 
-    ? OPPORTUNITIES_DATA 
-    : OPPORTUNITIES_DATA.filter(o => o.type === filter);
+  container.innerHTML = `<div class="text-center py-12 text-xs text-slate-400">No opportunities are available from the database.</div>`;
+  return;
 
+  /* Legacy renderer retained only for compatibility with old markup. */
+  const filtered = [];
   container.innerHTML = filtered.map(opp => {
     let badgeClass = 'bg-gray-800 text-gray-300 border-gray-600';
     if (opp.type === 'Internship') badgeClass = 'bg-green-900/50 text-green-400 border-green-500/50';

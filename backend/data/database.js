@@ -75,18 +75,6 @@ const DB = {
       description: "Develop predictive machine learning models, statistical pipelines, and real-time inference microservices."
     },
     {
-      id: "opp-tech-03",
-      title: "Full Stack Web Developer",
-      company: "Vanguard Digital Systems",
-      type: "Job",
-      skills: ["React", "Node.js", "TypeScript", "SQL", "Cloud Architecture"],
-      location: "Pune / Hybrid",
-      stipend: "₹10.0 - 14.5 LPA",
-      deadline: "2026-11-25",
-      match: 89,
-      description: "Design and implement scalable web applications, enterprise user interfaces, and robust API integrations."
-    },
-    {
       id: "opp-tech-04",
       title: "National Student Innovation Challenge 2026",
       company: "National Collegiate Innovation Council",
@@ -146,18 +134,6 @@ const DB = {
       deadline: "2026-10-20",
       match: 82,
       description: "Analyze clinical trial databases to correlate phytochemical markers with patient therapeutic outcomes."
-    },
-    {
-      id: "opp-gig-1",
-      title: "Clean & Standardize 50 Ashwagandha Trial Records",
-      company: "Dabur Research Labs",
-      type: "Micro-Gig",
-      skills: ["Data Analysis", "Phytochemistry", "Excel/Python"],
-      location: "Remote (10 Days)",
-      stipend: "₹6,000 Task Bounty",
-      deadline: "2026-10-12",
-      match: 90,
-      description: "Short sprint micro-project to clean chromatographic dataset for Withania somnifera."
     },
     {
       id: "opp-gig-2",
@@ -489,21 +465,6 @@ const DB = {
       verifiedBadge: "AIIA-CERT-2026-8831",
       coverNote: "Prakriti classification ML models and classical NLP extraction pipelines."
     },
-    {
-      id: "app-103",
-      opportunityId: "opp-gig-1",
-      opportunityTitle: "Clean & Standardize 50 Ashwagandha Trial Records",
-      company: "Dabur Research Labs",
-      type: "Micro-Gig",
-      studentName: "Aarav Sharma",
-      studentEmail: "aarav.sharma@aiia.gov.in",
-      college: "All India Institute of Ayurveda (AIIA), New Delhi",
-      skills: ["Data Analysis", "Phytochemistry"],
-      match: 90,
-      appliedDate: "2026-09-04",
-      status: "Offer Extended",
-      verifiedBadge: "AIIA-CERT-2026-9842"
-    }
   ],
 
   mou_partnerships: [

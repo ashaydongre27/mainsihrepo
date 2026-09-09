@@ -268,11 +268,22 @@ async function handleApplicationAction(appId, newStatus) {
 }
 
 async function renderCandidates() {
-  const container = document.getElementById('candidates-grid');
+  const container = document.getElementById('candidates-grid') || document.getElementById('candidate-dossiers-section');
   if (!container) return;
 
-  const res = await JoblexApiClient.getCandidates();
+  const searchInput = document.getElementById('dossier-search-input');
+  const res = await JoblexApiClient.getCandidates(searchInput ? searchInput.value : '');
   const candidates = res.candidates || [];
+
+  if (!res.success && !candidates.length) {
+    container.innerHTML = '<p class="col-span-full text-sm text-rose-500">Candidate data could not be loaded from the database.</p>';
+    return;
+  }
+
+  if (!candidates.length) {
+    container.innerHTML = '<p class="col-span-full text-sm text-slate-500 dark:text-gray-400">No students match this search.</p>';
+    return;
+  }
 
   container.innerHTML = candidates.map((c, i) => {
     const skillsList = Array.isArray(c.skills) ? c.skills : (c.skills ? c.skills.split(',') : []);
@@ -285,7 +296,7 @@ async function renderCandidates() {
               <p class="text-xs text-slate-500 dark:text-gray-400">${c.college || c.institution || 'AIIA'}</p>
             </div>
             <div class="text-right">
-              <span class="text-xs font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300 font-mono text-base block">${c.match || Math.floor(Math.random() * 20 + 80)}% Match</span>
+                <span class="text-xs font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300 font-mono text-base block">${c.match || 'N/A'}${c.match ? '%' : ''} Match</span>
               <span class="text-[10px] text-gray-400">${c.status || 'Ready for Interview'}</span>
             </div>
           </div>
@@ -576,19 +587,7 @@ function handleViewDossiers() {
 }
 
 function handleAuditExport() {
-  const csvContent = "data:text/csv;charset=utf-8," 
-    + "Scholar Name,Institution,Department,Match Score,Verified Tokens,Status\n"
-    + "Aarav Sharma,All India Institute of Ayurveda,M.D. Dravyaguna,94%,Herbal Formulation | GLP | Phytochemistry,Shortlisted\n"
-    + "Priya Nair,Gujarat Ayurved University,M.Pharm Formulation,96%,Drug Discovery | HPTLC | AutoDock,Ready for Interview\n"
-    + "Kavya Singh,AIIA New Delhi,M.S. Health Informatics,91%,NLP | Sanskrit Lexicon | Python,Under Review\n";
-  const encodedUri = encodeURI(csvContent);
-  const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", `joblex_statutory_recruitment_audit_${new Date().toISOString().split('T')[0]}.csv`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  showToast("Statutory Recruitment Audit CSV generated and downloaded.", "Audit Export", "success");
+  showToast('Export is available from the database-backed candidate results.', 'Audit Export', 'info');
 }
 
 function handleViewLedger(candidateName) {
@@ -624,23 +623,21 @@ function handleDispatchInquiry() {
 
 async function handleSubmitCalibration() {
   try {
-    await JoblexApiClient.rateCandidate({ candidate: 'Aarav Sharma', rating: 4.8, notes: 'Calibrated from dossier review' });
+    const candidateInput = document.getElementById('calibration-candidate-input');
+    const candidate = candidateInput ? candidateInput.value.trim() : '';
+    if (!candidate) {
+      showToast('Select a database candidate before submitting calibration.', 'Candidate Required', 'info');
+      return;
+    }
+    await JoblexApiClient.rateCandidate({ candidate, rating: 4.8, notes: 'Calibrated from dossier review' });
     showToast('AI recruitment matching weights successfully calibrated and synced across enterprise nodes.', 'Model Calibrated', 'success');
   } catch(e) {
     showToast('AI weights calibrated.', 'Model Calibrated', 'success');
   }
 }
 
-function filterCandidateDossiers(query) {
-  const q = (query || '').toLowerCase().trim();
-  document.querySelectorAll('.candidate-dossier-card, #candidate-dossiers-section > div.rounded-xl').forEach(card => {
-    const text = card.innerText.toLowerCase();
-    if (!q || text.includes(q)) {
-      card.style.display = '';
-    } else {
-      card.style.display = 'none';
-    }
-  });
+async function filterCandidateDossiers(query) {
+  await renderCandidates(query);
 }
 
 window.handleNewRequisition = handleNewRequisition;

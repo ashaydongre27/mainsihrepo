@@ -38,39 +38,23 @@ router.get(['/', '/student'], async (req, res) => {
 
     const userId = req.user?.id || req.user?.email;
 
-    // Fetch user profile from DB or Supabase
-    let studentProfile = (DB.users || []).find(u => u.id === userId || u.email === userId);
-    if (!studentProfile) {
-      studentProfile = {
-        id: userId,
-        name: 'Scholar',
-        verified_skills: [],
-        targetRole
-      };
+    if (!isConfigured || !supabase) {
+      return res.status(503).json({ success: false, error: 'Recommendation database is not configured.' });
     }
 
-    // Merge in any saved skill profile data
-    const savedSkillProfile = DB.skillProfiles?.[userId];
-    if (savedSkillProfile && savedSkillProfile.verifiedSkills) {
-      studentProfile = {
-        ...studentProfile,
-        verified_skills: Array.from(new Set([...(studentProfile.verified_skills || []), ...savedSkillProfile.verifiedSkills])),
-        targetRole: savedSkillProfile.targetRole || studentProfile.targetRole
-      };
-    }
+    const [{ data: users, error: userError }, { data: allOpps, error: opportunityError }] = await Promise.all([
+      supabase.from('profiles').select('*').or(`id.eq.${userId},email.eq.${userId}`).limit(1),
+      supabase.from('opportunities').select('*')
+    ]);
+    if (userError) throw userError;
+    if (opportunityError) throw opportunityError;
 
-    // Retrieve opportunities
-    let allOpps = DB.opportunities || [];
-    if (isConfigured && supabase) {
-      try {
-        const { data, error } = await supabase.from('opportunities').select('*');
-        if (!error && data && data.length) {
-          allOpps = data;
-        }
-      } catch (e) {
-        console.warn('[Recs Student] Supabase fetch fallback:', e.message);
-      }
-    }
+    const studentProfile = users?.[0] || {
+      id: userId,
+      name: req.user?.name || userId,
+      verified_skills: [],
+      targetRole
+    };
 
     const recommended = recommendOpportunitiesForStudent(studentProfile, allOpps, {
       type,
@@ -84,18 +68,16 @@ router.get(['/', '/student'], async (req, res) => {
     const roleConfig = ROLE_BENCHMARK_PROFILES[targetRole] || ROLE_BENCHMARK_PROFILES["Herbal Formulation Scientist"];
     const recommendedCourses = roleConfig ? roleConfig.recommendedCourses : [];
 
-    const wishlist = DB.wishlists?.[studentProfile.id] || [];
-
     return res.json({
       success: true,
       totalCount: recommended.length,
       targetRole: studentProfile.targetRole || targetRole,
       recommendations: recommended.map(opp => ({
         ...opp,
-        isWishlisted: wishlist.includes(opp.id)
+        isWishlisted: false
       })),
       recommendedCourses,
-      wishlistCount: wishlist.length,
+      wishlistCount: 0,
       cached: !bypassCache
     });
   } catch (err) {

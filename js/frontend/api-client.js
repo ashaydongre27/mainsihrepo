@@ -36,6 +36,7 @@ const JoblexApiClient = {
 
   logout() {
     localStorage.removeItem('joblex_user');
+    localStorage.removeItem('joblex_token');
     window.location.href = '/auth.html';
   },
 
@@ -471,7 +472,7 @@ const JoblexApiClient = {
     }
   },
 
-  // Local credential verification fallback for offline & zero-latency demo evaluation
+  // Local credential verification is limited to users explicitly registered in this browser.
   verifyLocalCredentials(email, password, role) {
     const normalizedEmail = (email || '').trim().toLowerCase();
     if (!normalizedEmail) return null;
@@ -498,30 +499,7 @@ const JoblexApiClient = {
       return safeUser;
     }
 
-    // Auto-provision user account for any custom credentials entered in demo/offline evaluation mode
-    const targetRole = (role || 'student').toLowerCase();
-    const cleanName = normalizedEmail.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-    const newUser = {
-      id: `usr-${Date.now().toString(36)}`,
-      email: normalizedEmail,
-      name: cleanName || 'Institutional User',
-      role: targetRole,
-      institution: targetRole === 'industry' ? null : 'Accredited Higher Education Institution',
-      company: targetRole === 'industry' ? 'Corporate Partner' : null,
-      department: targetRole === 'student' ? 'General Academic Studies' : 'Academic & Technical Faculty',
-      year: targetRole === 'student' ? '1st Year Undergraduate' : null,
-      designation: targetRole === 'academy' ? 'Faculty Researcher' : (targetRole === 'industry' ? 'R&D Lead' : null),
-      xp: 0,
-      streak: 0,
-      verified_skills: []
-    };
-
-    localUsers.push({ ...newUser, password });
-    try {
-      localStorage.setItem('joblex_registered_users', JSON.stringify(localUsers));
-    } catch(e) {}
-
-    return newUser;
+    return null;
   },
 
   // Auth Endpoints
@@ -529,6 +507,7 @@ const JoblexApiClient = {
     const normalizedEmail = (email || '').trim().toLowerCase();
     let remoteUser = null;
     let remoteError = null;
+    let remoteResponseReceived = false;
 
     try {
       const res = await fetch(`${API_BASE}/auth/login`, {
@@ -536,11 +515,12 @@ const JoblexApiClient = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: normalizedEmail, password, role })
       });
+      remoteResponseReceived = true;
       const parsed = await this._parseFetch(res);
 
-      if (parsed.ok && parsed.data?.success && parsed.data?.user) {
+      if (parsed.ok && parsed.data?.success && parsed.data?.user && parsed.data?.token) {
         remoteUser = parsed.data.user;
-        if (parsed.data.token) localStorage.setItem('joblex_token', parsed.data.token);
+        localStorage.setItem('joblex_token', parsed.data.token);
       } else if (parsed.data?.error) {
         remoteError = parsed.data.error;
       }
@@ -553,21 +533,23 @@ const JoblexApiClient = {
       return { success: true, message: 'Authenticated successfully!', user: remoteUser };
     }
 
-    // Local fallback for offline / serverless / custom credentials testing
+    if (remoteResponseReceived) {
+      throw new Error(remoteError || 'Authentication failed. Please verify your credentials.');
+    }
+
+    // Local fallback is only for an explicitly registered browser credential.
     try {
       const fallbackUser = this.verifyLocalCredentials(normalizedEmail, password, role);
       if (fallbackUser) {
         this.setCurrentUser(fallbackUser);
-        localStorage.setItem('joblex_token', `demo-${fallbackUser.id}`);
+        const localToken = localStorage.getItem('joblex_token');
+        if (!localToken) throw new Error('A database authentication token is required. Please sign in again.');
         return { success: true, message: 'Authenticated successfully!', user: fallbackUser };
       }
     } catch (credErr) {
       throw credErr;
     }
 
-    if (remoteError && !remoteError.includes('Unexpected') && !remoteError.includes('JSON')) {
-      throw new Error(remoteError);
-    }
     throw new Error('Authentication failed. Please verify your credentials or register a new account.');
   },
 
@@ -575,6 +557,7 @@ const JoblexApiClient = {
     const normalizedEmail = (userData.email || '').trim().toLowerCase();
     let remoteUser = null;
     let remoteError = null;
+    let remoteResponseReceived = false;
 
     try {
       const res = await fetch(`${API_BASE}/auth/register`, {
@@ -582,13 +565,16 @@ const JoblexApiClient = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData)
       });
+      remoteResponseReceived = true;
       const parsed = await this._parseFetch(res);
 
-      if (parsed.ok && parsed.data?.success && parsed.data?.user) {
+      if (parsed.ok && parsed.data?.success && parsed.data?.user && parsed.data?.token) {
         remoteUser = parsed.data.user;
-        if (parsed.data.token) localStorage.setItem('joblex_token', parsed.data.token);
+        localStorage.setItem('joblex_token', parsed.data.token);
       } else if (parsed.data?.error) {
         remoteError = parsed.data.error;
+      } else if (parsed.ok && parsed.data?.requiresLogin) {
+        remoteError = parsed.data.message || 'Registration succeeded. Please sign in to continue.';
       }
     } catch (netErr) {
       console.warn('[JoblexApiClient] Remote register network error:', netErr.message);
@@ -599,7 +585,11 @@ const JoblexApiClient = {
       return { success: true, message: 'Registered successfully!', user: remoteUser };
     }
 
-    // Always ensure local registration succeeds as fallback
+    if (remoteResponseReceived) {
+      throw new Error(remoteError || 'Registration succeeded. Please sign in to continue.');
+    }
+
+    // Use local registration only when the backend cannot be reached.
     let localUsers = [];
     try {
       const stored = localStorage.getItem('joblex_registered_users');
@@ -607,37 +597,7 @@ const JoblexApiClient = {
     } catch(e) {}
 
     const existingIndex = localUsers.findIndex(u => u.email === normalizedEmail);
-    const newUser = {
-      id: `usr-${Date.now().toString(36)}`,
-      name: userData.name || normalizedEmail.split('@')[0],
-      email: normalizedEmail,
-      password: userData.password,
-      role: userData.role || 'student',
-      institution: userData.institution || (userData.role === 'industry' ? null : 'Accredited Higher Education Institution'),
-      company: userData.company || (userData.role === 'industry' ? (userData.institution || 'Corporate Partner Enterprise') : null),
-      employee_uid: userData.employee_uid || userData.employee_id || null,
-      department: userData.role === 'industry' ? null : (userData.department || 'General Academic Studies'),
-      year: userData.role === 'student' ? (userData.year || '1st Year Undergraduate') : null,
-      designation: userData.designation || (userData.role === 'industry' ? 'Industry Representative' : null),
-      xp: 0,
-      streak: 0,
-      verified_skills: []
-    };
-
-    if (existingIndex >= 0) {
-      localUsers[existingIndex] = newUser;
-    } else {
-      localUsers.push(newUser);
-    }
-
-    try {
-      localStorage.setItem('joblex_registered_users', JSON.stringify(localUsers));
-    } catch(e) {}
-
-    const { password: _, ...safeUser } = newUser;
-    this.setCurrentUser(safeUser);
-    localStorage.setItem('joblex_token', `demo-${safeUser.id}`);
-    return { success: true, message: 'Registered successfully!', user: safeUser };
+    throw new Error('Registration requires a reachable database. Please try again.');
   },
 
   async resetPassword(email) {
@@ -1741,17 +1701,14 @@ const JoblexApiClient = {
   async getIndustryApplications(company = 'All', type = 'All') {
     try {
       const url = `${API_BASE}/industry/applications?company=${encodeURIComponent(company)}&type=${encodeURIComponent(type)}`;
-      const res = await fetch(url);
+      const res = await fetch(url, { headers: this.getAuthHeaders() });
+      if (res.status === 401) {
+        this.logout();
+        return { success: false, totalApplications: 0, applications: [] };
+      }
       if (res.ok) return await res.json();
     } catch(e) {}
-    return {
-      totalApplications: 3,
-      applications: [
-        { id: "app-101", opportunityTitle: "Phytochemical Research Intern", company: "Dabur India Ltd.", type: "Internship", studentName: "Aarav Sharma", college: "All India Institute of Ayurveda", match: 92, appliedDate: "2026-09-02", status: "Shortlisted" },
-        { id: "app-102", opportunityTitle: "Formulation Scientist", company: "Patanjali Research Foundation", type: "Job", studentName: "Kavya Singh", college: "All India Institute of Ayurveda", match: 94, appliedDate: "2026-09-03", status: "Under Review" },
-        { id: "app-103", opportunityTitle: "Clean 50 Ashwagandha Trial Records", company: "Dabur Research Labs", type: "Micro-Gig", studentName: "Aarav Sharma", college: "All India Institute of Ayurveda", match: 90, appliedDate: "2026-09-04", status: "Offer Extended" }
-      ]
-    };
+    return { success: false, totalApplications: 0, applications: [] };
   },
 
   async updateApplicationStatus(id, status) {
@@ -1772,6 +1729,10 @@ const JoblexApiClient = {
       const res = await fetch(`${API_BASE}/zulu/sessions?userId=${encodeURIComponent(userId)}`, {
         headers: this.getAuthHeaders()
       });
+      if (res.status === 401) {
+        this.logout();
+        return { success: false, sessions: [] };
+      }
       if (res.ok) return await res.json();
     } catch(e) {}
     return { success: false, sessions: [] };
@@ -1784,6 +1745,10 @@ const JoblexApiClient = {
         headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
         body: JSON.stringify({ userId, title })
       });
+      if (res.status === 401) {
+        this.logout();
+        return { success: false, session: null, error: 'Authentication expired. Please sign in again.' };
+      }
       if (res.ok) return await res.json();
     } catch(e) {}
     return { success: false, session: null, error: 'Zulu sessions are temporarily unavailable.' };
@@ -1794,6 +1759,10 @@ const JoblexApiClient = {
       const res = await fetch(`${API_BASE}/zulu/sessions/${encodeURIComponent(sessionId)}?userId=${encodeURIComponent(userId)}`, {
         headers: this.getAuthHeaders()
       });
+      if (res.status === 401) {
+        this.logout();
+        return { success: false, messages: [] };
+      }
       if (res.ok) return await res.json();
     } catch(e) {}
     return { success: false, messages: [] };
@@ -1805,6 +1774,10 @@ const JoblexApiClient = {
         method: 'DELETE',
         headers: this.getAuthHeaders()
       });
+      if (res.status === 401) {
+        this.logout();
+        return { success: false, error: 'Authentication expired. Please sign in again.' };
+      }
       if (res.ok) return await res.json();
     } catch(e) {}
     return { success: false, error: 'Zulu session could not be deleted.' };
@@ -1818,6 +1791,10 @@ const JoblexApiClient = {
         body: JSON.stringify({ message, context, sessionId, userId })
       });
       const parsed = await this._parseFetch(res);
+      if (parsed.status === 401) {
+        this.logout();
+        return { success: false, sessionId, reply: '', error: 'Authentication expired. Please sign in again.' };
+      }
       if (parsed.ok && parsed.data && parsed.data.reply) return parsed.data;
       const serverError = parsed.data?.error || parsed.data?.message;
       return {
@@ -1835,26 +1812,26 @@ const JoblexApiClient = {
   // Academy Endpoints
   async getAcademyData() {
     try {
-      const res = await fetch(`${API_BASE}/academy/all-data`);
+      const res = await fetch(`${API_BASE}/academy/all-data`, {
+        headers: this.getAuthHeaders()
+      });
       if (res.ok) return await res.json();
-    } catch(e) {}
-    return {
-      studentStats: { totalEnrolled: 342, avgSkillReadiness: "74.0%", placedUnderMoU: 52 },
-      tpoMetrics: {
-        funnel: { applied: 248, shortlisted: 94, offersAccepted: 52 },
-        predictivePlacementReadiness: 84
-      }
-    };
+      if (res.status === 401) this.logout();
+    } catch(e) {
+      console.warn('[API Client getAcademyData] Request failed:', e.message);
+    }
+    return { success: false, syllabusSuggestions: [], mouPartnerships: [], consultancyGrants: [], fdpPrograms: [], crossCollegeBenchmarking: [], error: 'Academy data is temporarily unavailable.' };
   },
 
   async adoptSyllabus(id) {
     try {
       const res = await fetch(`${API_BASE}/academy/adopt-syllabus`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
         body: JSON.stringify({ id })
       });
       if (res.ok) return await res.json();
+      if (res.status === 401) this.logout();
     } catch(e) {}
     return { success: true };
   },
@@ -1862,17 +1839,13 @@ const JoblexApiClient = {
   // Idea #11: Cross-College Benchmarking
   async getCrossCollegeBenchmarking() {
     try {
-      const res = await fetch(`${API_BASE}/academy/cross-college-benchmarking`);
+      const res = await fetch(`${API_BASE}/academy/cross-college-benchmarking`, { headers: this.getAuthHeaders() });
       if (res.ok) return await res.json();
-    } catch(e) {}
-    return {
-      institutions: [
-        { rank: 1, institution: "All India Institute of Ayurveda (AIIA), New Delhi", avgSkillScore: 78.4, placementRate: "86%", mouCount: 8, naacGrade: "A++", status: "Your Institution" },
-        { rank: 2, institution: "National Institute of Ayurveda (NIA), Jaipur", avgSkillScore: 74.2, placementRate: "81%", mouCount: 6, naacGrade: "A+", status: "Peer Tier-1" },
-        { rank: 3, institution: "Faculty of Ayurveda, BHU Varanasi", avgSkillScore: 72.8, placementRate: "79%", mouCount: 5, naacGrade: "A++", status: "Peer Tier-1" },
-        { rank: 4, institution: "Gujarat Ayurved University, Jamnagar", avgSkillScore: 71.5, placementRate: "76%", mouCount: 4, naacGrade: "A", status: "Peer Tier-1" }
-      ]
-    };
+      if (res.status === 401) this.logout();
+    } catch(e) {
+      console.warn('[API Client getCrossCollegeBenchmarking] Request failed:', e.message);
+    }
+    return { success: false, institutions: [], error: 'Peer benchmarking data is temporarily unavailable.' };
   },
 
   // Idea #9: Automated Curriculum Gap Audit
@@ -1900,35 +1873,40 @@ const JoblexApiClient = {
   },
 
   // Industry Endpoints
-  async getCandidates() {
+  async getCandidates(search = '') {
     try {
-      const res = await fetch(`${API_BASE}/industry/candidates`);
+      const res = await fetch(`${API_BASE}/industry/candidates?search=${encodeURIComponent(search)}`, {
+        headers: this.getAuthHeaders()
+      });
+      if (res.status === 401) {
+        this.logout();
+        return { success: false, candidates: [] };
+      }
       if (res.ok) return await res.json();
     } catch(e) {}
-    return { candidates: [] };
+    return { success: false, candidates: [] };
   },
 
   // Idea #3: Reverse Application Search & Inbound Outreach
   async getReverseCandidates(skill = '') {
     try {
-      const res = await fetch(`${API_BASE}/industry/reverse-search?skill=${encodeURIComponent(skill)}`);
+      const res = await fetch(`${API_BASE}/industry/reverse-search?skill=${encodeURIComponent(skill)}`, {
+        headers: this.getAuthHeaders()
+      });
+      if (res.status === 401) {
+        this.logout();
+        return { success: false, totalMatched: 0, candidates: [] };
+      }
       if (res.ok) return await res.json();
     } catch(e) {}
-    return {
-      totalMatched: 3,
-      candidates: [
-        { name: 'Aarav Sharma', college: 'All India Institute of Ayurveda', match: 94, skills: ['Herbal Formulation', 'GLP', 'Phytochemistry', 'Python'], status: 'Ready for Inbound Invitation' },
-        { name: 'Kavya Singh', college: 'AIIA New Delhi', match: 91, skills: ['Health Informatics', 'Python', 'NLP for Classical Texts', 'SQL'], status: 'Ready for Inbound Invitation' },
-        { name: 'Priya Nair', college: 'Gujarat Ayurved University, Jamnagar', match: 96, skills: ['Drug Discovery', 'Phytochemistry', 'HPTLC', 'AutoDock'], status: 'Ready for Inbound Invitation' }
-      ]
-    };
+    return { success: false, totalMatched: 0, candidates: [] };
   },
 
   async sendInboundInvite(candidateName, roleTitle) {
     try {
       const res = await fetch(`${API_BASE}/industry/inbound-invite`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
         body: JSON.stringify({ candidateName, roleTitle })
       });
       if (res.ok) return await res.json();
@@ -1987,18 +1965,10 @@ const JoblexApiClient = {
   // Idea #7: Skill ROI Dashboard
   async getSkillRoi() {
     try {
-      const res = await fetch(`${API_BASE}/industry/skill-roi`);
+      const res = await fetch(`${API_BASE}/industry/skill-roi`, { headers: this.getAuthHeaders() });
       if (res.ok) return await res.json();
     } catch(e) {}
-    return {
-      predictedMatchAccuracy: 94.2,
-      totalHiresEvaluated: 48,
-      averageRecruiterRating: 4.8,
-      feedbackLogs: [
-        { candidate: "Aarav Sharma", predictedMatch: 94, actualLabRating: 4.9, company: "Dabur R&D", note: "Exceptional botanical extraction & Python modeling accuracy." },
-        { candidate: "Pooja Verma", predictedMatch: 86, actualLabRating: 4.6, company: "Himalaya", note: "Solid chromatography fundamentals; fast learner." }
-      ]
-    };
+    return { success: false, predictedMatchAccuracy: 0, totalHiresEvaluated: 0, averageRecruiterRating: 0, feedbackLogs: [] };
   },
 
   async rateCandidate(payload) {

@@ -147,18 +147,6 @@ DB = {
             "match": 84,
             "description": "Analyze clinical registry data for traditional formulation efficacy and adverse event monitoring."
         },
-        {
-            "id": "opp-gig-1",
-            "title": "Clean & Standardize 50 Ashwagandha Trial Records",
-            "company": "Dabur Research Labs",
-            "type": "Micro-Gig",
-            "skills": ["Data Analysis", "Phytochemistry", "Excel/Python"],
-            "location": "Remote (10 Days)",
-            "stipend": "₹6,000 Task Bounty",
-            "deadline": "2026-10-12",
-            "match": 90,
-            "description": "Short sprint micro-project to clean chromatographic dataset for Withania somnifera."
-        }
     ],
     "applications": [
         {

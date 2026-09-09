@@ -31,17 +31,6 @@ const JoblexAPI = {
   // Micro-Internships / Task-Based Gigs (Idea #4)
   microGigs: [
     {
-      id: "gig-1",
-      title: "Clean & Standardize 50 Ashwagandha Trial Records",
-      company: "Dabur Research Labs",
-      stipend: "₹6,000",
-      duration: "10 Days",
-      mode: "Remote",
-      skills: ["Data Analysis", "Phytochemistry", "Excel/Python"],
-      deadline: "Oct 12, 2026",
-      type: "Micro-Gig"
-    },
-    {
       id: "gig-2",
       title: "Annotate Charaka Samhita Sanskrit Botanical Lexicon",
       company: "AIIA Digital Informatics Cell",

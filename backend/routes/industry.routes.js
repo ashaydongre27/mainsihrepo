@@ -34,17 +34,17 @@ router.get(['/', '/all-data', '/overview', '/stats', '/analytics'], async (req, 
       ? mouRes.value.data
       : (DB.mou_partnerships || []);
 
-    const candidates = candRes.status === 'fulfilled' && !candRes.value.error && candRes.value.data?.length
-      ? candRes.value.data
-      : (DB.candidates || []);
+    const candidates = candRes.status === 'fulfilled' && !candRes.value.error
+      ? (candRes.value.data || [])
+      : [];
 
     const bootcamps = bootRes.status === 'fulfilled' && !bootRes.value.error && bootRes.value.data?.length
       ? bootRes.value.data
       : (DB.sponsoredBootcamps || []);
 
-    const applications = appRes.status === 'fulfilled' && !appRes.value.error && appRes.value.data?.length
-      ? appRes.value.data
-      : (DB.applications || []);
+    const applications = appRes.status === 'fulfilled' && !appRes.value.error
+      ? (appRes.value.data || [])
+      : [];
 
     return res.json({
       success: true,
@@ -62,8 +62,8 @@ router.get(['/', '/all-data', '/overview', '/stats', '/analytics'], async (req, 
       success: true,
       opportunities: DB.opportunities || [],
       mouPartnerships: DB.mou_partnerships || [],
-      candidates: DB.candidates || [],
-      applications: DB.applications || [],
+      candidates: [],
+      applications: [],
       forecast: DB.talentForecast || {},
       bootcamps: DB.sponsoredBootcamps || [],
       skillRoi: DB.skillRoiMetrics || {}
@@ -124,9 +124,9 @@ router.get('/requisitions', async (req, res) => {
       ? oppRes.value.data
       : (DB.opportunities || []);
 
-    const apps = appRes.status === 'fulfilled' && !appRes.value.error && appRes.value.data
-      ? appRes.value.data
-      : (DB.applications || []);
+    const apps = appRes.status === 'fulfilled' && !appRes.value.error
+      ? (appRes.value.data || [])
+      : [];
 
     const filteredOpps = (type && type !== 'All')
       ? opps.filter(o => o.type && o.type.toLowerCase() === type.toLowerCase())
@@ -156,39 +156,21 @@ router.get('/requisitions', async (req, res) => {
 router.get('/applications', async (req, res) => {
   const { company, type } = req.query;
 
-  if (isConfigured && supabase) {
-    try {
-      let query = supabase.from('applications').select('*').order('created_at', { ascending: false });
-      if (company && company !== 'All') {
-        query = query.ilike('company', `%${company}%`);
-      }
-      if (type && type !== 'All') {
-        query = query.ilike('type', type);
-      }
-      const { data, error } = await query;
-      if (!error && data) {
-        return res.json({
-          totalApplications: data.length,
-          applications: data
-        });
-      }
-    } catch (err) {
-      console.warn('[Industry applications] Supabase query warning:', err.message);
-    }
+  if (!isConfigured || !supabase) {
+    return res.status(503).json({ success: false, error: 'Application database is not configured.' });
   }
 
-  let apps = DB.applications || [];
-  if (company && company !== 'All') {
-    apps = apps.filter(a => (a.company || '').toLowerCase().includes(company.toLowerCase()));
+  try {
+    let query = supabase.from('applications').select('*').order('created_at', { ascending: false });
+    if (company && company !== 'All') query = query.ilike('company', `%${company}%`);
+    if (type && type !== 'All') query = query.ilike('type', type);
+    const { data, error } = await query;
+    if (error) throw error;
+    return res.json({ success: true, totalApplications: data.length, applications: data });
+  } catch (err) {
+    console.warn('[Industry applications] Supabase query warning:', err.message);
+    return res.status(500).json({ success: false, error: 'Unable to load applications from the database.' });
   }
-  if (type && type !== 'All') {
-    apps = apps.filter(a => (a.type || '').toLowerCase() === type.toLowerCase());
-  }
-
-  res.json({
-    totalApplications: apps.length,
-    applications: apps
-  });
 });
 
 // Legacy status implementation retained for reference; the complete handler is defined below.
@@ -217,24 +199,34 @@ router.post('/applications/:id/status-legacy', async (req, res) => {
     }
   }
 
-  const app = (DB.applications || []).find(a => a.id === id);
-  if (app) {
-    app.status = status;
-    return res.json({ success: true, message: `Application status updated to "${status}"!`, application: app });
-  }
-
-  res.json({ success: true, message: `Application status updated to "${status}"!` });
+  return res.status(404).json({ success: false, message: 'Application not found in the database.' });
 });
 
 // GET /api/industry/candidates
 router.get('/candidates', async (req, res) => {
+  const search = String(req.query.search || '').trim();
+
+  if (!isConfigured || !supabase) {
+    return res.status(503).json({ success: false, error: 'Candidate database is not configured.' });
+  }
+
   try {
-    const { data, error } = await supabase.from('candidates').select('*');
-    if (!error && data && data.length) {
-      return res.json({ candidates: data });
-    }
-  } catch (e) {}
-  res.json({ candidates: DB.candidates || [] });
+    let query = supabase.from('candidates').select('*').order('created_at', { ascending: false });
+    const { data, error } = await query;
+    if (error) throw error;
+    const normalizedSearch = search.toLowerCase();
+    const candidates = (data || []).filter(candidate => {
+      if (!normalizedSearch) return true;
+      const skills = Array.isArray(candidate.skills) ? candidate.skills : [];
+      return [candidate.name, candidate.college, candidate.institution, ...skills]
+        .filter(Boolean)
+        .some(value => String(value).toLowerCase().includes(normalizedSearch));
+    });
+    return res.json({ success: true, candidates });
+  } catch (e) {
+    console.warn('[Industry candidates] Supabase query warning:', e.message);
+    return res.status(500).json({ success: false, error: 'Unable to load candidates from the database.' });
+  }
 });
 
 // GET /api/industry/forecast (Idea #6)
@@ -243,20 +235,34 @@ router.get('/forecast', (req, res) => {
 });
 
 // GET /api/industry/reverse-search (Idea #3: Reverse Application)
-router.get('/reverse-search', (req, res) => {
+router.get('/reverse-search', async (req, res) => {
   const { skill = '' } = req.query;
-  const filtered = (DB.candidates || []).filter(c => 
-    !skill || (c.skills || []).some(s => s.toLowerCase().includes(skill.toLowerCase()))
-  );
-  res.json({
-    totalMatched: filtered.length,
-    candidates: filtered.map(c => ({
-      ...c,
-      isReverseDiscovery: true,
-      hasApplied: false,
-      outreachStatus: 'Ready for Inbound Invitation'
-    }))
-  });
+  if (!isConfigured || !supabase) {
+    return res.status(503).json({ success: false, error: 'Candidate database is not configured.' });
+  }
+
+  try {
+    const { data, error } = await supabase.from('candidates').select('*');
+    if (error) throw error;
+    const normalizedSkill = String(skill).toLowerCase().trim();
+    const filtered = (data || []).filter(candidate => !normalizedSkill ||
+      (Array.isArray(candidate.skills) ? candidate.skills : [])
+        .some(candidateSkill => String(candidateSkill).toLowerCase().includes(normalizedSkill))
+    );
+    return res.json({
+      success: true,
+      totalMatched: filtered.length,
+      candidates: filtered.map(candidate => ({
+        ...candidate,
+        isReverseDiscovery: true,
+        hasApplied: false,
+        outreachStatus: 'Ready for Inbound Invitation'
+      }))
+    });
+  } catch (e) {
+    console.warn('[Industry reverse search] Supabase query warning:', e.message);
+    return res.status(500).json({ success: false, error: 'Unable to search candidates in the database.' });
+  }
 });
 
 // POST /api/industry/inbound-invite (Idea #3)
@@ -395,7 +401,7 @@ router.get('/applications', async (req, res) => {
     console.warn('[Industry applications] Supabase warning:', err.message);
   }
 
-  let list = DB.applications || [];
+  let list = [];
   if (company && company !== 'All') {
     list = list.filter(a => a.company && a.company.toLowerCase().includes(company.toLowerCase()));
   }
@@ -414,7 +420,7 @@ router.post('/applications/:id/status', async (req, res) => {
   const { status, interviewSlot = null } = req.body || {};
   const updatedStatus = status || 'Shortlisted';
 
-  let app = (DB.applications || []).find(a => a.id === id || a.applicationId === id);
+  let app = null;
 
   try {
     const { data, error } = await supabase
@@ -425,20 +431,14 @@ router.post('/applications/:id/status', async (req, res) => {
       .single();
 
     if (!error && data) {
-      if (app) {
-        app.status = updatedStatus;
-        if (interviewSlot) app.interviewSlot = interviewSlot;
-      } else {
-        app = data;
-      }
+      app = data;
     }
   } catch (err) {
     console.warn('[Update app status] Supabase error:', err.message);
   }
 
-  if (app) {
-    app.status = updatedStatus;
-    if (interviewSlot) app.interviewSlot = interviewSlot;
+  if (!app) {
+    return res.status(404).json({ success: false, message: 'Application not found in the database.' });
   }
 
   const studentId = (app && (app.studentEmail || app.student_email || app.studentId)) || 'usr-student-01';

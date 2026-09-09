@@ -79,29 +79,29 @@ router.get(['/', '/all-data', '/overview', '/stats', '/analytics'], async (req, 
       supabase.from('cross_college_benchmarks').select('*').order('rank', { ascending: true })
     ]);
 
-    const mouPartnerships = mouRes.status === 'fulfilled' && !mouRes.value.error && mouRes.value.data?.length
-      ? mouRes.value.data
-      : (DB.mou_partnerships || []);
+    const mouPartnerships = mouRes.status === 'fulfilled' && !mouRes.value.error
+      ? (mouRes.value.data || [])
+      : [];
 
-    const syllabusSuggestions = sylRes.status === 'fulfilled' && !sylRes.value.error && sylRes.value.data?.length
-      ? sylRes.value.data
-      : (DB.syllabus_suggestions || []);
+    const syllabusSuggestions = sylRes.status === 'fulfilled' && !sylRes.value.error
+      ? (sylRes.value.data || [])
+      : [];
 
-    const consultancyGrants = cgRes.status === 'fulfilled' && !cgRes.value.error && cgRes.value.data?.length
-      ? cgRes.value.data
-      : (DB.consultancy_grants || []);
+    const consultancyGrants = cgRes.status === 'fulfilled' && !cgRes.value.error
+      ? (cgRes.value.data || []).filter(grant => grant.evidence_status === 'published' && grant.notification_id)
+      : [];
 
-    const fdpPrograms = fdpRes.status === 'fulfilled' && !fdpRes.value.error && fdpRes.value.data?.length
-      ? fdpRes.value.data
-      : (DB.fdp_programs || []);
+    const fdpPrograms = fdpRes.status === 'fulfilled' && !fdpRes.value.error
+      ? (fdpRes.value.data || []).filter(program => program.evidence_status === 'published' && program.notification_id)
+      : [];
 
     const sponsoredBootcamps = bootRes.status === 'fulfilled' && !bootRes.value.error && bootRes.value.data?.length
       ? bootRes.value.data
       : (DB.sponsoredBootcamps || []);
 
-    const crossCollegeBenchmarking = ccbRes.status === 'fulfilled' && !ccbRes.value.error && ccbRes.value.data?.length
-      ? ccbRes.value.data
-      : (DB.crossCollegeBenchmarking || []);
+    const crossCollegeBenchmarking = ccbRes.status === 'fulfilled' && !ccbRes.value.error
+      ? (ccbRes.value.data || [])
+      : [];
 
     const students = (DB.users || []).filter(user => (user.role || '').toLowerCase() === 'student');
     const applications = DB.applications || [];
@@ -137,21 +137,22 @@ router.get(['/', '/all-data', '/overview', '/stats', '/analytics'], async (req, 
 router.get('/cross-college-benchmarking', async (req, res) => {
   try {
     const { data, error } = await supabase.from('cross_college_benchmarks').select('*').order('rank', { ascending: true });
-    if (!error && data?.length) {
-      return res.json({ success: true, institutions: data });
-    }
+    if (!error) return res.json({ success: true, institutions: data || [] });
   } catch (err) {
     console.warn('[Cross-College] Supabase warning:', err.message);
   }
-  res.json({ success: true, institutions: DB.crossCollegeBenchmarking || [] });
+  res.json({ success: false, institutions: [], error: 'Peer benchmarking data is unavailable.' });
 });
 
 // GET /api/academy/curriculum-modules
 router.get('/curriculum-modules', async (req, res) => {
-  res.json({
-    success: true,
-    modules: DB.syllabus_suggestions || []
-  });
+  try {
+    const { data, error } = await supabase.from('syllabus_suggestions').select('*');
+    if (error) throw error;
+    res.json({ success: true, modules: data || [] });
+  } catch (err) {
+    res.status(503).json({ success: false, modules: [], error: 'Curriculum records are unavailable.' });
+  }
 });
 
 // POST /api/academy/adopt-syllabus
@@ -178,16 +179,7 @@ router.post('/adopt-syllabus', async (req, res) => {
       console.warn('[Adopt syllabus] Supabase update warning:', err.message);
     }
 
-    const suggestion = (DB.syllabus_suggestions || []).find(s => s.id === id);
-    if (suggestion) {
-      suggestion.adopted = true;
-      return res.json({
-        success: true,
-        message: 'Curriculum modernization proposal ratified for Academic Council review.',
-        suggestion
-      });
-    }
-    res.status(404).json({ success: false, message: 'Curriculum proposal not found.' });
+    res.status(503).json({ success: false, message: 'Curriculum proposal could not be updated in the database.' });
   } catch (err) {
     console.error('[Adopt Syllabus Error]:', err);
     res.status(500).json({ success: false, message: 'Could not process syllabus approval.' });

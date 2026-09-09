@@ -132,17 +132,6 @@
         </button>
       </div>
 
-      <!-- Context Notice -->
-      <div id="mode-context-banner" class="mb-5 p-3 rounded-xl bg-stone-100/60 dark:bg-white/[0.02] border border-stone-200/80 dark:border-white/[0.06] text-xs text-stone-600 dark:text-stone-300 flex items-center justify-between">
-        <span id="banner-text" class="flex items-center gap-2">
-          <svg class="w-4 h-4 text-[#2D5542] dark:text-[#4EBA87] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          Institutional Credentials required for outcome tracking.
-        </span>
-        <span class="text-[10px] font-mono text-stone-800 dark:text-stone-300 bg-stone-200/70 dark:bg-white/[0.05] px-2 py-0.5 rounded font-semibold border border-stone-300 dark:border-white/[0.08] shrink-0">NAAC Cycle IV</span>
-      </div>
-
       <!-- Persona / Role Selector -->
       <div class="mb-4">
         <div class="flex justify-between items-center mb-1.5">
@@ -252,7 +241,7 @@
 
         <!-- Terms Agreement Checkbox -->
         <div id="register-terms" class="hidden text-[11px] text-stone-500 dark:text-stone-400 flex items-start gap-2 pt-1">
-          <input type="checkbox" id="terms-agree" class="mt-0.5 rounded border-stone-300 dark:border-stone-700 text-[#2D5542] dark:text-[#4EBA87] focus:ring-[#2D5542]">
+          <input type="checkbox" id="terms-agree" aria-required="true" class="mt-0.5 rounded border-stone-300 dark:border-stone-700 text-[#2D5542] dark:text-[#4EBA87] focus:ring-[#2D5542]">
           <label for="terms-agree" id="label-terms">
             I certify my institutional affiliation under academic accreditation and statutory guidelines.
           </label>
@@ -515,7 +504,6 @@
       const inputRoleSpec = document.getElementById('input-role-spec');
       const fieldIndustryUid = document.getElementById('field-industry-uid');
       const labelTerms = document.getElementById('label-terms');
-      const bannerText = document.getElementById('banner-text');
       const resetModalTitle = document.getElementById('reset-modal-title');
       const resetModalLabel = document.querySelector('label[for="reset-input-email"]');
 
@@ -532,14 +520,6 @@
         if (labelTerms) labelTerms.textContent = 'I certify my authorized corporate affiliation and enterprise representation.';
         if (resetModalTitle) resetModalTitle.textContent = 'Reset Corporate Password';
         if (resetModalLabel) resetModalLabel.innerHTML = 'Registered Corporate Email <span class="text-rose-500">*</span>';
-        if (bannerText) {
-          bannerText.innerHTML = `
-            <svg class="w-3.5 h-3.5 text-[#944C23] dark:text-[#E07A48] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
-            Corporate Verification & Industry-Academia Track.
-          `;
-        }
       } else {
         if (labelOrg) labelOrg.innerHTML = 'College / Institution <span class="text-rose-500">*</span>';
         if (inputOrg) inputOrg.placeholder = 'Enter college or university';
@@ -564,14 +544,6 @@
         if (labelTerms) labelTerms.textContent = 'I certify my institutional affiliation under academic accreditation and statutory guidelines.';
         if (resetModalTitle) resetModalTitle.textContent = 'Reset Institutional Password';
         if (resetModalLabel) resetModalLabel.innerHTML = 'Registered Institutional Email <span class="text-rose-500">*</span>';
-        if (bannerText) {
-          bannerText.innerHTML = `
-            <svg class="w-3.5 h-3.5 text-[#2D5542] dark:text-[#4EBA87] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-            Institutional Credentials required for outcome tracking.
-          `;
-        }
       }
 
       const submitBtn = document.getElementById('submit-btn');
@@ -643,9 +615,18 @@
           const name = document.getElementById('input-name').value.trim();
           const org = document.getElementById('input-org').value.trim();
           const confirmPassword = document.getElementById('input-confirm-password').value;
+          const termsAgreed = document.getElementById('terms-agree').checked;
           const dept = document.getElementById('input-dept')?.value.trim() || '';
           const roleSpec = document.getElementById('input-role-spec')?.value.trim() || '';
           const orgLabel = selectedRole === 'industry' ? 'Company Name' : 'College / Institution';
+
+          if (!termsAgreed) {
+            showAuthError('Please check the certification box first to create your account.');
+            submitBtn.disabled = false;
+            submitBtn.querySelector('span').textContent = originalText;
+            document.getElementById('terms-agree').focus();
+            return;
+          }
 
           if (!name || !org) {
             showAuthError(`Full Legal Name and ${orgLabel} are required for registration.`);

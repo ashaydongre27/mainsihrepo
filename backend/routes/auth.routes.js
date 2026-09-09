@@ -131,11 +131,20 @@ router.post('/register', async (req, res) => {
         avatar_url: null
       };
 
+      if (!data.session?.access_token) {
+        return res.status(201).json({
+          success: true,
+          message: 'User registered successfully. Please sign in to obtain an access token.',
+          user: fullUserObj,
+          requiresLogin: true
+        });
+      }
+
       return res.status(201).json({
         success: true,
         message: 'User successfully registered via Supabase Auth!',
         user: fullUserObj,
-        token: data.session?.access_token || `jwt-supabase-${data.user.id}`
+        token: data.session.access_token
       });
     } catch (err) {
       console.warn('[Register] Supabase error, falling back to local store:', err.message);
@@ -224,10 +233,14 @@ router.post('/login', async (req, res) => {
           avatar_url: userProfile.avatar_url || null
         };
 
+        if (!data.session?.access_token) {
+          return res.status(401).json({ success: false, error: 'Login succeeded but no access token was issued. Please try again.' });
+        }
+
         return res.json({
           success: true,
           message: 'Authenticated via Supabase Auth',
-          token: data.session?.access_token || `jwt-supabase-${data.user.id}`,
+          token: data.session.access_token,
           user: userObj
         });
       }
@@ -271,10 +284,14 @@ router.post('/login', async (req, res) => {
                 avatar_url: userProfile.avatar_url || null
               };
 
+              if (!retryData.session?.access_token) {
+                return res.status(401).json({ success: false, error: 'Login succeeded but no access token was issued. Please try again.' });
+              }
+
               return res.json({
                 success: true,
                 message: 'Authenticated via Supabase Auth',
-                token: retryData.session?.access_token || `jwt-supabase-${retryData.user.id}`,
+                token: retryData.session.access_token,
                 user: userObj
               });
             }
