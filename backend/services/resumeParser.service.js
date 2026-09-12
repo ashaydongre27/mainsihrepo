@@ -362,38 +362,8 @@ Return ONLY a valid, raw JSON object conforming strictly to this structure:
 }`;
 
   try {
-    // 1. Try NVIDIA Nemotron 3 550B primary
-    if (getNvidiaApiKey()) {
-      const nvRes = await callNvidiaModel({
-        prompt,
-        systemInstruction,
-        temperature: 0.1,
-        maxTokens: 1500,
-        timeoutMs: 25000
-      });
-      if (nvRes && nvRes.text) {
-        const cleanJson = nvRes.text.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
-        const parsed = JSON.parse(cleanJson);
-        if (parsed && parsed.personalInfo) {
-          parsed.metadata = {
-            fileName,
-            parsedAt: new Date().toISOString(),
-            extractor: 'nvidia-nemotron-ai'
-          };
-          if (parsed.skills) {
-            parsed.skills.allExtracted = [
-              ...(parsed.skills.technical || []).map(s => s.name),
-              ...(parsed.skills.soft || []).map(s => s.name),
-              ...(parsed.skills.aptitude || []).map(s => s.name)
-            ];
-          }
-          return parsed;
-        }
-      }
-    }
-
-    // 2. Try Google Gemini failover
-    if (isGoogleApiConfigured()) {
+    // Multi-tier LangGraph failover (NVIDIA NIM approved models -> Google Main -> Google Backup)
+    if (getNvidiaApiKey() || isGoogleApiConfigured()) {
       const result = await generateWithFailover({
         prompt,
         systemInstruction,
@@ -407,7 +377,7 @@ Return ONLY a valid, raw JSON object conforming strictly to this structure:
           parsed.metadata = {
             fileName,
             parsedAt: new Date().toISOString(),
-            extractor: 'google-gemini-ai'
+            extractor: result.provider || 'langgraph-ai'
           };
           if (parsed.skills) {
             parsed.skills.allExtracted = [

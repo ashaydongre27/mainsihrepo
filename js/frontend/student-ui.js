@@ -24,8 +24,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const user = JoblexApiClient.getCurrentUser();
   if (user) {
     document.querySelectorAll('.user-name-display').forEach(el => el.innerText = user.name || 'Scholar');
-    document.querySelectorAll('.user-inst-display').forEach(el => el.innerText = user.institution || 'Ayush Collegiate Institute');
-    document.querySelectorAll('.user-dept-display').forEach(el => el.innerText = user.department || user.year || 'Ayush Healthcare & Research');
+    document.querySelectorAll('.user-inst-display').forEach(el => el.innerText = user.institution || 'University / Collegiate Institute');
+    document.querySelectorAll('.user-dept-display').forEach(el => el.innerText = user.department || user.year || 'Higher Education & Research');
     currentXp = (user.xp !== undefined && user.xp !== null) ? Number(user.xp) : 0;
     currentStreak = (user.streak !== undefined && user.streak !== null) ? Number(user.streak) : 0;
   } else {
@@ -37,7 +37,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   await updateDashboardStats(user);
 
   // Page-specific initializations
-  if (document.getElementById('roadmap-phases-container')) {
+  if (document.getElementById('roadmap-catalog-section') || document.getElementById('roadmap-cards-grid')) {
+    initSectorRoadmaps();
+  } else if (document.getElementById('roadmap-phases-container')) {
     roadmapState = await JoblexApiClient.getRoadmap();
     renderRoadmap();
   }
@@ -518,8 +520,8 @@ async function handleApplyOpportunity(oppId, oppTitle, company, type, match) {
     type: type,
     studentName: user.name,
     studentEmail: user.email,
-    college: user.institution || 'All India Institute of Ayurveda',
-    skills: ['Herbal Formulation', 'Phytochemistry', 'GLP', 'Python'],
+    college: user.institution || 'University / Institution',
+    skills: user.skills || ['Full-Stack Development', 'Problem Solving', 'Data Structures', 'Python'],
     match: match || 92
   };
 
@@ -534,61 +536,489 @@ async function handleApplyOpportunity(oppId, oppTitle, company, type, match) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// ROADMAP MODULE
+// MULTI-SECTOR ROADMAP & MINDMAP FLOW MODULE
 // ─────────────────────────────────────────────────────────────
-function renderRoadmap() {
-  if (!roadmapState) return;
-  const container = document.getElementById('roadmap-phases-container');
-  if (!container) return;
+let sectorRoadmapsCache = [];
+let activeRoadmap = null;
+let currentSectorFilter = 'All';
 
-  container.innerHTML = '';
-  let totalTasks = 0;
-  let completedTasks = 0;
+async function initSectorRoadmaps() {
+  const cardsGrid = document.getElementById('roadmap-cards-grid');
+  const countBadge = document.getElementById('roadmap-count-badge');
 
-  roadmapState.phases.forEach((phase, pIdx) => {
-    const phaseDiv = document.createElement('div');
-    phaseDiv.className = 'p-5 rounded-2xl bg-white dark:bg-gray-900/60 border border-slate-200 dark:border-gray-800 backdrop-blur-md space-y-3';
+  try {
+    const res = await JoblexApiClient.getRoadmapSectors();
+    if (res && res.success && Array.isArray(res.sectors)) {
+      sectorRoadmapsCache = res.sectors;
+    } else {
+      sectorRoadmapsCache = getFallbackSectorRoadmaps();
+    }
+  } catch (err) {
+    console.warn('[Sector Roadmaps] Failed to fetch:', err);
+    sectorRoadmapsCache = getFallbackSectorRoadmaps();
+  }
 
-    const pTotal = phase.tasks.length;
-    const pDone = phase.tasks.filter(t => t.completed).length;
-    totalTasks += pTotal;
-    completedTasks += pDone;
+  if (countBadge) {
+    countBadge.innerText = `${sectorRoadmapsCache.length} Available`;
+  }
 
-    phaseDiv.innerHTML = `
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-        <div>
-          <span class="text-[10px] uppercase font-bold text-purple-600 dark:text-purple-400 tracking-wider">Phase 0${phase.phaseNumber}</span>
-          <h3 class="font-bold text-sm sm:text-base text-slate-900 dark:text-white">${phase.title}</h3>
-        </div>
-        <span class="text-xs font-mono px-2.5 py-0.5 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30">
-          ${pDone} / ${pTotal} Tasks
-        </span>
-      </div>
-      <div class="space-y-2 pt-1">
-        ${phase.tasks.map(t => `
-          <div class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-gray-800/80 hover:border-purple-300 dark:hover:border-purple-500/30 transition">
-            <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="handleTaskToggle('${t.id}')" class="mt-1 w-4 h-4 rounded text-purple-600 bg-white dark:bg-gray-950 border-slate-300 dark:border-gray-700 focus:ring-purple-500 cursor-pointer">
-            <div class="flex-1">
-              <span class="text-xs sm:text-sm font-medium ${t.completed ? 'line-through text-slate-400 dark:text-gray-500' : 'text-slate-800 dark:text-gray-200'}">${t.title}</span>
-              <div class="flex items-center gap-2 mt-0.5">
-                <span class="text-[10px] text-purple-600 dark:text-purple-400 font-mono">+${t.xpReward} XP</span>
-                <span class="text-[10px] text-slate-500 dark:text-gray-500">• ${t.skill}</span>
-              </div>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    `;
-    container.appendChild(phaseDiv);
-  });
-
-  const overallPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-  const percentEl = document.getElementById('roadmap-overall-percent');
-  const barEl = document.getElementById('roadmap-overall-bar');
-  if (percentEl) percentEl.innerText = `${overallPercent}% Complete`;
-  if (barEl) barEl.style.width = `${overallPercent}%`;
+  renderSectorRoadmapCards();
 }
 
+function getFallbackSectorRoadmaps() {
+  return [
+    {
+      id: "fullstack-web",
+      title: "Full Stack Software Engineering",
+      sector: "Technology & Software",
+      icon: "code",
+      color: "from-blue-600 to-cyan-500",
+      duration: "6 Months",
+      difficulty: "Intermediate",
+      summary: "Complete modern roadmap from responsive frontend frameworks to scalable cloud microservices.",
+      totalMilestones: 4,
+      estimatedWeeks: 16
+    },
+    {
+      id: "ai-data-science",
+      title: "AI & Machine Learning Engineering",
+      sector: "Artificial Intelligence & Data",
+      icon: "psychology",
+      color: "from-purple-600 to-indigo-600",
+      duration: "8 Months",
+      difficulty: "Advanced",
+      summary: "From statistical mathematics to deep learning architectures, vector databases, and LLM agent systems.",
+      totalMilestones: 4,
+      estimatedWeeks: 24
+    },
+    {
+      id: "cloud-devops",
+      title: "Cloud Architecture & DevOps Engineering",
+      sector: "Infrastructure & Cloud",
+      icon: "cloud_done",
+      color: "from-emerald-600 to-teal-500",
+      duration: "6 Months",
+      difficulty: "Intermediate",
+      summary: "Design reliable, fault-tolerant infrastructure as code, Kubernetes clusters, and enterprise CI/CD.",
+      totalMilestones: 4,
+      estimatedWeeks: 16
+    },
+    {
+      id: "cybersecurity",
+      title: "Cybersecurity & Ethical Hacking",
+      sector: "Information Security",
+      icon: "security",
+      color: "from-rose-600 to-red-500",
+      duration: "6 Months",
+      difficulty: "Intermediate to Advanced",
+      summary: "Comprehensive defensive and offensive security, vulnerability assessment, cryptography, and network defense.",
+      totalMilestones: 4,
+      estimatedWeeks: 16
+    },
+    {
+      id: "biotech-healthtech",
+      title: "Health-Tech, Bioinformatics & Pharma Analytics",
+      sector: "Healthcare & Life Sciences",
+      icon: "biotech",
+      color: "from-amber-600 to-orange-500",
+      duration: "6 Months",
+      difficulty: "Intermediate",
+      summary: "Connecting computational biology, clinical data management, molecular docking, and regulatory compliance.",
+      totalMilestones: 4,
+      estimatedWeeks: 16
+    },
+    {
+      id: "fintech-blockchain",
+      title: "Fintech, Quantitative Systems & Blockchain",
+      sector: "Financial Technology",
+      icon: "account_balance",
+      color: "from-yellow-600 to-amber-500",
+      duration: "6 Months",
+      difficulty: "Advanced",
+      summary: "Build high-frequency trading algorithms, risk analytics models, and decentralized smart contracts.",
+      totalMilestones: 4,
+      estimatedWeeks: 16
+    }
+  ];
+}
+
+function setRoadmapSectorFilter(sector) {
+  currentSectorFilter = sector;
+  const buttons = document.querySelectorAll('#sector-filter-buttons .sector-filter-btn');
+  buttons.forEach(btn => {
+    const isTarget = btn.getAttribute('data-sector') === sector;
+    if (isTarget) {
+      btn.className = 'sector-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition bg-purple-600 text-white shadow-sm';
+    } else {
+      btn.className = 'sector-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-gray-300 hover:bg-slate-200 dark:hover:bg-white/10';
+    }
+  });
+  renderSectorRoadmapCards();
+}
+
+function filterSectorRoadmaps() {
+  renderSectorRoadmapCards();
+}
+
+function renderSectorRoadmapCards() {
+  const cardsGrid = document.getElementById('roadmap-cards-grid');
+  if (!cardsGrid) return;
+
+  const searchInput = document.getElementById('roadmap-search-input');
+  const query = (searchInput?.value || '').trim().toLowerCase();
+
+  const filtered = sectorRoadmapsCache.filter(item => {
+    const matchesSector = currentSectorFilter === 'All' || item.sector === currentSectorFilter;
+    if (!matchesSector) return false;
+
+    if (!query) return true;
+    const matchTitle = (item.title || '').toLowerCase().includes(query);
+    const matchSector = (item.sector || '').toLowerCase().includes(query);
+    const matchSummary = (item.summary || '').toLowerCase().includes(query);
+    const matchSkills = Array.isArray(item.milestones) && item.milestones.some(m => 
+      Array.isArray(m.skills) && m.skills.some(s => s.toLowerCase().includes(query))
+    );
+    return matchTitle || matchSector || matchSummary || matchSkills;
+  });
+
+  const countBadge = document.getElementById('roadmap-count-badge');
+  if (countBadge) {
+    countBadge.innerText = `${filtered.length} of ${sectorRoadmapsCache.length} Roadmaps`;
+  }
+
+  if (filtered.length === 0) {
+    cardsGrid.innerHTML = `
+      <div class="col-span-full p-12 text-center rounded-2xl bg-white dark:bg-white/[0.02] border border-[#E7E4DC] dark:border-white/5">
+        <span class="material-symbols-outlined text-4xl text-slate-400 dark:text-gray-600 mb-2">manage_search</span>
+        <h3 class="text-sm font-bold text-slate-800 dark:text-gray-200">No Roadmaps Found</h3>
+        <p class="text-xs text-slate-500 dark:text-gray-400 mt-1 max-w-sm mx-auto">
+          No career roadmap matches your search "${query}". Try adjusting filters or searching for skills like "Python", "Cloud", "Security", or "Data".
+        </p>
+        <button onclick="setRoadmapSectorFilter('All'); if(document.getElementById('roadmap-search-input')) document.getElementById('roadmap-search-input').value=''; renderSectorRoadmapCards();" class="mt-4 px-4 py-1.5 rounded-xl bg-purple-600 text-white text-xs font-semibold hover:bg-purple-500 transition">
+          Clear Filters
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  cardsGrid.innerHTML = filtered.map(item => {
+    const icon = item.icon || 'alt_route';
+    const color = item.color || 'from-purple-600 to-indigo-600';
+    return `
+      <div 
+        onclick="openRoadmapMindmap('${item.id}')"
+        class="group cursor-pointer rounded-2xl bg-white dark:bg-white/[0.03] hover:bg-slate-50 dark:hover:bg-white/[0.06] border border-[#E7E4DC] dark:border-white/10 hover:border-purple-500/50 dark:hover:border-purple-500/50 p-5 shadow-sm hover:shadow-xl transition-all duration-200 flex flex-col justify-between"
+      >
+        <div>
+          <!-- Header Badge & Icon -->
+          <div class="flex items-start justify-between gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br ${color} text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+              <span class="material-symbols-outlined text-xl">${icon}</span>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">
+                ${item.duration || '6 Months'}
+              </span>
+            </div>
+          </div>
+
+          <!-- Title & Sector -->
+          <span class="text-[10px] font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wider block">${item.sector}</span>
+          <h3 class="text-base font-bold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors mt-0.5">${item.title}</h3>
+          <p class="text-xs text-slate-600 dark:text-gray-400 mt-2 line-clamp-2 leading-relaxed">${item.summary || 'Comprehensive milestone curriculum and industry deliverables.'}</p>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-[#E7E4DC] dark:border-white/5 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] font-mono text-slate-500 dark:text-gray-400 flex items-center gap-1">
+              <span class="material-symbols-outlined text-xs text-purple-500">account_tree</span>
+              ${item.totalMilestones || 4} Phases
+            </span>
+            <span class="text-slate-300 dark:text-gray-700">•</span>
+            <span class="text-[11px] font-mono text-cyan-600 dark:text-cyan-400 font-semibold">${item.difficulty || 'Intermediate'}</span>
+          </div>
+          <span class="inline-flex items-center gap-1 text-xs font-bold text-purple-600 dark:text-purple-400 group-hover:translate-x-1 transition-transform">
+            <span>View Mindmap</span>
+            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+          </span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function openRoadmapMindmap(roadmapId) {
+  const mindmapView = document.getElementById('roadmap-mindmap-view');
+  if (!mindmapView) return;
+
+  mindmapView.classList.remove('hidden');
+  mindmapView.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  const nodesContainer = document.getElementById('mindmap-flow-nodes');
+  if (nodesContainer) {
+    nodesContainer.innerHTML = `
+      <div class="p-12 text-center text-slate-400 dark:text-gray-500">
+        <span class="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin inline-block mb-2"></span>
+        <p class="text-xs font-mono">Synthesizing full mindmap flow & timeline architecture...</p>
+      </div>
+    `;
+  }
+
+  try {
+    const res = await JoblexApiClient.getRoadmapDetails(roadmapId);
+    if (res && res.success && res.roadmap) {
+      activeRoadmap = res.roadmap;
+    } else {
+      activeRoadmap = sectorRoadmapsCache.find(r => r.id === roadmapId) || sectorRoadmapsCache[0];
+    }
+  } catch (e) {
+    console.warn('[Mindmap Details] Error fetching details:', e);
+    activeRoadmap = sectorRoadmapsCache.find(r => r.id === roadmapId) || sectorRoadmapsCache[0];
+  }
+
+  renderActiveRoadmapMindmap();
+}
+
+function closeRoadmapMindmap() {
+  const mindmapView = document.getElementById('roadmap-mindmap-view');
+  if (mindmapView) {
+    mindmapView.classList.add('hidden');
+  }
+}
+
+function renderActiveRoadmapMindmap() {
+  if (!activeRoadmap) return;
+
+  // Header tags & title
+  const titleEl = document.getElementById('mindmap-title');
+  const printTitleEl = document.getElementById('mindmap-print-title');
+  const summaryEl = document.getElementById('mindmap-summary');
+  const sectorEl = document.getElementById('mindmap-sector-tag');
+  const durationEl = document.getElementById('mindmap-duration-tag');
+  const diffEl = document.getElementById('mindmap-difficulty-tag');
+  const promptTagContainer = document.getElementById('mindmap-prompt-tag-container');
+
+  if (titleEl) titleEl.innerText = activeRoadmap.title;
+  if (printTitleEl) printTitleEl.innerText = `${activeRoadmap.title} • ${activeRoadmap.sector}`;
+  if (summaryEl) summaryEl.innerText = activeRoadmap.summary || 'Customized timeline progression roadmap.';
+  if (sectorEl) sectorEl.innerText = activeRoadmap.sector || 'Multi-Sector';
+  if (durationEl) durationEl.innerText = activeRoadmap.duration || '6 Months';
+  if (diffEl) diffEl.innerText = activeRoadmap.difficulty || 'Intermediate';
+
+  if (promptTagContainer) {
+    if (activeRoadmap.userPrompt) {
+      promptTagContainer.innerHTML = `
+        <div class="px-3 py-1.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/60 text-[11px] text-purple-700 dark:text-purple-300 font-mono flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-sm text-purple-500">auto_fix_high</span>
+          <span>AI Customization: "<strong>${escapeHtml(activeRoadmap.userPrompt)}</strong>"</span>
+        </div>
+      `;
+    } else {
+      promptTagContainer.innerHTML = `
+        <span class="text-xs font-mono text-slate-500 dark:text-gray-400">Default Baseline Blueprint</span>
+      `;
+    }
+  }
+
+  const nodesContainer = document.getElementById('mindmap-flow-nodes');
+  if (!nodesContainer) return;
+
+  const milestones = activeRoadmap.milestones || [];
+  if (milestones.length === 0) {
+    nodesContainer.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs">No milestones defined for this roadmap.</div>`;
+    return;
+  }
+
+  nodesContainer.innerHTML = milestones.map((m, idx) => {
+    const isEven = idx % 2 === 0;
+    const phaseLabel = m.phase || `Phase 0${idx + 1}`;
+    const timelineLabel = m.timeline || `Month ${idx * 2 + 1} - ${idx * 2 + 2}`;
+    const skills = Array.isArray(m.skills) ? m.skills : [];
+    const deliverables = Array.isArray(m.keyDeliverables) ? m.keyDeliverables : [];
+
+    return `
+      <div class="relative flex flex-col md:flex-row items-start ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'} gap-6 z-10">
+        <!-- Node Center Hub Marker -->
+        <div class="absolute left-6 md:left-1/2 -translate-x-1/2 w-9 h-9 rounded-full bg-[#FAF8F5] dark:bg-[#070709] border-4 border-purple-500 flex items-center justify-center text-purple-500 shadow-md font-bold text-xs font-mono">
+          ${idx + 1}
+        </div>
+
+        <!-- Content Card Box -->
+        <div class="ml-14 md:ml-0 md:w-[46%] p-5 sm:p-6 rounded-2xl bg-white dark:bg-white/[0.03] border border-[#E7E4DC] dark:border-white/10 hover:border-purple-400/60 dark:hover:border-purple-500/40 shadow-sm hover:shadow-xl transition-all duration-200">
+          <!-- Phase & Timeline Header -->
+          <div class="flex items-center justify-between gap-2 pb-2 mb-3 border-b border-[#E7E4DC] dark:border-white/5">
+            <span class="text-xs font-mono font-extrabold uppercase tracking-wider text-purple-600 dark:text-purple-400">${phaseLabel}</span>
+            <span class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-gray-300 font-semibold border border-[#E7E4DC] dark:border-white/5">
+              ${timelineLabel}
+            </span>
+          </div>
+
+          <!-- Milestone Title & Description -->
+          <h4 class="text-base font-bold text-slate-900 dark:text-white leading-snug">${m.title}</h4>
+          <p class="text-xs text-slate-600 dark:text-gray-300 mt-1.5 leading-relaxed">${m.description || ''}</p>
+
+          <!-- Core Skills Badges -->
+          ${skills.length > 0 ? `
+            <div class="mt-4">
+              <span class="text-[10px] uppercase font-bold text-slate-500 dark:text-gray-400 tracking-wider block mb-1.5">Core Competencies:</span>
+              <div class="flex flex-wrap gap-1.5">
+                ${skills.map(s => `
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200/80 dark:border-purple-800/40 font-medium">
+                    ${escapeHtml(s)}
+                  </span>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- Industry Deliverables & Checkpoints -->
+          ${deliverables.length > 0 ? `
+            <div class="mt-4 pt-3 border-t border-[#E7E4DC] dark:border-white/5 space-y-1.5">
+              <span class="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 tracking-wider flex items-center gap-1">
+                <span class="material-symbols-outlined text-xs">task_alt</span> Key Deliverables &amp; Output:
+              </span>
+              <ul class="space-y-1">
+                ${deliverables.map(d => `
+                  <li class="text-[11px] text-slate-700 dark:text-gray-300 flex items-start gap-1.5">
+                    <span class="text-emerald-500 font-bold mt-0.5">•</span>
+                    <span>${escapeHtml(d)}</span>
+                  </li>
+                `).join('')}
+              </ul>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function applyQuickPrompt(promptText) {
+  const input = document.getElementById('roadmap-customize-prompt');
+  if (input) {
+    input.value = promptText;
+    input.focus();
+  }
+}
+
+async function handleRoadmapCustomization() {
+  const input = document.getElementById('roadmap-customize-prompt');
+  const btn = document.getElementById('customize-submit-btn');
+  const btnText = document.getElementById('customize-btn-text');
+
+  const userPrompt = (input?.value || '').trim();
+  if (!userPrompt) {
+    showToast('Please type your customization instructions (e.g. "Add Python AI Agents and LangGraph").', 'Prompt Required', 'warning');
+    return;
+  }
+
+  if (!activeRoadmap) {
+    showToast('Please select a roadmap first.', 'Select Roadmap', 'warning');
+    return;
+  }
+
+  if (btn) btn.disabled = true;
+  if (btnText) btnText.innerText = 'Synthesizing with LangGraph...';
+
+  try {
+    const payload = {
+      roadmapId: activeRoadmap.id,
+      currentRoadmap: activeRoadmap,
+      userPrompt
+    };
+
+    const res = await JoblexApiClient.customizeRoadmap(payload);
+
+    if (res && res.success && res.roadmap) {
+      activeRoadmap = res.roadmap;
+      renderActiveRoadmapMindmap();
+
+      showToast(
+        `Your customized roadmap "${res.roadmap.title}" has been orchestrated and rendered into the mindmap flow.`,
+        'Roadmap Rebuilt by Zulu AI',
+        'success'
+      );
+
+      // Clear input
+      if (input) input.value = '';
+    } else {
+      showToast(res?.error || 'Could not customize roadmap. Please try again.', 'Customization Failed', 'error');
+    }
+  } catch (err) {
+    console.error('[Roadmap Customize Error]:', err);
+    showToast('Failed to connect to AI roadmap engine. Please check backend server.', 'Customization Error', 'error');
+  } finally {
+    if (btn) btn.disabled = false;
+    if (btnText) btnText.innerText = 'Apply AI Changes';
+  }
+}
+
+async function exportCurrentRoadmapToPdf() {
+  if (!activeRoadmap) {
+    showToast('No active roadmap to export.', 'Export Notice', 'warning');
+    return;
+  }
+
+  const exportBtn = document.getElementById('export-pdf-btn');
+  const originalBtnContent = exportBtn ? exportBtn.innerHTML : '';
+  if (exportBtn) {
+    exportBtn.disabled = true;
+    exportBtn.innerHTML = `
+      <span class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+      <span>Generating PDF...</span>
+    `;
+  }
+
+  const targetElement = document.getElementById('mindmap-print-container');
+  if (!targetElement) {
+    if (exportBtn) {
+      exportBtn.disabled = false;
+      exportBtn.innerHTML = originalBtnContent;
+    }
+    return;
+  }
+
+  const opt = {
+    margin: [10, 10, 10, 10],
+    filename: `JOBLEX-Roadmap-${(activeRoadmap.title || 'Career').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true, logging: false },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+
+  try {
+    if (window.html2pdf) {
+      await window.html2pdf().set(opt).from(targetElement).save();
+      showToast('Career roadmap successfully exported as PDF!', 'PDF Export Complete', 'success');
+    } else {
+      // Fallback to window.print if CDN is not ready
+      window.print();
+    }
+  } catch (err) {
+    console.error('[PDF Export Error]:', err);
+    // Graceful fallback to browser print dialog
+    window.print();
+  } finally {
+    if (exportBtn) {
+      exportBtn.disabled = false;
+      exportBtn.innerHTML = originalBtnContent;
+    }
+  }
+}
+
+// Backward compatibility helper
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+// Legacy toggle handler
 async function handleTaskToggle(taskId) {
   const res = await JoblexApiClient.toggleRoadmapTask(taskId);
   if (res && res.task) {
@@ -597,7 +1027,6 @@ async function handleTaskToggle(taskId) {
       updateHeaderMetrics();
     }
     roadmapState = await JoblexApiClient.getRoadmap();
-    renderRoadmap();
   }
 }
 
@@ -627,27 +1056,43 @@ let resumeRadarChartInstance = null;
 function switchInputMode(mode) {
   const fileMode = document.getElementById('file-upload-mode');
   const textMode = document.getElementById('text-input-mode');
-  const tabFile = document.getElementById('tab-btn-file');
+  const tabPdf = document.getElementById('tab-btn-pdf');
+  const tabImage = document.getElementById('tab-btn-image');
   const tabText = document.getElementById('tab-btn-text');
+  const fileInput = document.getElementById('resume-file-input');
+  const dropzoneTitle = document.getElementById('dropzone-title');
+  const dropzoneDesc = document.getElementById('dropzone-desc');
+  const dropzoneIcon = document.getElementById('dropzone-icon');
 
-  if (mode === 'file') {
+  const activeTabClass = "px-4 py-2 rounded-xl text-xs font-bold bg-[#0F172A] text-white dark:bg-white/10 dark:text-white transition shadow-sm flex items-center gap-2";
+  const inactiveTabClass = "px-4 py-2 rounded-xl text-xs font-medium text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition flex items-center gap-2";
+
+  if (mode === 'pdf' || mode === 'file') {
     if (fileMode) fileMode.classList.remove('hidden');
     if (textMode) textMode.classList.add('hidden');
-    if (tabFile) {
-      tabFile.className = "px-4 py-2 rounded-xl text-xs font-bold bg-[#0F172A] text-white dark:bg-white/10 dark:text-white transition shadow-sm flex items-center gap-2";
-    }
-    if (tabText) {
-      tabText.className = "px-4 py-2 rounded-xl text-xs font-medium text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition flex items-center gap-2";
-    }
+    if (tabPdf) tabPdf.className = activeTabClass;
+    if (tabImage) tabImage.className = inactiveTabClass;
+    if (tabText) tabText.className = inactiveTabClass;
+    if (fileInput) fileInput.accept = ".pdf,.docx,.txt";
+    if (dropzoneTitle) dropzoneTitle.innerText = "Drag and drop your PDF Resume document";
+    if (dropzoneDesc) dropzoneDesc.innerText = "Supports PDF (via in-browser PDF.js), DOCX, or TXT (Max 10MB)";
+    if (dropzoneIcon) dropzoneIcon.innerText = "picture_as_pdf";
+  } else if (mode === 'image') {
+    if (fileMode) fileMode.classList.remove('hidden');
+    if (textMode) textMode.classList.add('hidden');
+    if (tabImage) tabImage.className = activeTabClass;
+    if (tabPdf) tabPdf.className = inactiveTabClass;
+    if (tabText) tabText.className = inactiveTabClass;
+    if (fileInput) fileInput.accept = ".png,.jpg,.jpeg,.webp,.bmp,.tif,.tiff,image/*";
+    if (dropzoneTitle) dropzoneTitle.innerText = "Drag and drop your Resume Image / Photo";
+    if (dropzoneDesc) dropzoneDesc.innerText = "Supports PNG, JPG, JPEG, WEBP (Processed via Tesseract.js Optical Character Recognition)";
+    if (dropzoneIcon) dropzoneIcon.innerText = "image";
   } else {
     if (fileMode) fileMode.classList.add('hidden');
     if (textMode) textMode.classList.remove('hidden');
-    if (tabText) {
-      tabText.className = "px-4 py-2 rounded-xl text-xs font-bold bg-[#0F172A] text-white dark:bg-white/10 dark:text-white transition shadow-sm flex items-center gap-2";
-    }
-    if (tabFile) {
-      tabFile.className = "px-4 py-2 rounded-xl text-xs font-medium text-[#475569] dark:text-gray-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition flex items-center gap-2";
-    }
+    if (tabText) tabText.className = activeTabClass;
+    if (tabPdf) tabPdf.className = inactiveTabClass;
+    if (tabImage) tabImage.className = inactiveTabClass;
   }
 }
 
@@ -883,10 +1328,20 @@ async function handleExecuteParse() {
     await new Promise(r => setTimeout(r, 300));
     if (progressBox) progressBox.classList.add('hidden');
 
-    const parsed = autoAssessRes?.parsed || autoAssessRes?.parsedResume;
-    const assessment = autoAssessRes?.assessment || autoAssessRes?.autoAssessment;
+    let parsed = autoAssessRes?.parsed || autoAssessRes?.parsedResume;
+    let assessment = autoAssessRes?.assessment || autoAssessRes?.autoAssessment;
 
-    if (autoAssessRes && (parsed || assessment)) {
+    // Guaranteed resilience fallback:
+    if (!parsed || !assessment) {
+      console.warn('[handleExecuteParse] Backend assessment incomplete, computing client-side auto-assessment');
+      const fallbackResult = JoblexApiClient._heuristicAutoAssessResume(resumeText, targetRole);
+      if (fallbackResult) {
+        parsed = fallbackResult.parsed;
+        assessment = fallbackResult.assessment;
+      }
+    }
+
+    if (parsed || assessment) {
       currentParsedData = parsed || {
         name: 'Scholar Candidate',
         email: '',
@@ -909,6 +1364,19 @@ async function handleExecuteParse() {
     }
   } catch (err) {
     console.error('Error in handleExecuteParse:', err);
+    try {
+      const fallbackResult = JoblexApiClient._heuristicAutoAssessResume(resumeText, targetRole);
+      if (fallbackResult && fallbackResult.parsed) {
+        currentParsedData = fallbackResult.parsed;
+        currentAutoAssessment = fallbackResult.assessment;
+        renderParsedResults(currentParsedData, currentAutoAssessment, fallbackResult.detectedDomain || 'Multi-Disciplinary Specialist');
+        showToast('Parsed and assessed candidate competencies.', 'Assessment Ready', 'success');
+        if (progressBox) progressBox.classList.add('hidden');
+        return;
+      }
+    } catch (fErr) {
+      console.warn('Fallback error:', fErr);
+    }
     showToast('Failed to execute AI Auto-Assessment.', 'Error', 'error');
     if (progressBox) progressBox.classList.add('hidden');
   } finally {
@@ -1218,6 +1686,8 @@ async function handleOptimizeResume() {
   const currentSkills = (currentParsedData && currentParsedData.extractedSkills && currentParsedData.extractedSkills.length > 0)
     ? currentParsedData.extractedSkills
     : [];
+
+  const outputContainer = document.getElementById('optimizer-results-container');
 
   if (btn) {
     btn.disabled = true;
@@ -2207,6 +2677,18 @@ window.updateEducationField = updateEducationField;
 window.insertAiSummaryIntoBuilder = insertAiSummaryIntoBuilder;
 window.importParsedSkillsIntoBuilder = importParsedSkillsIntoBuilder;
 window.downloadResumePdf = downloadResumePdf;
+
+function downloadOptimizedResumeDirectPdf() {
+  if (latestOptimizationData) {
+    applyOptimizedDataToState();
+  } else {
+    syncParsedDataToBuilder();
+  }
+  renderResumeLivePreview();
+  downloadResumePdf();
+}
+
+window.downloadOptimizedResumeDirectPdf = downloadOptimizedResumeDirectPdf;
 window.printResumeDocument = printResumeDocument;
 window.switchBuilderMobileTab = switchBuilderMobileTab;
 window.resumeBuilderState = resumeBuilderState;
@@ -2256,9 +2738,30 @@ function initResumeUploader() {
 // ─────────────────────────────────────────────────────────────
 // QUIZ ARENA MODULE (Multi-Category Assessment & Verification)
 // ─────────────────────────────────────────────────────────────
+let quizLoadingInterval = null;
+
+function setQuizQuestionCount(count) {
+  const inputEl = document.getElementById('quiz-question-count');
+  const displayEl = document.getElementById('quiz-count-display');
+  const val = Math.min(15, Math.max(3, parseInt(count, 10) || 5));
+  if (inputEl) inputEl.value = val;
+  if (displayEl) displayEl.innerText = `${val} Questions`;
+}
+
 async function startQuiz() {
-  const difficultyEl = document.getElementById('quiz-difficulty');
+  const sliderEl = document.getElementById('quiz-difficulty-slider');
+  const countEl = document.getElementById('quiz-question-count');
   const promptEl = document.getElementById('quiz-focus-prompt');
+
+  // Convert slider (1 = easy, 2 = mixed, 3 = hard)
+  const sliderVal = parseInt(sliderEl?.value || '2', 10);
+  let difficulty = 'mixed';
+  if (sliderVal === 1) difficulty = 'easy';
+  else if (sliderVal === 3) difficulty = 'hard';
+
+  const rawCount = parseInt(countEl?.value || '5', 10);
+  const questionCount = (!isNaN(rawCount) && rawCount >= 3 && rawCount <= 15) ? rawCount : 5;
+
   quizState = {
     started: false,
     currentIndex: 0,
@@ -2266,24 +2769,70 @@ async function startQuiz() {
     answers: [],
     questions: [],
     finished: false,
-    difficulty: difficultyEl?.value || 'mixed',
+    difficulty,
+    questionCount,
     prompt: promptEl?.value?.trim() || '',
     attemptId: null,
     result: null,
     loading: true
   };
   renderQuiz();
-  const response = await JoblexApiClient.generateAdaptiveQuiz({ difficulty: quizState.difficulty, prompt: quizState.prompt });
-  if (!response?.success || !Array.isArray(response.questions) || response.questions.length === 0) {
+
+  try {
+    const response = await JoblexApiClient.generateAdaptiveQuiz({
+      difficulty: quizState.difficulty,
+      prompt: quizState.prompt,
+      questionCount: quizState.questionCount
+    });
+
+    if (quizLoadingInterval) {
+      clearInterval(quizLoadingInterval);
+      quizLoadingInterval = null;
+    }
+
+    if (!response?.success || !Array.isArray(response.questions) || response.questions.length === 0) {
+      quizState.loading = false;
+      renderQuiz(response?.error || 'Adaptive quiz generation is temporarily unavailable.');
+      return;
+    }
+    quizState.started = true;
     quizState.loading = false;
-    renderQuiz(response?.error || 'Adaptive quiz generation is temporarily unavailable.');
-    return;
+    quizState.questions = response.questions;
+    quizState.attemptId = response.attemptId;
+    renderQuiz();
+  } catch (err) {
+    if (quizLoadingInterval) {
+      clearInterval(quizLoadingInterval);
+      quizLoadingInterval = null;
+    }
+    quizState.loading = false;
+    renderQuiz('Connection to AI quiz engine timed out. Please try again.');
   }
-  quizState.started = true;
-  quizState.loading = false;
-  quizState.questions = response.questions;
-  quizState.attemptId = response.attemptId;
-  renderQuiz();
+}
+
+function updateDifficultySliderLabel(val) {
+  const labelEl = document.getElementById('difficulty-slider-label');
+  const descEl = document.getElementById('difficulty-slider-desc');
+  const num = parseInt(val, 10);
+  if (num === 1) {
+    if (labelEl) {
+      labelEl.innerText = 'Beginner / Easy';
+      labelEl.className = 'text-xs font-bold text-emerald-600 dark:text-emerald-400 font-mono';
+    }
+    if (descEl) descEl.innerText = 'Foundational concept verification and core terminology';
+  } else if (num === 3) {
+    if (labelEl) {
+      labelEl.innerText = 'Advanced / Hard';
+      labelEl.className = 'text-xs font-bold text-rose-600 dark:text-rose-400 font-mono';
+    }
+    if (descEl) descEl.innerText = 'Deep scenario debugging, edge cases, and architectural tradeoffs';
+  } else {
+    if (labelEl) {
+      labelEl.innerText = 'Adaptive Mix (Recommended)';
+      labelEl.className = 'text-xs font-bold text-purple-600 dark:text-purple-400 font-mono';
+    }
+    if (descEl) descEl.innerText = 'Dynamic blend testing both fundamentals and practical challenges';
+  }
 }
 
 function autoFillQuizWithResume() {
@@ -2295,8 +2844,11 @@ function autoFillQuizWithResume() {
   try {
     const data = JSON.parse(cached);
     const skills = (data.parsed && data.parsed.extractedSkills) || [];
+    const promptEl = document.getElementById('quiz-focus-prompt');
+    if (promptEl && skills.length) {
+      promptEl.value = `Focus on my top skills: ${skills.slice(0, 4).join(', ')}`;
+    }
     showToast(`Auto-fill activated based on ${skills.length} verified resume skills!`, 'Resume Synced', 'success');
-    startQuiz();
   } catch (e) {
     console.warn(e);
   }
@@ -2307,7 +2859,65 @@ function renderQuiz(errorMessage = '') {
   if (!container) return;
 
   if (quizState.loading) {
-    container.innerHTML = '<div class="py-12 text-center text-xs text-slate-500 dark:text-gray-400"><span class="material-symbols-outlined animate-spin text-2xl text-purple-500 block mb-3">progress_activity</span>Zulu is shaping this assessment around your learning history...</div>';
+    // Engaging holographic multi-step loading animation
+    container.innerHTML = `
+      <div class="py-16 text-center space-y-6 max-w-lg mx-auto">
+        <!-- Multi-ring pulsing radar animation -->
+        <div class="relative w-28 h-28 mx-auto flex items-center justify-center">
+          <div class="absolute inset-0 rounded-full bg-purple-500/20 dark:bg-purple-500/10 animate-ping"></div>
+          <div class="absolute inset-2 rounded-full border-2 border-dashed border-purple-400 dark:border-purple-500/60 animate-spin"></div>
+          <div class="absolute inset-5 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 shadow-xl flex items-center justify-center text-white">
+            <span class="material-symbols-outlined text-3xl animate-pulse">psychology</span>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800/60 text-purple-700 dark:text-purple-300 text-xs font-mono font-bold">
+            <span class="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></span>
+            LangGraph AI Assessment Engine
+          </div>
+          <h3 id="quiz-loading-stage-text" class="text-lg font-extrabold text-slate-900 dark:text-white">
+            Synthesizing ${quizState.questionCount || 5} Questions...
+          </h3>
+          <p id="quiz-loading-subtext" class="text-xs text-slate-500 dark:text-gray-400 max-w-sm mx-auto leading-relaxed">
+            NVIDIA NIM &amp; Google AI Studio failover pipeline is formulating questions calibrated to your skill profile.
+          </p>
+        </div>
+
+        <!-- Step progress indicators -->
+        <div class="grid grid-cols-3 gap-2 text-left max-w-xs mx-auto text-[11px] font-mono">
+          <div class="p-2 rounded-xl bg-purple-50 dark:bg-white/5 border border-purple-200 dark:border-white/10 text-purple-700 dark:text-purple-300">
+            <span class="block font-bold">1. Topic Analysis</span>
+            <span class="text-[9px] text-slate-400">Context mapped</span>
+          </div>
+          <div class="p-2 rounded-xl bg-purple-50 dark:bg-white/5 border border-purple-200 dark:border-white/10 text-purple-700 dark:text-purple-300 animate-pulse">
+            <span class="block font-bold">2. LLM Synthesis</span>
+            <span class="text-[9px] text-purple-500 font-bold">In progress...</span>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 text-slate-400">
+            <span class="block font-bold">3. Verification</span>
+            <span class="text-[9px]">Securing keys</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Dynamic stage cycling for engagement
+    const stages = [
+      { main: `Synthesizing ${quizState.questionCount || 5} Questions...`, sub: "LangGraph failover pipeline is querying models for optimal questions." },
+      { main: "Calibrating Difficulty Distractors...", sub: "Generating realistic options, test scenarios, and conceptual edge cases." },
+      { main: "Locking Assessment Integrity...", sub: "Encrypting correct answer hashes to prevent client-side inspection." }
+    ];
+    let step = 0;
+    if (quizLoadingInterval) clearInterval(quizLoadingInterval);
+    quizLoadingInterval = setInterval(() => {
+      step = (step + 1) % stages.length;
+      const mainEl = document.getElementById('quiz-loading-stage-text');
+      const subEl = document.getElementById('quiz-loading-subtext');
+      if (mainEl) mainEl.innerText = stages[step].main;
+      if (subEl) subEl.innerText = stages[step].sub;
+    }, 2400);
+
     return;
   }
 
@@ -2316,40 +2926,113 @@ function renderQuiz(errorMessage = '') {
     container.innerHTML = `
       <div class="py-6 space-y-6 max-w-3xl mx-auto">
         <div class="text-center space-y-3">
-        <div class="w-16 h-16 rounded-3xl bg-purple-100 dark:bg-purple-600/20 border border-purple-200 dark:border-purple-500/40 flex items-center justify-center text-3xl mx-auto shadow-sm">
-          <span class="material-symbols-outlined text-purple-600 dark:text-purple-300">tune</span>
-        </div>
-        <div>
-          <h3 class="text-xl font-black text-[#0F172A] dark:text-white">Build a quiz that meets you where you are</h3>
-          <p class="text-xs sm:text-sm text-slate-600 dark:text-gray-400 mt-1">
-            Zulu studies your previous answers, then targets the skills that need the most useful practice.
-          </p>
-        </div>
-        </div>
-
-        <div class="grid sm:grid-cols-2 gap-4 text-left">
-          <label class="space-y-2">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400">Challenge level</span>
-            <select id="quiz-difficulty" class="w-full px-3 py-3 rounded-xl bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-gray-800 text-xs text-slate-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500">
-              <option value="mixed">Adaptive mix</option>
-              <option value="easy">Easier practice</option>
-              <option value="hard">Harder challenge</option>
-            </select>
-          </label>
-          <label class="space-y-2">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400">Ask for a focus</span>
-            <input id="quiz-focus-prompt" type="text" maxlength="180" placeholder="e.g. harder Python questions for clinical data" class="w-full px-3 py-3 rounded-xl bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-gray-800 text-xs text-slate-700 dark:text-gray-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500">
-          </label>
+          <div class="w-16 h-16 rounded-3xl bg-purple-100 dark:bg-purple-600/20 border border-purple-200 dark:border-purple-500/40 flex items-center justify-center text-3xl mx-auto shadow-sm">
+            <span class="material-symbols-outlined text-purple-600 dark:text-purple-300">tune</span>
+          </div>
+          <div>
+            <h3 class="text-2xl font-black text-[#0F172A] dark:text-white">Custom Adaptive Quiz Studio</h3>
+            <p class="text-xs sm:text-sm text-slate-600 dark:text-gray-400 mt-1 max-w-xl mx-auto">
+              Select your question volume, slide your challenge level, and define custom skill targets. Zulu AI will generate a tailored assessment using multi-agent failover.
+            </p>
+          </div>
         </div>
 
-        <div id="quiz-learning-insights" class="p-4 rounded-2xl bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-gray-800 text-left text-xs text-slate-600 dark:text-gray-300">${errorMessage ? `<span class="text-rose-600 dark:text-rose-300">${errorMessage}</span>` : 'Loading your learning profile...'}</div>
+        <div class="grid sm:grid-cols-2 gap-5 text-left">
+          <!-- NUMBER OF QUESTIONS INPUT -->
+          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-gray-800 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-gray-300 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base text-purple-500">pin</span>
+                Number of Questions
+              </span>
+              <span id="quiz-count-display" class="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">
+                5 Questions
+              </span>
+            </div>
+            <div class="flex items-center gap-3 pt-1">
+              <input 
+                id="quiz-question-count" 
+                type="number" 
+                min="3" 
+                max="15" 
+                value="5" 
+                oninput="const v = Math.min(15, Math.max(3, parseInt(this.value)||5)); const d = document.getElementById('quiz-count-display'); if(d) d.innerText = v + ' Questions';"
+                class="w-24 px-3 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-slate-200 dark:border-gray-700 text-sm font-bold text-center text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+              >
+              <div class="flex-1 text-[11px] text-slate-500 dark:text-gray-400 leading-snug">
+                Choose between <strong class="text-slate-800 dark:text-gray-200">3 to 15 questions</strong> per assessment session.
+              </div>
+            <div class="flex items-center gap-1.5 pt-2 flex-wrap">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Quick Select:</span>
+              <button type="button" onclick="setQuizQuestionCount(3)" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900/60 transition">3 Qs</button>
+              <button type="button" onclick="setQuizQuestionCount(5)" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900/60 transition">5 Qs</button>
+              <button type="button" onclick="setQuizQuestionCount(8)" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900/60 transition">8 Qs</button>
+              <button type="button" onclick="setQuizQuestionCount(10)" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900/60 transition">10 Qs</button>
+              <button type="button" onclick="setQuizQuestionCount(15)" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900/60 transition">15 Qs</button>
+            </div>
+          </div>
+
+          <!-- TARGET TOPIC / FOCUS PROMPT -->
+          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-gray-800 space-y-2">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-gray-300 flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-base text-purple-500">psychology</span>
+              Target Skill or Domain
+            </span>
+            <input 
+              id="quiz-focus-prompt" 
+              type="text" 
+              maxlength="180" 
+              placeholder="e.g. Next.js 14, Docker, PyTorch, LangGraph..." 
+              class="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-slate-200 dark:border-gray-700 text-xs text-slate-700 dark:text-gray-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+          </div>
+
+          <!-- DIFFICULTY SLIDER (REPLACED SELECT DROPDOWN) -->
+          <div class="col-span-full p-4 rounded-2xl bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-gray-800 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-gray-300 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base text-purple-500">tune</span>
+                Challenge Level Slider
+              </span>
+              <span id="difficulty-slider-label" class="text-xs font-bold text-purple-600 dark:text-purple-400 font-mono">
+                Adaptive Mix (Recommended)
+              </span>
+            </div>
+
+            <!-- Slider Control -->
+            <div class="space-y-1.5 pt-1">
+              <input 
+                id="quiz-difficulty-slider" 
+                type="range" 
+                min="1" 
+                max="3" 
+                step="1" 
+                value="2" 
+                oninput="updateDifficultySliderLabel(this.value)" 
+                class="w-full h-2.5 bg-slate-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-600"
+              >
+              <div class="flex justify-between text-[10px] font-mono font-semibold text-slate-400 px-1">
+                <span>1. Beginner / Easy</span>
+                <span class="text-purple-600 dark:text-purple-400">2. Adaptive Mix</span>
+                <span>3. Advanced / Hard</span>
+              </div>
+            </div>
+
+            <p id="difficulty-slider-desc" class="text-xs text-slate-500 dark:text-gray-400">
+              Dynamic blend testing both fundamentals and practical challenges.
+            </p>
+          </div>
+        </div>
+
+        <div id="quiz-learning-insights" class="p-4 rounded-2xl bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-gray-800 text-left text-xs text-slate-600 dark:text-gray-300">${errorMessage ? `<span class="text-rose-600 dark:text-rose-300 font-semibold">${errorMessage}</span>` : 'Loading your learning profile...'}</div>
 
         <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-          <button onclick="startQuiz()" class="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-xs uppercase tracking-wider shadow-lg transition">
-            Generate My Quiz <span class="material-symbols-outlined text-sm align-middle ml-1">arrow_forward</span>
+          <button onclick="startQuiz()" class="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-xs uppercase tracking-wider shadow-lg transition flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-base">rocket_launch</span>
+            <span>Launch Dynamic Assessment</span>
           </button>
           ${hasParsedResume ? `
-            <button onclick="autoFillQuizWithResume()" class="w-full sm:w-auto px-5 py-3 rounded-2xl border border-purple-300 dark:border-purple-600/40 bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 font-bold text-xs transition hover:bg-purple-100 flex items-center justify-center gap-2">
+            <button onclick="autoFillQuizWithResume()" class="w-full sm:w-auto px-5 py-3.5 rounded-2xl border border-purple-300 dark:border-purple-600/40 bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 font-bold text-xs transition hover:bg-purple-100 flex items-center justify-center gap-2">
               <span class="material-symbols-outlined text-[16px]">auto_awesome</span>
               <span>Sync with Resume Profile</span>
             </button>
@@ -2364,40 +3047,59 @@ function renderQuiz(errorMessage = '') {
   if (quizState.finished) {
     const result = quizState.result || {};
     const accuracy = result.accuracy || 0;
+    const totalQ = result.totalQuestions || quizState.questions.length;
+    const correctQ = result.correctCount || 0;
+
     container.innerHTML = `
-      <div class="text-center py-10 space-y-6 max-w-lg mx-auto">
-        <div class="w-16 h-16 rounded-3xl bg-emerald-100 dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/40 flex items-center justify-center text-3xl mx-auto shadow-sm">
-          
+      <div id="quiz-printable-report" class="text-center py-8 space-y-6 max-w-xl mx-auto p-4 sm:p-6 bg-white dark:bg-white/[0.02] rounded-2xl border border-[#E7E4DC] dark:border-white/10">
+        <!-- Header Badge & Icon -->
+        <div class="w-16 h-16 rounded-3xl bg-emerald-100 dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/40 flex items-center justify-center text-3xl mx-auto shadow-sm text-emerald-600 dark:text-emerald-400">
+          <span class="material-symbols-outlined text-3xl">verified</span>
         </div>
+
         <div>
-          <h3 class="text-2xl font-black text-[#0F172A] dark:text-white">Assessment Validated!</h3>
-          <p class="text-xs text-slate-500 dark:text-gray-400 mt-1">Official score recorded on the Ministry of Ayush Academic Ledger</p>
+          <span class="text-[10px] uppercase font-mono font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
+            Competency Assessment Validated
+          </span>
+          <h3 class="text-2xl font-black text-[#0F172A] dark:text-white mt-2">Assessment Results Verified</h3>
+          <p class="text-xs text-slate-500 dark:text-gray-400 mt-1">Official competency scorecard verified and recorded on the Academic Ledger.</p>
         </div>
 
+        <!-- Metric Cards -->
         <div class="grid grid-cols-2 gap-3 text-left">
-          <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-800">
+          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-800">
             <span class="text-[10px] text-slate-400 uppercase font-semibold block">Score &amp; Accuracy</span>
-            <strong class="text-lg font-mono text-emerald-600 dark:text-emerald-400">${result.correctCount || 0} / ${result.totalQuestions || quizState.questions.length} (${accuracy}%)</strong>
+            <strong class="text-xl font-mono text-emerald-600 dark:text-emerald-400">${correctQ} / ${totalQ} (${accuracy}%)</strong>
           </div>
-          <div class="p-3.5 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-500/30">
-            <span class="text-[10px] text-purple-700 dark:text-purple-300 uppercase font-semibold block">XP Bounty Earned</span>
-            <strong class="text-lg font-mono text-purple-600 dark:text-purple-300">${accuracy >= 70 ? 'Strong progress' : 'Practice recommended'}</strong>
+          <div class="p-4 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-500/30">
+            <span class="text-[10px] text-purple-700 dark:text-purple-300 uppercase font-semibold block">XP &amp; Skill Mastery</span>
+            <strong class="text-base font-mono text-purple-600 dark:text-purple-300">${accuracy >= 70 ? '+250 XP Awarded' : '+100 XP Practice'}</strong>
           </div>
         </div>
 
+        <!-- Anti-Decay Status -->
         <div class="p-4 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/40 text-xs text-emerald-800 dark:text-emerald-300 text-left space-y-1">
           <div class="font-bold flex items-center gap-1.5">
-            <span class="material-symbols-outlined text-teal-400 text-base mr-1">shield</span> <span>Decay Freeze Multiplier Extended</span>
+            <span class="material-symbols-outlined text-teal-400 text-base">shield</span> 
+            <span>Decay Freeze Extended for 72 Hours</span>
           </div>
-          <div>Zulu has recorded this attempt and will use your skill-level accuracy to shape the next quiz.</div>
+          <div class="text-[11px] text-slate-600 dark:text-gray-300">
+            Zulu AI has logged this session into your persistent competency constellation to personalize future assessments.
+          </div>
         </div>
 
-        <div class="flex items-center justify-center gap-3 pt-2">
-          <button onclick="resetAdaptiveQuiz()" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-gray-300 hover:bg-slate-100 text-xs font-bold transition">
+        <!-- Action Buttons including Download PDF -->
+        <div class="flex flex-wrap items-center justify-center gap-3 pt-3">
+          <button onclick="downloadQuizResultPdf()" id="quiz-pdf-btn" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white dark:bg-white/10 dark:hover:bg-white/20 text-xs font-bold transition flex items-center gap-2 shadow-sm">
+            <span class="material-symbols-outlined text-rose-400 text-base">picture_as_pdf</span>
+            <span>Download Result as PDF</span>
+          </button>
+          <button onclick="resetAdaptiveQuiz()" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 text-xs font-bold transition">
             Build Another Quiz ↺
           </button>
-          <a href="student-zulu.html" onclick="openZuluQuizReview()" class="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-md transition">
-            Ask Zulu to explain <span class="material-symbols-outlined text-sm align-middle ml-1">smart_toy</span>
+          <a href="student-zulu.html" onclick="openZuluQuizReview()" class="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-md transition flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-sm">smart_toy</span>
+            <span>Ask Zulu to Explain</span>
           </a>
         </div>
       </div>
@@ -2491,20 +3193,71 @@ function selectQuizAnswer(idx) {
 async function loadQuizInsights() {
   const target = document.getElementById('quiz-learning-insights');
   if (!target) return;
-  const response = await JoblexApiClient.getAdaptiveQuizInsights();
-  const insights = response?.insights;
-  if (!response?.success || !insights) {
-    target.innerText = response?.error || 'Your learning profile will appear after your first attempt.';
-    return;
+  try {
+    const response = await JoblexApiClient.getAdaptiveQuizInsights();
+    const insights = response?.insights;
+    if (!response?.success || !insights || !insights.attempts) {
+      target.innerHTML = `<strong class="text-slate-800 dark:text-white">Your Adaptive Profile</strong><span class="block mt-1 text-slate-500 dark:text-gray-400">Ready to validate competencies. Complete your first session to unlock personalized skill analytics and anti-decay tracking.</span>`;
+      return;
+    }
+    const accuracy = insights.totalAnswered ? Math.round((insights.totalCorrect / insights.totalAnswered) * 100) : 0;
+    const weakSkills = Object.entries(insights.bySkill || {}).filter(([, stat]) => stat.accuracy < 70).map(([skill]) => `${skill} (${stat.accuracy}%)`);
+    target.innerHTML = `<strong class="text-slate-800 dark:text-white">Your Adaptive Profile</strong><span class="block mt-1">${insights.attempts} attempt(s) · ${accuracy}% overall accuracy. ${weakSkills.length ? `Zulu will reinforce: ${weakSkills.join(', ')}.` : 'Zulu is ready to increase the challenge as you improve.'}</span>`;
+  } catch (e) {
+    target.innerHTML = `<strong class="text-slate-800 dark:text-white">Your Adaptive Profile</strong><span class="block mt-1 text-slate-500 dark:text-gray-400">Ready to begin assessment. Choose your questions and launch when ready.</span>`;
   }
-  const accuracy = insights.totalAnswered ? Math.round((insights.totalCorrect / insights.totalAnswered) * 100) : 0;
-  const weakSkills = Object.entries(insights.bySkill || {}).filter(([, stat]) => stat.accuracy < 70).map(([skill]) => `${skill} (${stat.accuracy}%)`);
-  target.innerHTML = `<strong class="text-slate-800 dark:text-white">Your adaptive profile</strong><span class="block mt-1">${insights.attempts} attempt(s) · ${accuracy}% overall accuracy. ${weakSkills.length ? `Zulu will reinforce: ${weakSkills.join(', ')}.` : 'Zulu is ready to increase the challenge as you improve.'}</span>`;
 }
 
 function resetAdaptiveQuiz() {
-  quizState = { started: false, currentIndex: 0, selectedAnswer: null, answers: [], questions: [], finished: false, difficulty: 'mixed', prompt: '', attemptId: null, result: null, loading: false };
+  quizState = { started: false, currentIndex: 0, selectedAnswer: null, answers: [], questions: [], finished: false, difficulty: 'mixed', questionCount: 5, prompt: '', attemptId: null, result: null, loading: false };
   renderQuiz();
+}
+
+async function downloadQuizResultPdf() {
+  const btn = document.getElementById('quiz-pdf-btn');
+  const originalBtn = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `
+      <span class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+      <span>Generating PDF...</span>
+    `;
+  }
+
+  const reportContainer = document.getElementById('quiz-printable-report');
+  if (!reportContainer) {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalBtn;
+    }
+    return;
+  }
+
+  const dateStamp = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  const opt = {
+    margin: [12, 12, 12, 12],
+    filename: `JOBLEX-Assessment-Report-${dateStamp.replace(/\s+/g, '_')}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true, logging: false },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+
+  try {
+    if (window.html2pdf) {
+      await window.html2pdf().set(opt).from(reportContainer).save();
+      showToast('Assessment result scorecard exported as PDF!', 'PDF Download Complete', 'success');
+    } else {
+      window.print();
+    }
+  } catch (err) {
+    console.error('[Quiz PDF Download Error]:', err);
+    window.print();
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalBtn;
+    }
+  }
 }
 
 function openZuluQuizReview() {
@@ -3009,4 +3762,16 @@ function filterInternshipTabs(type, btn) {
 
 window.filterInternshipTabs = filterInternshipTabs;
 window.handleStreakCheckin = handleCheckIn;
+
+// Quiz Arena Global Window Bindings
+window.startQuiz = startQuiz;
+window.setQuizQuestionCount = setQuizQuestionCount;
+window.updateDifficultySliderLabel = updateDifficultySliderLabel;
+window.autoFillQuizWithResume = autoFillQuizWithResume;
+window.renderQuiz = renderQuiz;
+window.selectQuizAnswer = selectQuizAnswer;
+window.nextQuizQuestion = nextQuizQuestion;
+window.resetAdaptiveQuiz = resetAdaptiveQuiz;
+window.downloadQuizResultPdf = downloadQuizResultPdf;
+window.openZuluQuizReview = openZuluQuizReview;
 

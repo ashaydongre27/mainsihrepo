@@ -113,12 +113,12 @@ export default function ZuluChat() {
     }
 
     const studentContext = {
-      studentName: user?.name || 'Ashay Verma',
-      institution: user?.institution || 'All India Institute of Ayurveda',
-      department: user?.department || 'Ayurvedic Pharmacology & Health-AI',
+      studentName: user?.name || 'Student Scholar',
+      institution: user?.institution || 'Academic University / Institute',
+      department: user?.department || 'Higher Education & Technology',
       xp: user?.xp || 1450,
       streak: user?.streak || 7,
-      targetRole: 'Herbal Formulation Scientist'
+      targetRole: 'Technology & Research Professional'
     };
 
     try {

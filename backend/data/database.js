@@ -1198,7 +1198,94 @@ const DB = {
   ],
 
   studentQuizCertifications: [],
-  adaptiveQuizAttempts: []
+  adaptiveQuizAttempts: [],
+
+  // Feature 8: Companies & Company Tech Stack Showcase
+  companies: [
+    {
+      id: "comp-dabur",
+      name: "Dabur India Ltd.",
+      tagline: "Science-Backed Natural Healthcare & Consumer Goods Pioneer",
+      logo: "🌿",
+      industry_sector: "Pharmaceuticals & Consumer Goods",
+      location: "Ghaziabad / Delhi-NCR",
+      website: "https://www.dabur.com",
+      description: "Dabur India Ltd. is one of India's leading S&P CNX Nifty FMCG companies with a heritage of over 138 years. Dedicated to bringing natural, science-validated Ayush healthcare formulations to global markets.",
+      tech_stack: ["Python", "HPTLC", "HPLC Fingerprinting", "In-Silico AutoDock", "GLP/GCP Compliance", "PyTorch", "Node.js"],
+      verified: true,
+      created_at: "2026-01-15T00:00:00.000Z"
+    },
+    {
+      id: "comp-patanjali",
+      name: "Patanjali Research Foundation",
+      tagline: "World-Class Ayurvedic R&D & Clinical Standardization Laboratory",
+      logo: "🌱",
+      industry_sector: "Biotechnology & Ayurvedic Medicine",
+      location: "Haridwar, Uttarakhand",
+      website: "https://www.patanjali.res.in",
+      description: "Patanjali Research Institute conducts cutting-edge biomedical research, botanical extract standardization, multi-center clinical trials, and bio-data informatics to validate classical wellness modalities.",
+      tech_stack: ["Ayurvedic Pharmacognosy", "HPTLC / HPLC", "Python", "Bio-Informatics", "SQL", "Pandas"],
+      verified: true,
+      created_at: "2026-01-20T00:00:00.000Z"
+    },
+    {
+      id: "comp-apex",
+      name: "Apex Cloud Innovations",
+      tagline: "High-Performance Distributed Systems & Intelligent Enterprise Platforms",
+      logo: "⚡",
+      industry_sector: "Information Technology & Cloud Systems",
+      location: "Bengaluru, Karnataka",
+      website: "https://apexcloud.example.io",
+      description: "Apex Cloud Innovations engineers scalable cloud architectures, real-time microservices, and AI-driven automation solutions for global enterprise clients.",
+      tech_stack: ["Python", "JavaScript", "React", "Node.js", "Docker", "AWS", "PostgreSQL"],
+      verified: true,
+      created_at: "2026-02-01T00:00:00.000Z"
+    },
+    {
+      id: "comp-himalaya",
+      name: "Himalaya Wellness Company",
+      tagline: "Head-to-Heel Botanical Healthcare & Personal Care Innovations",
+      logo: "🍃",
+      industry_sector: "Nutraceuticals & Herbal Healthcare",
+      location: "Bengaluru, Karnataka",
+      website: "https://www.himalayawellness.in",
+      description: "Himalaya Wellness integrates modern scientific research with ancient botanical expertise to produce globally trusted healthcare, personal care, and therapeutic formulations.",
+      tech_stack: ["Phytochemistry", "GLP Standards", "Clinical Analytics", "R&D Data Pipeline", "Python"],
+      verified: true,
+      created_at: "2026-02-10T00:00:00.000Z"
+    }
+  ],
+
+  // Feature 9: Company News, R&D Updates & Tech Blogs Feed
+  companyUpdates: [
+    {
+      id: "cup-101",
+      companyId: "comp-dabur",
+      companyName: "Dabur India Ltd.",
+      title: "Dabur R&D Expands In-Silico Molecular Docking Lab for Herbal Phytochemicals",
+      content: "We are thrilled to announce the launch of our upgraded Computational Bio-Informatics Lab. We are actively hiring student interns proficient in Python, AutoDock, and HPTLC fingerprinting.",
+      category: "Tech & R&D",
+      created_at: "2026-09-08T10:30:00.000Z"
+    },
+    {
+      id: "cup-102",
+      companyId: "comp-patanjali",
+      companyName: "Patanjali Research Foundation",
+      title: "Patanjali Signs MoU with Top Universities for Shared Analytical Instrumentation",
+      content: "Our state-of-the-art HPTLC Densitometry and High-Resolution Mass Spectrometry facility is now accessible for student researchers across partner academic institutions.",
+      category: "MoU & Collaboration",
+      created_at: "2026-09-06T14:15:00.000Z"
+    },
+    {
+      id: "cup-103",
+      companyId: "comp-apex",
+      companyName: "Apex Cloud Innovations",
+      title: "Open Requisitions: 2026 Graduate Software Engineering & AI Internships",
+      content: "Apex Cloud Innovations has opened 15 new positions for student developers proficient in Node.js, React, Python, and SQL. Apply via the Student Opportunities Board!",
+      category: "Hiring Event",
+      created_at: "2026-09-05T09:00:00.000Z"
+    }
+  ]
 };
 
 module.exports = DB;

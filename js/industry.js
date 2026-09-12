@@ -58,7 +58,7 @@ async function renderCandidates() {
       </div>
 
       <div class="flex gap-2 pt-3 border-t border-gray-800">
-        <button onclick="showToast('Viewing full verified AIIA institutional dossier for ${c.name}', 'Dossier Loaded', 'info')" class="flex-1 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-semibold text-xs transition">
+        <button onclick="showToast('Viewing full verified candidate dossier for ${c.name}', 'Dossier Loaded', 'info')" class="flex-1 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-semibold text-xs transition">
           View Dossier
         </button>
         <button onclick="shortlistCandidate(${i}, this)" class="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition">
@@ -101,7 +101,7 @@ function renderTalentForecast() {
 function handlePostOpportunity(e) {
   e.preventDefault();
   const title = document.getElementById('opp-post-title').value;
-  showToast(`Opportunity / Micro-Gig "${title}" has been published to the student portal and verified by AIIA liaison!`, 'Opportunity Published', 'success');
+  showToast(`Opportunity / Micro-Gig "${title}" has been published to the student portal and verified by academic liaison!`, 'Opportunity Published', 'success');
   e.target.reset();
   switchIndustryTab('Candidates');
 }

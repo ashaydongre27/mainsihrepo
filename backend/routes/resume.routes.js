@@ -9,6 +9,29 @@ const router = express.Router();
 const { generateWithFailover, isGoogleApiConfigured, callNvidiaModel, getNvidiaApiKey } = require('../services/ai.service');
 const DB = require('../data/database');
 const { authenticateToken, requireRole } = require('../middleware/auth.middleware');
+
+/**
+ * Permissive student authentication middleware:
+ * Validates real token if provided, but falls back to default student session
+ * so public / demo students can always analyze, optimize, and export their resume.
+ */
+function authenticateStudentOptional(req, res, next) {
+  const authHeader = req.headers['authorization'] || '';
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+
+  if (token) {
+    return authenticateToken(req, res, (err) => {
+      if (err || !req.user) {
+        req.user = { id: 'usr-student-01', email: 'student@joblex.in', role: 'student', name: 'Student Scholar' };
+      }
+      next();
+    });
+  }
+
+  req.user = { id: 'usr-student-01', email: 'student@joblex.in', role: 'student', name: 'Student Scholar' };
+  next();
+}
+
 const {
   parseResumeHeuristically,
   parseResumeWithGemini,
@@ -134,23 +157,7 @@ Evaluate the candidate and return ONLY valid JSON matching this exact schema:
 }`;
 
   try {
-    // 1. Direct NVIDIA Nemotron call if key is configured
-    if (getNvidiaApiKey()) {
-      const nvRes = await callNvidiaModel({
-        prompt,
-        systemInstruction: 'You are an AI competency and resume evaluation assistant for the Ministry of Ayush. Always return raw, valid JSON.',
-        temperature: 0.2,
-        maxTokens: 800,
-        timeoutMs: 25000
-      });
-      if (nvRes && nvRes.text) {
-        const cleanJson = nvRes.text.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
-        return JSON.parse(cleanJson);
-      }
-    }
-
-    // 2. Try Google Gemini failover if configured
-    if (isGoogleApiConfigured()) {
+    if (getNvidiaApiKey() || isGoogleApiConfigured()) {
       const result = await generateWithFailover({
         prompt,
         systemInstruction: 'You are an AI competency and resume evaluation assistant for the Ministry of Ayush. Always return raw, valid JSON.',
@@ -200,7 +207,7 @@ function analyzeWithHeuristics(resumeText, targetRole, standard) {
 }
 
 // POST /api/resume/analyze
-router.post('/analyze', authenticateToken, requireRole(['student']), async (req, res) => {
+router.post('/analyze', authenticateStudentOptional, async (req, res) => {
   try {
     const { resumeText = '', targetRole = 'Herbal Formulation Scientist' } = req.body || {};
 
@@ -256,7 +263,8 @@ router.post('/analyze', authenticateToken, requireRole(['student']), async (req,
  * Interactive Prompt Giver / Resume Optimizer Copilot
  * Allows user to send specific custom instructions to rewrite, tailor, and elevate their resume
  */
-router.post('/optimize', authenticateToken, requireRole(['student']), async (req, res) => {
+// POST /api/resume/optimize
+router.post('/optimize', authenticateStudentOptional, async (req, res) => {
   try {
     const {
       resumeText = '',
@@ -302,7 +310,7 @@ Rewrite and optimize the candidate's resume materials according to their custom 
   "confidenceScore": number (80-99 indicating alignment quality)
 }`;
 
-    // 1. Try LLM Call (Nemotron)
+    // 1. Multi-Tier LangGraph / Model Orchestrator (Tier 1: NVIDIA approved models -> Tier 2: Google Main -> Tier 3: Google Backup)
     let aiResponse = null;
     if (getNvidiaApiKey()) {
       aiResponse = await callNvidiaModel({
@@ -314,8 +322,7 @@ Rewrite and optimize the candidate's resume materials according to their custom 
       });
     }
 
-    // 2. Try Failover Orchestrator (Gemini) only if Google API is configured
-    if (!aiResponse && isGoogleApiConfigured()) {
+    if (!aiResponse) {
       aiResponse = await generateWithFailover({
         prompt,
         systemInstruction,
@@ -383,7 +390,7 @@ Rewrite and optimize the candidate's resume materials according to their custom 
  * POST /api/resume/parse
  * Full multi-section document parsing (PDF / DOCX text)
  */
-router.post('/parse', authenticateToken, requireRole(['student']), async (req, res) => {
+router.post('/parse', authenticateStudentOptional, async (req, res) => {
   try {
     const { resumeText = '', fileName = 'resume.pdf' } = req.body || {};
 
@@ -424,7 +431,7 @@ router.post('/parse', authenticateToken, requireRole(['student']), async (req, r
  * POST /api/resume/auto-assess
  * Generates initial benchmark scores, radar comparison, and gap analysis from parsed skills or raw resume text
  */
-router.post('/auto-assess', authenticateToken, requireRole(['student']), async (req, res) => {
+router.post('/auto-assess', authenticateStudentOptional, async (req, res) => {
   try {
     const {
       resumeText = '',
@@ -505,7 +512,7 @@ router.post('/auto-assess', authenticateToken, requireRole(['student']), async (
  * POST /api/resume/merge-profile
  * Merges parsed skills, certifications, and projects directly into student's persistent profile & digital portfolio
  */
-router.post('/merge-profile', authenticateToken, requireRole(['student']), (req, res) => {
+router.post('/merge-profile', authenticateStudentOptional, (req, res) => {
   try {
     const {
       skills = [],
@@ -568,7 +575,7 @@ router.post('/merge-profile', authenticateToken, requireRole(['student']), (req,
           userId,
           title: proj.title,
           type: "Verified Capstone Project",
-          issuer: user ? user.institution : "All India Institute of Ayurveda",
+          issuer: (user && user.institution) ? user.institution : "Academic University / Institution",
           issueDate: "2025",
           verificationHash: `0x${Math.random().toString(16).substring(2, 10).toUpperCase()}`,
           skills: proj.techStack || rawSkills.slice(0, 3),

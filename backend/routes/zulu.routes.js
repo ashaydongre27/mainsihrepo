@@ -12,39 +12,15 @@ const zuluChatService = require('../services/zuluChat.service');
 const { authenticateToken, requireRole } = require('../middleware/auth.middleware');
 
 /**
- * Call AI (NVIDIA Nemotron 3 Ultra 550B -> Failover) for Zulu AI Counselor
+ * Call AI via LangGraph Multi-Provider Failover Orchestrator (NVIDIA NIM -> Google Main -> Google Backup)
  */
 async function generateWithZuluAI(userMessage, conversationHistory = [], studentContext = null) {
   const adaptive = studentContext?.adaptiveQuizPerformance;
   const adaptiveSnippet = adaptive ? `, Quiz attempts=${adaptive.attempts || 0}, quiz accuracy=${adaptive.totalAnswered ? Math.round((adaptive.totalCorrect / adaptive.totalAnswered) * 100) : 0}%, skill accuracy=${JSON.stringify(adaptive.bySkill || {})}` : '';
   const contextSnippet = studentContext ? `\nStudent Context: Name=${studentContext.studentName || 'Scholar'}, Role=${studentContext.role || 'Student'}, Department=${studentContext.department || 'General'}${adaptiveSnippet}` : '';
-  const systemInstruction = `You are Zulu, an expert AI Career and Research Counselor for students across academic disciplines and modern industries (pharmaceuticals, health-tech, biotechnology, data science). Guide students on comprehensive career roadmaps, corporate placements, verified skills, and research methodologies with actionable steps.${contextSnippet}`;
+  const systemInstruction = `You are Zulu, an expert AI Career and Research Counselor for students across academic disciplines and modern industries (software engineering, pharmaceuticals, health-tech, biotechnology, data science, AI). Guide students on comprehensive career roadmaps, corporate placements, verified skills, and project methodologies with clear, dynamic, and actionable steps.${contextSnippet}`;
 
-  // 1. Try NVIDIA Nemotron 3 Ultra 550B if key is present
-  if (getNvidiaApiKey()) {
-    try {
-      const nvRes = await callNvidiaModel({
-        prompt: userMessage,
-        systemInstruction,
-        history: conversationHistory,
-        temperature: 0.6,
-        maxTokens: 1024,
-        timeoutMs: 25000
-      });
-      if (nvRes && nvRes.text) {
-        return {
-          text: nvRes.text,
-          model: nvRes.provider || 'nvidia/nemotron-3-ultra-550b-a55b',
-          keyType: nvRes.keyType || 'nvidia'
-        };
-      }
-    } catch (e) {
-      console.warn('[Zulu NVIDIA Call Warning]:', e.message);
-    }
-  }
-
-  // 2. Try Failover Orchestrator (Google Gemini) if configured
-  if (isGoogleApiConfigured()) {
+  try {
     const result = await generateWithFailover({
       prompt: userMessage,
       systemInstruction,
@@ -59,6 +35,8 @@ async function generateWithZuluAI(userMessage, conversationHistory = [], student
         keyType: result.keyType
       };
     }
+  } catch (err) {
+    console.warn('[generateWithZuluAI Error]:', err.message);
   }
 
   return null;

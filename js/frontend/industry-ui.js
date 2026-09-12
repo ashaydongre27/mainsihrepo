@@ -293,7 +293,7 @@ async function renderCandidates() {
           <div class="flex justify-between items-start mb-2">
             <div>
               <h4 class="font-bold text-sm text-slate-900 dark:text-white">${c.name}</h4>
-              <p class="text-xs text-slate-500 dark:text-gray-400">${c.college || c.institution || 'AIIA'}</p>
+              <p class="text-xs text-slate-500 dark:text-gray-400">${c.college || c.institution || 'University / Institution'}</p>
             </div>
             <div class="text-right">
                 <span class="text-xs font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300 font-mono text-base block">${c.match || 'N/A'}${c.match ? '%' : ''} Match</span>
@@ -309,7 +309,7 @@ async function renderCandidates() {
         </div>
 
         <div class="flex gap-2 pt-3 border-t border-slate-200 dark:border-gray-800">
-          <button onclick="showToast('Viewing full verified AIIA institutional dossier for ${c.name}', 'Dossier Loaded', 'info')" class="flex-1 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-slate-800 dark:text-white font-semibold text-xs transition border border-slate-200 dark:border-gray-700">
+          <button onclick="showToast('Viewing full verified candidate dossier for ${c.name}', 'Dossier Loaded', 'info')" class="flex-1 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-slate-800 dark:text-white font-semibold text-xs transition border border-slate-200 dark:border-gray-700">
             View Dossier
           </button>
           <button onclick="shortlistCandidate(${i}, this)" class="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition">
@@ -592,8 +592,8 @@ function handleAuditExport() {
 
 function handleViewLedger(candidateName) {
   const hash = '0x' + Math.random().toString(16).substring(2, 10).toUpperCase() + '...' + Math.random().toString(16).substring(2, 6).toUpperCase();
-  const msg = `Candidate: ${candidateName}\nLedger Node: AIIA-NCR-04\nCryptographic Signature: ${hash}\nAccreditation: Ministry of Ayush / NAAC Criterion 3.4 Validated`;
-  showToast(msg, 'AIIA Ledger Stamped', 'info');
+  const msg = `Candidate: ${candidateName}\nLedger Node: NATIONAL-NODE-01\nCryptographic Signature: ${hash}\nAccreditation: NAAC / Autonomous Statutory Board Validated`;
+  showToast(msg, 'Academic Ledger Stamped', 'info');
 }
 
 async function handleScheduleInterview(candidateName, roleTitle = 'Phytochemical Research Intern') {

@@ -532,9 +532,9 @@ async function submitCallForCollaboration() {
   const res = await JoblexApiClient.postAcademicianOpportunity({
     title,
     description: desc,
-    department: dept || 'Ayurvedic Pharmacology',
+    department: dept || 'Academic & Applied Sciences',
     funding: funding || 'Joint Corporate R&D Grant',
-    institution: (user && user.institution) || 'All India Institute of Ayurveda',
+    institution: (user && user.institution) || 'University / Host Institution',
     type: 'Research Grant',
     requiredSkills: ['Phytochemical Extraction', 'HPTLC', 'Clinical Research']
   });
@@ -603,7 +603,7 @@ function downloadPeerMatrix() {
 }
 
 function viewAuditLog() {
-  showToast("NAAC Criterion 3.4 Audit Trail: All syllabus amendments cryptographically logged and time-stamped on institutional ledger node AIIA-AC-2025.", "Audit Log", "info");
+  showToast("NAAC Criterion 3.4 Audit Trail: All syllabus amendments cryptographically logged and time-stamped on institutional ledger node ACAD-LEDGER-2026.", "Audit Log", "info");
 }
 
 window.handleExportAQAR = handleExportAQAR;

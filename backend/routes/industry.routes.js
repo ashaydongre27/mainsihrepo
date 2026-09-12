@@ -34,9 +34,35 @@ router.get(['/', '/all-data', '/overview', '/stats', '/analytics'], async (req, 
       ? mouRes.value.data
       : (DB.mou_partnerships || []);
 
-    const candidates = candRes.status === 'fulfilled' && !candRes.value.error
-      ? (candRes.value.data || [])
+    let candidates = candRes.status === 'fulfilled' && !candRes.value.error && candRes.value.data?.length
+      ? candRes.value.data
       : [];
+
+    if (!candidates.length && isConfigured && supabase) {
+      try {
+        const { data: studentProfiles } = await supabase
+          .from('profiles')
+          .select('id, name, email, institution, department, verified_skills, xp, streak')
+          .eq('role', 'student')
+          .order('created_at', { ascending: false });
+        if (studentProfiles && studentProfiles.length) {
+          candidates = studentProfiles.map(s => ({
+            id: s.id,
+            name: s.name || 'Student Candidate',
+            email: s.email,
+            college: s.institution || 'National Academic University',
+            institution: s.institution || 'National Academic University',
+            department: s.department || 'Higher Education & Technology',
+            skills: Array.isArray(s.verified_skills) && s.verified_skills.length ? s.verified_skills : ['Data Structures', 'Full-Stack Development', 'Python', 'Algorithms'],
+            match: Math.min(96, Math.max(75, 70 + Math.floor((s.xp || 1000) / 100))),
+            status: 'Ready for Interview',
+            xp: s.xp || 0
+          }));
+        }
+      } catch (err) {
+        console.warn('[Candidates from profiles] Error:', err.message);
+      }
+    }
 
     const bootcamps = bootRes.status === 'fulfilled' && !bootRes.value.error && bootRes.value.data?.length
       ? bootRes.value.data
@@ -212,8 +238,31 @@ router.get('/candidates', async (req, res) => {
 
   try {
     let query = supabase.from('candidates').select('*').order('created_at', { ascending: false });
-    const { data, error } = await query;
+    let { data, error } = await query;
     if (error) throw error;
+
+    if (!data || data.length === 0) {
+      const { data: studentProfiles, error: pErr } = await supabase
+        .from('profiles')
+        .select('id, name, email, institution, department, verified_skills, xp, streak')
+        .eq('role', 'student')
+        .order('created_at', { ascending: false });
+      if (!pErr && studentProfiles) {
+        data = studentProfiles.map(s => ({
+          id: s.id,
+          name: s.name || 'Student Candidate',
+          email: s.email,
+          college: s.institution || 'National Academic University',
+          institution: s.institution || 'National Academic University',
+          department: s.department || 'Higher Education & Technology',
+          skills: Array.isArray(s.verified_skills) && s.verified_skills.length ? s.verified_skills : ['Data Structures', 'Full-Stack Development', 'Python', 'Algorithms'],
+          match: Math.min(96, Math.max(75, 70 + Math.floor((s.xp || 1000) / 100))),
+          status: 'Ready for Interview',
+          xp: s.xp || 0
+        }));
+      }
+    }
+
     const normalizedSearch = search.toLowerCase();
     const candidates = (data || []).filter(candidate => {
       if (!normalizedSearch) return true;
@@ -242,8 +291,31 @@ router.get('/reverse-search', async (req, res) => {
   }
 
   try {
-    const { data, error } = await supabase.from('candidates').select('*');
+    let { data, error } = await supabase.from('candidates').select('*');
     if (error) throw error;
+
+    if (!data || data.length === 0) {
+      const { data: studentProfiles, error: pErr } = await supabase
+        .from('profiles')
+        .select('id, name, email, institution, department, verified_skills, xp, streak')
+        .eq('role', 'student')
+        .order('created_at', { ascending: false });
+      if (!pErr && studentProfiles) {
+        data = studentProfiles.map(s => ({
+          id: s.id,
+          name: s.name || 'Student Candidate',
+          email: s.email,
+          college: s.institution || 'National Academic University',
+          institution: s.institution || 'National Academic University',
+          department: s.department || 'Higher Education & Technology',
+          skills: Array.isArray(s.verified_skills) && s.verified_skills.length ? s.verified_skills : ['Data Structures', 'Full-Stack Development', 'Python', 'Algorithms'],
+          match: Math.min(96, Math.max(75, 70 + Math.floor((s.xp || 1000) / 100))),
+          status: 'Ready for Interview',
+          xp: s.xp || 0
+        }));
+      }
+    }
+
     const normalizedSkill = String(skill).toLowerCase().trim();
     const filtered = (data || []).filter(candidate => !normalizedSkill ||
       (Array.isArray(candidate.skills) ? candidate.skills : [])

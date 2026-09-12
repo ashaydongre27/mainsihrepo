@@ -19,6 +19,7 @@ const academyRoutes = require('./routes/academy.routes');
 const industryRoutes = require('./routes/industry.routes');
 const recommendationsRoutes = require('./routes/recommendations.routes');
 const assessmentRoutes = require('./routes/assessment.routes');
+const companyRoutes = require('./routes/company.routes');
 const todoRoutes = require('./routes/todo.routes');
 const notificationRoutes = require('./routes/notification.routes');
 const { isConfigured } = require('./config/supabase');
@@ -88,6 +89,10 @@ app.use('/analytics', academyRoutes);
 app.use('/api/industry', industryRoutes);
 app.use('/industry-api', industryRoutes);
 
+app.use('/api/companies', companyRoutes);
+app.use('/api/company', companyRoutes);
+app.use('/companies', companyRoutes);
+
 // Security Guard: Prevent direct HTTP access to sensitive project files
 const BLOCKED_PATHS = ['.env', 'backend', 'package.json', 'package-lock.json', 'pyproject.toml', 'requirements.txt', '.git', '.code-review-graph', '.agents'];
 app.use((req, res, next) => {
@@ -119,7 +124,7 @@ const portalRoutes = [
   'student', 'academy', 'industry', 'auth',
   'student-roadmap', 'student-internships', 'student-jobs',
   'student-quiz', 'student-resume', 'student-skilltree',
-  'student-portfolio', 'student-zulu',
+  'student-portfolio', 'student-zulu', 'student-companies',
   'industry-candidates', 'industry-calibrator', 'industry-requisitions',
   'industry-mous', 'industry-bootcamps', 'industry-grants', 'industry-post-opportunity',
   'academy-readiness', 'academy-curriculum', 'academy-benchmarking',

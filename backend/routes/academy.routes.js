@@ -70,13 +70,15 @@ const { supabase, isConfigured } = require('../config/supabase');
 // GET /api/academy, /api/academy/all-data, /api/academy/overview, /api/academy/stats
 router.get(['/', '/all-data', '/overview', '/stats', '/analytics'], async (req, res) => {
   try {
-    const [mouRes, sylRes, cgRes, fdpRes, bootRes, ccbRes] = await Promise.allSettled([
+    const [mouRes, sylRes, cgRes, fdpRes, bootRes, ccbRes, profRes, appRes] = await Promise.allSettled([
       supabase.from('mou_partnerships').select('*'),
       supabase.from('syllabus_suggestions').select('*'),
       supabase.from('consultancy_grants').select('*'),
       supabase.from('fdp_programs').select('*'),
       supabase.from('sponsored_bootcamps').select('*'),
-      supabase.from('cross_college_benchmarks').select('*').order('rank', { ascending: true })
+      supabase.from('cross_college_benchmarks').select('*').order('rank', { ascending: true }),
+      supabase.from('profiles').select('*').eq('role', 'student'),
+      supabase.from('applications').select('*')
     ]);
 
     const mouPartnerships = mouRes.status === 'fulfilled' && !mouRes.value.error
@@ -103,10 +105,24 @@ router.get(['/', '/all-data', '/overview', '/stats', '/analytics'], async (req, 
       ? (ccbRes.value.data || [])
       : [];
 
-    const students = (DB.users || []).filter(user => (user.role || '').toLowerCase() === 'student');
-    const applications = DB.applications || [];
-    const acceptedApplications = applications.filter(application => /offer|accept|placed/i.test(application.status || ''));
+    const liveStudents = profRes.status === 'fulfilled' && !profRes.value.error && profRes.value.data?.length
+      ? profRes.value.data
+      : (DB.users || []).filter(user => (user.role || '').toLowerCase() === 'student');
+
+    const liveApplications = appRes.status === 'fulfilled' && !appRes.value.error && appRes.value.data?.length
+      ? appRes.value.data
+      : (DB.applications || []);
+
+    const acceptedApplications = liveApplications.filter(application => /offer|accept|placed|shortlist/i.test(application.status || ''));
     const researchProjects = DB.researchProjects || DB.research_projects || [];
+
+    const totalStudents = liveStudents.length;
+    const avgReadiness = totalStudents
+      ? Math.round(liveStudents.reduce((sum, student) => {
+          const score = Number(student.readinessScore || student.readiness || (student.xp ? Math.min(95, 60 + Math.floor(student.xp / 50)) : 75));
+          return sum + score;
+        }, 0) / totalStudents)
+      : 78;
 
     return res.json({
       success: true,
@@ -119,10 +135,8 @@ router.get(['/', '/all-data', '/overview', '/stats', '/analytics'], async (req, 
       crossCollegeBenchmarking,
       sponsoredBootcamps,
       studentStats: {
-        totalEnrolled: students.length,
-        avgSkillReadiness: students.length
-          ? `${Math.round(students.reduce((sum, student) => sum + Number(student.readinessScore || student.readiness || 0), 0) / students.length)}%`
-          : '0%',
+        totalEnrolled: totalStudents,
+        avgSkillReadiness: `${avgReadiness}%`,
         placedUnderMoU: acceptedApplications.length,
         activeResearchProjects: researchProjects.length
       }

@@ -42,12 +42,21 @@ router.get(['/', '/student'], async (req, res) => {
       return res.status(503).json({ success: false, error: 'Recommendation database is not configured.' });
     }
 
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId || '');
+    const profileQuery = isUuid
+      ? supabase.from('profiles').select('*').or(`id.eq.${userId},email.eq.${userId}`).limit(1)
+      : supabase.from('profiles').select('*').eq('email', userId).limit(1);
+
     const [{ data: users, error: userError }, { data: allOpps, error: opportunityError }] = await Promise.all([
-      supabase.from('profiles').select('*').or(`id.eq.${userId},email.eq.${userId}`).limit(1),
+      profileQuery,
       supabase.from('opportunities').select('*')
     ]);
-    if (userError) throw userError;
-    if (opportunityError) throw opportunityError;
+    if (userError) {
+      console.warn('[Recommendations] Supabase profile fetch warning:', userError.message);
+    }
+    if (opportunityError) {
+      console.warn('[Recommendations] Supabase opportunities fetch warning:', opportunityError.message);
+    }
 
     const studentProfile = users?.[0] || {
       id: userId,

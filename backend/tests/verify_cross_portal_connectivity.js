@@ -40,7 +40,10 @@ async function runTests() {
 
   const applyRes = await fetch(`${BASE_URL}/api/opportunities/apply`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer demo-usr-student-01'
+    },
     body: JSON.stringify({
       opportunityId: 'opp-1',
       opportunityTitle: testOppTitle,
