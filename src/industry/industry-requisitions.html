@@ -43,7 +43,7 @@
 
   
 </head>
-<body class="bg-[#FAF8F5] dark:bg-[#070709] text-[#1C1917] dark:text-[#F4F4F6] font-sans min-h-screen flex flex-col antialiased transition-colors duration-200">
+<body class="bg-[#FAF8F5] dark:bg-[#070709] text-[#1C1917] dark:text-[#F4F4F6] font-sans h-screen flex flex-col overflow-hidden portal-body antialiased transition-colors duration-200">
 
   <!-- Header -->
   <header class="shrink-0 z-50 w-full bg-white/85 dark:bg-[#070709]/90 backdrop-blur-md border-b border-[#E7E4DC] dark:border-white/5 transition-colors duration-200">
@@ -117,7 +117,7 @@
   </div>
 
   <!-- Layout Body -->
-  <div class="flex-1 flex overflow-hidden">
+  <div class="flex-1 flex overflow-hidden min-h-0">
     <!-- Desktop Sidebar -->
     <aside id="industry-sidebar" class="hidden lg:flex h-full w-64 bg-white/95 dark:bg-[#101115]/95 border-r border-[#E7E4DC] dark:border-white/5 backdrop-blur-md p-3.5 flex-col justify-between shrink-0 overflow-y-auto custom-scrollbar transition-all duration-300">
       <div class="space-y-1">
@@ -170,7 +170,7 @@
     </aside>
 
     <!-- Main Workspace -->
-    <main class="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 custom-scrollbar">
+    <main class="flex-1 overflow-y-auto min-h-0 px-4 sm:px-6 lg:px-8 py-6 custom-scrollbar">
       <div class="w-full max-w-6xl mx-auto flex flex-col gap-6">
 
         <!-- Breadcrumb -->

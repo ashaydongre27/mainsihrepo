@@ -4,11 +4,7 @@
  * Compatible with both Node.js Express backend and Python Flask backend
  */
 
-const API_BASE = (typeof window !== 'undefined' && window.JOBLEX_API_URL) || (
-  typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
-    ? '/api'
-    : (typeof window !== 'undefined' && window.location.port === '5000' ? '/api' : 'http://127.0.0.1:5000/api')
-);
+const API_BASE = (typeof window !== 'undefined' && window.JOBLEX_API_URL) || '/api';
 if (typeof window !== 'undefined') window.JOBLEX_API_BASE = API_BASE;
 
 const JoblexApiClient = {

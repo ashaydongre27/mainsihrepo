@@ -25,7 +25,7 @@ const notificationRoutes = require('./routes/notification.routes');
 const { isConfigured } = require('./config/supabase');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = 3000;
 
 // Middleware
 app.use(cors());
@@ -113,14 +113,20 @@ app.use((req, res, next) => {
 
 // Serve static frontend assets from specific public directories
 const ROOT_DIR = path.resolve(__dirname, '..');
+const DIST_DIR = path.join(ROOT_DIR, 'dist');
 const fs = require('fs');
 
-app.use('/css', express.static(path.join(ROOT_DIR, 'css'), { maxAge: 0 }));
-app.use('/js', express.static(path.join(ROOT_DIR, 'js'), { maxAge: 0 }));
-app.use('/src', express.static(path.join(ROOT_DIR, 'src'), { extensions: ['html'], maxAge: 0 }));
+const staticDirs = [DIST_DIR, ROOT_DIR].filter(d => fs.existsSync(d));
+staticDirs.forEach(dir => {
+  app.use('/css', express.static(path.join(dir, 'css'), { maxAge: 0 }));
+  app.use('/js', express.static(path.join(dir, 'js'), { maxAge: 0 }));
+  app.use('/src', express.static(path.join(dir, 'src'), { extensions: ['html'], maxAge: 0 }));
+  app.use('/assets', express.static(path.join(dir, 'assets'), { maxAge: 0 }));
+});
 
 // Pre-cache Portal Clean URL Route Mappings at startup to avoid synchronous disk I/O per request
 const portalRoutes = [
+  'about', 'pricing',
   'student', 'academy', 'industry', 'auth',
   'student-roadmap', 'student-internships', 'student-jobs',
   'student-quiz', 'student-resume', 'student-skilltree',
@@ -134,6 +140,10 @@ const portalRoutes = [
 const routeCache = new Map();
 portalRoutes.forEach(route => {
   const candidatePaths = [
+    path.join(DIST_DIR, 'src', 'students', `${route}.html`),
+    path.join(DIST_DIR, 'src', 'industry', `${route}.html`),
+    path.join(DIST_DIR, 'src', 'academy', `${route}.html`),
+    path.join(DIST_DIR, `${route}.html`),
     path.join(ROOT_DIR, 'src', 'students', `${route}.html`),
     path.join(ROOT_DIR, 'src', 'industry', `${route}.html`),
     path.join(ROOT_DIR, 'src', 'academy', `${route}.html`),
@@ -193,7 +203,7 @@ app.use((err, req, res, next) => {
 
 // Start Server if run directly (standalone Node process)
 if (require.main === module) {
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`========================================================`);
     console.log(` JOBLEX Node.js Backend Server running on port ${PORT}`);
     console.log(`Frontend: http://localhost:${PORT}`);

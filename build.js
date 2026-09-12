@@ -12,7 +12,7 @@ for (const file of rootHtmlFiles) {
   fs.copyFileSync(path.resolve(__dirname, file), path.resolve(distDir, file));
 }
 
-const dirs = ['css', 'js', 'src'];
+const dirs = ['css', 'js', 'src', 'assets'];
 for (const dir of dirs) {
   const src = path.resolve(__dirname, dir);
   if (fs.existsSync(src)) {

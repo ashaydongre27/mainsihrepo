@@ -42,7 +42,7 @@
     .glass-card { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(59, 130, 246, 0.2); }
   </style>
 </head>
-<body class="bg-[#FAF8F5] dark:bg-[#070709] text-[#1C1917] dark:text-[#F4F4F6] font-sans min-h-screen flex flex-col antialiased transition-colors duration-200">
+<body class="bg-[#FAF8F5] dark:bg-[#070709] text-[#1C1917] dark:text-[#F4F4F6] font-sans h-screen flex flex-col overflow-hidden portal-body antialiased transition-colors duration-200">
 
 <header class="sticky top-0 z-50 w-full bg-white/85 dark:bg-[#070709]/90 backdrop-blur-md border-b border-[#E7E4DC] dark:border-white/5 transition-colors duration-200">
   <div class="w-full px-3 sm:px-6 py-2 flex items-center justify-between">
@@ -103,7 +103,7 @@
 </div>
 
 <!-- LAYOUT BODY -->
-<div class="flex-1 flex overflow-hidden">
+<div class="flex-1 flex overflow-hidden min-h-0">
   <!-- DESKTOP SIDEBAR -->
   <aside id="industry-sidebar" class="hidden lg:flex h-full w-64 bg-white/95 dark:bg-[#101115]/95 border-r border-[#E7E4DC] dark:border-white/5 backdrop-blur-md p-3.5 flex-col justify-between shrink-0 overflow-y-auto custom-scrollbar">
     <div class="space-y-1">
@@ -159,7 +159,7 @@
   </aside>
 
   <!-- WORKSPACE -->
-  <main class="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 custom-scrollbar space-y-6">
+  <main class="flex-1 overflow-y-auto min-h-0 px-4 sm:px-6 lg:px-8 py-6 custom-scrollbar space-y-6">
     <!-- Hero Banner -->
     <div class="p-8 rounded-3xl bg-gradient-to-r from-blue-950/60 via-indigo-950/40 to-gray-950 border border-blue-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
       <div class="space-y-2">
@@ -251,6 +251,9 @@
         </div>
       </div>
 
+      <footer class="w-full text-center py-6 mt-8 border-t border-slate-200 dark:border-gray-800/80 text-xs text-[#6E6962] dark:text-gray-500">
+        JOBLEX Industry Portal &copy; 2026. All rights reserved.
+      </footer>
     </div>
   </main>
 </div>
@@ -291,10 +294,6 @@
     </form>
   </div>
 </div>
-
-<footer class="w-full bg-gray-950 border-t border-gray-800 text-center py-4 text-xs text-gray-500">
-  JOBLEX Industry Portal &copy; 2026. All rights reserved.
-</footer>
 
 <script src="/js/frontend/api-client.js"></script>
 <script src="/js/frontend/notifications.js"></script>

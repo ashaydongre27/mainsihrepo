@@ -221,21 +221,86 @@ html.dark .portal-card:hover, html.dark .bento-card:hover {
 /* Scroll-Driven Reveal Cascade Animations */
 .reveal-on-scroll {
   opacity: 0;
-  transform: translateY(20px) scale(0.99);
+  transform: translateY(24px) scale(0.99);
   transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
 
-.reveal-on-scroll.is-revealed {
-  opacity: 1;
-  transform: translateY(0) scale(1);
+.reveal-from-left {
+  opacity: 0;
+  transform: translateX(-28px);
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
 }
 
+.reveal-from-right {
+  opacity: 0;
+  transform: translateX(28px);
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-revealed,
+.reveal-from-left.is-revealed,
+.reveal-from-right.is-revealed,
+.reveal-scale.is-revealed {
+  opacity: 1;
+  transform: translate(0, 0) scale(1);
+}
+
+.delay-75 { transition-delay: 75ms; }
 .delay-100 { transition-delay: 100ms; }
+.delay-150 { transition-delay: 150ms; }
 .delay-200 { transition-delay: 200ms; }
 .delay-300 { transition-delay: 300ms; }
 .delay-400 { transition-delay: 400ms; }
 .delay-500 { transition-delay: 500ms; }
+
+/* Sticky Header Scroll Elevation */
+header.header-scrolled {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+  border-bottom-color: rgba(231, 228, 220, 0.95);
+}
+html.dark header.header-scrolled {
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7), 0 1px 0 0 rgba(255, 255, 255, 0.08);
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Scroll-to-Top Floating Button */
+#scroll-to-top-btn {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px) scale(0.92);
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#scroll-to-top-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+/* Respect Prefers Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-on-scroll,
+  .reveal-from-left,
+  .reveal-from-right,
+  .reveal-scale {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .ambient-glow-orb-1,
+  .ambient-glow-orb-2 {
+    animation: none !important;
+  }
+}
 
 /* Shimmer Light Sweep on Primary CTA */
 .shimmer-btn {
@@ -380,8 +445,47 @@ html.dark #three-canvas-container {
 }
 
 /* =============================================================
-   COLLAPSIBLE SIDEBAR STYLES (Zero Framework / Pure CSS)
+   FIXED VIEWPORT & COLLAPSIBLE SIDEBAR STYLES (Zero Framework / Pure CSS)
    ============================================================= */
+/* Pin all portal pages to full viewport so the sidebar & top header stay firmly fixed while scrolling */
+html:has(#student-sidebar),
+html:has(#academy-sidebar),
+html:has(#industry-sidebar),
+body:has(#student-sidebar),
+body:has(#academy-sidebar),
+body:has(#industry-sidebar),
+body.portal-body {
+  height: 100% !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+}
+
+/* Ensure the layout row fits exactly beneath the fixed/sticky header */
+body:has(#student-sidebar) > div.flex-1,
+body:has(#academy-sidebar) > div.flex-1,
+body:has(#industry-sidebar) > div.flex-1,
+body.portal-body > div.flex-1 {
+  min-height: 0 !important;
+  height: calc(100vh - 57px) !important;
+  height: calc(100dvh - 57px) !important;
+  max-height: calc(100vh - 57px) !important;
+  overflow: hidden !important;
+}
+
+/* Ensure main content area is the dedicated, independent scrolling container */
+body:has(#student-sidebar) main,
+body:has(#academy-sidebar) main,
+body:has(#industry-sidebar) main,
+body.portal-body main {
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: contain;
+}
+
 #student-sidebar,
 #academy-sidebar,
 #industry-sidebar {
@@ -394,11 +498,9 @@ html.dark #three-canvas-container {
   #student-sidebar,
   #academy-sidebar,
   #industry-sidebar {
-    position: sticky !important;
-    top: 57px !important;
-    height: calc(100vh - 57px) !important;
-    max-height: calc(100vh - 57px) !important;
-    align-self: flex-start !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    align-self: stretch !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
     overscroll-behavior: contain;
@@ -579,6 +681,60 @@ textarea:focus-visible {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+/* Home Page Interactive UX Components */
+.hero-role-tab {
+  color: #6E6962;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  user-select: none;
+}
+html.dark .hero-role-tab {
+  color: #8E929B;
+}
+.hero-role-tab:hover {
+  color: #1C1917;
+}
+html.dark .hero-role-tab:hover {
+  color: #F4F4F6;
+}
+.hero-role-tab.active {
+  background: #FFFFFF;
+  color: #1C1917;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+html.dark .hero-role-tab.active {
+  background: #1C1E24;
+  color: #F4F4F6;
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.08) inset, 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.vector-bar-fill {
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease;
+}
+
+.synergy-step-btn {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.synergy-step-btn.active {
+  background: #2D5542;
+  color: #FFFFFF;
+  border-color: #2D5542;
+}
+html.dark .synergy-step-btn.active {
+  background: #4EBA87;
+  color: #070709;
+  border-color: #4EBA87;
+}
+
+#mobile-nav-drawer {
+  transition: max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+}
+#mobile-nav-drawer.hidden {
+  display: none;
 }
 
 body.mobile-menu-open {

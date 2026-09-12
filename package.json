@@ -1,14 +1,14 @@
 {
-  "name": "mainsihrepo",
+  "name": "joblex",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "scripts": {
     "start": "node backend/server.js",
     "server": "node backend/server.js",
-    "server:flask": "python backend/app.py",
     "dev": "node backend/server.js",
     "build": "node build.js",
-    "preview": "node backend/server.js"
+    "preview": "node backend/server.js",
+    "lint": "node -c backend/server.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

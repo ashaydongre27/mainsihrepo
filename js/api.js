@@ -10,7 +10,7 @@
  * - Bilingual Hindi/English Support
  */
 
-const API_BASE = window.JOBLEX_API_URL || 'http://127.0.0.1:5000/api';
+const API_BASE = window.JOBLEX_API_URL || '/api';
 
 const JoblexAPI = {
   // Session / User Storage
